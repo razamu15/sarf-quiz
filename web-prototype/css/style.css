@@ -41,6 +41,40 @@ h1 { font-size: 26px; letter-spacing: -0.02em; }
 h1 .ar { font-family: var(--arabic); font-size: 30px; margin-inline-start: 8px; color: var(--accent); }
 .subtitle { color: var(--ink-dim); font-size: 14px; line-height: 1.5; }
 
+.tabs {
+  display: flex;
+  gap: 6px;
+  background: var(--card);
+  border-radius: 12px;
+  padding: 4px;
+}
+.tab {
+  flex: 1;
+  border: 0;
+  background: none;
+  color: var(--ink-dim);
+  font-family: var(--latin);
+  font-size: 14px;
+  font-weight: 600;
+  padding: 10px;
+  border-radius: 9px;
+  cursor: pointer;
+}
+.tab.on { background: var(--card2); color: var(--ink); }
+
+.preset {
+  background: var(--card);
+  border: 1px solid #303a4d;
+  border-radius: var(--radius);
+  padding: 16px;
+}
+.preset.off { opacity: 0.45; }
+.preset-head { display: flex; align-items: center; justify-content: space-between; gap: 14px; }
+.preset b { font-size: 16px; }
+.preset .ar { font-family: var(--arabic); font-size: 20px; margin-inline-start: 8px; color: var(--accent); }
+.preset-desc { color: var(--ink-dim); font-size: 13px; margin-top: 4px; line-height: 1.5; }
+.btn.small { padding: 10px 18px; font-size: 15px; border-radius: 12px; white-space: nowrap; }
+
 .section-label {
   font-size: 12px;
   text-transform: uppercase;
@@ -103,6 +137,19 @@ h1 .ar { font-family: var(--arabic); font-size: 30px; margin-inline-start: 8px; 
   line-height: 1.9;
   direction: rtl;
 }
+.word-card .word-tag {
+  font-size: 12px;
+  color: var(--ink-dim);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+.word-card .gloss {
+  color: var(--ink-dim);
+  font-size: 16px;
+  font-style: italic;
+  margin-top: 2px;
+}
 .word-card .cat {
   display: inline-block;
   margin-top: 10px;
@@ -148,6 +195,14 @@ h1 .ar { font-family: var(--arabic); font-size: 30px; margin-inline-start: 8px; 
 .feedback.good { border-inline-start: 3px solid var(--good); }
 .feedback.bad { border-inline-start: 3px solid var(--bad); }
 .feedback .ar { font-family: var(--arabic); font-size: 19px; }
+.feedback .meaning {
+  font-size: 15px;
+  padding-bottom: 8px;
+  margin-bottom: 8px;
+  border-bottom: 1px solid rgba(147, 160, 180, 0.2);
+}
+.feedback .meaning .ar { font-size: 24px; }
+.review .item.vocab { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
 
 /* --- results --- */
 .score-ring {

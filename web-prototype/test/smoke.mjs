@@ -4,6 +4,8 @@
 
 import { ROOTS } from '../js/data/roots.js';
 import { conjugate, derivedNoun, waznOf, fullTable } from '../js/engine/conjugator.js';
+import { verbMeaning, derivedMeaning } from '../js/engine/meaning.js';
+import { buildSimpleQuiz, PRESETS } from '../js/engine/quizgen.js';
 
 const byRoot = (letters) => ROOTS.find((r) => r.root.join('') === letters);
 
@@ -115,12 +117,36 @@ const cases = [
   [conjugate(qala, 'I', 'madi', 'malum', '3fp'), 'قُلْنَ'],
   [conjugate(qala, 'I', 'mudari', 'malum', '2fs'), 'تَقُولِينَ'],
   [conjugate(qala, 'I', 'amr', 'malum', '2ms'), 'قُلْ'],
-  [conjugate(qala, 'I', 'madi', 'majhul', '3ms'), null], // no table authored yet
+  [conjugate(qala, 'I', 'madi', 'majhul', '3ms'), 'قِيلَ'],
+  [conjugate(qala, 'I', 'mudari', 'majhul', '3ms'), 'يُقَالُ'],
+
+  // Hand-authored nāqiṣ (رمي)
+  [conjugate(byRoot('رمي'), 'I', 'madi', 'malum', '3ms'), 'رَمَى'],
+  [conjugate(byRoot('رمي'), 'I', 'madi', 'malum', '3mp'), 'رَمَوْا'],
+  [conjugate(byRoot('رمي'), 'I', 'mudari', 'malum', '3ms'), 'يَرْمِي'],
+  [conjugate(byRoot('رمي'), 'I', 'madi', 'majhul', '3ms'), 'رُمِيَ'],
+  [conjugate(byRoot('رمي'), 'I', 'mudari', 'majhul', '3ms'), 'يُرْمَى'],
+  [conjugate(byRoot('رمي'), 'I', 'amr', 'malum', '2ms'), 'اِرْمِ'],
+
+  // English meaning rendering
+  [verbMeaning(kataba, 'I', 'madi', 'malum', '3ms'), 'he wrote'],
+  [verbMeaning(kataba, 'I', 'madi', 'majhul', '3fs'), 'she was written'],
+  [verbMeaning(alima, 'II', 'mudari', 'malum', '3fs'), 'she teaches / will teach'],
+  [verbMeaning(alima, 'II', 'mudari', 'malum', '3mp'), 'they (m, 3+) teach / will teach'],
+  [verbMeaning(alima, 'II', 'madi', 'majhul', '1s'), 'I was taught'],
+  [verbMeaning(kataba, 'I', 'amr', 'malum', '2fs'), 'write! (you (f))'],
+  [verbMeaning(byRoot('سلم'), 'I', 'madi', 'malum', '3mp'), 'they (m, 3+) were safe'],
+  [verbMeaning(byRoot('سلم'), 'I', 'mudari', 'malum', '3ms'), 'he is safe / will be safe'],
+  [verbMeaning(qala, 'I', 'madi', 'majhul', '3ms'), 'he was said'],
+  [derivedMeaning(alima, 'II', 'ismFail'), 'one who teaches'],
+  [derivedMeaning(kataba, 'I', 'ismMaful'), 'that which is written'],
+  [derivedMeaning(kataba, 'I', 'masdar'), 'writing (the act itself)'],
 ];
 
 let pass = 0, fail = 0;
+const nfc = (s) => (typeof s === 'string' ? s.normalize('NFC') : s);
 for (const [got, want] of cases) {
-  if (got === want) { pass++; continue; }
+  if (nfc(got) === nfc(want)) { pass++; continue; }
   fail++;
   console.log(`FAIL: got ${JSON.stringify(got)} want ${JSON.stringify(want)}`);
   if (got && want) {
@@ -133,5 +159,19 @@ console.log(`\n${pass} passed, ${fail} failed`);
 // Eyeball table: عَلَّمَ full madi
 console.log('\nForm II madi (علم):', Object.values(fullTable(alima, 'II', 'madi', 'malum')).join(' | '));
 console.log('Form I mudari (كتب):', Object.values(fullTable(kataba, 'I', 'mudari', 'malum')).join(' | '));
+
+// Simple-quiz builder: each available preset must yield 5 words × 3 questions
+for (const preset of PRESETS.filter((p) => ['salim', 'ajwaf', 'naqis', 'mixed'].includes(p.id))) {
+  const quiz = buildSimpleQuiz(preset);
+  const cats = quiz.map((q) => q.category).join(',');
+  const ok = quiz.length === 15
+    && cats === Array(5).fill('tense,voice,doer').join(',')
+    && quiz.every((q) => q.gloss && q.fullMeaning && q.tag);
+  if (ok) { pass++; } else {
+    fail++;
+    console.log(`FAIL: preset ${preset.id} → ${quiz.length} questions [${cats}]`);
+  }
+}
+console.log(`\nwith presets: ${pass} passed, ${fail} failed`);
 
 process.exit(fail ? 1 : 0);

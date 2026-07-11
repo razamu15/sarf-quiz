@@ -1,9 +1,12 @@
-// UI layer: three screens (home → quiz → results) rendered into #app.
+// UI layer: home (quick presets | custom builder) → quiz → results.
 // All sarf logic lives in engine/ — this file only draws and routes.
 
 import { FORM_IDS, FORMS, VERB_TYPES } from './data/patterns.js';
 import { ROOTS } from './data/roots.js';
-import { buildQuiz, CATEGORIES } from './engine/quizgen.js';
+import {
+  buildQuiz, buildSimpleQuiz, CATEGORIES, PRESETS, presetAvailable,
+  WORDS_PER_SIMPLE_QUIZ,
+} from './engine/quizgen.js';
 
 const app = document.getElementById('app');
 
@@ -11,6 +14,7 @@ const app = document.getElementById('app');
 const AVAILABLE_TYPES = new Set(ROOTS.map((r) => r.type));
 
 const state = {
+  tab: 'quick', // 'quick' | 'custom'
   settings: {
     categories: ['tense', 'voice', 'doer', 'wazn'],
     forms: ['I', 'II', 'V', 'X'],
@@ -40,6 +44,49 @@ function renderHome() {
     </div>`),
   );
 
+  const tabs = el(`<div class="tabs">
+    <button class="tab ${state.tab === 'quick' ? 'on' : ''}" data-tab="quick">Quick quizzes</button>
+    <button class="tab ${state.tab === 'custom' ? 'on' : ''}" data-tab="custom">Custom practice</button>
+  </div>`);
+  tabs.querySelectorAll('.tab').forEach((t) => {
+    t.onclick = () => { state.tab = t.dataset.tab; renderHome(); };
+  });
+  app.append(tabs);
+
+  if (state.tab === 'quick') renderQuickTab();
+  else renderCustomTab();
+}
+
+function renderQuickTab() {
+  app.append(el(`<p class="subtitle">Ready-to-go drills: ${WORDS_PER_SIMPLE_QUIZ} words,
+    3 questions per word — tense, maʿlūm/majhūl, then the pronoun.</p>`));
+
+  for (const preset of PRESETS) {
+    const available = presetAvailable(preset);
+    const card = el(`<div class="preset ${available ? '' : 'off'}">
+      <div class="preset-head">
+        <div>
+          <b>${preset.title}</b><span class="ar">${preset.ar}</span>
+          <div class="preset-desc">${preset.desc}</div>
+        </div>
+        <button class="btn primary small" ${available ? '' : 'disabled'}>
+          ${available ? 'Start' : 'Soon'}
+        </button>
+      </div>
+    </div>`);
+    if (available) {
+      card.querySelector('button').onclick = () => {
+        state.rebuild = () => buildSimpleQuiz(preset);
+        const quiz = state.rebuild();
+        if (!quiz.length) return alert('No questions possible for this preset yet.');
+        beginQuiz(quiz);
+      };
+    }
+    app.append(card);
+  }
+}
+
+function renderCustomTab() {
   // categories
   app.append(el(`<div class="section-label">What to quiz</div>`));
   const catChips = el(`<div class="chips"></div>`);
@@ -89,7 +136,15 @@ function renderHome() {
   const start = el(`<button class="btn primary">Start quiz</button>`);
   const ready = state.settings.categories.length && state.settings.forms.length && state.settings.types.length;
   start.disabled = !ready;
-  start.onclick = startQuiz;
+  start.onclick = () => {
+    state.rebuild = () => buildQuiz(state.settings);
+    const quiz = state.rebuild();
+    if (!quiz.length) {
+      alert('No questions possible for this selection — widen the forms or categories.');
+      return;
+    }
+    beginQuiz(quiz);
+  };
   app.append(start);
 }
 
@@ -101,12 +156,7 @@ function toggle(arr, val) {
 // --------------------------------------------------------------------------
 // Quiz
 // --------------------------------------------------------------------------
-function startQuiz() {
-  const quiz = buildQuiz(state.settings);
-  if (!quiz.length) {
-    alert('No questions possible for this selection — widen the forms or categories.');
-    return;
-  }
+function beginQuiz(quiz) {
   state.quiz = quiz;
   state.index = 0;
   state.answers = [];
@@ -126,7 +176,9 @@ function renderQuestion() {
   app.append(bar);
 
   app.append(el(`<div class="word-card">
+    ${q.tag ? `<div class="word-tag">${q.tag}</div>` : ''}
     <div class="word">${q.word}</div>
+    ${q.gloss ? `<div class="gloss">“${q.gloss}”</div>` : ''}
     <span class="cat">${CATEGORIES[q.category].label}</span>
   </div>`));
   app.append(el(`<div class="prompt">${q.prompt}</div>`));
@@ -153,6 +205,7 @@ function answer(picked, opts, q) {
   });
 
   app.append(el(`<div class="feedback ${correct ? 'good' : 'bad'}">
+    ${q.fullMeaning ? `<div class="meaning"><span class="ar">${q.word}</span> — “${q.fullMeaning}”</div>` : ''}
     <b>${correct ? 'Correct!' : 'Not quite.'}</b> ${q.explanation}
   </div>`));
 
@@ -196,6 +249,19 @@ function renderResults() {
   }
   app.append(el(`<div class="section-label">By category</div>`), breakdown);
 
+  // vocab recap: every word seen this quiz, with its contextual meaning
+  const vocab = new Map();
+  for (const a of state.answers) {
+    if (a.question.fullMeaning) vocab.set(a.question.word, a.question.fullMeaning);
+  }
+  if (vocab.size) {
+    const list = el(`<div class="review"></div>`);
+    for (const [word, meaning] of vocab) {
+      list.append(el(`<div class="item vocab"><span class="ar">${word}</span> — “${meaning}”</div>`));
+    }
+    app.append(el(`<div class="section-label">Vocab from this quiz</div>`), list);
+  }
+
   const missed = state.answers.filter((a) => !a.correct);
   if (missed.length) {
     const review = el(`<div class="review"></div>`);
@@ -208,9 +274,9 @@ function renderResults() {
   }
 
   app.append(el(`<div class="spacer"></div>`));
-  const again = el(`<button class="btn primary">Quiz again</button>`);
-  again.onclick = startQuiz;
-  const home = el(`<button class="btn ghost">Change settings</button>`);
+  const again = el(`<button class="btn primary">New round (same setup)</button>`);
+  again.onclick = () => beginQuiz(state.rebuild());
+  const home = el(`<button class="btn ghost">Back to quizzes</button>`);
   home.onclick = renderHome;
   app.append(again, home);
 }
