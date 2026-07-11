@@ -1,0 +1,1010 @@
+{
+  "roots": [
+    {
+      "radicals": [
+        "ك",
+        "ت",
+        "ب"
+      ],
+      "type": "salim",
+      "forms": {
+        "I": {
+          "bab": 1,
+          "gloss": "to write",
+          "masdar": "كِتَابَة",
+          "isTransitive": true,
+          "english": {
+            "past": "wrote",
+            "pp": "written",
+            "pres3": "writes",
+            "ing": "writing"
+          },
+          "tables": null
+        }
+      }
+    },
+    {
+      "radicals": [
+        "ن",
+        "ص",
+        "ر"
+      ],
+      "type": "salim",
+      "forms": {
+        "I": {
+          "bab": 1,
+          "gloss": "to help",
+          "masdar": "نَصْر",
+          "isTransitive": true,
+          "english": {
+            "past": "helped",
+            "pp": "helped",
+            "pres3": "helps",
+            "ing": "helping"
+          },
+          "tables": null
+        }
+      }
+    },
+    {
+      "radicals": [
+        "خ",
+        "ر",
+        "ج"
+      ],
+      "type": "salim",
+      "forms": {
+        "I": {
+          "bab": 1,
+          "gloss": "to go out",
+          "masdar": "خُرُوج",
+          "isTransitive": false,
+          "english": {
+            "past": "went out",
+            "pres3": "goes out",
+            "ing": "going out"
+          },
+          "tables": null
+        },
+        "IV": {
+          "bab": null,
+          "gloss": "to expel / bring out",
+          "masdar": null,
+          "isTransitive": true,
+          "english": {
+            "past": "expelled",
+            "pp": "expelled",
+            "pres3": "expels",
+            "ing": "expelling"
+          },
+          "tables": null
+        },
+        "X": {
+          "bab": null,
+          "gloss": "to extract",
+          "masdar": null,
+          "isTransitive": true,
+          "english": {
+            "past": "extracted",
+            "pp": "extracted",
+            "pres3": "extracts",
+            "ing": "extracting"
+          },
+          "tables": null
+        }
+      }
+    },
+    {
+      "radicals": [
+        "ن",
+        "ظ",
+        "ر"
+      ],
+      "type": "salim",
+      "forms": {
+        "I": {
+          "bab": 1,
+          "gloss": "to look",
+          "masdar": "نَظَر",
+          "isTransitive": true,
+          "english": {
+            "past": "looked",
+            "pp": "looked at",
+            "pres3": "looks",
+            "ing": "looking"
+          },
+          "tables": null
+        },
+        "VIII": {
+          "bab": null,
+          "gloss": "to wait for",
+          "masdar": null,
+          "isTransitive": true,
+          "english": {
+            "past": "waited for",
+            "pp": "waited for",
+            "pres3": "waits for",
+            "ing": "waiting for"
+          },
+          "tables": null
+        }
+      }
+    },
+    {
+      "radicals": [
+        "ق",
+        "ت",
+        "ل"
+      ],
+      "type": "salim",
+      "forms": {
+        "I": {
+          "bab": 1,
+          "gloss": "to kill",
+          "masdar": "قَتْل",
+          "isTransitive": true,
+          "english": {
+            "past": "killed",
+            "pp": "killed",
+            "pres3": "kills",
+            "ing": "killing"
+          },
+          "tables": null
+        },
+        "III": {
+          "bab": null,
+          "gloss": "to fight",
+          "masdar": null,
+          "isTransitive": true,
+          "english": {
+            "past": "fought",
+            "pp": "fought",
+            "pres3": "fights",
+            "ing": "fighting"
+          },
+          "tables": null
+        }
+      }
+    },
+    {
+      "radicals": [
+        "ض",
+        "ر",
+        "ب"
+      ],
+      "type": "salim",
+      "forms": {
+        "I": {
+          "bab": 2,
+          "gloss": "to hit",
+          "masdar": "ضَرْب",
+          "isTransitive": true,
+          "english": {
+            "past": "hit",
+            "pp": "hit",
+            "pres3": "hits",
+            "ing": "hitting"
+          },
+          "tables": null
+        }
+      }
+    },
+    {
+      "radicals": [
+        "ج",
+        "ل",
+        "س"
+      ],
+      "type": "salim",
+      "forms": {
+        "I": {
+          "bab": 2,
+          "gloss": "to sit",
+          "masdar": "جُلُوس",
+          "isTransitive": false,
+          "english": {
+            "past": "sat",
+            "pres3": "sits",
+            "ing": "sitting"
+          },
+          "tables": null
+        }
+      }
+    },
+    {
+      "radicals": [
+        "ك",
+        "س",
+        "ر"
+      ],
+      "type": "salim",
+      "forms": {
+        "I": {
+          "bab": 2,
+          "gloss": "to break",
+          "masdar": "كَسْر",
+          "isTransitive": true,
+          "english": {
+            "past": "broke",
+            "pp": "broken",
+            "pres3": "breaks",
+            "ing": "breaking"
+          },
+          "tables": null
+        },
+        "II": {
+          "bab": null,
+          "gloss": "to smash to pieces",
+          "masdar": null,
+          "isTransitive": true,
+          "english": {
+            "past": "smashed",
+            "pp": "smashed",
+            "pres3": "smashes",
+            "ing": "smashing"
+          },
+          "tables": null
+        },
+        "VII": {
+          "bab": null,
+          "gloss": "to get broken",
+          "masdar": null,
+          "isTransitive": false,
+          "english": {
+            "past": "got broken",
+            "pres3": "gets broken",
+            "ing": "getting broken"
+          },
+          "tables": null
+        }
+      }
+    },
+    {
+      "radicals": [
+        "غ",
+        "ف",
+        "ر"
+      ],
+      "type": "salim",
+      "forms": {
+        "I": {
+          "bab": 2,
+          "gloss": "to forgive",
+          "masdar": "مَغْفِرَة",
+          "isTransitive": true,
+          "english": {
+            "past": "forgave",
+            "pp": "forgiven",
+            "pres3": "forgives",
+            "ing": "forgiving"
+          },
+          "tables": null
+        },
+        "X": {
+          "bab": null,
+          "gloss": "to seek forgiveness",
+          "masdar": null,
+          "isTransitive": true,
+          "english": {
+            "past": "sought forgiveness",
+            "pp": "asked for forgiveness",
+            "pres3": "seeks forgiveness",
+            "ing": "seeking forgiveness"
+          },
+          "tables": null
+        }
+      }
+    },
+    {
+      "radicals": [
+        "ف",
+        "ت",
+        "ح"
+      ],
+      "type": "salim",
+      "forms": {
+        "I": {
+          "bab": 3,
+          "gloss": "to open",
+          "masdar": "فَتْح",
+          "isTransitive": true,
+          "english": {
+            "past": "opened",
+            "pp": "opened",
+            "pres3": "opens",
+            "ing": "opening"
+          },
+          "tables": null
+        }
+      }
+    },
+    {
+      "radicals": [
+        "ج",
+        "م",
+        "ع"
+      ],
+      "type": "salim",
+      "forms": {
+        "I": {
+          "bab": 3,
+          "gloss": "to gather",
+          "masdar": "جَمْع",
+          "isTransitive": true,
+          "english": {
+            "past": "gathered",
+            "pp": "gathered",
+            "pres3": "gathers",
+            "ing": "gathering"
+          },
+          "tables": null
+        },
+        "VIII": {
+          "bab": null,
+          "gloss": "to assemble / meet",
+          "masdar": null,
+          "isTransitive": false,
+          "english": {
+            "past": "assembled",
+            "pres3": "assembles",
+            "ing": "assembling"
+          },
+          "tables": null
+        }
+      }
+    },
+    {
+      "radicals": [
+        "ظ",
+        "ه",
+        "ر"
+      ],
+      "type": "salim",
+      "forms": {
+        "I": {
+          "bab": 3,
+          "gloss": "to appear",
+          "masdar": "ظُهُور",
+          "isTransitive": false,
+          "english": {
+            "past": "appeared",
+            "pres3": "appears",
+            "ing": "appearing"
+          },
+          "tables": null
+        },
+        "IV": {
+          "bab": null,
+          "gloss": "to reveal",
+          "masdar": null,
+          "isTransitive": true,
+          "english": {
+            "past": "revealed",
+            "pp": "revealed",
+            "pres3": "reveals",
+            "ing": "revealing"
+          },
+          "tables": null
+        },
+        "VI": {
+          "bab": null,
+          "gloss": "to pretend / demonstrate",
+          "masdar": null,
+          "isTransitive": false,
+          "english": {
+            "past": "pretended",
+            "pres3": "pretends",
+            "ing": "pretending"
+          },
+          "tables": null
+        }
+      }
+    },
+    {
+      "radicals": [
+        "س",
+        "م",
+        "ع"
+      ],
+      "type": "salim",
+      "forms": {
+        "I": {
+          "bab": 4,
+          "gloss": "to hear",
+          "masdar": "سَمْع",
+          "isTransitive": true,
+          "english": {
+            "past": "heard",
+            "pp": "heard",
+            "pres3": "hears",
+            "ing": "hearing"
+          },
+          "tables": null
+        },
+        "VIII": {
+          "bab": null,
+          "gloss": "to listen",
+          "masdar": null,
+          "isTransitive": false,
+          "english": {
+            "past": "listened",
+            "pres3": "listens",
+            "ing": "listening"
+          },
+          "tables": null
+        }
+      }
+    },
+    {
+      "radicals": [
+        "ش",
+        "ر",
+        "ب"
+      ],
+      "type": "salim",
+      "forms": {
+        "I": {
+          "bab": 4,
+          "gloss": "to drink",
+          "masdar": "شُرْب",
+          "isTransitive": true,
+          "english": {
+            "past": "drank",
+            "pp": "drunk",
+            "pres3": "drinks",
+            "ing": "drinking"
+          },
+          "tables": null
+        }
+      }
+    },
+    {
+      "radicals": [
+        "ع",
+        "ل",
+        "م"
+      ],
+      "type": "salim",
+      "forms": {
+        "I": {
+          "bab": 4,
+          "gloss": "to know",
+          "masdar": "عِلْم",
+          "isTransitive": true,
+          "english": {
+            "past": "knew",
+            "pp": "known",
+            "pres3": "knows",
+            "ing": "knowing"
+          },
+          "tables": null
+        },
+        "II": {
+          "bab": null,
+          "gloss": "to teach",
+          "masdar": null,
+          "isTransitive": true,
+          "english": {
+            "past": "taught",
+            "pp": "taught",
+            "pres3": "teaches",
+            "ing": "teaching"
+          },
+          "tables": null
+        },
+        "V": {
+          "bab": null,
+          "gloss": "to learn",
+          "masdar": null,
+          "isTransitive": false,
+          "english": {
+            "past": "learned",
+            "pres3": "learns",
+            "ing": "learning"
+          },
+          "tables": null
+        },
+        "X": {
+          "bab": null,
+          "gloss": "to inquire",
+          "masdar": null,
+          "isTransitive": true,
+          "english": {
+            "past": "inquired",
+            "pp": "inquired about",
+            "pres3": "inquires",
+            "ing": "inquiring"
+          },
+          "tables": null
+        }
+      }
+    },
+    {
+      "radicals": [
+        "س",
+        "ل",
+        "م"
+      ],
+      "type": "salim",
+      "forms": {
+        "I": {
+          "bab": 4,
+          "gloss": "to be safe",
+          "masdar": "سَلَامَة",
+          "isTransitive": false,
+          "english": null,
+          "tables": null
+        },
+        "II": {
+          "bab": null,
+          "gloss": "to greet / hand over",
+          "masdar": null,
+          "isTransitive": true,
+          "english": {
+            "past": "greeted",
+            "pp": "greeted",
+            "pres3": "greets",
+            "ing": "greeting"
+          },
+          "tables": null
+        },
+        "IV": {
+          "bab": null,
+          "gloss": "to submit (Islam)",
+          "masdar": null,
+          "isTransitive": false,
+          "english": {
+            "past": "submitted",
+            "pres3": "submits",
+            "ing": "submitting"
+          },
+          "tables": null
+        },
+        "X": {
+          "bab": null,
+          "gloss": "to surrender",
+          "masdar": null,
+          "isTransitive": false,
+          "english": {
+            "past": "surrendered",
+            "pres3": "surrenders",
+            "ing": "surrendering"
+          },
+          "tables": null
+        }
+      }
+    },
+    {
+      "radicals": [
+        "ك",
+        "ر",
+        "م"
+      ],
+      "type": "salim",
+      "forms": {
+        "I": {
+          "bab": 5,
+          "gloss": "to be noble",
+          "masdar": "كَرَم",
+          "isTransitive": false,
+          "english": null,
+          "tables": null
+        },
+        "IV": {
+          "bab": null,
+          "gloss": "to honor",
+          "masdar": null,
+          "isTransitive": true,
+          "english": {
+            "past": "honored",
+            "pp": "honored",
+            "pres3": "honors",
+            "ing": "honoring"
+          },
+          "tables": null
+        }
+      }
+    },
+    {
+      "radicals": [
+        "ق",
+        "د",
+        "م"
+      ],
+      "type": "salim",
+      "forms": {
+        "I": {
+          "bab": 5,
+          "gloss": "to be old / ancient",
+          "masdar": "قِدَم",
+          "isTransitive": false,
+          "english": null,
+          "tables": null
+        },
+        "II": {
+          "bab": null,
+          "gloss": "to present / offer",
+          "masdar": null,
+          "isTransitive": true,
+          "english": {
+            "past": "presented",
+            "pp": "presented",
+            "pres3": "presents",
+            "ing": "presenting"
+          },
+          "tables": null
+        },
+        "V": {
+          "bab": null,
+          "gloss": "to advance",
+          "masdar": null,
+          "isTransitive": false,
+          "english": {
+            "past": "advanced",
+            "pres3": "advances",
+            "ing": "advancing"
+          },
+          "tables": null
+        }
+      }
+    },
+    {
+      "radicals": [
+        "ح",
+        "س",
+        "ب"
+      ],
+      "type": "salim",
+      "forms": {
+        "I": {
+          "bab": 6,
+          "gloss": "to deem / suppose",
+          "masdar": "حُسْبَان",
+          "isTransitive": true,
+          "english": {
+            "past": "deemed",
+            "pp": "deemed",
+            "pres3": "deems",
+            "ing": "deeming"
+          },
+          "tables": null
+        }
+      }
+    },
+    {
+      "radicals": [
+        "ش",
+        "ر",
+        "ك"
+      ],
+      "type": "salim",
+      "forms": {
+        "III": {
+          "bab": null,
+          "gloss": "to partner with",
+          "masdar": null,
+          "isTransitive": true,
+          "english": {
+            "past": "partnered with",
+            "pp": "partnered with",
+            "pres3": "partners with",
+            "ing": "partnering with"
+          },
+          "tables": null
+        },
+        "VIII": {
+          "bab": null,
+          "gloss": "to participate",
+          "masdar": null,
+          "isTransitive": false,
+          "english": {
+            "past": "participated",
+            "pres3": "participates",
+            "ing": "participating"
+          },
+          "tables": null
+        }
+      }
+    },
+    {
+      "radicals": [
+        "ح",
+        "م",
+        "ر"
+      ],
+      "type": "salim",
+      "forms": {
+        "IX": {
+          "bab": null,
+          "gloss": "to turn red",
+          "masdar": null,
+          "isTransitive": false,
+          "english": {
+            "past": "turned red",
+            "pres3": "turns red",
+            "ing": "turning red"
+          },
+          "tables": null
+        }
+      }
+    },
+    {
+      "radicals": [
+        "ص",
+        "ف",
+        "ر"
+      ],
+      "type": "salim",
+      "forms": {
+        "IX": {
+          "bab": null,
+          "gloss": "to turn yellow",
+          "masdar": null,
+          "isTransitive": false,
+          "english": {
+            "past": "turned yellow",
+            "pres3": "turns yellow",
+            "ing": "turning yellow"
+          },
+          "tables": null
+        }
+      }
+    },
+    {
+      "radicals": [
+        "ق",
+        "و",
+        "ل"
+      ],
+      "type": "ajwaf",
+      "forms": {
+        "I": {
+          "bab": 1,
+          "gloss": "to say",
+          "masdar": "قَوْل",
+          "isTransitive": true,
+          "english": {
+            "past": "said",
+            "pp": "said",
+            "pres3": "says",
+            "ing": "saying"
+          },
+          "tables": {
+            "madi_malum": {
+              "3ms": "قَالَ",
+              "3md": "قَالَا",
+              "3mp": "قَالُوا",
+              "3fs": "قَالَتْ",
+              "3fd": "قَالَتَا",
+              "3fp": "قُلْنَ",
+              "2ms": "قُلْتَ",
+              "2md": "قُلْتُمَا",
+              "2mp": "قُلْتُمْ",
+              "2fs": "قُلْتِ",
+              "2fd": "قُلْتُمَا",
+              "2fp": "قُلْتُنَّ",
+              "1s": "قُلْتُ",
+              "1p": "قُلْنَا"
+            },
+            "madi_majhul": {
+              "3ms": "قِيلَ",
+              "3md": "قِيلَا",
+              "3mp": "قِيلُوا",
+              "3fs": "قِيلَتْ",
+              "3fd": "قِيلَتَا",
+              "3fp": "قِلْنَ",
+              "2ms": "قِلْتَ",
+              "2md": "قِلْتُمَا",
+              "2mp": "قِلْتُمْ",
+              "2fs": "قِلْتِ",
+              "2fd": "قِلْتُمَا",
+              "2fp": "قِلْتُنَّ",
+              "1s": "قِلْتُ",
+              "1p": "قِلْنَا"
+            },
+            "mudari_malum": {
+              "3ms": "يَقُولُ",
+              "3md": "يَقُولَانِ",
+              "3mp": "يَقُولُونَ",
+              "3fs": "تَقُولُ",
+              "3fd": "تَقُولَانِ",
+              "3fp": "يَقُلْنَ",
+              "2ms": "تَقُولُ",
+              "2md": "تَقُولَانِ",
+              "2mp": "تَقُولُونَ",
+              "2fs": "تَقُولِينَ",
+              "2fd": "تَقُولَانِ",
+              "2fp": "تَقُلْنَ",
+              "1s": "أَقُولُ",
+              "1p": "نَقُولُ"
+            },
+            "mudari_majhul": {
+              "3ms": "يُقَالُ",
+              "3md": "يُقَالَانِ",
+              "3mp": "يُقَالُونَ",
+              "3fs": "تُقَالُ",
+              "3fd": "تُقَالَانِ",
+              "3fp": "يُقَلْنَ",
+              "2ms": "تُقَالُ",
+              "2md": "تُقَالَانِ",
+              "2mp": "تُقَالُونَ",
+              "2fs": "تُقَالِينَ",
+              "2fd": "تُقَالَانِ",
+              "2fp": "تُقَلْنَ",
+              "1s": "أُقَالُ",
+              "1p": "نُقَالُ"
+            },
+            "mudari_malum_nasb": {
+              "3ms": "يَقُولَ",
+              "3md": "يَقُولَا",
+              "3mp": "يَقُولُوا",
+              "3fs": "تَقُولَ",
+              "3fd": "تَقُولَا",
+              "3fp": "يَقُلْنَ",
+              "2ms": "تَقُولَ",
+              "2md": "تَقُولَا",
+              "2mp": "تَقُولُوا",
+              "2fs": "تَقُولِي",
+              "2fd": "تَقُولَا",
+              "2fp": "تَقُلْنَ",
+              "1s": "أَقُولَ",
+              "1p": "نَقُولَ"
+            },
+            "mudari_malum_jazm": {
+              "3ms": "يَقُلْ",
+              "3md": "يَقُولَا",
+              "3mp": "يَقُولُوا",
+              "3fs": "تَقُلْ",
+              "3fd": "تَقُولَا",
+              "3fp": "يَقُلْنَ",
+              "2ms": "تَقُلْ",
+              "2md": "تَقُولَا",
+              "2mp": "تَقُولُوا",
+              "2fs": "تَقُولِي",
+              "2fd": "تَقُولَا",
+              "2fp": "تَقُلْنَ",
+              "1s": "أَقُلْ",
+              "1p": "نَقُلْ"
+            },
+            "amr_malum": {
+              "2ms": "قُلْ",
+              "2md": "قُولَا",
+              "2mp": "قُولُوا",
+              "2fs": "قُولِي",
+              "2fd": "قُولَا",
+              "2fp": "قُلْنَ"
+            }
+          }
+        }
+      }
+    },
+    {
+      "radicals": [
+        "ر",
+        "م",
+        "ي"
+      ],
+      "type": "naqis",
+      "forms": {
+        "I": {
+          "bab": 2,
+          "gloss": "to throw",
+          "masdar": "رَمْي",
+          "isTransitive": true,
+          "english": {
+            "past": "threw",
+            "pp": "thrown",
+            "pres3": "throws",
+            "ing": "throwing"
+          },
+          "tables": {
+            "madi_malum": {
+              "3ms": "رَمَى",
+              "3md": "رَمَيَا",
+              "3mp": "رَمَوْا",
+              "3fs": "رَمَتْ",
+              "3fd": "رَمَتَا",
+              "3fp": "رَمَيْنَ",
+              "2ms": "رَمَيْتَ",
+              "2md": "رَمَيْتُمَا",
+              "2mp": "رَمَيْتُمْ",
+              "2fs": "رَمَيْتِ",
+              "2fd": "رَمَيْتُمَا",
+              "2fp": "رَمَيْتُنَّ",
+              "1s": "رَمَيْتُ",
+              "1p": "رَمَيْنَا"
+            },
+            "madi_majhul": {
+              "3ms": "رُمِيَ",
+              "3md": "رُمِيَا",
+              "3mp": "رُمُوا",
+              "3fs": "رُمِيَتْ",
+              "3fd": "رُمِيَتَا",
+              "3fp": "رُمِينَ",
+              "2ms": "رُمِيتَ",
+              "2md": "رُمِيتُمَا",
+              "2mp": "رُمِيتُمْ",
+              "2fs": "رُمِيتِ",
+              "2fd": "رُمِيتُمَا",
+              "2fp": "رُمِيتُنَّ",
+              "1s": "رُمِيتُ",
+              "1p": "رُمِينَا"
+            },
+            "mudari_malum": {
+              "3ms": "يَرْمِي",
+              "3md": "يَرْمِيَانِ",
+              "3mp": "يَرْمُونَ",
+              "3fs": "تَرْمِي",
+              "3fd": "تَرْمِيَانِ",
+              "3fp": "يَرْمِينَ",
+              "2ms": "تَرْمِي",
+              "2md": "تَرْمِيَانِ",
+              "2mp": "تَرْمُونَ",
+              "2fs": "تَرْمِينَ",
+              "2fd": "تَرْمِيَانِ",
+              "2fp": "تَرْمِينَ",
+              "1s": "أَرْمِي",
+              "1p": "نَرْمِي"
+            },
+            "mudari_majhul": {
+              "3ms": "يُرْمَى",
+              "3md": "يُرْمَيَانِ",
+              "3mp": "يُرْمَوْنَ",
+              "3fs": "تُرْمَى",
+              "3fd": "تُرْمَيَانِ",
+              "3fp": "يُرْمَيْنَ",
+              "2ms": "تُرْمَى",
+              "2md": "تُرْمَيَانِ",
+              "2mp": "تُرْمَوْنَ",
+              "2fs": "تُرْمَيْنَ",
+              "2fd": "تُرْمَيَانِ",
+              "2fp": "تُرْمَيْنَ",
+              "1s": "أُرْمَى",
+              "1p": "نُرْمَى"
+            },
+            "mudari_malum_nasb": {
+              "3ms": "يَرْمِيَ",
+              "3md": "يَرْمِيَا",
+              "3mp": "يَرْمُوا",
+              "3fs": "تَرْمِيَ",
+              "3fd": "تَرْمِيَا",
+              "3fp": "يَرْمِينَ",
+              "2ms": "تَرْمِيَ",
+              "2md": "تَرْمِيَا",
+              "2mp": "تَرْمُوا",
+              "2fs": "تَرْمِي",
+              "2fd": "تَرْمِيَا",
+              "2fp": "تَرْمِينَ",
+              "1s": "أَرْمِيَ",
+              "1p": "نَرْمِيَ"
+            },
+            "mudari_malum_jazm": {
+              "3ms": "يَرْمِ",
+              "3md": "يَرْمِيَا",
+              "3mp": "يَرْمُوا",
+              "3fs": "تَرْمِ",
+              "3fd": "تَرْمِيَا",
+              "3fp": "يَرْمِينَ",
+              "2ms": "تَرْمِ",
+              "2md": "تَرْمِيَا",
+              "2mp": "تَرْمُوا",
+              "2fs": "تَرْمِي",
+              "2fd": "تَرْمِيَا",
+              "2fp": "تَرْمِينَ",
+              "1s": "أَرْمِ",
+              "1p": "نَرْمِ"
+            },
+            "amr_malum": {
+              "2ms": "اِرْمِ",
+              "2md": "اِرْمِيَا",
+              "2mp": "اِرْمُوا",
+              "2fs": "اِرْمِي",
+              "2fd": "اِرْمِيَا",
+              "2fp": "اِرْمِينَ"
+            }
+          }
+        }
+      }
+    }
+  ]
+}

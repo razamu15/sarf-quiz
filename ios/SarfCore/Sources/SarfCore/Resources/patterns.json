@@ -1,0 +1,748 @@
+{
+  "slots": [
+    "3ms",
+    "3md",
+    "3mp",
+    "3fs",
+    "3fd",
+    "3fp",
+    "2ms",
+    "2md",
+    "2mp",
+    "2fs",
+    "2fd",
+    "2fp",
+    "1s",
+    "1p"
+  ],
+  "amrSlots": [
+    "2ms",
+    "2md",
+    "2mp",
+    "2fs",
+    "2fd",
+    "2fp"
+  ],
+  "moodDistinctSlots": [
+    "3ms",
+    "3fs",
+    "2ms",
+    "1s",
+    "1p"
+  ],
+  "pronouns": {
+    "3ms": {
+      "ar": "هُوَ",
+      "en": "he"
+    },
+    "3md": {
+      "ar": "هُمَا",
+      "en": "they two (m)"
+    },
+    "3mp": {
+      "ar": "هُمْ",
+      "en": "they (m, 3+)"
+    },
+    "3fs": {
+      "ar": "هِيَ",
+      "en": "she"
+    },
+    "3fd": {
+      "ar": "هُمَا",
+      "en": "they two (f)"
+    },
+    "3fp": {
+      "ar": "هُنَّ",
+      "en": "they (f, 3+)"
+    },
+    "2ms": {
+      "ar": "أَنْتَ",
+      "en": "you (m)"
+    },
+    "2md": {
+      "ar": "أَنْتُمَا",
+      "en": "you two (m)"
+    },
+    "2mp": {
+      "ar": "أَنْتُمْ",
+      "en": "you (m, 3+)"
+    },
+    "2fs": {
+      "ar": "أَنْتِ",
+      "en": "you (f)"
+    },
+    "2fd": {
+      "ar": "أَنْتُمَا",
+      "en": "you two (f)"
+    },
+    "2fp": {
+      "ar": "أَنْتُنَّ",
+      "en": "you (f, 3+)"
+    },
+    "1s": {
+      "ar": "أَنَا",
+      "en": "I"
+    },
+    "1p": {
+      "ar": "نَحْنُ",
+      "en": "we"
+    }
+  },
+  "madiAffixes": {
+    "3ms": {
+      "finalHaraka": "َ",
+      "suffix": ""
+    },
+    "3md": {
+      "finalHaraka": "َ",
+      "suffix": "ا"
+    },
+    "3mp": {
+      "finalHaraka": "ُ",
+      "suffix": "وا"
+    },
+    "3fs": {
+      "finalHaraka": "َ",
+      "suffix": "تْ"
+    },
+    "3fd": {
+      "finalHaraka": "َ",
+      "suffix": "تَا"
+    },
+    "3fp": {
+      "finalHaraka": "ْ",
+      "suffix": "نَ"
+    },
+    "2ms": {
+      "finalHaraka": "ْ",
+      "suffix": "تَ"
+    },
+    "2md": {
+      "finalHaraka": "ْ",
+      "suffix": "تُمَا"
+    },
+    "2mp": {
+      "finalHaraka": "ْ",
+      "suffix": "تُمْ"
+    },
+    "2fs": {
+      "finalHaraka": "ْ",
+      "suffix": "تِ"
+    },
+    "2fd": {
+      "finalHaraka": "ْ",
+      "suffix": "تُمَا"
+    },
+    "2fp": {
+      "finalHaraka": "ْ",
+      "suffix": "تُنَّ"
+    },
+    "1s": {
+      "finalHaraka": "ْ",
+      "suffix": "تُ"
+    },
+    "1p": {
+      "finalHaraka": "ْ",
+      "suffix": "نَا"
+    }
+  },
+  "mudariAffixesByMood": {
+    "raf": {
+      "3ms": {
+        "finalHaraka": "ُ",
+        "suffix": ""
+      },
+      "3md": {
+        "finalHaraka": "َ",
+        "suffix": "انِ"
+      },
+      "3mp": {
+        "finalHaraka": "ُ",
+        "suffix": "ونَ"
+      },
+      "3fs": {
+        "finalHaraka": "ُ",
+        "suffix": ""
+      },
+      "3fd": {
+        "finalHaraka": "َ",
+        "suffix": "انِ"
+      },
+      "3fp": {
+        "finalHaraka": "ْ",
+        "suffix": "نَ"
+      },
+      "2ms": {
+        "finalHaraka": "ُ",
+        "suffix": ""
+      },
+      "2md": {
+        "finalHaraka": "َ",
+        "suffix": "انِ"
+      },
+      "2mp": {
+        "finalHaraka": "ُ",
+        "suffix": "ونَ"
+      },
+      "2fs": {
+        "finalHaraka": "ِ",
+        "suffix": "ينَ"
+      },
+      "2fd": {
+        "finalHaraka": "َ",
+        "suffix": "انِ"
+      },
+      "2fp": {
+        "finalHaraka": "ْ",
+        "suffix": "نَ"
+      },
+      "1s": {
+        "finalHaraka": "ُ",
+        "suffix": ""
+      },
+      "1p": {
+        "finalHaraka": "ُ",
+        "suffix": ""
+      }
+    },
+    "nasb": {
+      "3ms": {
+        "finalHaraka": "َ",
+        "suffix": ""
+      },
+      "3md": {
+        "finalHaraka": "َ",
+        "suffix": "ا"
+      },
+      "3mp": {
+        "finalHaraka": "ُ",
+        "suffix": "وا"
+      },
+      "3fs": {
+        "finalHaraka": "َ",
+        "suffix": ""
+      },
+      "3fd": {
+        "finalHaraka": "َ",
+        "suffix": "ا"
+      },
+      "3fp": {
+        "finalHaraka": "ْ",
+        "suffix": "نَ"
+      },
+      "2ms": {
+        "finalHaraka": "َ",
+        "suffix": ""
+      },
+      "2md": {
+        "finalHaraka": "َ",
+        "suffix": "ا"
+      },
+      "2mp": {
+        "finalHaraka": "ُ",
+        "suffix": "وا"
+      },
+      "2fs": {
+        "finalHaraka": "ِ",
+        "suffix": "ي"
+      },
+      "2fd": {
+        "finalHaraka": "َ",
+        "suffix": "ا"
+      },
+      "2fp": {
+        "finalHaraka": "ْ",
+        "suffix": "نَ"
+      },
+      "1s": {
+        "finalHaraka": "َ",
+        "suffix": ""
+      },
+      "1p": {
+        "finalHaraka": "َ",
+        "suffix": ""
+      }
+    },
+    "jazm": {
+      "3ms": {
+        "finalHaraka": "ْ",
+        "suffix": ""
+      },
+      "3md": {
+        "finalHaraka": "َ",
+        "suffix": "ا"
+      },
+      "3mp": {
+        "finalHaraka": "ُ",
+        "suffix": "وا"
+      },
+      "3fs": {
+        "finalHaraka": "ْ",
+        "suffix": ""
+      },
+      "3fd": {
+        "finalHaraka": "َ",
+        "suffix": "ا"
+      },
+      "3fp": {
+        "finalHaraka": "ْ",
+        "suffix": "نَ"
+      },
+      "2ms": {
+        "finalHaraka": "ْ",
+        "suffix": ""
+      },
+      "2md": {
+        "finalHaraka": "َ",
+        "suffix": "ا"
+      },
+      "2mp": {
+        "finalHaraka": "ُ",
+        "suffix": "وا"
+      },
+      "2fs": {
+        "finalHaraka": "ِ",
+        "suffix": "ي"
+      },
+      "2fd": {
+        "finalHaraka": "َ",
+        "suffix": "ا"
+      },
+      "2fp": {
+        "finalHaraka": "ْ",
+        "suffix": "نَ"
+      },
+      "1s": {
+        "finalHaraka": "ْ",
+        "suffix": ""
+      },
+      "1p": {
+        "finalHaraka": "ْ",
+        "suffix": ""
+      }
+    }
+  },
+  "amrAffixes": {
+    "2ms": {
+      "finalHaraka": "ْ",
+      "suffix": ""
+    },
+    "2md": {
+      "finalHaraka": "َ",
+      "suffix": "ا"
+    },
+    "2mp": {
+      "finalHaraka": "ُ",
+      "suffix": "وا"
+    },
+    "2fs": {
+      "finalHaraka": "ِ",
+      "suffix": "ي"
+    },
+    "2fd": {
+      "finalHaraka": "َ",
+      "suffix": "ا"
+    },
+    "2fp": {
+      "finalHaraka": "ْ",
+      "suffix": "نَ"
+    }
+  },
+  "mudariPrefixLetters": {
+    "3ms": "ي",
+    "3md": "ي",
+    "3mp": "ي",
+    "3fs": "ت",
+    "3fd": "ت",
+    "3fp": "ي",
+    "2ms": "ت",
+    "2md": "ت",
+    "2mp": "ت",
+    "2fs": "ت",
+    "2fd": "ت",
+    "2fp": "ت",
+    "1s": "أ",
+    "1p": "ن"
+  },
+  "abwab": {
+    "1": {
+      "name": "نَصَرَ يَنْصُرُ",
+      "v1": "َ",
+      "v2": "ُ",
+      "en": "fatḥa / ḍamma"
+    },
+    "2": {
+      "name": "ضَرَبَ يَضْرِبُ",
+      "v1": "َ",
+      "v2": "ِ",
+      "en": "fatḥa / kasra"
+    },
+    "3": {
+      "name": "فَتَحَ يَفْتَحُ",
+      "v1": "َ",
+      "v2": "َ",
+      "en": "fatḥa / fatḥa"
+    },
+    "4": {
+      "name": "سَمِعَ يَسْمَعُ",
+      "v1": "ِ",
+      "v2": "َ",
+      "en": "kasra / fatḥa"
+    },
+    "5": {
+      "name": "كَرُمَ يَكْرُمُ",
+      "v1": "ُ",
+      "v2": "ُ",
+      "en": "ḍamma / ḍamma"
+    },
+    "6": {
+      "name": "حَسِبَ يَحْسِبُ",
+      "v1": "ِ",
+      "v2": "ِ",
+      "en": "kasra / kasra"
+    }
+  },
+  "forms": {
+    "I": {
+      "num": 1,
+      "name": "الثلاثي المجرد",
+      "nameEn": "Form I (mujarrad)",
+      "conjugable": true,
+      "hasMajhul": true,
+      "mudariPrefixHaraka": "َ",
+      "madiMajhulStem": "1ُ2ِ3",
+      "mudariMajhulStem": "1ْ2َ3",
+      "ismFailTemplate": "1َا2ِ3",
+      "ismMafulTemplate": "مَ1ْ2ُو3",
+      "masdarTemplate": null,
+      "meanings": [],
+      "stemsByBab": {
+        "1": {
+          "madi": "1َ2َ3",
+          "mudari": "1ْ2ُ3",
+          "amr": "اُ1ْ2ُ3"
+        },
+        "2": {
+          "madi": "1َ2َ3",
+          "mudari": "1ْ2ِ3",
+          "amr": "اِ1ْ2ِ3"
+        },
+        "3": {
+          "madi": "1َ2َ3",
+          "mudari": "1ْ2َ3",
+          "amr": "اِ1ْ2َ3"
+        },
+        "4": {
+          "madi": "1َ2ِ3",
+          "mudari": "1ْ2َ3",
+          "amr": "اِ1ْ2َ3"
+        },
+        "5": {
+          "madi": "1َ2ُ3",
+          "mudari": "1ْ2ُ3",
+          "amr": "اُ1ْ2ُ3"
+        },
+        "6": {
+          "madi": "1َ2ِ3",
+          "mudari": "1ْ2ِ3",
+          "amr": "اِ1ْ2ِ3"
+        }
+      }
+    },
+    "II": {
+      "num": 2,
+      "name": "بَابُ التَّفْعِيل",
+      "nameEn": "Form II (tafʿīl)",
+      "conjugable": true,
+      "hasMajhul": true,
+      "mudariPrefixHaraka": "ُ",
+      "madiMajhulStem": "1ُ2ِّ3",
+      "mudariMajhulStem": "1َ2َّ3",
+      "ismFailTemplate": "مُ1َ2ِّ3",
+      "ismMafulTemplate": "مُ1َ2َّ3",
+      "masdarTemplate": "تَ1ْ2ِي3",
+      "meanings": [
+        "taadiya",
+        "takthir"
+      ],
+      "stems": {
+        "madi": "1َ2َّ3",
+        "mudari": "1َ2ِّ3",
+        "amr": "1َ2ِّ3"
+      }
+    },
+    "III": {
+      "num": 3,
+      "name": "بَابُ المُفَاعَلَة",
+      "nameEn": "Form III (mufāʿala)",
+      "conjugable": true,
+      "hasMajhul": true,
+      "mudariPrefixHaraka": "ُ",
+      "madiMajhulStem": "1ُو2ِ3",
+      "mudariMajhulStem": "1َا2َ3",
+      "ismFailTemplate": "مُ1َا2ِ3",
+      "ismMafulTemplate": "مُ1َا2َ3",
+      "masdarTemplate": "مُ1َا2َ3َة",
+      "meanings": [
+        "musharaka2"
+      ],
+      "stems": {
+        "madi": "1َا2َ3",
+        "mudari": "1َا2ِ3",
+        "amr": "1َا2ِ3"
+      }
+    },
+    "IV": {
+      "num": 4,
+      "name": "بَابُ الإِفْعَال",
+      "nameEn": "Form IV (ifʿāl)",
+      "conjugable": true,
+      "hasMajhul": true,
+      "mudariPrefixHaraka": "ُ",
+      "madiMajhulStem": "أُ1ْ2ِ3",
+      "mudariMajhulStem": "1ْ2َ3",
+      "ismFailTemplate": "مُ1ْ2ِ3",
+      "ismMafulTemplate": "مُ1ْ2َ3",
+      "masdarTemplate": "إِ1ْ2َا3",
+      "meanings": [
+        "taadiya"
+      ],
+      "stems": {
+        "madi": "أَ1ْ2َ3",
+        "mudari": "1ْ2ِ3",
+        "amr": "أَ1ْ2ِ3"
+      }
+    },
+    "V": {
+      "num": 5,
+      "name": "بَابُ التَّفَعُّل",
+      "nameEn": "Form V (tafaʿʿul)",
+      "conjugable": true,
+      "hasMajhul": true,
+      "mudariPrefixHaraka": "َ",
+      "madiMajhulStem": "تُ1ُ2ِّ3",
+      "mudariMajhulStem": "تَ1َ2َّ3",
+      "ismFailTemplate": "مُتَ1َ2ِّ3",
+      "ismMafulTemplate": "مُتَ1َ2َّ3",
+      "masdarTemplate": "تَ1َ2ُّ3",
+      "meanings": [
+        "mutawaa_II",
+        "takalluf"
+      ],
+      "stems": {
+        "madi": "تَ1َ2َّ3",
+        "mudari": "تَ1َ2َّ3",
+        "amr": "تَ1َ2َّ3"
+      }
+    },
+    "VI": {
+      "num": 6,
+      "name": "بَابُ التَّفَاعُل",
+      "nameEn": "Form VI (tafāʿul)",
+      "conjugable": true,
+      "hasMajhul": true,
+      "mudariPrefixHaraka": "َ",
+      "madiMajhulStem": "تُ1ُو2ِ3",
+      "mudariMajhulStem": "تَ1َا2َ3",
+      "ismFailTemplate": "مُتَ1َا2ِ3",
+      "ismMafulTemplate": "مُتَ1َا2َ3",
+      "masdarTemplate": "تَ1َا2ُ3",
+      "meanings": [
+        "musharaka3",
+        "tazahur"
+      ],
+      "stems": {
+        "madi": "تَ1َا2َ3",
+        "mudari": "تَ1َا2َ3",
+        "amr": "تَ1َا2َ3"
+      }
+    },
+    "VII": {
+      "num": 7,
+      "name": "بَابُ الانْفِعَال",
+      "nameEn": "Form VII (infiʿāl)",
+      "conjugable": true,
+      "hasMajhul": false,
+      "mudariPrefixHaraka": "َ",
+      "madiMajhulStem": null,
+      "mudariMajhulStem": null,
+      "ismFailTemplate": "مُنْ1َ2ِ3",
+      "ismMafulTemplate": null,
+      "masdarTemplate": "اِنْ1ِ2َا3",
+      "meanings": [
+        "mutawaa"
+      ],
+      "stems": {
+        "madi": "اِنْ1َ2َ3",
+        "mudari": "نْ1َ2ِ3",
+        "amr": "اِنْ1َ2ِ3"
+      }
+    },
+    "VIII": {
+      "num": 8,
+      "name": "بَابُ الافْتِعَال",
+      "nameEn": "Form VIII (iftiʿāl)",
+      "conjugable": true,
+      "hasMajhul": true,
+      "mudariPrefixHaraka": "َ",
+      "madiMajhulStem": "اُ1ْتُ2ِ3",
+      "mudariMajhulStem": "1ْتَ2َ3",
+      "ismFailTemplate": "مُ1ْتَ2ِ3",
+      "ismMafulTemplate": "مُ1ْتَ2َ3",
+      "masdarTemplate": "اِ1ْتِ2َا3",
+      "meanings": [
+        "mutawaa",
+        "ittikhadh"
+      ],
+      "stems": {
+        "madi": "اِ1ْتَ2َ3",
+        "mudari": "1ْتَ2ِ3",
+        "amr": "اِ1ْتَ2ِ3"
+      }
+    },
+    "IX": {
+      "num": 9,
+      "name": "بَابُ الافْعِلَال",
+      "nameEn": "Form IX (ifʿilāl)",
+      "conjugable": false,
+      "hasMajhul": false,
+      "mudariPrefixHaraka": "َ",
+      "madiMajhulStem": null,
+      "mudariMajhulStem": null,
+      "ismFailTemplate": "مُ1ْ2َ3ّ",
+      "ismMafulTemplate": null,
+      "masdarTemplate": "اِ1ْ2ِ3َا3",
+      "meanings": [
+        "alwan_uyub"
+      ],
+      "stems": {
+        "madi": "اِ1ْ2َ3ّ",
+        "mudari": "1ْ2َ3ّ",
+        "amr": null
+      }
+    },
+    "X": {
+      "num": 10,
+      "name": "بَابُ الاسْتِفْعَال",
+      "nameEn": "Form X (istifʿāl)",
+      "conjugable": true,
+      "hasMajhul": true,
+      "mudariPrefixHaraka": "َ",
+      "madiMajhulStem": "اُسْتُ1ْ2ِ3",
+      "mudariMajhulStem": "سْتَ1ْ2َ3",
+      "ismFailTemplate": "مُسْتَ1ْ2ِ3",
+      "ismMafulTemplate": "مُسْتَ1ْ2َ3",
+      "masdarTemplate": "اِسْتِ1ْ2َا3",
+      "meanings": [
+        "talab",
+        "itiqad"
+      ],
+      "stems": {
+        "madi": "اِسْتَ1ْ2َ3",
+        "mudari": "سْتَ1ْ2ِ3",
+        "amr": "اِسْتَ1ْ2ِ3"
+      }
+    }
+  },
+  "moods": {
+    "raf": {
+      "ar": "مَرْفُوع",
+      "en": "marfūʿ — the default state"
+    },
+    "nasb": {
+      "ar": "مَنْصُوب",
+      "en": "manṣūb — after أَنْ، لَنْ، كَيْ…"
+    },
+    "jazm": {
+      "ar": "مَجْزُوم",
+      "en": "majzūm — after لَمْ، لَا النَّاهِيَة…"
+    }
+  },
+  "meanings": {
+    "taadiya": {
+      "ar": "التَّعْدِيَة",
+      "en": "making the verb transitive (taʿdiya)"
+    },
+    "takthir": {
+      "ar": "التَّكْثِير وَالمُبَالَغَة",
+      "en": "intensity / repetition (takthīr)"
+    },
+    "musharaka2": {
+      "ar": "المُشَارَكَة بَيْنَ اثْنَيْنِ",
+      "en": "mutual action between two (mushāraka)"
+    },
+    "musharaka3": {
+      "ar": "المُشَارَكَة بَيْنَ أَكْثَر",
+      "en": "mutual action among a group"
+    },
+    "mutawaa": {
+      "ar": "المُطَاوَعَة",
+      "en": "receiving the action (muṭāwaʿa)"
+    },
+    "mutawaa_II": {
+      "ar": "مُطَاوَعَة فَعَّلَ",
+      "en": "result of Form II acting on you"
+    },
+    "takalluf": {
+      "ar": "التَّكَلُّف",
+      "en": "striving / taking on a quality (takalluf)"
+    },
+    "tazahur": {
+      "ar": "التَّظَاهُر",
+      "en": "pretending (taẓāhur)"
+    },
+    "ittikhadh": {
+      "ar": "الاتِّخَاذ",
+      "en": "adopting / taking for oneself (ittikhādh)"
+    },
+    "alwan_uyub": {
+      "ar": "الأَلْوَان وَالعُيُوب",
+      "en": "colors and defects"
+    },
+    "talab": {
+      "ar": "الطَّلَب",
+      "en": "seeking / requesting (ṭalab)"
+    },
+    "itiqad": {
+      "ar": "الاعْتِقَاد / التَّحَوُّل",
+      "en": "deeming or transformation"
+    }
+  },
+  "verbTypes": {
+    "salim": {
+      "ar": "سَالِم",
+      "en": "sound (no weak letters)",
+      "group": "ṣaḥīḥ"
+    },
+    "mahmuz": {
+      "ar": "مَهْمُوز",
+      "en": "contains hamza",
+      "group": "ṣaḥīḥ"
+    },
+    "mudaaf": {
+      "ar": "مُضَاعَف",
+      "en": "doubled radical",
+      "group": "ṣaḥīḥ"
+    },
+    "mithal": {
+      "ar": "مِثَال",
+      "en": "weak 1st radical",
+      "group": "muʿtall"
+    },
+    "ajwaf": {
+      "ar": "أَجْوَف",
+      "en": "weak middle radical (hollow)",
+      "group": "muʿtall"
+    },
+    "naqis": {
+      "ar": "نَاقِص",
+      "en": "weak final radical (defective)",
+      "group": "muʿtall"
+    },
+    "lafif": {
+      "ar": "لَفِيف",
+      "en": "two weak radicals",
+      "group": "muʿtall"
+    }
+  }
+}
