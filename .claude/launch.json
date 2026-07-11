@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "sarf-quiz-web",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["web-prototype/serve.mjs", "4173"],
+      "port": 4173
+    }
+  ]
+}
