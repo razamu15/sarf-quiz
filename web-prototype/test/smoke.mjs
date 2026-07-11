@@ -5,7 +5,8 @@
 import { ROOTS } from '../js/data/roots.js';
 import { conjugate, derivedNoun, waznOf, fullTable } from '../js/engine/conjugator.js';
 import { verbMeaning, derivedMeaning } from '../js/engine/meaning.js';
-import { buildSimpleQuiz, PRESETS } from '../js/engine/quizgen.js';
+import { buildSimpleQuiz, PRESETS, mazeedPreset, mazeedPresetAvailable } from '../js/engine/quizgen.js';
+import { MAZEED_IDS } from '../js/data/patterns.js';
 
 const byRoot = (letters) => ROOTS.find((r) => r.root.join('') === letters);
 
@@ -128,6 +129,25 @@ const cases = [
   [conjugate(byRoot('رمي'), 'I', 'mudari', 'majhul', '3ms'), 'يُرْمَى'],
   [conjugate(byRoot('رمي'), 'I', 'amr', 'malum', '2ms'), 'اِرْمِ'],
 
+  // manṣūb / majzūm (engine-generated for sālim)
+  [conjugate(kataba, 'I', 'mudari', 'malum', '3ms', 'nasb'), 'يَكْتُبَ'],
+  [conjugate(kataba, 'I', 'mudari', 'malum', '3ms', 'jazm'), 'يَكْتُبْ'],
+  [conjugate(kataba, 'I', 'mudari', 'malum', '3mp', 'nasb'), 'يَكْتُبُوا'],
+  [conjugate(kataba, 'I', 'mudari', 'malum', '3mp', 'jazm'), 'يَكْتُبُوا'],
+  [conjugate(kataba, 'I', 'mudari', 'malum', '2fs', 'jazm'), 'تَكْتُبِي'],
+  [conjugate(kataba, 'I', 'mudari', 'malum', '3fp', 'jazm'), 'يَكْتُبْنَ'],
+  [conjugate(kataba, 'I', 'mudari', 'malum', '3md', 'nasb'), 'يَكْتُبَا'],
+  [conjugate(alima, 'II', 'mudari', 'malum', '3ms', 'jazm'), 'يُعَلِّمْ'],
+  [conjugate(kataba, 'I', 'mudari', 'majhul', '3ms', 'jazm'), 'يُكْتَبْ'],
+  [conjugate(ghafara, 'X', 'mudari', 'malum', '1p', 'nasb'), 'نَسْتَغْفِرَ'],
+
+  // manṣūb / majzūm (hand-authored iʿlāl for irregulars)
+  [conjugate(qala, 'I', 'mudari', 'malum', '3ms', 'nasb'), 'يَقُولَ'],
+  [conjugate(qala, 'I', 'mudari', 'malum', '3ms', 'jazm'), 'يَقُلْ'],
+  [conjugate(byRoot('رمي'), 'I', 'mudari', 'malum', '3ms', 'nasb'), 'يَرْمِيَ'],
+  [conjugate(byRoot('رمي'), 'I', 'mudari', 'malum', '3ms', 'jazm'), 'يَرْمِ'],
+  [conjugate(qala, 'I', 'mudari', 'majhul', '3ms', 'jazm'), null], // no table yet
+
   // English meaning rendering
   [verbMeaning(kataba, 'I', 'madi', 'malum', '3ms'), 'he wrote'],
   [verbMeaning(kataba, 'I', 'madi', 'majhul', '3fs'), 'she was written'],
@@ -160,18 +180,29 @@ console.log(`\n${pass} passed, ${fail} failed`);
 console.log('\nForm II madi (علم):', Object.values(fullTable(alima, 'II', 'madi', 'malum')).join(' | '));
 console.log('Form I mudari (كتب):', Object.values(fullTable(kataba, 'I', 'mudari', 'malum')).join(' | '));
 
-// Simple-quiz builder: each available preset must yield 5 words × 3 questions
-for (const preset of PRESETS.filter((p) => ['salim', 'ajwaf', 'naqis', 'mixed'].includes(p.id))) {
-  const quiz = buildSimpleQuiz(preset);
-  const cats = quiz.map((q) => q.category).join(',');
-  const ok = quiz.length === 15
-    && cats === Array(5).fill('tense,voice,doer').join(',')
-    && quiz.every((q) => q.gloss && q.fullMeaning && q.tag);
+// Simple-quiz builder: 5 words × 3 questions, second slot is voice or wazn
+function checkBundle(label, quiz, wantFormIds) {
+  const cats = quiz.map((q) => q.category);
+  let ok = quiz.length === 15 && quiz.every((q) => q.gloss && q.fullMeaning && q.tag);
+  for (let w = 0; w < 15; w += 3) {
+    ok &&= cats[w] === 'tense'
+      && ['voice', 'wazn'].includes(cats[w + 1])
+      && cats[w + 2] === 'doer';
+  }
+  ok &&= quiz.every((q) => wantFormIds.includes(q.formId));
   if (ok) { pass++; } else {
     fail++;
-    console.log(`FAIL: preset ${preset.id} → ${quiz.length} questions [${cats}]`);
+    console.log(`FAIL: ${label} → ${quiz.length} questions [${cats.join(',')}] forms [${quiz.map((q) => q.formId).join(',')}]`);
   }
 }
+
+for (const preset of PRESETS.filter((p) => ['salim', 'ajwaf', 'naqis', 'mixed'].includes(p.id))) {
+  checkBundle(`preset ${preset.id}`, buildSimpleQuiz(preset), ['I']);
+}
+for (const formId of MAZEED_IDS.filter(mazeedPresetAvailable)) {
+  checkBundle(`mazeed ${formId}`, buildSimpleQuiz(mazeedPreset(formId)), [formId]);
+}
+if (mazeedPresetAvailable('IX')) { fail++; console.log('FAIL: IX should be unavailable'); } else pass++;
 console.log(`\nwith presets: ${pass} passed, ${fail} failed`);
 
 process.exit(fail ? 1 : 0);

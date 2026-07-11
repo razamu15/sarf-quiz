@@ -1,11 +1,12 @@
 // UI layer: home (quick presets | custom builder) → quiz → results.
 // All sarf logic lives in engine/ — this file only draws and routes.
 
-import { FORM_IDS, FORMS, VERB_TYPES } from './data/patterns.js';
+import { FORM_IDS, FORMS, MAZEED_IDS, MEANINGS, VERB_TYPES } from './data/patterns.js';
 import { ROOTS } from './data/roots.js';
+import { waznCitation } from './engine/conjugator.js';
 import {
   buildQuiz, buildSimpleQuiz, CATEGORIES, PRESETS, presetAvailable,
-  WORDS_PER_SIMPLE_QUIZ,
+  mazeedPreset, mazeedPresetAvailable, WORDS_PER_SIMPLE_QUIZ,
 } from './engine/quizgen.js';
 
 const app = document.getElementById('app');
@@ -45,8 +46,9 @@ function renderHome() {
   );
 
   const tabs = el(`<div class="tabs">
-    <button class="tab ${state.tab === 'quick' ? 'on' : ''}" data-tab="quick">Quick quizzes</button>
-    <button class="tab ${state.tab === 'custom' ? 'on' : ''}" data-tab="custom">Custom practice</button>
+    <button class="tab ${state.tab === 'quick' ? 'on' : ''}" data-tab="quick">Form I</button>
+    <button class="tab ${state.tab === 'mazeed' ? 'on' : ''}" data-tab="mazeed">Mazīd fīhi</button>
+    <button class="tab ${state.tab === 'custom' ? 'on' : ''}" data-tab="custom">Custom</button>
   </div>`);
   tabs.querySelectorAll('.tab').forEach((t) => {
     t.onclick = () => { state.tab = t.dataset.tab; renderHome(); };
@@ -54,35 +56,62 @@ function renderHome() {
   app.append(tabs);
 
   if (state.tab === 'quick') renderQuickTab();
+  else if (state.tab === 'mazeed') renderMazeedTab();
   else renderCustomTab();
 }
 
+function presetCard({ title, ar, desc, available, soonLabel = 'Soon', onStart }) {
+  const card = el(`<div class="preset ${available ? '' : 'off'}">
+    <div class="preset-head">
+      <div>
+        <b>${title}</b><span class="ar">${ar}</span>
+        <div class="preset-desc">${desc}</div>
+      </div>
+      <button class="btn primary small" ${available ? '' : 'disabled'}>
+        ${available ? 'Start' : soonLabel}
+      </button>
+    </div>
+  </div>`);
+  if (available) card.querySelector('button').onclick = onStart;
+  return card;
+}
+
+function startSimple(preset) {
+  state.rebuild = () => buildSimpleQuiz(preset);
+  const quiz = state.rebuild();
+  if (!quiz.length) return alert('No questions possible for this preset yet.');
+  beginQuiz(quiz);
+}
+
 function renderQuickTab() {
-  app.append(el(`<p class="subtitle">Ready-to-go drills: ${WORDS_PER_SIMPLE_QUIZ} words,
-    3 questions per word — tense, maʿlūm/majhūl, then the pronoun.</p>`));
+  app.append(el(`<p class="subtitle">Form I (mujarrad) drills by verb type:
+    ${WORDS_PER_SIMPLE_QUIZ} words, 3 questions per word — tense, maʿlūm/majhūl, then the pronoun.</p>`));
 
   for (const preset of PRESETS) {
-    const available = presetAvailable(preset);
-    const card = el(`<div class="preset ${available ? '' : 'off'}">
-      <div class="preset-head">
-        <div>
-          <b>${preset.title}</b><span class="ar">${preset.ar}</span>
-          <div class="preset-desc">${preset.desc}</div>
-        </div>
-        <button class="btn primary small" ${available ? '' : 'disabled'}>
-          ${available ? 'Start' : 'Soon'}
-        </button>
-      </div>
-    </div>`);
-    if (available) {
-      card.querySelector('button').onclick = () => {
-        state.rebuild = () => buildSimpleQuiz(preset);
-        const quiz = state.rebuild();
-        if (!quiz.length) return alert('No questions possible for this preset yet.');
-        beginQuiz(quiz);
-      };
-    }
-    app.append(card);
+    app.append(presetCard({
+      title: preset.title,
+      ar: preset.ar,
+      desc: preset.desc,
+      available: presetAvailable(preset),
+      onStart: () => startSimple(preset),
+    }));
+  }
+}
+
+function renderMazeedTab() {
+  app.append(el(`<p class="subtitle">The same drill, one mazīd fīhi form at a time:
+    ${WORDS_PER_SIMPLE_QUIZ} words, 3 questions per word.</p>`));
+
+  for (const formId of MAZEED_IDS) {
+    const meaningHints = FORMS[formId].meanings
+      .map((m) => MEANINGS[m].en.split(' (')[0]).join(' · ');
+    app.append(presetCard({
+      title: `Form ${formId}`,
+      ar: FORMS[formId].name.replace('بَابُ ', ''),
+      desc: `<span class="ar-inline">${waznCitation(formId)}</span> — ${meaningHints}`,
+      available: mazeedPresetAvailable(formId),
+      onStart: () => startSimple(mazeedPreset(formId)),
+    }));
   }
 }
 

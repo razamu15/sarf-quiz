@@ -4,7 +4,7 @@
 
 import {
   FORMS, ABWAB, DAMMA,
-  MADI_AFFIX, MUDARI_AFFIX, AMR_AFFIX,
+  MADI_AFFIX, AMR_AFFIX, MUDARI_MOOD_AFFIX,
   MUDARI_PREFIX_LETTER, SLOTS, AMR_SLOTS,
 } from '../data/patterns.js';
 
@@ -29,17 +29,21 @@ function resolveStem(spec, bab) {
  * Conjugate one slot. Returns null when the combination doesn't exist
  * (no majhūl for intransitive/lāzim forms, amr outside 2nd person, form IX, …).
  * tense: 'madi' | 'mudari' | 'amr'; voice: 'malum' | 'majhul'
+ * mood (muḍāriʿ only): 'raf' | 'nasb' | 'jazm'
  */
-export function conjugate(rootEntry, formId, tense, voice, slot) {
-  return norm(conjugateRaw(rootEntry, formId, tense, voice, slot));
+export function conjugate(rootEntry, formId, tense, voice, slot, mood = 'raf') {
+  return norm(conjugateRaw(rootEntry, formId, tense, voice, slot, mood));
 }
 
-function conjugateRaw(rootEntry, formId, tense, voice, slot) {
+function conjugateRaw(rootEntry, formId, tense, voice, slot, mood = 'raf') {
   const formInfo = rootEntry.forms[formId];
   if (!formInfo) return null;
 
-  // hand-authored override
-  const table = formInfo.tables?.[`${tense}_${voice}`];
+  // hand-authored override (naṣb/jazm tables carry a mood suffix in the key)
+  const tableKey = tense === 'mudari' && mood !== 'raf'
+    ? `mudari_${voice}_${mood}`
+    : `${tense}_${voice}`;
+  const table = formInfo.tables?.[tableKey];
   if (table) return table[slot] ?? null;
   if (rootEntry.type !== 'salim') return null; // engine only handles sālim
 
@@ -59,7 +63,7 @@ function conjugateRaw(rootEntry, formId, tense, voice, slot) {
 
   if (tense === 'mudari') {
     const stemT = voice === 'majhul' ? form.mudariMajhul : resolveStem(form.mudari, bab);
-    const affix = MUDARI_AFFIX[slot];
+    const affix = MUDARI_MOOD_AFFIX[mood]?.[slot];
     if (!affix) return null;
     const prefixHaraka = voice === 'majhul' ? DAMMA : form.mudariPrefixHaraka;
     return MUDARI_PREFIX_LETTER[slot] + prefixHaraka + fill(stemT, root) + affix.h + affix.s;
@@ -98,13 +102,23 @@ export function derivedNoun(rootEntry, formId, kind) {
 }
 
 /** The wazn of any generated word = same template applied to ف-ع-ل. */
-export function waznOf(formId, tense, voice, slot, bab = 1) {
+export function waznOf(formId, tense, voice, slot, bab = 1, mood = 'raf') {
   const fake = {
     type: 'salim',
     root: WAZN_ROOT,
     forms: { [formId]: { bab, trans: true } },
   };
-  return conjugate(fake, formId, tense, voice, slot);
+  return conjugate(fake, formId, tense, voice, slot, mood);
+}
+
+/** Dictionary-style citation of a form's wazn, e.g. فَعَّلَ يُفَعِّلُ (works for IX too). */
+export function waznCitation(formId) {
+  const fake = {
+    type: 'salim',
+    root: WAZN_ROOT,
+    forms: { [formId]: { bab: 1, trans: true } },
+  };
+  return citation(fake, formId);
 }
 
 export function waznOfDerived(formId, kind, bab = 1) {

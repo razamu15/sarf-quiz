@@ -73,6 +73,7 @@ h1 .ar { font-family: var(--arabic); font-size: 30px; margin-inline-start: 8px; 
 .preset b { font-size: 16px; }
 .preset .ar { font-family: var(--arabic); font-size: 20px; margin-inline-start: 8px; color: var(--accent); }
 .preset-desc { color: var(--ink-dim); font-size: 13px; margin-top: 4px; line-height: 1.5; }
+.ar-inline { font-family: var(--arabic); font-size: 16px; color: var(--ink); unicode-bidi: isolate; }
 .btn.small { padding: 10px 18px; font-size: 15px; border-radius: 12px; white-space: nowrap; }
 
 .section-label {

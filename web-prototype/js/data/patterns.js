@@ -82,6 +82,58 @@ export const MUDARI_AFFIX = {
   '1p':  { h: D, s: '' },
 };
 
+// muḍāriʿ moods: manṣūb (after أَنْ، لَنْ…) and majzūm (after لَمْ…).
+// The "five verbs" drop their ن in both; nūn al-niswa (3fp/2fp) never changes.
+export const MUDARI_AFFIX_NASB = {
+  '3ms': { h: F, s: '' },
+  '3md': { h: F, s: 'ا' },
+  '3mp': { h: D, s: 'وا' },
+  '3fs': { h: F, s: '' },
+  '3fd': { h: F, s: 'ا' },
+  '3fp': { h: S, s: 'ن' + F },
+  '2ms': { h: F, s: '' },
+  '2md': { h: F, s: 'ا' },
+  '2mp': { h: D, s: 'وا' },
+  '2fs': { h: K, s: 'ي' },
+  '2fd': { h: F, s: 'ا' },
+  '2fp': { h: S, s: 'ن' + F },
+  '1s':  { h: F, s: '' },
+  '1p':  { h: F, s: '' },
+};
+
+export const MUDARI_AFFIX_JAZM = {
+  '3ms': { h: S, s: '' },
+  '3md': { h: F, s: 'ا' },
+  '3mp': { h: D, s: 'وا' },
+  '3fs': { h: S, s: '' },
+  '3fd': { h: F, s: 'ا' },
+  '3fp': { h: S, s: 'ن' + F },
+  '2ms': { h: S, s: '' },
+  '2md': { h: F, s: 'ا' },
+  '2mp': { h: D, s: 'وا' },
+  '2fs': { h: K, s: 'ي' },
+  '2fd': { h: F, s: 'ا' },
+  '2fp': { h: S, s: 'ن' + F },
+  '1s':  { h: S, s: '' },
+  '1p':  { h: S, s: '' },
+};
+
+export const MUDARI_MOOD_AFFIX = {
+  raf: MUDARI_AFFIX,
+  nasb: MUDARI_AFFIX_NASB,
+  jazm: MUDARI_AFFIX_JAZM,
+};
+
+export const MOODS = {
+  raf:  { ar: 'مَرْفُوع', en: 'marfūʿ — the default state' },
+  nasb: { ar: 'مَنْصُوب', en: 'manṣūb — after أَنْ، لَنْ، كَيْ…' },
+  jazm: { ar: 'مَجْزُوم', en: 'majzūm — after لَمْ، لَا النَّاهِيَة…' },
+};
+
+// slots where the three moods are visually distinct on the word itself
+// (duals/plurals conflate naṣb and jazm; nūn al-niswa never changes)
+export const MOOD_DISTINCT_SLOTS = ['3ms', '3fs', '2ms', '1s', '1p'];
+
 // amr exists only for 2nd person
 export const AMR_SLOTS = ['2ms', '2md', '2mp', '2fs', '2fd', '2fp'];
 export const AMR_AFFIX = {

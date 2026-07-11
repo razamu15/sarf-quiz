@@ -1,5 +1,11 @@
 # Sarf Quiz App — Design Document
 
+> **Status update:** the prototype phase produced two follow-on documents that
+> supersede parts of this file for the production app:
+> [docs/PRODUCT_SPEC.md](docs/PRODUCT_SPEC.md) (features, Free vs Pro, monetization,
+> AI Explain) and [docs/TECHNICAL_PLAN.md](docs/TECHNICAL_PLAN.md) (Swift
+> architecture, domain model, build phases).
+
 ## 1. Product spec (the "improved prompt")
 
 > Build an iOS app that teaches Arabic morphology (ṣarf) through short, focused quizzes.
@@ -136,6 +142,8 @@ engine), which is *the* killer feature: quiz questions about **why** the form ch
 
 - Which textbook/curriculum do you follow (e.g. عِلم الصرف primers, Madinah books,
   Bayyinah)? Bāb naming and table order should match it.
-- Should muḍāriʿ majzūm/manṣūb (nawāṣib/jawāzim endings) be in scope? That leans
-  naḥw, but "what does the ending tell you" includes it.
 - Arabic-only UI, English-only, or bilingual labels (current prototype: bilingual)?
+
+(Resolved: muḍāriʿ manṣūb/majzūm are in scope — the engine has mood-aware affix
+tables and an iʿrāb question category; irregulars carry hand-authored naṣb/jazm
+tables where iʿlāl applies, e.g. يَقُلْ، يَرْمِ.)

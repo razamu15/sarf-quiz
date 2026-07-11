@@ -9,10 +9,13 @@
 //   tag }         // optional "Word 2 / 5" label for bundled quizzes
 
 import {
-  FORMS, ABWAB, MEANINGS, PRONOUNS, SLOTS, AMR_SLOTS, MAZEED_IDS,
+  FORMS, FORM_IDS, ABWAB, MEANINGS, PRONOUNS, SLOTS, AMR_SLOTS, MAZEED_IDS,
+  MOODS, MOOD_DISTINCT_SLOTS,
 } from '../data/patterns.js';
 import { ROOTS } from '../data/roots.js';
-import { conjugate, derivedNoun, waznOf, waznOfDerived, citation } from './conjugator.js';
+import {
+  conjugate, derivedNoun, waznOf, waznOfDerived, citation, waznCitation,
+} from './conjugator.js';
 import { verbMeaning, derivedMeaning } from './meaning.js';
 
 const rand = (arr) => arr[Math.floor(Math.random() * arr.length)];
@@ -90,6 +93,7 @@ function makeTenseQuestion(v) {
   const options = shuffle(Object.values(TENSE_LABELS));
   return {
     category: 'tense',
+    formId: v.formId,
     word: v.word,
     prompt: 'What kind of verb is this?',
     options,
@@ -108,6 +112,7 @@ function makeVoiceQuestion(v) {
     : null;
   return {
     category: 'voice',
+    formId: v.formId,
     word: v.word,
     prompt: 'Is the doer known or unknown?',
     options,
@@ -129,6 +134,7 @@ function makeDoerQuestion(v) {
   const options = shuffle([correct, ...others.map((s) => PRONOUNS[s])]);
   return {
     category: 'doer',
+    formId: v.formId,
     word: v.word,
     prompt: v.voice === 'majhul'
       ? 'Who/what is this verb conjugated for (nāʾib al-fāʿil)?'
@@ -136,6 +142,33 @@ function makeDoerQuestion(v) {
     options,
     correctIndex: options.indexOf(correct),
     explanation: `${v.word} → ${correct.ar} (${correct.en}), ${TENSE_LABELS[v.tense].ar} ${VOICE_LABELS[v.voice].ar}.`,
+    gloss: glossOf(v.rootEntry, v.formId),
+    fullMeaning: verbMeaning(v.rootEntry, v.formId, v.tense, v.voice, v.slot),
+  };
+}
+
+function makeWaznQuestion(v) {
+  if (v.rootEntry.type !== 'salim') return null; // wazn shown on ف-ع-ل needs the engine
+  const bab = v.rootEntry.forms[v.formId].bab ?? 1;
+  const correctWazn = waznOf(v.formId, v.tense, v.voice, v.slot, bab);
+  if (!correctWazn) return null;
+  const correct = { ar: correctWazn, en: FORMS[v.formId].nameEn };
+  const otherForms = sample(
+    FORM_IDS, 5,
+    (f) => f !== v.formId && FORMS[f].conjugable,
+  ).map((f) => ({ ar: waznOf(f, v.tense, v.voice, v.slot, 1), en: FORMS[f].nameEn }))
+    .filter((o) => o.ar && o.ar !== correctWazn)
+    .slice(0, 3);
+  if (otherForms.length < 2) return null;
+  const options = shuffle([correct, ...otherForms]);
+  return {
+    category: 'wazn',
+    formId: v.formId,
+    word: v.word,
+    prompt: 'Which wazn is this word on?',
+    options,
+    correctIndex: options.indexOf(correct),
+    explanation: `${v.word} = ${correctWazn} → ${FORMS[v.formId].name}.`,
     gloss: glossOf(v.rootEntry, v.formId),
     fullMeaning: verbMeaning(v.rootEntry, v.formId, v.tense, v.voice, v.slot),
   };
@@ -169,29 +202,42 @@ const BUILDERS = {
 
   wazn(settings) {
     const v = randomVerb(settings, { tenses: ['madi', 'mudari'] });
-    if (!v) return null;
-    if (v.rootEntry.type !== 'salim') return null; // wazn shown on ف-ع-ل needs the engine
-    const bab = v.rootEntry.forms[v.formId].bab ?? 1;
-    const correctWazn = waznOf(v.formId, v.tense, v.voice, v.slot, bab);
-    if (!correctWazn) return null;
-    const correct = { ar: correctWazn, en: FORMS[v.formId].nameEn };
-    const otherForms = sample(
-      settings.forms, 3,
-      (f) => f !== v.formId && FORMS[f].conjugable,
-    ).map((f) => ({ ar: waznOf(f, v.tense, v.voice, v.slot, 1), en: FORMS[f].nameEn }))
-      .filter((o) => o.ar && o.ar !== correctWazn);
-    if (otherForms.length < 2) return null;
-    const options = shuffle([correct, ...otherForms]);
-    return {
-      category: 'wazn',
-      word: v.word,
-      prompt: 'Which wazn is this word on?',
-      options,
-      correctIndex: options.indexOf(correct),
-      explanation: `${v.word} = ${correctWazn} → ${FORMS[v.formId].name}.`,
-      gloss: glossOf(v.rootEntry, v.formId),
-      fullMeaning: verbMeaning(v.rootEntry, v.formId, v.tense, v.voice, v.slot),
-    };
+    return v ? makeWaznQuestion(v) : null;
+  },
+
+  mood(settings) {
+    // iʿrāb of the muḍāriʿ: marfūʿ / manṣūb / majzūm. Only slots where the
+    // three states are visually distinct on the word.
+    const pool = candidates(settings).filter(
+      (c) => FORMS[c.formId].conjugable || c.rootEntry.forms[c.formId].tables,
+    );
+    for (let i = 0; i < 60; i++) {
+      const c = rand(pool);
+      if (!c) return null;
+      const mood = rand(Object.keys(MOODS));
+      const slot = rand(MOOD_DISTINCT_SLOTS);
+      const voice = rand(['malum', 'majhul']);
+      const word = conjugate(c.rootEntry, c.formId, 'mudari', voice, slot, mood);
+      if (!word) continue;
+      // all three states must actually exist for this word (irregulars may
+      // lack naṣb/jazm tables), otherwise the question isn't fair
+      if (!Object.keys(MOODS).every((m) => conjugate(c.rootEntry, c.formId, 'mudari', voice, slot, m))) continue;
+      const correct = MOODS[mood];
+      const options = shuffle(Object.values(MOODS));
+      const example = mood === 'nasb' ? `لَنْ ${word}` : mood === 'jazm' ? `لَمْ ${word}` : word;
+      return {
+        category: 'mood',
+        formId: c.formId,
+        word,
+        prompt: 'What is the iʿrāb state of this muḍāriʿ?',
+        options,
+        correctIndex: options.indexOf(correct),
+        explanation: `${word} is ${correct.ar}${mood === 'raf' ? ' — the default, no governing particle' : ` — as in "${example}"`}.`,
+        gloss: glossOf(c.rootEntry, c.formId),
+        fullMeaning: verbMeaning(c.rootEntry, c.formId, 'mudari', voice, slot),
+      };
+    }
+    return null;
   },
 
   root(settings) {
@@ -293,6 +339,7 @@ export const CATEGORIES = {
   voice:   { label: 'Voice', ar: 'معلوم/مجهول', desc: 'doer known or unknown' },
   doer:    { label: 'Doer', ar: 'الضمير', desc: 'person · gender · number' },
   wazn:    { label: 'Wazn', ar: 'الوزن', desc: 'identify the pattern' },
+  mood:    { label: 'Iʿrāb', ar: 'الرفع والنصب والجزم', desc: 'marfūʿ / manṣūb / majzūm' },
   bab:     { label: 'Bāb (Form I)', ar: 'أبواب المجرد', desc: 'the six abwāb' },
   root:    { label: 'Root', ar: 'الجذر', desc: 'find the original letters' },
   derived: { label: 'Derived nouns', ar: 'المشتقات', desc: 'ism fāʿil / mafʿūl / maṣdar' },
@@ -319,33 +366,49 @@ export function buildQuiz(settings) {
 // Quick quizzes: presets + word bundles
 // ---------------------------------------------------------------------------
 
+// Verb-type drills are Form I (mujarrad) only — mazīd forms have their own screen.
 export const PRESETS = [
   {
     id: 'salim', title: 'Sound verbs', ar: 'سَالِم',
-    desc: 'No weak letters — the foundation. All ten forms.',
-    types: ['salim'],
+    desc: 'No weak letters — the foundation.',
+    types: ['salim'], forms: ['I'],
   },
   {
     id: 'ajwaf', title: 'Hollow verbs', ar: 'أَجْوَف',
     desc: 'Weak middle radical, like قَالَ.',
-    types: ['ajwaf'],
+    types: ['ajwaf'], forms: ['I'],
   },
   {
     id: 'naqis', title: 'Defective verbs', ar: 'نَاقِص',
     desc: 'Weak final radical, like رَمَى.',
-    types: ['naqis'],
+    types: ['naqis'], forms: ['I'],
   },
   {
     id: 'mudaaf', title: 'Doubled verbs', ar: 'مُضَاعَف',
     desc: 'Doubled radical, like مَدَّ.',
-    types: ['mudaaf'],
+    types: ['mudaaf'], forms: ['I'],
   },
   {
     id: 'mixed', title: 'Everything mix', ar: 'مُنَوَّع',
     desc: 'All verb types with content, shuffled together.',
-    types: null, // resolved to all available types
+    types: null, forms: ['I'], // types resolved to all available
   },
 ];
+
+/** One preset per mazīd fīhi form (II–X), for the mazīd drills screen. */
+export function mazeedPreset(formId) {
+  return {
+    id: `form-${formId}`,
+    title: FORMS[formId].nameEn,
+    ar: FORMS[formId].name,
+    types: null,
+    forms: [formId],
+  };
+}
+
+export function mazeedPresetAvailable(formId) {
+  return FORMS[formId].conjugable && ROOTS.some((r) => r.forms[formId]);
+}
 
 export const WORDS_PER_SIMPLE_QUIZ = 5;
 
@@ -357,33 +420,38 @@ export function presetAvailable(preset) {
 }
 
 /**
- * N words × 3 questions each: tense, voice, doer — same word carried through.
- * Words are restricted to māḍī/muḍāriʿ where BOTH voices exist, so the voice
- * question is never a giveaway.
+ * N words × 3 questions each: tense → voice → doer, same word carried through.
+ * A word only shows majhūl when both voices exist (so voice is never a
+ * giveaway); when a word has no majhūl at all (lāzim), the voice question is
+ * swapped for a wazn question.
  */
 export function buildSimpleQuiz(preset, wordCount = WORDS_PER_SIMPLE_QUIZ) {
   const settings = {
     types: preset.types ?? availableTypes(),
-    forms: Object.keys(FORMS),
+    forms: preset.forms ?? ['I'],
   };
   const words = [];
   const seen = new Set();
   let guard = 0;
   while (words.length < wordCount && guard++ < 400) {
-    const v = randomVerb(settings, { tenses: ['madi', 'mudari'] });
+    const v = randomVerb(settings, { tenses: ['madi', 'mudari'], voices: ['malum'] });
     if (!v) break;
-    const other = v.voice === 'malum' ? 'majhul' : 'malum';
-    if (!conjugate(v.rootEntry, v.formId, v.tense, other, v.slot)) continue;
-    const key = v.word;
-    if (seen.has(key)) continue;
-    seen.add(key);
+    const hasPair = !!conjugate(v.rootEntry, v.formId, v.tense, 'majhul', v.slot);
+    if (hasPair && Math.random() < 0.5) {
+      v.voice = 'majhul';
+      v.word = conjugate(v.rootEntry, v.formId, v.tense, 'majhul', v.slot);
+    }
+    v.hasVoicePair = hasPair;
+    if (seen.has(v.word)) continue;
+    seen.add(v.word);
     words.push(v);
   }
 
   const questions = [];
   words.forEach((v, i) => {
     const tag = `Word ${i + 1} / ${words.length}`;
-    for (const q of [makeTenseQuestion(v), makeVoiceQuestion(v), makeDoerQuestion(v)]) {
+    const second = v.hasVoicePair ? makeVoiceQuestion(v) : makeWaznQuestion(v);
+    for (const q of [makeTenseQuestion(v), second, makeDoerQuestion(v)]) {
       if (q) questions.push({ ...q, tag });
     }
   });
