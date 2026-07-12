@@ -96,6 +96,22 @@ public struct MoodLabel: Decodable {
 
 // MARK: - GrammarTables
 
+/// The static reference data of the grammar — the printed tables a sarf
+/// student memorizes, as one decoded value.
+///
+/// This is data, not logic: affix rows, stem templates, slot lists, labels.
+/// The rules for *using* them (how a word is assembled, when majhūl exists,
+/// what wins between override tables and templates) live in `Conjugator`;
+/// this type only answers lookups. It is also *closed* data: adding verbs
+/// grows roots.json, never this — it changes only if the grammar model
+/// itself changes.
+///
+/// Lifecycle: `ContentStore` decodes exactly one of these at launch,
+/// validates it, and hands it to `Conjugator` / `QuizGenerator` /
+/// `MeaningRenderer` through their initializers. So the app runs on a single
+/// instance *by construction* — but this is deliberately not a singleton:
+/// no `.shared`, no global. Tests (and future tooling) build their own from
+/// any content directory without fighting a global.
 public struct GrammarTables: Decodable {
     // Raw storage, string-keyed exactly as in the JSON.
     private let slots: [String]

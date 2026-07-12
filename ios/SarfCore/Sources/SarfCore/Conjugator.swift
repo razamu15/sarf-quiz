@@ -44,7 +44,7 @@ public struct Conjugator {
         //    without a table simply has no content yet.
         guard root.type == .salim else { return nil }
 
-        let spec = grammar.form(form)
+        let spec: FormSpec = grammar.form(form)
         guard spec.conjugable else { return nil }
         if voice == .majhul && (!spec.hasMajhul || !entry.isTransitive) { return nil }
 
