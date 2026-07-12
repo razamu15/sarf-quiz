@@ -58,20 +58,20 @@ public enum Bab: Int, Codable, CaseIterable {
 /// Raw values are the compact person-gender-number codes used in the content
 /// files: "3ms" = third person, masculine, singular, and so on.
 public enum PronounSlot: String, Codable, CaseIterable {
-    case huwa    = "3ms"   // هُوَ
-    case humaM   = "3md"   // هُمَا (two men)
-    case hum     = "3mp"   // هُمْ
-    case hiya    = "3fs"   // هِيَ
-    case humaF   = "3fd"   // هُمَا (two women)
-    case hunna   = "3fp"   // هُنَّ
-    case anta    = "2ms"   // أَنْتَ
-    case antumaM = "2md"   // أَنْتُمَا (two men)
-    case antum   = "2mp"   // أَنْتُمْ
-    case anti    = "2fs"   // أَنْتِ
-    case antumaF = "2fd"   // أَنْتُمَا (two women)
-    case antunna = "2fp"   // أَنْتُنَّ
-    case ana     = "1s"    // أَنَا
-    case nahnu   = "1p"    // نَحْنُ
+    case _3ms    = "3ms"   // هُوَ
+    case _3md   = "3md"   // هُمَا (two men)
+    case _3mp     = "3mp"   // هُمْ
+    case _3fs    = "3fs"   // هِيَ
+    case _3fd   = "3fd"   // هُمَا (two women)
+    case _3fp   = "3fp"   // هُنَّ
+    case _2ms    = "2ms"   // أَنْتَ
+    case _2md = "2md"   // أَنْتُمَا (two men)
+    case _2mp   = "2mp"   // أَنْتُمْ
+    case _2fs    = "2fs"   // أَنْتِ
+    case _2fd = "2fd"   // أَنْتُمَا (two women)
+    case _2fp = "2fp"   // أَنْتُنَّ
+    case _1s     = "1s"    // أَنَا
+    case _1p   = "1p"    // نَحْنُ
 }
 
 /// The three derived nouns supported at launch.

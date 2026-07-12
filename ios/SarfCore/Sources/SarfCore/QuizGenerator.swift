@@ -435,7 +435,7 @@ public struct QuizGenerator {
 
         let citation = conjugator.citation(candidate.root, form: .I)
         let entryGloss = candidate.root.entry(for: .I)?.gloss ?? ""
-        let verb = ConjugatedWord(root: candidate.root, form: .I, tense: .madi, voice: .malum, slot: .huwa, word: citation)
+        let verb = ConjugatedWord(root: candidate.root, form: .I, tense: .madi, voice: .malum, slot: ._3ms, word: citation)
         return Question(
             category: .bab, formID: .I, word: citation,
             gloss: entryGloss, fullMeaning: contextualMeaning(of: verb),
@@ -530,7 +530,7 @@ public struct QuizGenerator {
             .split(separator: " ").first.map(String.init) ?? ""
         let entryGloss = candidate.root.entry(for: candidate.form)?.gloss ?? ""
         let verb = ConjugatedWord(root: candidate.root, form: candidate.form,
-                                  tense: .madi, voice: .malum, slot: .huwa, word: citationWord)
+                                  tense: .madi, voice: .malum, slot: ._3ms, word: citationWord)
         return Question(
             category: .meaning, formID: candidate.form, word: citationWord,
             gloss: entryGloss, fullMeaning: contextualMeaning(of: verb),

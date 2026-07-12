@@ -100,15 +100,15 @@ public struct MeaningRenderer {
     // MARK: - "to be" conjugation by slot
 
     private func isThirdSingular(_ slot: PronounSlot) -> Bool {
-        slot == .huwa || slot == .hiya
+        slot == ._3ms || slot == ._3fs
     }
 
     private func bePast(_ slot: PronounSlot) -> String {
-        (isThirdSingular(slot) || slot == .ana) ? "was" : "were"
+        (isThirdSingular(slot) || slot == ._1s) ? "was" : "were"
     }
 
     private func bePresent(_ slot: PronounSlot) -> String {
-        if slot == .ana { return "am" }
+        if slot == ._1s { return "am" }
         return isThirdSingular(slot) ? "is" : "are"
     }
 }

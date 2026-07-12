@@ -179,8 +179,8 @@ public struct Conjugator {
     /// explanations. Form IX is not conjugable in the engine yet, so its
     /// citation is built directly from the display templates.
     public func citation(_ root: Root, form: FormID) -> String {
-        let past = conjugate(root, form: form, tense: .madi, voice: .malum, slot: .huwa)
-        let present = conjugate(root, form: form, tense: .mudari, voice: .malum, slot: .huwa)
+        let past = conjugate(root, form: form, tense: .madi, voice: .malum, slot: ._3ms)
+        let present = conjugate(root, form: form, tense: .mudari, voice: .malum, slot: ._3ms)
         if let past, let present { return "\(past) \(present)" }
 
         let spec = grammar.form(form)
