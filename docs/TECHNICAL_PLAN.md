@@ -1,319 +1,466 @@
-# Sarf Quiz — Technical Plan (iOS / Swift)
+# Sarf Quiz — Technical Plan v2 (iOS / Swift)
 
-Companion to [PRODUCT_SPEC.md](PRODUCT_SPEC.md). The web prototype
-(`web-prototype/`) is the reference implementation: its engine, data shapes, and
-101+ assertion smoke test port 1:1 to Swift. This document explains *how the system
-works* — the domain model, how endings are decided, how conjugation happens — and
-then the app architecture around it.
+Companion to [PRODUCT_SPEC.md](PRODUCT_SPEC.md).
+
+**v2 (2026-08-12)** incorporates the architecture review: chart-first grammar
+objects, one conjugator per verb type, grammar as Swift code (JSON reduced to
+roots only), a quiz engine that streams (fixed count or endless) with
+multi-select answers, an offline conjugation-table browser, and a staged
+retirement of the JS prototype. Review order agreed with the product owner:
+**docs → JS prototype restructure (UX sign-off in the browser) → Swift port.**
+Nothing in Part A below exists in code yet; the current code is documented in
+the v1 plan (git history) and the architecture-review artifact.
 
 ---
 
-## Part A — The morphology domain model
+## Part A — The morphology domain model (v2)
 
-### A.1 The core insight
+### A.1 The core insight (unchanged)
 
 Arabic sarf is a **template system**: a word = (root radicals) poured into
-(a pattern of letters + ḥarakāt) plus (an affix that encodes the doer). Because the
-system is regular for sound verbs, we *generate* words rather than store them —
-content cost is per-root, not per-word, and every generated word carries complete,
-authoritative metadata (there is nothing to look up; we built it, so we know
-everything about it). Irregular verbs are the exception and are stored as explicit
-tables behind the same interface.
+(a pattern of letters + ḥarakāt) plus (an affix that encodes the doer). We
+*generate* words rather than store them — content cost is per-root, and every
+generated word carries complete, authoritative metadata.
 
-```
-                     ┌───────────────────────────────┐
- Root (ك،ت،ب)  ──►   │  Stem template  "1َ2ُ3"        │
- Form + bāb    ──►   │  fill radicals → كْتُب          │──► prefix ── stem ── ending
- Tense/Voice   ──►   │  (which template to use)      │      يَ      كْتُب     ُ
- Mood          ──►   │  (which ending table)         │
- Slot (doer)   ──►   │  (which row of the table)     │    = يَكْتُبُ  "he writes"
-                     └───────────────────────────────┘
-```
+What changes in v2 is *where the grammar lives* (Swift code, not JSON), *how it
+is organized* (explicit per-chart objects, matching the paper tables students
+memorize), and *who runs it* (one conjugator per verb type instead of one
+engine with special cases).
 
-### A.2 Value types (all `Codable`, all pure — no classes, no state)
+### A.2 Vocabulary — the closed enums
+
+As today (`FormID, Tense, Voice, Mood, VerbType, Bab, PronounSlot,
+DerivedNounKind, QuestionCategory`), plus the new first-class key of the whole
+system:
 
 ```swift
-enum FormID: String   { case I, II, III, IV, V, VI, VII, VIII, IX, X }
-enum Tense: String    { case madi, mudari, amr }
-enum Voice: String    { case malum, majhul }
-enum Mood: String     { case raf, nasb, jazm }        // muḍāriʿ only
-enum VerbType: String { case salim, mahmuz, mudaaf, mithal, ajwaf, naqis, lafif }
-enum Slot: String, CaseIterable {                      // the classic 14-cell table
-  case p3ms, p3md, p3mp, p3fs, p3fd, p3fp             // هو … هنّ
-  case p2ms, p2md, p2mp, p2fs, p2fd, p2fp             // أنتَ … أنتنّ
-  case p1s, p1p                                        // أنا، نحن
-}
-enum NounKind: String { case ismFail, ismMaful, masdar }
-enum Bab: Int         { case nasara = 1, daraba, fataha, samia, karuma, hasiba }
-```
+/// One classic conjugation table. This replaces every (tense, voice, mood)
+/// tuple and every "mudari_malum_jazm" string key in the system.
+enum ChartID: String, Codable, CaseIterable {
+  case madiMalum, madiMajhul
+  case mudariMalumRaf,  case mudariMalumNasb,  case mudariMalumJazm
+  case mudariMajhulRaf, case mudariMajhulNasb, case mudariMajhulJazm
+  case amr
 
-### A.3 How a word is defined: `Root` and `FormEntry`
-
-A **Root** is three radicals plus a verb-type classification plus the set of forms
-(abwāb) it is actually used in. Each **FormEntry** holds what is *lexical* (cannot be
-derived): the bāb choice for Form I, the gloss, transitivity, the samāʿī maṣdar, the
-English conjugation bits for meaning display — and, for irregular roots, explicit
-override tables.
-
-```swift
-struct Root: Codable {
-  let radicals: [Character]          // ["ك","ت","ب"]
-  let type: VerbType                 // .salim → engine; anything else → tables
-  let forms: [FormID: FormEntry]
-}
-
-struct FormEntry: Codable {
-  let bab: Bab?                      // Form I only (which of the six abwāb)
-  let gloss: String                  // "to write"  (generic meaning, pre-answer)
-  let isTransitive: Bool             // gates majhūl + ism mafʿūl
-  let masdar: String?                // Form I samāʿī maṣdar ("كِتَابَة")
-  let english: EnglishForms?         // past/pp/pres3/ing → "he wrote", "written"…
-  let tables: [TableKey: [Slot: String]]?  // irregulars only — see A.6
+  var tense: Tense { … }     // derived, for display grouping
+  var voice: Voice { … }
+  var mood: Mood?  { … }     // muḍāriʿ charts only
 }
 ```
 
-### A.4 How endings are decided: affix tables
+Nine charts. A quiz question, a table-browser screen, a hand-authored fixture,
+and a grammar definition all point at the same `ChartID` — no string keys
+anywhere.
 
-Endings are **not** computed by string rules; they are small lookup tables, one row
-per slot, exactly like the paper conjugation tables students memorize. Each row is
-`(final-radical ḥaraka, suffix)` — the two things that change at the end of the word:
+### A.3 Grammar as code — explicit chart objects
 
-```swift
-struct Affix: Codable { let haraka: Character; let suffix: String }
-
-// māḍī:   3ms (fatḥa, "")   3mp (ḍamma, "وا")   2mp (sukūn, "تُمْ") …
-// muḍāriʿ has one table per mood:
-//   raf:  3ms (ḍamma, "")   3mp (ḍamma, "ونَ")  2fs (kasra, "ينَ")  3fp (sukūn, "نَ")
-//   nasb: 3ms (fatḥa, "")   3mp (ḍamma, "وا")   2fs (kasra, "ي")   3fp (sukūn, "نَ")
-//   jazm: 3ms (sukūn, "")   3mp (ḍamma, "وا")   2fs (kasra, "ي")   3fp (sukūn, "نَ")
-```
-
-This encodes the grammar directly: the "five verbs" dropping their ن in naṣb/jazm and
-the immutability of nūn al-niswa are just table rows, not special-case code. Muḍāriʿ
-additionally has a **prefix** table (slot → ي/ت/أ/ن) and a per-form prefix ḥaraka
-(ḍamma for II–IV, ḍamma always in majhūl, fatḥa otherwise).
-
-### A.5 How stems are decided: `FormSpec` templates
-
-One static spec per form (I–X), shipped as data. Templates are strings with `1 2 3`
-as radical placeholders; ḥarakāt are explicit Unicode combining marks. Form I stems
-are parameterized by bāb (the ʿayn vowel v1/v2 is the bāb).
+Every chart of every form (× bāb for Form I) of every verb type is written out
+**explicitly as a Swift literal**, one file per verb type. No JSON, no decode
+step, no `validateCompleteness()` — the compiler is the validator, and
+exhaustive `[PronounSlot: Affix]` literals are auditable against the paper
+charts line by line.
 
 ```swift
-struct FormSpec: Codable {
-  let id: FormID
-  let arabicName: String             // "بَابُ التَّفْعِيل"
-  let isConjugable: Bool             // false → IX (recognition-only) for now
-  let hasMajhul: Bool                // false → VII (lāzim)
-  let madiStem: Template             // "1َ2َّ3"        (II: fill → عَلَّم)
-  let madiMajhulStem: Template?      // "1ُ2ِّ3"        (عُلِّم)
-  let mudariStem: Template           // "1َ2ِّ3"        (+ يُ prefix → يُعَلِّم)
-  let mudariMajhulStem: Template?
-  let mudariPrefixHaraka: Character
-  let amrStem: Template?
-  let ismFail, ismMaful, masdar: Template?   // derived-noun patterns
-  let meanings: [MeaningID]          // taʿdiya, mushāraka, ṭalab…
+/// How a word ends for one pronoun: ḥaraka on the final radical + suffix.
+struct Affix { let haraka: Character; let suffix: String }
+
+/// One complete paper table: everything needed to conjugate one chart.
+struct ConjugationChart {
+  let id: ChartID
+  let stem: StemTemplate                 // "1َ2ِّ3" — Form I: one per bāb
+  let prefix: PrefixRule?                // muḍāriʿ only: letter-per-slot + ḥaraka
+  let endings: [PronounSlot: Affix]      // all 14 rows, written out
 }
 ```
 
-### A.6 The conjugation pipeline
+A worked literal, exactly as it will appear in `SalimGrammar.swift` — Form II
+māḍī maʿlūm, checkable row-by-row against the paper chart:
 
 ```swift
-func conjugate(_ root: Root, _ form: FormID, _ tense: Tense,
-               _ voice: Voice, _ slot: Slot, _ mood: Mood = .raf) -> String?
+static let formII_madiMalum = ConjugationChart(
+  id: .madiMalum,
+  stem: "1َ2َّ3",                    // علم → عَلَّم
+  prefix: nil,                       // māḍī has no prefix
+  endings: [
+    .p3ms: Affix("َ", ""),     .p3md: Affix("َ", "ا"),      .p3mp: Affix("ُ", "وا"),
+    .p3fs: Affix("َ", "تْ"),   .p3fd: Affix("َ", "تَا"),    .p3fp: Affix("ْ", "نَ"),
+    .p2ms: Affix("ْ", "تَ"),   .p2md: Affix("ْ", "تُمَا"),  .p2mp: Affix("ْ", "تُمْ"),
+    .p2fs: Affix("ْ", "تِ"),   .p2fd: Affix("ْ", "تُمَا"),  .p2fp: Affix("ْ", "تُنَّ"),
+    .p1s:  Affix("ْ", "تُ"),   .p1p:  Affix("ْ", "نَا"),
+  ]
+)
+
+static let formII_mudariMalumRaf = ConjugationChart(
+  id: .mudariMalumRaf,
+  stem: "1َ2ِّ3",                    // علم → عَلِّم
+  prefix: PrefixRule(haraka: "ُ"),   // يُـ — prefix letters per slot are universal
+  endings: [
+    .p3ms: Affix("ُ", ""),     .p3md: Affix("َ", "انِ"),    .p3mp: Affix("ُ", "ونَ"),
+    /* … all 14 rows, always written out … */
+  ]
+)
 ```
 
-1. **Override check** — if the root's `FormEntry` has a table for
-   `(tense, voice, mood)`, return that cell (or nil). This is the entire irregular-verb
-   mechanism: قال، رمى، مدّ are just data.
-2. **Eligibility** — nil for: non-sālim without a table, majhūl of intransitive/lāzim,
-   amr outside 2nd person, non-conjugable forms.
-3. **Assemble** — `fill(stemTemplate, radicals) + affix.haraka + affix.suffix`,
-   prepending prefix+ḥaraka for muḍāriʿ.
-4. **Normalize** — NFC-normalize the result. Critical: ḥaraka-vs-shadda combining
-   order differs between typed and templated text; NFC makes equality checks safe
-   everywhere (learned the hard way in the prototype).
+Form I stems vary by bāb, so its charts use `stem: .perBab([.nasara: "1َ2ُ3", …])`
+while mazīd forms use a single template — that's the only conditional shape.
 
-Two elegant consequences of this design:
-- **Wazn for free**: the wazn of any word = the same pipeline run on the root ف-ع-ل.
-- **Full metadata for free**: every quiz word is born knowing its root, form, bāb,
-  tense, voice, mood, slot, and meaning — which is exactly the grounding payload the
-  AI Explain feature needs.
+Deliberate duplication: the māḍī endings row set appears once per verb type
+even though sālim and mahmūz agree — **auditability beats DRY here**. A chart
+must be checkable against the madrasa handout without chasing shared
+constants across files. Shared *within* one verb type's file is fine.
 
-### A.7 Quiz generation
+Layout (one grammar file per verb type, growing as engines land):
 
-`QuizGenerator` is a set of pure builder functions, one per question category, each
-returning a `Question`:
+```
+Sources/SarfCore/Grammar/
+  GrammarTypes.swift     Affix, StemTemplate, PrefixRule, ConjugationChart
+  SalimGrammar.swift     9 charts × forms I(×6 abwāb)–X + derived-noun templates
+  AjwafGrammar.swift     (phase M1) hollow-verb charts: long-vowel stems,
+                         shortening rules in jazm/closed syllables
+  NaqisGrammar.swift     (phase M1) defective-verb charts: final-weak
+                         contractions per slot
+  MudaafGrammar.swift    (phase M2) doubled-radical folding/unfolding
+  MahmuzGrammar.swift    (phase M2) hamza seat rules
+```
+
+Display strings (pronoun labels, mood/meaning/verb-type labels, form names)
+move out of the grammar entirely into a UI-facing `Glossary` value — resolving
+the "GrammarTables grab-bag" review finding: engine data and display strings
+never share a type again.
+
+### A.4 Lexicon — the only JSON left
+
+`roots.json` is the single remaining resource file, because roots are the one
+thing that grows with content. Shape as today, with two changes: `FormEntry`
+is renamed **`RootFormUsage`** (it describes one root's *usage* of a form —
+the near-collision with the grammar side's specs was a review finding), and
+decode goes straight into enum-keyed dictionaries (`[FormID: RootFormUsage]`,
+`[ChartID: [PronounSlot: String]]`) via custom `Decodable` so a typo in
+content fails loudly at load instead of silently meaning "doesn't exist".
+
+A decoded entry looks like:
 
 ```swift
-struct Question: Identifiable, Codable {
-  let category: Category             // .tense, .voice, .doer, .wazn, .mood, …
-  let formID: FormID
-  let word: String                   // what's shown on the card
-  let gloss: String                  // generic meaning (pre-answer)
-  let fullMeaning: String            // contextual meaning (post-answer)
-  let prompt: String
-  let options: [Option]              // (arabic, english) pairs
-  let correctIndex: Int
-  let explanation: String            // rule-based one-liner
-  let explainPayload: ExplainPayload // full metadata for AI Explain
-  let bundleTag: String?             // "Word 2 / 5"
+Root(
+  radicals: ["ع", "ل", "م"],
+  type: .salim,                              // ← the routing key (A.5)
+  forms: [
+    .I:  RootFormUsage(bab: .samia, gloss: "to know", masdar: "عِلْم",
+                       isTransitive: true, english: …),
+    .II: RootFormUsage(gloss: "to teach", isTransitive: true, english: …),
+  ]
+)
+```
+
+**Is bundled JSON viable for the shipped app? Yes — it's the standard iOS
+pattern for read-only content.** The file ships inside the app bundle
+(offline-first by construction), is decoded exactly once at launch (hundreds
+of roots decode in single-digit milliseconds), is versioned with the app
+binary, and is validated at load + in CI. "Raw data in a file" only stops
+being viable at a scale or freshness we're nowhere near; the growth path is:
+bundled JSON (now, through launch) → precompiled store/SQLite (thousands of
+entries) → server-delivered content packs with local cache (post-launch
+content updates without app releases). No change to consumers at any step —
+`LexiconService` is the only type that knows where roots come from.
+
+Load-time validation also gets stronger: verb-type classification is
+mechanical (weak letters, hamza, doubled radicals are visible in the
+radicals), so `LexiconService` cross-checks each root's declared `type`
+against its radicals and rejects mislabeled content loudly.
+
+Hand-authored tables on a root change their job: they stop being the runtime
+mechanism for irregulars and become **parity fixtures** — the test suite
+asserts the corresponding verb-type engine reproduces every cell before that
+engine is allowed to serve the app (A.5). During migration, roots whose engine
+doesn't exist yet still serve from their tables, exactly as today.
+
+### A.5 Conjugation — one engine per verb type
+
+The review's central structural change. Each verb type's quirks (which letters
+drop or change in which slots, how stems shorten, where hamza sits) live in
+their own class, behind one protocol:
+
+```swift
+protocol VerbTypeConjugator {
+  var handles: VerbType { get }
+  func conjugate(_ root: Root, form: FormID, chart: ChartID,
+                 slot: PronounSlot) -> String?
+  func derivedNoun(_ root: Root, form: FormID, kind: DerivedNounKind) -> String?
+}
+
+struct SalimConjugator: VerbTypeConjugator { … }   // pure template fill
+struct AjwafConjugator: VerbTypeConjugator { … }   // M1
+struct NaqisConjugator: VerbTypeConjugator { … }   // M1
+struct MudaafConjugator: VerbTypeConjugator { … }  // M2
+struct MahmuzConjugator: VerbTypeConjugator { … }  // M2
+```
+
+`ConjugationService` is the single entry point the rest of the system sees:
+
+```swift
+final class ConjugationService {
+  // Routing is a dictionary lookup, not a scan. Every Root already carries
+  // its VerbType (declared in roots.json, cross-checked against the radicals
+  // at load), so picking the engine is O(1) on data that already exists —
+  // no type fields on the grammar objects, no looping, no runtime detection:
+  private let engines: [VerbType: any VerbTypeConjugator]
+
+  init(engines: [any VerbTypeConjugator] = [SalimConjugator()]) {
+    self.engines = Dictionary(uniqueKeysWithValues: engines.map { ($0.handles, $0) })
+  }
+
+  // Order of resolution per call:
+  // 1. engines[root.type] exists → engine result (grammar objects are owned
+  //    by the engine — SalimConjugator reads SalimGrammar, never vice versa)
+  // 2. else the root's hand-authored fixture table (migration fallback)
+  // 3. else nil — no content yet
+  func conjugate(_ root: Root, form: FormID, chart: ChartID,
+                 slot: PronounSlot) -> String?
+
+  /// The full 14-row (or 6-row amr) paper table — powers the Tables browser
+  /// and the parity tests. Nil when the chart doesn't exist for this verb.
+  func table(_ root: Root, form: FormID, chart: ChartID) -> ConjugationTable?
+
+  func derivedNoun(…) -> String?
+  func wazn(…) -> String?        // unchanged trick: SalimConjugator on ف-ع-ل
+  func citation(…) -> String     // نَصَرَ يَنْصُرُ
 }
 ```
 
-Distractor rules (ported from prototype): sampled from the same property's value
-space, filtered so no distractor renders the same written form as the answer
-(e.g. dual هما slots); voice questions only on words whose opposite voice exists;
-mood questions only on slots where all three moods are visually distinct; lāzim
-words swap the voice question for a wazn question in bundles.
+Everything stays NFC-normalized at the exit, and `fill` stays scalar-level
+(both hard-won invariants carry over). The `SyntheticRoot`/wazn trick is
+explicitly kept (review: KEEP), now documented as the sālim engine run on
+ف-ع-ل.
 
-Quiz modes: `simple(preset)` → N words × [tense, voice|wazn, doer];
-`custom(settings)` → random mix of selected categories. A third mode ships with
-Pro: `weakSpots(stats)` → custom settings derived from the user's worst
-(category × form) cells.
+**Engine promotion rule**: an engine ships only when the parity suite proves
+it reproduces every hand-authored fixture cell for its type (قول for ajwaf,
+رمي for nāqiṣ, مدّ for muḍāʿaf, أخذ/سأل for mahmūz), plus spot-check charts
+hand-verified against a printed sarf reference.
 
-### A.8 Content pipeline
+### A.6 Meanings (rename only)
 
-`patterns` + `roots` live as **JSON resources in the app bundle**, exported from the
-prototype's JS data files by a small node script (`npm run export-content`) so the
-web prototype remains the single authoring environment. Decoding is `Codable`; a
-content-validation unit test conjugates every root × form × slot and asserts
-non-crash + NFC validity. The engine smoke test (125 assertions) ports to XCTest
-verbatim — same inputs, same expected strings.
+`MeaningRenderer` → **`MeaningService`**. Behavior unchanged: contextual
+English from (root, form, chart, slot), regular-verb fallbacks, stative
+("to be …") handling.
+
+### A.7 Quiz — a stream, not a batch
+
+Two review changes: **multi-select correctness** and **endless mode**.
+
+```swift
+struct QuizPlan {
+  var categories: [QuestionCategory]
+  var forms: [FormID]
+  var verbTypes: [VerbType]
+  var length: Length
+  enum Length { case fixed(Int); case endless }
+}
+
+struct Question {
+  …                                  // word, prompt, options, explanation, payload
+  let correctIndices: Set<Int>       // ≥1 — multi-select replaces correctIndex
+  let identity: QuestionIdentity     // stable morphological identity (below)
+}
+
+/// Every question is engine-generated, so its full identity is known at
+/// birth. This is what history records (B.3) — never option indices, which
+/// are meaningless after shuffling.
+struct QuestionIdentity: Codable {
+  let category: QuestionCategory
+  let form: FormID
+  let verbType: VerbType
+  let chart: ChartID?                // verb questions
+  let rootKey: String                // "علم"
+  let slot: PronounSlot?             // slot of the displayed word
+}
+
+/// Options carry the semantic value they represent (a PronounSlot, Tense,
+/// ChartID… raw value), so an answer can be recorded as *what was picked*,
+/// not *which button position*.
+struct AnswerOption { let arabic, english: String; let valueKey: String? }
+
+final class QuizService {
+  /// Lazy question source. Fixed plans take N; endless plans keep pulling
+  /// until the user taps End quiz. Deduplication window instead of a global
+  /// seen-set so endless mode doesn't starve.
+  func stream(for plan: QuizPlan) -> QuestionStream   // AnyIterator<Question>
+}
+```
+
+Multi-select flips the doer-question distractor rule on its head: instead of
+*excluding* slots whose written form matches the answer (تَكْتُبُ = "she" and
+"you (m)"), the builder groups slots by rendered form — every pronoun whose
+form equals the shown word is a correct option, and distractors come from
+slots that render differently. The ambiguity becomes the lesson. The same
+set-based check generalizes any other category where two options can be
+simultaneously true.
+
+UI contract: single-correct questions still resolve on first tap;
+multi-correct questions show "Select all that apply" and a **Check** button.
+
+### A.8 Tables browser service
+
+No new engine code — the feature *is* `ConjugationService.table(…)` plus a
+picker UI (root × form × chart) and a wazn column rendered on ف-ع-ل. Works
+fully offline; doubles as the human-verification surface while engines are
+being written (M1/M2): review a whole chart at a glance, not one word at a
+time.
+
+### A.9 The JS prototype: role and retirement
+
+Current role: **UX playground and reference implementation**. Agreed path:
+
+1. **JS first** — the v2 restructure (charts, per-type conjugators, quiz
+   stream, multi-select, tables browser) is implemented and reviewed in the
+   web prototype, where iteration is fastest. Design sign-off happens here.
+2. **Swift port** — SarfCore v2 mirrors the signed-off JS structure; the twin
+   smoke-test suites (extended with chart/parity assertions) prove agreement.
+3. **Retirement** — once the SwiftUI app reaches feature parity and the owner
+   signs off, Swift becomes the single engine. The JS app is frozen (kept only
+   as a scratch UX sketchpad, no longer authoritative); `export-content.mjs`
+   shrinks to roots-only on day one of v2 and disappears entirely when root
+   authoring moves to editing `roots.json` directly.
+
+### A.10 Module layout (SarfCore v2)
+
+```
+Sources/SarfCore/
+  Vocabulary.swift            all closed enums incl. ChartID
+  Grammar/                    charts as Swift literals, one file per verb type
+  Lexicon/
+    Root.swift                Root, RootFormUsage, EnglishForms
+    LexiconService.swift      loads + validates roots.json (the only JSON)
+  Conjugation/
+    VerbTypeConjugator.swift  protocol
+    SalimConjugator.swift     (+ Ajwaf/Naqis/… as they land)
+    ConjugationService.swift  router, tables, wazn, citation
+  MeaningService.swift
+  Quiz/
+    Question.swift            Question, AnswerOption, ExplainPayload
+    QuizPlan.swift
+    QuizService.swift         stream builder + category builders
+  Glossary.swift              display strings (was mixed into GrammarTables)
+  Resources/roots.json
+```
+
+Naming convention (review: IMPROVE): behavior lives in `…Service` types; data
+lives in plain nouns (`Root`, `ConjugationChart`, `Glossary`); files are named
+for their role, not their contents' kind.
 
 ---
 
 ## Part B — App architecture
 
-### B.1 Stack
+### B.1 Stack (unchanged)
 
-- **SwiftUI + Observation** (`@Observable` view models), iOS 17+
-- **SwiftData** for persistence, with CloudKit mirroring for iCloud sync
-- **StoreKit 2** for subscriptions
-- **No third-party dependencies** in the app target
-- Backend: one serverless endpoint for AI Explain (see B.5)
+SwiftUI + Observation, iOS 17+; SwiftData + CloudKit; StoreKit 2; no
+third-party dependencies; one serverless endpoint for AI Explain.
 
-### B.2 Module layout (Xcode groups; Core is a local Swift package for testability)
+### B.2 Feature layout (delta from v1)
 
 ```
-SarfQuiz/
-  Core/                       ← pure logic, no UI imports, 100% unit-tested
-    Models/       Root, FormSpec, Question, enums
-    Engine/       Conjugator, QuizGenerator, MeaningRenderer, WaznService
-    Content/      ContentStore (loads/validates bundled JSON)
-  Features/
-    Home/         3-tab home (+ Stats, Settings tabs)
-    Quiz/         QuizView, QuestionCard, FeedbackView
-    Results/      score ring, breakdowns, vocab recap
-    Stats/        dashboard (Pro), weak-spot drill entry
-    Explain/      ExplainSheet (streaming markdown)
-    Paywall/      subscription UI, restore
-    Settings/
-  Services/
-    HistoryService    (SwiftData writes/queries)
-    StatsService      (aggregation over history)
-    StoreService      (StoreKit 2: entitlement, trial state)
-    ExplainService    (backend client, local cache, trial counter)
-  Resources/    patterns.json, roots.json, localized strings
+Features/
+  Home/         4-tab home: Form I · Mazīd fīhi · Custom · Tables (+ Stats, Settings)
+  Quiz/         QuizView: multi-select options + Check button; endless-feed
+                mode with running score and End quiz; fixed mode keeps the bar
+  Tables/       TableBrowserView: root/form/chart pickers → 14-row table + wazn
+  Results/      unchanged (endless mode enters via End quiz)
+  Stats/ Explain/ Paywall/ Settings/   as v1
 ```
 
-### B.3 Persistence model (SwiftData)
+`AppModel` stays the composition root (loads `LexiconService`, builds the
+services once). `QuizRun` adapts to a stream: it holds the iterator, a
+buffered window of served questions, and multi-select answer state.
+
+### B.3 Persistence (SwiftData) — history-ready by design
+
+The core principle: **an answer record is a pure projection of
+`QuestionIdentity` + what the user picked, stored semantically.** Because
+every question is engine-generated, its full morphological identity is known
+at generation time and lands in storage as typed fields — so stats can later
+slice accuracy by *any* dimension (category × form × verb type × chart ×
+slot) and mine confusion pairs without re-deriving anything.
 
 ```swift
-@Model final class QuizSession {
+@Model final class QuizSessionRecord {
   var startedAt: Date
-  var mode: String                    // "formI" | "mazeed" | "custom" | "weakSpots"
-  var presetID: String?               // "ajwaf", "form-III", …
-  var totalQuestions: Int
-  var correctCount: Int
+  var endedAt: Date?
+  var mode: String                   // preset id | "custom" | "endless" | "weakSpots"
+  var planSummary: String            // serialized QuizPlan — powers "replay this setup"
   @Relationship(deleteRule: .cascade) var answers: [AnswerRecord]
 }
 
 @Model final class AnswerRecord {
-  var category: String                // question category
-  var formID: String
-  var verbType: String
-  var word: String
-  var wasCorrect: Bool
+  // QuestionIdentity, flattened to enum raw values:
+  var category: String               // "doer"
+  var form: String                   // "II"
+  var verbType: String               // "salim"
+  var chart: String?                 // "mudariMalumRaf"
+  var rootKey: String                // "علم"
+  var slot: String?                  // "3fs"
+  var word: String                   // "تُعَلِّمُ" — as displayed
+  // Outcome, multi-select-aware and semantic (valueKeys, never indices):
+  var correctValues: [String]        // ["3fs", "2ms"]
+  var pickedValues: [String]         // ["3fs"]
+  var wasCorrect: Bool               // exact set match
   var answeredAt: Date
 }
 ```
 
-Free tier: sessions are held in memory for the results screen and **not persisted**.
-Pro: persisted + CloudKit-synced. Stats are computed on demand by `StatsService`
-(grouped fetches; at this data volume no pre-aggregation needed — revisit past
-~50k records).
+Storing `pickedValues`/`correctValues` as valueKeys is what makes
+"common mistakes" analysis possible later: *picked 2ms when the answer
+included 3fs* aggregates directly into "you confuse أَنْتَ forms with هِيَ
+forms" — a weak-spot drill seed, not just a wrong-count. Endless sessions
+record exactly the questions actually served. Free = in-memory only for the
+results screen; Pro = persisted + CloudKit-synced, as v1.
 
-### B.4 Monetization (StoreKit 2)
+### B.4 Monetization (StoreKit 2) — unchanged from v1
 
-- One subscription group "Sarf Pro": monthly + annual (annual w/ 7-day trial)
-- `StoreService` exposes `entitlement: .free | .pro` via `Transaction.currentEntitlements`,
-  refreshed on launch and on `Transaction.updates`
-- Gating is **view-level only** — Core never knows about tiers
-- AI-trial counter (3 lifetime free explains) stored in iCloud key-value store so
-  reinstalls don't reset it
-- Paywall copy/screens per PRODUCT_SPEC §4; include restore + legal links
+Subscription group "Sarf Pro" (monthly/annual + trial), view-level gating
+only, trial counter in iCloud KV store.
 
-### B.5 AI Explain
+### B.5 AI Explain — unchanged from v1
 
-**Client**: `ExplainService.explain(payload: ExplainPayload) async throws -> AsyncStream<String>`
-- Local cache keyed by `(word, category)` — a repeated question costs nothing
-- Sends the *full engine metadata* (root, form, bāb, tense, voice, mood, slot, wazn,
-  gloss, the wrong answer the user picked) — the model teaches, it never derives
+Serverless endpoint streaming Claude (claude-haiku) with full engine metadata;
+App Attest; server-side cache; offline → disabled.
 
-**Backend**: single serverless endpoint (Cloudflare Worker or AWS Lambda)
-- `POST /explain` → streams Claude API response (model: claude-haiku for cost, with
-  a fixed system prompt encoding the 3-part output: Breakdown / How to tell / Watch out)
-- Auth: App Attest assertion on first launch → short-lived token; subscription
-  checked via App Store Server API (`appAccountToken` on the transaction) before
-  serving non-trial requests
-- Server-side cache (KV) on the same key → most explanations are served without an
-  API call at all; rate limit per token (e.g. 100/day) as abuse backstop
-- Secrets (Anthropic API key, App Store key) live only in the worker
+### B.6 Testing strategy (v2 additions)
 
-**Failure modes**: offline → button disabled; backend error → retry + apologetic
-fallback showing the rule-based explanation we already have.
-
-### B.6 Testing strategy
-
-- **Core**: XCTest port of the prototype's 125-assertion smoke test + property test
-  (every root × form × tense × voice × mood × slot either conjugates to valid NFC
-  Arabic or returns nil — never crashes, never returns malformed text)
-- **Stats**: fixture sessions → known aggregates
-- **StoreKit**: `.storekit` configuration file + StoreKitTest for entitlement flows
-- **UI**: snapshot tests for the quiz card with long words/Dynamic Type; one UI test
-  for the happy path (start drill → answer 15 → results)
+- **Parity fixtures**: hand-authored tables become assertions — engine output
+  == fixture cell, for every cell, per verb type, before an engine ships.
+- **Chart audits**: one golden test per (verb type × form × chart) rendering
+  the full table against a hand-checked snapshot.
+- The 125-assertion suite carries over verbatim; twin JS/Swift suites remain
+  the cross-engine contract until JS retirement (A.9).
+- Property test: every root × form × chart × slot either yields valid NFC
+  Arabic or nil — never crashes.
+- UI: multi-select interaction test (partial selection ≠ correct); endless
+  mode test (End quiz → results with served-question count).
 
 ---
 
-## Part C — Build plan
+## Part C — Build plan (v2)
 
 | Phase | Scope | Exit criteria |
 |---|---|---|
-| **1. Core port** | Xcode project; port models/engine/content from prototype; export-content script | 125-assertion test suite green in XCTest |
-| **2. Quiz UI** | 3-tab home, quiz flow, results — feature parity with web prototype | Full drill playable on device; TestFlight build #1 (you dogfood) |
-| **3. History & stats** | SwiftData models, HistoryService, Stats dashboard, weak-spot drills | Stats correct against fixtures; CloudKit sync verified on 2 devices |
-| **4. Paywall** | StoreKit 2, entitlement gating, paywall screens, trial counter | Sandbox purchase/restore/upgrade paths all pass |
-| **5. AI Explain** | Backend worker + ExplainService + sheet UI + caching | Streaming explain on device; cache hit rate visible in logs; cost/explain measured |
-| **6. Polish & ship** | Accessibility, Arabic-only mode, onboarding, app icon, screenshots, privacy labels, review notes | App Store submission |
+| **R1. Docs** | Spec + this plan updated | Owner review ✔ (this document) |
+| **R2. JS restructure** | Charts, ChartID, per-type conjugator split, ConjugationService, quiz stream (fixed/endless), multi-select UI, tables browser — all in web prototype | Owner plays with it in the browser and signs off on UX + architecture |
+| **R3. Swift core v2** | Port signed-off structure: grammar-as-code, services, quiz stream; roots-only JSON; parity + chart-audit tests | Twin suites green; old smoke test still passes |
+| **R4. App v2** | Multi-select quiz UI, endless feed, Tables tab | Happy-path UI tests green on simulator |
+| **M1. Muʿtall engines** | AjwafConjugator + NaqisConjugator (+2–3 roots each) | Parity suite reproduces قول/رمي cell-for-cell |
+| **M2. Ṣaḥīḥ engines** | MudaafConjugator + MahmuzConjugator (مدّ، أخذ، سأل) | Same bar |
+| **3–6. As v1** | History & stats → Paywall → AI Explain → Polish & ship | As v1 plan |
 
-Sequencing notes: phases 3–5 are independent of each other after phase 2 — reorder
-freely. Content expansion (more irregular roots) is parallel-track authoring work in
-the web prototype at any time, since content ships as JSON.
-
-Pre-submission checklist: subscription review guidelines (3.1), restore button,
-privacy policy URL, App Privacy labels, export compliance (standard encryption
-exemption), age rating, RTL/Arabic screenshot review on smallest and largest devices.
+M1/M2 are parallel-track to phases 3–6 (content depth vs. product breadth).
+JS retirement decision point: end of R4.
 
 ---
 
 ## Open decisions (flagging, not blocking)
 
-1. **Explain model/prompt language** — English explanations at launch; Arabic-medium
-   explanations later as a setting?
-2. **Trial mechanics** — 3 lifetime explains vs 7-day full-Pro trial only. Current
-   plan: both (they compose).
-3. **Form IX conjugation** — implement shadda-unfolding in the engine (small,
-   well-understood) during phase 1, or keep recognition-only for v1.0.
-4. **Rule-based iʿlāl engine** for muʿtall verbs (replacing hand tables) — v2
-   flagship feature ("why did the letter change?" questions); not in v1 scope.
+1. **Explain model/prompt language** — English at launch; Arabic-medium later?
+2. **Trial mechanics** — 3 lifetime explains + 7-day trial (current plan: both).
+3. **Form IX** — becomes just another chart set in SalimGrammar once shadda
+   unfolding is written; still recognition-only until then.
+4. **Endless-mode history** (Pro) — cap stored answers per endless session?
+5. **Duplicate policy in endless mode** — size of the dedup window.

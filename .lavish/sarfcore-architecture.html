@@ -1,0 +1,1014 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SarfCore — architecture breakdown</title>
+<style>
+  /* Matches the project's own design tokens (web-prototype/css/style.css) */
+  :root {
+    --bg: #0e1117;
+    --card: #191f2b;
+    --card2: #212a3a;
+    --ink: #eef2f8;
+    --ink-dim: #93a0b4;
+    --accent: #4ea8de;
+    --accent-ink: #0b2233;
+    --good: #3fb96f;
+    --bad: #e05d5d;
+    --warn: #d9a23c;
+    --chip-on: #2b567a;
+    --radius: 16px;
+    --arabic: "Geeza Pro", "Al Bayan", "Baghdad", "Scheherazade New", "Amiri", serif;
+    --latin: -apple-system, "SF Pro Text", "Segoe UI", system-ui, sans-serif;
+    --mono: "SF Mono", ui-monospace, Menlo, Consolas, monospace;
+    color-scheme: dark;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :where(.grid2, .grid3, .pieces, .row) > * { min-width: 0; }
+  :where(p, h1, h2, h3, h4, li, td, th, dd, figcaption) { overflow-wrap: anywhere; }
+  :where(img, svg, video, canvas) { max-width: 100%; height: auto; }
+
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--latin);
+    line-height: 1.55;
+    padding: 40px 20px 80px;
+  }
+  main { max-width: 980px; margin: 0 auto; display: flex; flex-direction: column; gap: 44px; }
+
+  h1 { font-size: 32px; letter-spacing: -0.02em; line-height: 1.15; }
+  h1 .ar { font-family: var(--arabic); color: var(--accent); margin-inline-start: 10px; }
+  h2 { font-size: 22px; letter-spacing: -0.01em; margin-bottom: 4px; }
+  h3 { font-size: 16px; }
+  .kicker { color: var(--accent); font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 6px; }
+  .lede { color: var(--ink-dim); font-size: 15px; max-width: 72ch; }
+  section > .lede { margin-top: 6px; margin-bottom: 16px; }
+
+  .card { background: var(--card); border-radius: var(--radius); padding: 20px 22px; }
+  .card2 { background: var(--card2); }
+  .grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(340px, 100%), 1fr)); gap: 14px; }
+
+  .ar { font-family: var(--arabic); }
+  code, .code { font-family: var(--mono); font-size: 0.92em; background: #10151f; border: 1px solid #2a3446; border-radius: 6px; padding: 1px 6px; color: #bcd3ec; }
+  .accent { color: var(--accent); }
+  .dim { color: var(--ink-dim); }
+  .small { font-size: 13px; }
+
+  .badge { display: inline-block; font-size: 11px; font-weight: 700; letter-spacing: 0.05em; border-radius: 999px; padding: 2px 10px; vertical-align: 2px; }
+  .badge.data   { background: #21384d; color: #7cc4f0; }
+  .badge.logic  { background: #23422f; color: #7fd8a2; }
+  .badge.app    { background: #45304d; color: #d9a9ec; }
+  .badge.naming { background: #4d3a21; color: #ecc78a; }
+  .badge.arch   { background: #21384d; color: #7cc4f0; }
+  .badge.pipe   { background: #3a2f4d; color: #bda9ec; }
+
+  /* tables */
+  .tablewrap { overflow-x: auto; border-radius: var(--radius); background: var(--card); }
+  table { border-collapse: collapse; width: 100%; font-size: 14px; }
+  th, td { text-align: left; padding: 10px 14px; border-bottom: 1px solid #262f40; vertical-align: top; }
+  th { color: var(--ink-dim); font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; position: sticky; top: 0; background: var(--card); }
+  tr:last-child td { border-bottom: 0; }
+  td.who { white-space: nowrap; }
+
+  /* mermaid containers */
+  .mermaid { background: var(--card); border-radius: var(--radius); padding: 18px; display: flex; justify-content: center; overflow-x: auto; }
+  .mermaid:not([data-processed]) { color: transparent; min-height: 120px; }
+  figcaption { color: var(--ink-dim); font-size: 13px; margin-top: 8px; }
+
+  /* word assembly */
+  .assembly { display: flex; flex-direction: column; gap: 14px; }
+  .pieces { direction: rtl; display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; align-items: stretch; }
+  .piece { border-radius: 12px; padding: 10px 14px 8px; text-align: center; min-width: 84px; }
+  .piece .glyph { font-family: var(--arabic); font-size: 34px; line-height: 1.3; display: block; }
+  .piece .lbl { direction: ltr; display: block; font-size: 11px; font-weight: 600; letter-spacing: 0.04em; margin-top: 4px; }
+  .p-prefix { background: #45304d; } .p-prefix .lbl { color: #d9a9ec; }
+  .p-stem   { background: #21384d; } .p-stem .lbl   { color: #7cc4f0; }
+  .p-haraka { background: #4d3a21; } .p-haraka .lbl { color: #ecc78a; }
+  .p-suffix { background: #23422f; } .p-suffix .lbl { color: #7fd8a2; }
+  .equals { align-self: center; font-size: 22px; color: var(--ink-dim); padding: 0 4px; }
+  .result { align-self: center; text-align: center; }
+  .result .glyph { font-family: var(--arabic); font-size: 40px; color: var(--accent); }
+  .result .lbl { font-size: 13px; color: var(--ink-dim); }
+
+  /* friction cards + triage form */
+  fieldset { border: 0; }
+  .issue { background: var(--card); border-radius: var(--radius); padding: 18px 20px; display: flex; flex-direction: column; gap: 8px; }
+  .issue h3 { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+  .issue p { color: var(--ink-dim); font-size: 14px; }
+  .issue .fix { color: var(--ink); font-size: 14px; }
+  .issue .fix b { color: var(--accent); }
+  .choices { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 6px; }
+  .choices label {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--card2); border: 1px solid #2a3446; border-radius: 999px;
+    padding: 6px 14px; font-size: 13px; font-weight: 600; cursor: pointer;
+  }
+  .choices label:has(input:checked) { background: var(--chip-on); border-color: var(--accent); }
+  .choices input { accent-color: var(--accent); }
+  textarea {
+    width: 100%; min-height: 70px; background: var(--card2); color: var(--ink);
+    border: 1px solid #2a3446; border-radius: 10px; padding: 10px 12px;
+    font-family: var(--latin); font-size: 14px; resize: vertical;
+  }
+  .btn {
+    background: var(--accent); color: var(--accent-ink); border: 0; border-radius: 12px;
+    font-size: 15px; font-weight: 700; padding: 12px 22px; cursor: pointer; font-family: var(--latin);
+  }
+  .btn:disabled { opacity: 0.5; cursor: default; }
+  .queued-note { color: var(--good); font-size: 13px; font-weight: 600; display: none; }
+
+  .filecard h3 { font-family: var(--mono); font-size: 14px; color: var(--accent); }
+  .filecard .loc { float: right; color: var(--ink-dim); font-size: 12px; font-family: var(--mono); }
+  .filecard p { font-size: 13px; color: var(--ink-dim); margin-top: 6px; }
+
+  #conjugate-src-view { border-radius: var(--radius); overflow: hidden; }
+</style>
+</head>
+<body>
+<main>
+
+  <!-- ======================= HEADER ======================= -->
+  <header>
+    <div class="kicker">Current state · read before deciding what to change</div>
+    <h1>How SarfCore works today<span class="ar">الصَّرْف</span></h1>
+    <p class="lede" style="margin-top:10px">
+      Part 1 documents the code as it exists — types, call hierarchy, execution paths, JSON pipeline.
+      Your triage answers are recorded in the <a href="#friction" style="color:var(--accent)">friction section</a>,
+      and <a href="#proposal" style="color:var(--accent)">Part 2 — the v2 proposal</a> turns them plus your six notes
+      into the concrete redesign now written into <code>docs/PRODUCT_SPEC.md</code> and <code>docs/TECHNICAL_PLAN.md</code>.
+      Review Part 2 and queue your verdict at the bottom.
+    </p>
+  </header>
+
+  <!-- ======================= MENTAL MODEL ======================= -->
+  <section>
+    <div class="kicker">The mental model</div>
+    <h2>Words are generated, never stored</h2>
+    <p class="lede">
+      A conjugated word is four pieces snapped together. Two pieces are <b>grammar</b> (same for every verb),
+      one is <b>lexicon</b> (the root's letters), and one is a <b>choice</b> (which cell of the table you want).
+      That's the whole engine — everything else is bookkeeping around this equation.
+    </p>
+
+    <div class="grid2">
+      <div class="card assembly">
+        <h3 style="text-align:center">Form II muḍāriʿ · <span class="dim">he/they teach</span></h3>
+        <div class="pieces">
+          <div class="piece p-prefix"><span class="glyph">يُ</span><span class="lbl">PREFIX letter+ḥaraka<br>slot→ي · Form II→ḍamma</span></div>
+          <div class="piece p-stem"><span class="glyph">عَلِّم</span><span class="lbl">STEM template 1َ2ِّ3<br>filled with ع ل م</span></div>
+          <div class="piece p-haraka"><span class="glyph">ـُ</span><span class="lbl">FINAL ḤARAKA<br>affix row for هم</span></div>
+          <div class="piece p-suffix"><span class="glyph">ونَ</span><span class="lbl">SUFFIX<br>same affix row</span></div>
+        </div>
+        <div class="equals">=</div>
+        <div class="result"><span class="glyph">يُعَلِّمُونَ</span><span class="lbl">“they teach / will teach” — then NFC-normalized</span></div>
+      </div>
+
+      <div class="card assembly">
+        <h3 style="text-align:center">Form II māḍī · <span class="dim">you (f pl) taught</span></h3>
+        <div class="pieces">
+          <div class="piece p-stem"><span class="glyph">عَلَّم</span><span class="lbl">STEM template 1َ2َّ3<br>filled with ع ل م</span></div>
+          <div class="piece p-haraka"><span class="glyph">ـْ</span><span class="lbl">FINAL ḤARAKA<br>affix row for أنتنّ</span></div>
+          <div class="piece p-suffix"><span class="glyph">تُنَّ</span><span class="lbl">SUFFIX<br>same affix row</span></div>
+        </div>
+        <div class="equals">=</div>
+        <div class="result"><span class="glyph">عَلَّمْتُنَّ</span><span class="lbl">“you (f, 3+) taught” — māḍī has no prefix</span></div>
+      </div>
+    </div>
+
+    <p class="lede" style="margin-top:14px">
+      Two elegant consequences: the <b>wazn</b> of any word is the same pipeline run on the reference root
+      <span class="ar">ف ع ل</span>, and every generated word is <i>born knowing</i> its root, form, bāb, tense,
+      voice, mood, and slot — no lookup needed, which is exactly what quiz explanations and (later) AI&nbsp;Explain consume.
+      Irregular verbs (<span class="ar">قال، رمى</span>) skip the equation entirely: they're hand-typed lookup
+      tables checked <i>before</i> the engine runs.
+    </p>
+  </section>
+
+  <!-- ======================= STATIC STRUCTURE ======================= -->
+  <section>
+    <div class="kicker">Static structure</div>
+    <h2>Who depends on whom</h2>
+    <p class="lede">
+      Three layers. Data flows top to bottom exactly once at app launch; after that every arrow is a plain
+      synchronous function call. Nothing in SarfCore has mutable state — the only stateful objects live in the app layer.
+    </p>
+    <figure>
+      <pre class="mermaid">
+flowchart TD
+  subgraph authoring["AUTHORING — web prototype is the source of truth"]
+    PJS["patterns.js<br/>(grammar as JS constants)"]
+    RJS["roots.js<br/>(lexicon as JS objects)"]
+    EXP["tools/export-content.mjs<br/>npm run export-content"]
+    PJS --> EXP
+    RJS --> EXP
+  end
+  EXP --> PJSON[("patterns.json")]
+  EXP --> RJSON[("roots.json")]
+  subgraph core["SARFCORE PACKAGE — pure logic, no state, no UI"]
+    CS["ContentStore<br/>loads + validates once"]
+    GT["GrammarTables<br/>static grammar: affixes, stem templates, labels"]
+    ROOTS["[Root] — 24 lexicon entries<br/>(22 sālim + قول + رمي)"]
+    CJ["Conjugator<br/>the assembly line"]
+    MR["MeaningRenderer<br/>English meanings"]
+    QG["QuizGenerator<br/>questions + distractors"]
+    PJSON --> CS
+    RJSON --> CS
+    CS --> GT
+    CS --> ROOTS
+    GT --> CJ
+    GT --> MR
+    CJ --> QG
+    MR --> QG
+    ROOTS --> QG
+  end
+  subgraph app["SARFQUIZ APP — draws and routes only"]
+    AM["AppModel<br/>composition root, owns everything"]
+    QR["QuizRun<br/>one quiz's mutable state"]
+    UI["HomeView · QuizView · ResultsView"]
+    QG --> AM
+    AM --> QR
+    QR --> UI
+  end
+      </pre>
+      <figcaption>
+        Sources: ios/SarfCore/Sources/SarfCore/*.swift, ios/SarfQuiz/SarfQuiz/*.swift,
+        web-prototype/tools/export-content.mjs. The enums (FormID, Tense, Voice, Mood, PronounSlot, Bab…)
+        are used by every box in the core layer, so they're omitted from the arrows.
+      </figcaption>
+    </figure>
+  </section>
+
+  <!-- ======================= CAST OF TYPES ======================= -->
+  <section>
+    <div class="kicker">The cast</div>
+    <h2>Every type, its job, and who calls it</h2>
+    <p class="lede">
+      A useful split to keep in mind: <span class="badge data">DATA</span> types are inert values decoded from JSON,
+      <span class="badge logic">LOGIC</span> types are pure functions over that data,
+      <span class="badge app">APP</span> types hold the only mutable state.
+    </p>
+    <div class="tablewrap">
+      <table>
+        <thead>
+          <tr><th>Type</th><th>Kind</th><th>File</th><th>What it is</th><th>Called by</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>FormID, Tense, Voice, Mood, VerbType, Bab, PronounSlot, DerivedNounKind, QuestionCategory</code></td>
+            <td><span class="badge data">DATA</span></td>
+            <td class="who">MorphologyPrimitives.swift <span class="dim">(99)</span></td>
+            <td>The closed vocabulary of the domain — enums that never grow with content. Raw values double as JSON keys.</td>
+            <td class="who">everyone</td>
+          </tr>
+          <tr>
+            <td><code>GrammarTables</code> <span class="dim">+ FormSpec, StemSet, Affix, BabSpec, Pronoun, MeaningLabel, MoodLabel, VerbTypeInfo</span></td>
+            <td><span class="badge data">DATA</span></td>
+            <td class="who">GrammarTables.swift <span class="dim">(224)</span></td>
+            <td>The printed grammar reference: affix rows per slot, stem templates per form (Form I: per bāb), plus display labels. String-keyed inside, enum-typed accessors outside. Accessors <code>fatalError</code> on a miss — <code>validateCompleteness()</code> at load makes that unreachable.</td>
+            <td class="who">Conjugator, MeaningRenderer, QuizGenerator, views</td>
+          </tr>
+          <tr>
+            <td><code>Root</code> <span class="dim">+ FormEntry, EnglishForms</span></td>
+            <td><span class="badge data">DATA</span></td>
+            <td class="who">Root.swift <span class="dim">(83)</span></td>
+            <td>One lexicon entry: radicals + verb type + the forms it's used in. <code>FormEntry</code> holds what can't be derived: bāb, gloss, transitivity, samāʿī maṣdar, English bits — and for irregulars, the override tables.</td>
+            <td class="who">Conjugator, QuizGenerator</td>
+          </tr>
+          <tr>
+            <td><code>ContentStore</code></td>
+            <td><span class="badge logic">LOGIC</span></td>
+            <td class="who">ContentStore.swift <span class="dim">(63)</span></td>
+            <td>Decodes both JSON files once, runs <code>validateCompleteness()</code>, exposes <code>grammar</code>, <code>roots</code>, <code>availableVerbTypes</code>, <code>root(withRadicals:)</code>. The single entry point for all content.</td>
+            <td class="who">AppModel (once, at launch)</td>
+          </tr>
+          <tr>
+            <td><code>Conjugator</code></td>
+            <td><span class="badge logic">LOGIC</span></td>
+            <td class="who">Conjugator.swift <span class="dim">(216)</span></td>
+            <td>The assembly line: <code>conjugate()</code>, <code>derivedNoun()</code>, <code>fullTable()</code>, <code>wazn()</code>, <code>citation()</code>. Returns <code>nil</code> for combinations that don't exist in the language — that's a normal answer, not an error.</td>
+            <td class="who">QuizGenerator</td>
+          </tr>
+          <tr>
+            <td><code>MeaningRenderer</code></td>
+            <td><span class="badge logic">LOGIC</span></td>
+            <td class="who">MeaningRenderer.swift <span class="dim">(114)</span></td>
+            <td>English side: (root, form, tense, voice, slot) → “she was taught”. Regular-verb fallbacks (+ed, +s, +ing); statives (“to be safe”) conjugate <i>to be</i> instead.</td>
+            <td class="who">QuizGenerator</td>
+          </tr>
+          <tr>
+            <td><code>QuizGenerator</code> <span class="dim">+ Question, AnswerOption, ExplainPayload, QuizSettings, DrillPreset</span></td>
+            <td><span class="badge logic">LOGIC</span></td>
+            <td class="who">QuizGenerator.swift <span class="dim">(636)</span></td>
+            <td>Probabilistic question builders — one per category, each enforcing fairness rules (distractors must render differently; voice questions need both voices to exist; mood questions need visually distinct slots). Two entry points: <code>simpleQuiz(preset:)</code> and <code>customQuiz(settings:)</code>.</td>
+            <td class="who">AppModel</td>
+          </tr>
+          <tr>
+            <td><code>AppModel</code></td>
+            <td><span class="badge app">APP</span></td>
+            <td class="who">SarfQuiz/AppModel.swift</td>
+            <td>Composition root: builds ContentStore + QuizGenerator at launch, holds the optional <code>run</code> that drives the full-screen quiz cover.</td>
+            <td class="who">all views (via environment)</td>
+          </tr>
+          <tr>
+            <td><code>QuizRun</code></td>
+            <td><span class="badge app">APP</span></td>
+            <td class="who">SarfQuiz/QuizRun.swift</td>
+            <td>One quiz's mutable state: questions, index, answers, results math, and the <code>rebuild</code> closure behind “New round (same setup)”.</td>
+            <td class="who">QuizView, ResultsView</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ======================= EXECUTION PATH 1: LAUNCH ======================= -->
+  <section>
+    <div class="kicker">Execution path 1</div>
+    <h2>App launch — JSON becomes live objects, once</h2>
+    <p class="lede">
+      This is the <b>only</b> place JSON exists at runtime. After <code>AppModel.init</code> returns,
+      the files are never touched again — every later call works on decoded Swift values held in memory.
+    </p>
+    <figure>
+      <pre class="mermaid">
+sequenceDiagram
+  participant OS as iOS
+  participant App as SarfQuizApp
+  participant AM as AppModel.init
+  participant CS as ContentStore
+  participant JD as JSONDecoder
+  OS->>App: launch
+  App->>AM: @State model = AppModel()
+  AM->>CS: ContentStore.loadBundled()
+  CS->>JD: decode "patterns.json" (Bundle.module)
+  JD-->>CS: GrammarTables
+  CS->>JD: decode "roots.json"
+  JD-->>CS: [Root] × 24
+  CS->>CS: grammar.validateCompleteness()
+  Note over CS: every slot × mood × form × bāb present,<br/>or throw — this is why accessors can fatalError safely
+  CS-->>AM: ContentStore
+  AM->>AM: QuizGenerator(content:)
+  Note over AM: QuizGenerator.init builds its own<br/>Conjugator(grammar:) + MeaningRenderer(grammar:)
+      </pre>
+      <figcaption>
+        AppModel.swift:17–31 → ContentStore.swift:16–41 → GrammarTables.swift validateCompleteness().
+        Failure to load = fatalError, deliberately: bundled content missing is a build defect, not a runtime condition.
+      </figcaption>
+    </figure>
+  </section>
+
+  <!-- ======================= EXECUTION PATH 2: DRILL ======================= -->
+  <section>
+    <div class="kicker">Execution path 2</div>
+    <h2>Tapping “Start” on a drill — the hot path</h2>
+    <p class="lede">
+      The generator is <b>probabilistic</b>: it rolls random (root, form, tense, voice, slot) combos and asks the
+      Conjugator “does this word exist?” — <code>nil</code> means reroll. Bounded retry loops
+      (80 for a word, 400 for a drill) guarantee termination even on sparse content.
+    </p>
+    <figure>
+      <pre class="mermaid">
+sequenceDiagram
+  participant UI as HomeView
+  participant AM as AppModel
+  participant QG as QuizGenerator
+  participant CJ as Conjugator
+  UI->>AM: startQuiz { simpleQuiz(preset) }
+  AM->>QG: simpleQuiz(preset:)
+  loop until 5 distinct words (≤400 tries)
+    QG->>QG: randomVerb — roll candidate + tense + slot
+    QG->>CJ: conjugate(root, form, tense, .malum, slot)
+    CJ-->>QG: word (or nil → reroll)
+    QG->>CJ: conjugate(same, .majhul) — does a voice pair exist?
+    Note over QG: coin flip: show the majhūl instead,<br/>only when both voices exist
+  end
+  loop each word → 3 questions
+    QG->>QG: tenseQuestion(word)
+    QG->>QG: voiceQuestion — or waznQuestion when lāzim
+    QG->>QG: doerQuestion
+    Note over QG,CJ: each maker re-calls conjugate()<br/>for distractors, wazn on ف-ع-ل, citations
+  end
+  QG-->>AM: [Question] × ~15
+  AM->>AM: run = QuizRun(questions, rebuild:)
+  AM-->>UI: fullScreenCover → QuizView
+      </pre>
+      <figcaption>
+        QuizGenerator.swift:163–199 (simpleQuiz), 241–259 (randomVerb), 263–349 (question makers).
+        The custom quiz path is the same shape with per-category builders (353–542). “New round” just
+        re-invokes the stored rebuild closure.
+      </figcaption>
+    </figure>
+  </section>
+
+  <!-- ======================= EXECUTION PATH 3: CONJUGATE ======================= -->
+  <section>
+    <div class="kicker">Execution path 3</div>
+    <h2>Inside <code>conjugate()</code> — the heart of the engine</h2>
+    <p class="lede">
+      Every Arabic word in the app is born here. Note the order: <b>override tables win before the engine
+      even looks at the grammar</b> — that single check is the entire irregular-verb mechanism.
+    </p>
+    <figure>
+      <pre class="mermaid">
+flowchart TD
+  A["conjugate(root, form, tense, voice, slot, mood)"] --> B{"root's FormEntry has an override table<br/>for key like 'mudari_malum_jazm'?"}
+  B -- "yes" --> C["return table[slot] — may be nil<br/>THE entire irregular mechanism (قال، رمى)"]
+  B -- "no" --> D{"root.type == .salim?"}
+  D -- "no" --> N1["nil — irregular root without a table<br/>simply has no content yet"]
+  D -- "yes" --> E{"eligible? form conjugable (not IX),<br/>majhūl only if hasMajhul + transitive"}
+  E -- "no" --> N2["nil"]
+  E -- "yes" --> F["pick stem template from FormSpec<br/>(voice picks majhūl stem, Form I picks by bāb)"]
+  F --> G["fill(): substitute radicals for 1/2/3<br/>at Unicode-SCALAR level, not Character"]
+  G --> H["append affix.finalHaraka + affix.suffix<br/>(the slot's row in the tense/mood table)"]
+  H --> I["muḍāriʿ only: prepend prefix letter (slot)<br/>+ prefix ḥaraka (majhūl→ḍamma, else per form)"]
+  I --> J["NFC-normalize → the word"]
+      </pre>
+      <figcaption>
+        Conjugator.swift:30–95. The scalar-level fill and the NFC step are both hard-won lessons:
+        “1”+fatḥa is one grapheme cluster in Swift (string replace misses it), and ḥaraka/shadda
+        combining order differs between typed and templated text (NFC makes equality safe).
+      </figcaption>
+    </figure>
+
+    <h3 style="margin-top:22px; margin-bottom:8px">The actual source (trimmed to the decision spine)</h3>
+    <div id="conjugate-src-view"></div>
+  </section>
+
+  <!-- ======================= JSON PIPELINE ======================= -->
+  <section>
+    <div class="kicker">The content pipeline</div>
+    <h2>Why the JSON exists at all</h2>
+    <p class="lede">
+      The JSON is not a database — it's a <b>hand-off format between two implementations of the same engine</b>.
+      The web prototype is where content is authored and instantly play-tested; the export script freezes its JS
+      constants into JSON; the Swift package decodes them. The 125-assertion smoke test runs on <i>both</i> sides
+      to prove the two engines agree.
+    </p>
+    <div class="grid2">
+      <div class="card">
+        <h3><code>patterns.json</code> <span class="dim small">← patterns.js</span></h3>
+        <p class="small dim" style="margin-top:8px">
+          The grammar. Slot lists, pronoun labels, māḍī/muḍāriʿ(×3 moods)/amr affix tables, prefix letters,
+          the 6 abwāb, all 10 form specs (Form I stems materialized per bāb so the JSON stays logic-free),
+          mood/meaning/verb-type labels. <b>Closed data</b> — adding verbs never touches this file.
+          Decodes into <code>GrammarTables</code>.
+        </p>
+      </div>
+      <div class="card">
+        <h3><code>roots.json</code> <span class="dim small">← roots.js</span></h3>
+        <p class="small dim" style="margin-top:8px">
+          The lexicon. 24 roots × their forms: bāb, gloss, transitivity, samāʿī maṣdar, English conjugation
+          bits — and for قول/رمي, complete hand-typed override tables (7 tables each).
+          <b>Growing data</b> — all future content work lands here. Decodes into <code>[Root]</code>.
+        </p>
+      </div>
+    </div>
+    <p class="lede" style="margin-top:14px">
+      Both files are NFC-normalized at export so Swift string equality is exact, and marked
+      <i>GENERATED — do not edit</i>. The workflow after any content change:
+      <code>node test/smoke.mjs</code> → <code>npm run export-content</code> → <code>./build-and-test.sh</code>.
+    </p>
+  </section>
+
+  <!-- ======================= V2 PROPOSAL ======================= -->
+  <section id="proposal">
+    <div class="kicker">Part 2 · The v2 proposal — now in the docs, no code touched</div>
+    <h2>Chart-first grammar, one conjugator per verb type</h2>
+    <p class="lede">
+      Your six notes + triage, consolidated. The two ideas everything else hangs off:
+      <b>① the chart becomes the first-class object</b> — nine explicit paper tables
+      (<code>ChartID</code>: māḍī ×2 voices, muḍāriʿ ×2 voices ×3 moods, amr), each written out as a Swift literal
+      with all 14 affix rows visible; <b>② each verb type gets its own engine</b> — sālim, ajwaf, nāqiṣ, muḍāʿaf,
+      mahmūz each encode their own letter-change quirks in their own class behind one protocol.
+    </p>
+
+    <figure>
+      <pre class="mermaid">
+flowchart TD
+  subgraph gram["GRAMMAR — Swift literals, no JSON, compiler-validated"]
+    CH["ChartID × 9<br/>madiMalum … mudariMajhulJazm, amr"]
+    SG["SalimGrammar.swift<br/>explicit charts + stems"]
+    AG["AjwafGrammar.swift · NaqisGrammar.swift<br/>(M1) then Mudaaf/Mahmuz (M2)"]
+    CH --- SG
+    CH --- AG
+  end
+  subgraph lex["LEXICON — the only JSON left"]
+    RJ[("roots.json")]
+    LS["LexiconService<br/>enum-keyed decode, loud failures"]
+    RJ --> LS
+  end
+  subgraph conj["CONJUGATION — one engine per verb type"]
+    P["VerbTypeConjugator protocol"]
+    SC["SalimConjugator"]
+    AC["AjwafConjugator · NaqisConjugator · …"]
+    CSV["ConjugationService — router<br/>engine → hand-table fallback → nil<br/>+ table() + wazn() + citation()"]
+    P --- SC
+    P --- AC
+    SC --> CSV
+    AC --> CSV
+  end
+  SG --> SC
+  AG --> AC
+  LS --> CSV
+  CSV --> QS["QuizService<br/>stream: fixed(N) or endless<br/>multi-select correctIndices"]
+  CSV --> TB["Tables browser<br/>full 14-row chart, offline"]
+  QS --> APP["SarfQuiz app"]
+  TB --> APP
+      </pre>
+      <figcaption>
+        Hand-authored tables (قول، رمي) stop being the runtime mechanism and become <b>parity fixtures</b>:
+        an engine ships only when it reproduces its type's fixture cell-for-cell.
+      </figcaption>
+    </figure>
+
+    <div class="grid2" style="margin-top:14px">
+      <div class="card">
+        <h3>What lands where <span class="dim small">(your note → plan section)</span></h3>
+        <table style="margin-top:8px"><tbody>
+          <tr><td>1 · Per-type conjugator split</td><td class="who accent">Plan §A.5</td></tr>
+          <tr><td>2 · Explicit per-chart grammar objects</td><td class="who accent">Plan §A.2–A.3</td></tr>
+          <tr><td>3 · Multi-select + endless quiz</td><td class="who accent">Plan §A.7 · Spec §5.2</td></tr>
+          <tr><td>4 · Offline 14-pronoun table browser</td><td class="who accent">Plan §A.8 · Spec §5.6 (new tab)</td></tr>
+          <tr><td>5 · Service naming, JSON → roots only</td><td class="who accent">Plan §A.3–A.4, §A.10</td></tr>
+          <tr><td>6 · JS retirement path</td><td class="who accent">Plan §A.9</td></tr>
+        </tbody></table>
+      </div>
+      <div class="card">
+        <h3>Build order <span class="dim small">(agreed: JS before Swift)</span></h3>
+        <table style="margin-top:8px"><tbody>
+          <tr><td><b>R1</b> Docs</td><td class="dim">done — this review</td></tr>
+          <tr><td><b>R2</b> JS restructure</td><td class="dim">charts, engines, quiz stream, tables browser — you sign off in the browser</td></tr>
+          <tr><td><b>R3</b> Swift core v2</td><td class="dim">port + parity/chart-audit tests</td></tr>
+          <tr><td><b>R4</b> App v2</td><td class="dim">multi-select UI, endless feed, Tables tab</td></tr>
+          <tr><td><b>M1/M2</b> Engines</td><td class="dim">ajwaf+nāqiṣ, then muḍāʿaf+mahmūz — parallel to phases 3–6</td></tr>
+        </tbody></table>
+      </div>
+    </div>
+
+    <p class="lede" style="margin-top:14px">
+      Design choices worth your eyes: <b>duplication is deliberate</b> in the grammar files (each chart's 14 rows
+      written out, auditable against the madrasa handout — no shared-constant chasing); the doer question's
+      distractor rule <b>inverts</b> (identical written forms become additional correct answers instead of being
+      excluded); display strings split out of the grammar into a <code>Glossary</code>
+      (answers your DISCUSS on #1); <code>FormEntry</code> → <code>RootFormUsage</code> (proposed answer to your DISCUSS on #2);
+      the wazn-on-ف-ع-ل trick stays (your KEEP on #7).
+    </p>
+
+    <h3 style="margin-top:26px; margin-bottom:8px">Your review questions, answered <span class="dim small">(plan updated in place)</span></h3>
+    <div style="display:flex; flex-direction:column; gap:14px">
+      <div class="card">
+        <h3 class="accent">Q1 · What do the new objects actually look like?</h3>
+        <p class="small dim" style="margin:8px 0">
+          Real literals below — a full chart from <code>SalimGrammar.swift</code> (all 14 rows visible, checkable
+          against the paper chart), a decoded root, and the routing + history types. Now also in plan §A.3–A.5, A.7, B.3.
+        </p>
+        <div id="models-src-view"></div>
+      </div>
+
+      <div class="card">
+        <h3 class="accent">Q2 · Is bundled roots.json viable for the real app?</h3>
+        <p class="small" style="margin-top:8px">
+          <b>Yes — it's the standard iOS pattern for read-only content</b>, not a prototype shortcut. The file ships
+          <i>inside the app bundle</i>: offline by construction, versioned with the binary, decoded once at launch
+          (hundreds of roots = single-digit milliseconds), validated at load and in CI. The growth path when scale or
+          freshness demands it: bundled JSON → precompiled store/SQLite (thousands of entries) → server-delivered
+          content packs (update verbs without app releases). Only <code>LexiconService</code> ever knows which one is
+          in use. Bonus added to the plan: since verb-type classification is mechanical (weak letters/hamza/doubling
+          are visible in the radicals), the loader cross-checks each root's declared type against its radicals and
+          rejects mislabeled content loudly.
+        </p>
+      </div>
+
+      <div class="card">
+        <h3 class="accent">Q3 · How does ConjugationService pick the right engine?</h3>
+        <p class="small" style="margin-top:8px">
+          <b>Dictionary lookup — no loops, no probing, no type fields on grammar objects.</b> Every <code>Root</code>
+          already carries its <code>VerbType</code> (it's in roots.json today: <code>type: "salim"</code>). The service
+          is built with a list of engines, each declaring <code>handles: VerbType</code>, keyed into
+          <code>[VerbType: any VerbTypeConjugator]</code> at init. A call does <code>engines[root.type]</code> → O(1);
+          if no engine exists yet for that type, it falls back to the root's hand-authored fixture table; else nil.
+          The grammar objects don't need labels because they never float free — <code>SalimConjugator</code> owns
+          <code>SalimGrammar</code>, full stop.
+        </p>
+      </div>
+
+      <div class="card">
+        <h3 class="accent">Q4 · Will the data model support history &amp; mistake analysis later?</h3>
+        <p class="small" style="margin-top:8px">
+          Designed for it now: every question is born with a <code>QuestionIdentity</code> (category, form, verb type,
+          chart, root, slot) because the engine generated it — nothing to re-derive. Options carry a
+          <code>valueKey</code> (the enum value they represent), so an answer is recorded as <b>what was picked, never
+          which button position</b> (positions are meaningless after shuffling). The stored
+          <code>AnswerRecord</code> = identity flattened to typed fields + <code>pickedValues</code>/<code>correctValues</code>
+          sets (multi-select-aware). That's what makes “common mistakes” real analysis later: <i>picked 2ms when the
+          answer included 3fs</i> aggregates into “you confuse أَنْتَ forms with هِيَ forms” — a weak-spot drill seed,
+          not just a wrong-count. Full schema in plan §B.3.
+        </p>
+      </div>
+    </div>
+
+    <form id="verdict-form" data-lavish-question="v2-verdict" class="card2 card" style="display:flex; flex-direction:column; gap:10px; margin-top:14px">
+      <h3>Your verdict on the v2 plan <span class="dim small">(round 2 — Q1–Q4 addressed)</span></h3>
+      <p class="small dim">Round 1 verdict was “revise first” — the four questions above are now answered in the docs. Same choices again:</p>
+      <div class="choices">
+        <label><input type="radio" name="verdict" value="approve — start R2 (JS restructure)"> Approve — start R2</label>
+        <label><input type="radio" name="verdict" value="approve with changes noted below"> Approve with changes</label>
+        <label><input type="radio" name="verdict" value="revise the plan first per notes"> Revise again</label>
+      </div>
+      <textarea name="notes" placeholder="Changes, concerns, naming preferences (e.g. RootFormUsage vs Lexeme), anything the plan got wrong…"></textarea>
+      <div style="display:flex; align-items:center; gap:14px">
+        <button type="submit" class="btn">Queue verdict</button>
+        <span class="queued-note" id="verdict-queued">Queued — press “Send to Agent” to deliver.</span>
+      </div>
+    </form>
+  </section>
+
+  <!-- ======================= FRICTION / TRIAGE ======================= -->
+  <section id="friction">
+    <div class="kicker">Friction points — your triage</div>
+    <h2>What's confusing today, and what improving it would mean</h2>
+    <p class="lede">
+      <b>Your triage is recorded:</b> #1 GrammarTables — DISCUSS (proposal: Glossary split, see Part 2) ·
+      #2 FormEntry naming — DISCUSS (proposal: RootFormUsage) · #3 grammar-as-JSON — IMPROVE ·
+      #4 stringly keys — IMPROVE (ChartID) · #5 two engines — DISCUSS (retirement path in §A.9) ·
+      #6 file naming — IMPROVE (services convention) · #7 Conjugator oddities — KEEP.
+      The original cards stay below for reference; re-queue if you change your mind.
+    </p>
+
+    <form id="triage-form" data-lavish-question="triage" style="display:flex; flex-direction:column; gap:14px">
+
+      <fieldset class="issue">
+        <h3>1 · <code>GrammarTables</code> is a grab-bag <span class="badge naming">NAMING</span><span class="badge arch">STRUCTURE</span></h3>
+        <p>One type holds two unrelated things: the <b>engine tables</b> (affixes, stem templates — what Conjugator needs)
+           and <b>display strings</b> (pronoun English, meaning labels, verb-type labels — what only the UI needs).
+           The name says “tables” but you also go there for <code>meaningLabel()</code>.</p>
+        <p class="fix"><b>Improvement:</b> split into <code>Grammar</code> (engine data) and a <code>Glossary</code>/<code>Labels</code> catalog (display strings), so each consumer imports only what it uses.</p>
+        <div class="choices">
+          <label><input type="radio" name="issue1" value="keep"> Keep as is</label>
+          <label><input type="radio" name="issue1" value="improve"> Improve</label>
+          <label><input type="radio" name="issue1" value="discuss"> Discuss</label>
+        </div>
+      </fieldset>
+
+      <fieldset class="issue">
+        <h3>2 · <code>FormEntry</code> vs <code>FormSpec</code> <span class="badge naming">NAMING</span></h3>
+        <p>Two types with near-identical names mean opposite things: <code>FormSpec</code> = the <i>grammar</i> of a form
+           (stem templates, same for every verb); <code>FormEntry</code> = one <i>root's usage</i> of a form (its gloss, bāb,
+           transitivity). This is probably the single biggest source of “which one do I want?”.</p>
+        <p class="fix"><b>Improvement:</b> rename <code>FormEntry</code> → something lexicon-flavored, e.g. <code>Lexeme</code>, <code>VerbSense</code>, or <code>RootForm</code> — or fold the distinction into the doc comments + a naming convention (grammar side keeps “Spec”).</p>
+        <div class="choices">
+          <label><input type="radio" name="issue2" value="keep"> Keep as is</label>
+          <label><input type="radio" name="issue2" value="improve"> Improve</label>
+          <label><input type="radio" name="issue2" value="discuss"> Discuss</label>
+        </div>
+      </fieldset>
+
+      <fieldset class="issue">
+        <h3>3 · Closed grammar shipped as JSON <span class="badge arch">STRUCTURE</span><span class="badge pipe">PIPELINE</span></h3>
+        <p>The affix tables and form specs are <b>closed linguistic facts</b> — they change only if the model of the grammar changes.
+           Shipping them as JSON buys nothing (they're not content anyone edits) and costs a lot: decode ceremony, string keys,
+           <code>validateCompleteness()</code>, <code>fatalError</code> accessors, and the stems/stemsByBab either-or dance.</p>
+        <p class="fix"><b>Improvement:</b> write the grammar as Swift literals (compile-time checked, no validation path at all) and keep JSON <b>only for roots.json</b> — the actually-growing content. The export script shrinks to roots-only; the smoke test still proves JS/Swift agreement.</p>
+        <div class="choices">
+          <label><input type="radio" name="issue3" value="keep"> Keep as is</label>
+          <label><input type="radio" name="issue3" value="improve"> Improve</label>
+          <label><input type="radio" name="issue3" value="discuss"> Discuss</label>
+        </div>
+      </fieldset>
+
+      <fieldset class="issue">
+        <h3>4 · Stringly-typed keys under the hood <span class="badge arch">STRUCTURE</span></h3>
+        <p>Enums exist at the edges, but internally it's strings: override tables keyed <code>"mudari_malum_jazm"</code>,
+           Form I stems keyed <code>"1"…"6"</code>, <code>Root.forms</code> keyed <code>"I"…"X"</code>, meanings as <code>[String]</code>.
+           A typo in content silently becomes “that combination doesn't exist”.</p>
+        <p class="fix"><b>Improvement:</b> decode into enum-keyed dictionaries at the ContentStore boundary (custom Decodable), so a bad key fails loudly at load instead of vanishing. Pairs naturally with #3.</p>
+        <div class="choices">
+          <label><input type="radio" name="issue4" value="keep"> Keep as is</label>
+          <label><input type="radio" name="issue4" value="improve"> Improve</label>
+          <label><input type="radio" name="issue4" value="discuss"> Discuss</label>
+        </div>
+      </fieldset>
+
+      <fieldset class="issue">
+        <h3>5 · Two engines to keep in sync <span class="badge pipe">PIPELINE</span></h3>
+        <p>Every engine behavior lives twice: conjugator.js <i>and</i> Conjugator.swift (ported line-for-line, verified by twin
+           125-assertion suites). While the web prototype is your design playground this is a feature; once the iOS app is
+           the real product it becomes a tax on every engine change.</p>
+        <p class="fix"><b>Improvement (later?):</b> declare Swift the single engine after Phase 2 sign-off; keep the web prototype as a content-authoring/preview tool only, or retire it. Not urgent — worth deciding <i>when</i>, not <i>if</i>.</p>
+        <div class="choices">
+          <label><input type="radio" name="issue5" value="keep"> Keep as is</label>
+          <label><input type="radio" name="issue5" value="improve"> Improve</label>
+          <label><input type="radio" name="issue5" value="discuss"> Discuss</label>
+        </div>
+      </fieldset>
+
+      <fieldset class="issue">
+        <h3>6 · Names that describe files, not roles <span class="badge naming">NAMING</span></h3>
+        <p><code>MorphologyPrimitives.swift</code> is “the enums”. <code>patterns.json</code> holds far more than patterns
+           (pronouns, labels, verb types). <code>GrammarTables</code> we covered. <code>ContentStore</code> is fine but “store”
+           hints at persistence it doesn't have (it's a loader).</p>
+        <p class="fix"><b>Improvement:</b> one consistent metaphor across the package — e.g. <i>Vocabulary</i> (enums) /
+           <i>Grammar</i> (rules) / <i>Lexicon</i> (roots) / <i>ContentLoader</i>. Cheap to do, big legibility win, mostly mechanical rename.</p>
+        <div class="choices">
+          <label><input type="radio" name="issue6" value="keep"> Keep as is</label>
+          <label><input type="radio" name="issue6" value="improve"> Improve</label>
+          <label><input type="radio" name="issue6" value="discuss"> Discuss</label>
+        </div>
+      </fieldset>
+
+      <fieldset class="issue">
+        <h3>7 · Small oddities inside Conjugator <span class="badge arch">STRUCTURE</span></h3>
+        <p>The <code>SyntheticRoot</code> trick (wazn = conjugate ف-ع-ل) is clever but surprising on first read;
+           <code>citation()</code> carries a special display-only path for Form IX; <code>overrideTableKey</code> re-derives
+           the same string keys the JS side invented. None are bugs — they're places a first-time reader stumbles.</p>
+        <p class="fix"><b>Improvement:</b> mostly documentation + small extractions (e.g. a named <code>WaznRenderer</code> facade, an enum for table keys). Low priority unless we're already touching those files for #3/#4.</p>
+        <div class="choices">
+          <label><input type="radio" name="issue7" value="keep"> Keep as is</label>
+          <label><input type="radio" name="issue7" value="improve"> Improve</label>
+          <label><input type="radio" name="issue7" value="discuss"> Discuss</label>
+        </div>
+      </fieldset>
+
+      <div class="card2 card" style="display:flex; flex-direction:column; gap:10px">
+        <label for="triage-notes" style="font-weight:600; font-size:14px">Anything else — reactions, constraints, things I got wrong:</label>
+        <textarea id="triage-notes" name="notes" placeholder="e.g. I care most about the naming; don't touch the pipeline until after Phase 2…"></textarea>
+        <div class="row" style="display:flex; align-items:center; gap:14px">
+          <button type="submit" class="btn">Queue my triage</button>
+          <span class="queued-note" id="queued-note">Queued — press “Send to Agent” in the Lavish bar to deliver it.</span>
+        </div>
+      </div>
+    </form>
+  </section>
+
+  <footer class="dim small" style="text-align:center">
+    SarfCore architecture breakdown · generated from the code at ios/SarfCore + ios/SarfQuiz + web-prototype ·
+    annotate anything on this page to send feedback
+  </footer>
+</main>
+
+<!-- Real source for the code viewer (kept out of JS string escaping) -->
+<script type="text/plain" id="conjugate-src">
+public func conjugate(
+    _ root: Root, form: FormID, tense: Tense, voice: Voice,
+    slot: PronounSlot, mood: Mood = .raf
+) -> String? {
+    guard let entry = root.entry(for: form) else { return nil }
+
+    // 1. Hand-authored override wins. If the root has a table for this
+    //    tense/voice/mood, the answer is whatever the table says (including
+    //    "nothing" for a missing slot).
+    if let table = entry.overrideTable(named: Self.overrideTableKey(tense: tense, voice: voice, mood: mood)) {
+        return table[slot.rawValue]?.nfcNormalized
+    }
+
+    // 2. The template engine only handles sound roots; an irregular root
+    //    without a table simply has no content yet.
+    guard root.type == .salim else { return nil }
+
+    let spec = grammar.form(form)
+    guard spec.conjugable else { return nil }
+    if voice == .majhul && (!spec.hasMajhul || !entry.isTransitive) { return nil }
+
+    // 3. Assemble from stem + affix.
+    let word: String?
+    switch tense {
+    case .madi:   word = assembleMadi(spec: spec, entry: entry, root: root, voice: voice, slot: slot)
+    case .mudari: word = assembleMudari(spec: spec, entry: entry, root: root, voice: voice, slot: slot, mood: mood)
+    case .amr:    word = assembleAmr(spec: spec, entry: entry, root: root, voice: voice, slot: slot)
+    }
+    return word?.nfcNormalized
+}
+
+/// Table keys mirror the content schema: "madi_malum", "mudari_majhul",
+/// and mood-suffixed muḍāriʿ variants like "mudari_malum_jazm".
+static func overrideTableKey(tense: Tense, voice: Voice, mood: Mood) -> String {
+    if tense == .mudari && mood != .raf {
+        return "mudari_\(voice.rawValue)_\(mood.rawValue)"
+    }
+    return "\(tense.rawValue)_\(voice.rawValue)"
+}
+</script>
+
+<script type="text/plain" id="models-src">
+// ── GRAMMAR: one paper chart, written out. SalimGrammar.swift ──────────────
+static let formII_madiMalum = ConjugationChart(
+  id: .madiMalum,
+  stem: "1َ2َّ3",                    // علم → عَلَّم
+  prefix: nil,                       // māḍī has no prefix
+  endings: [
+    .p3ms: Affix("َ", ""),     .p3md: Affix("َ", "ا"),      .p3mp: Affix("ُ", "وا"),
+    .p3fs: Affix("َ", "تْ"),   .p3fd: Affix("َ", "تَا"),    .p3fp: Affix("ْ", "نَ"),
+    .p2ms: Affix("ْ", "تَ"),   .p2md: Affix("ْ", "تُمَا"),  .p2mp: Affix("ْ", "تُمْ"),
+    .p2fs: Affix("ْ", "تِ"),   .p2fd: Affix("ْ", "تُمَا"),  .p2fp: Affix("ْ", "تُنَّ"),
+    .p1s:  Affix("ْ", "تُ"),   .p1p:  Affix("ْ", "نَا"),
+  ]
+)
+// Form I is the only different shape: stem: .perBab([.nasara: "1َ2ُ3", …])
+
+// ── LEXICON: one decoded roots.json entry ──────────────────────────────────
+Root(
+  radicals: ["ع", "ل", "م"],
+  type: .salim,                      // ← the routing key
+  forms: [
+    .I:  RootFormUsage(bab: .samia, gloss: "to know", masdar: "عِلْم",
+                       isTransitive: true, english: …),
+    .II: RootFormUsage(gloss: "to teach", isTransitive: true, english: …),
+  ]
+)
+
+// ── ROUTING: dictionary lookup on data the root already carries ────────────
+final class ConjugationService {
+  private let engines: [VerbType: any VerbTypeConjugator]
+
+  init(engines: [any VerbTypeConjugator] = [SalimConjugator()]) {
+    self.engines = Dictionary(uniqueKeysWithValues: engines.map { ($0.handles, $0) })
+  }
+
+  func conjugate(_ root: Root, form: FormID, chart: ChartID,
+                 slot: PronounSlot) -> String? {
+    if let engine = engines[root.type],                 // O(1), no scanning
+       let word = engine.conjugate(root, form: form, chart: chart, slot: slot) {
+      return word
+    }
+    return root.fixtureTable(form, chart)?[slot]        // migration fallback
+  }
+}
+
+// ── HISTORY-READY: what a question knows about itself ──────────────────────
+struct QuestionIdentity: Codable {
+  let category: QuestionCategory     // .doer
+  let form: FormID                   // .II
+  let verbType: VerbType             // .salim
+  let chart: ChartID?                // .mudariMalumRaf
+  let rootKey: String                // "علم"
+  let slot: PronounSlot?             // .p3fs — the displayed word's slot
+}
+struct AnswerOption { let arabic, english: String; let valueKey: String? }
+// stored answer = identity + pickedValues/correctValues (valueKeys, not
+// button positions) → "picked 2ms when answer included 3fs" is queryable
+</script>
+
+<script type="module">
+  import { File } from "https://esm.sh/@pierre/diffs@1.2.10?bundle";
+  const options = { theme: { light: "github-dark", dark: "github-dark" }, themeType: "dark", overflow: "wrap" };
+  const render = (srcId, targetSel, name) => {
+    const el = document.getElementById(srcId);
+    if (!el || !document.querySelector(targetSel)) return;
+    new File(options).render({
+      containerWrapper: document.querySelector(targetSel),
+      file: { name, contents: el.textContent.trim() + "\n", lang: "swift" },
+    });
+  };
+  render("conjugate-src", "#conjugate-src-view", "ios/SarfCore/Sources/SarfCore/Conjugator.swift (30–69)");
+  render("models-src", "#models-src-view", "proposed v2 models — worked examples (plan §A.3–A.5, A.7)");
+</script>
+
+<script>
+  // Verdict form (Part 2): one queued prompt on submit.
+  document.getElementById("verdict-form").addEventListener("submit", (event) => {
+    event.preventDefault();
+    const form = event.currentTarget;
+    const data = new FormData(form);
+    const verdict = data.get("verdict");
+    const notes = (data.get("notes") || "").trim();
+    if (!verdict && !notes) return;
+    let prompt = "V2 plan verdict: " + (verdict || "(no radio picked)");
+    if (notes) prompt += "\nNotes: " + notes;
+    if (window.lavish) {
+      window.lavish.queuePrompt(prompt, {
+        tag: "verdict",
+        text: "V2 plan verdict",
+        element: form,
+        queueKey: "sarfcore-v2-verdict",
+        data: { verdict, notes },
+      });
+      document.getElementById("verdict-queued").style.display = "inline";
+    } else {
+      alert("Lavish isn't running — copy this into the chat instead:\n\n" + prompt);
+    }
+  });
+
+  // Triage form: local selection stays local; one queued prompt on submit.
+  document.getElementById("triage-form").addEventListener("submit", (event) => {
+    event.preventDefault();
+    const form = event.currentTarget;
+    const data = new FormData(form);
+    const titles = {
+      issue1: "GrammarTables grab-bag",
+      issue2: "FormEntry vs FormSpec naming",
+      issue3: "closed grammar as JSON",
+      issue4: "stringly-typed keys",
+      issue5: "two engines in sync",
+      issue6: "file/role naming",
+      issue7: "Conjugator oddities",
+    };
+    const lines = [];
+    for (const [key, title] of Object.entries(titles)) {
+      const value = data.get(key);
+      if (value) lines.push(`${title}: ${value.toUpperCase()}`);
+    }
+    const notes = (data.get("notes") || "").trim();
+    if (!lines.length && !notes) return;
+    let prompt = "SarfCore triage decisions:\n" + (lines.join("\n") || "(no per-issue picks)");
+    if (notes) prompt += "\nNotes: " + notes;
+    if (window.lavish) {
+      window.lavish.queuePrompt(prompt, {
+        tag: "triage",
+        text: "Architecture triage answers",
+        element: form,
+        queueKey: "sarfcore-triage",
+        data: { answers: Object.fromEntries([...data.entries()]) },
+      });
+      document.getElementById("queued-note").style.display = "inline";
+    } else {
+      alert("Lavish isn't running — copy your picks into the chat instead:\n\n" + prompt);
+    }
+  });
+</script>
+
+<script type="module">
+  import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.15.0/dist/mermaid.esm.min.mjs";
+
+  const darkQuery = window.matchMedia("(prefers-color-scheme: dark)");
+  const paint = document.createElement("canvas").getContext("2d");
+  function toRgba(color) {
+    paint.clearRect(0, 0, 1, 1);
+    paint.fillStyle = "#000";
+    paint.fillStyle = color;
+    paint.fillRect(0, 0, 1, 1);
+    return paint.getImageData(0, 0, 1, 1).data;
+  }
+  function compositeRgba(foreground, background) {
+    const fa = foreground[3] / 255, ba = background[3] / 255;
+    const a = fa + ba * (1 - fa);
+    if (a === 0) return [0, 0, 0, 0];
+    return [
+      (foreground[0] * fa + background[0] * ba * (1 - fa)) / a,
+      (foreground[1] * fa + background[1] * ba * (1 - fa)) / a,
+      (foreground[2] * fa + background[2] * ba * (1 - fa)) / a,
+      a * 255,
+    ];
+  }
+  function pageIsDark() {
+    const root = document.documentElement;
+    const rootBackground = toRgba(getComputedStyle(root).backgroundColor);
+    const bodyBackground = document.body ? toRgba(getComputedStyle(document.body).backgroundColor) : [0, 0, 0, 0];
+    const [r, g, b, a] = compositeRgba(bodyBackground, rootBackground);
+    if (a > 0) return (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255 < 0.5;
+    const scheme = getComputedStyle(root).colorScheme;
+    if (scheme.includes("dark") && !scheme.includes("light")) return true;
+    if (scheme.includes("light") && !scheme.includes("dark")) return false;
+    return darkQuery.matches;
+  }
+
+  const diagrams = [...document.querySelectorAll(".mermaid")].map((el) => ({ el, src: el.textContent }));
+  let applied;
+  let rendering = false;
+  let queued = false;
+  function queueRender() {
+    queued = true;
+    if (rendering) return;
+    void render();
+  }
+  async function render() {
+    rendering = true;
+    try {
+      while (queued) {
+        queued = false;
+        const theme = pageIsDark() ? "dark" : "default";
+        if (theme === applied) continue;
+        mermaid.initialize({ startOnLoad: false, theme, securityLevel: "strict" });
+        for (const { el, src } of diagrams) {
+          el.removeAttribute("data-processed");
+          el.textContent = src;
+        }
+        try {
+          await mermaid.run({ nodes: diagrams.map((d) => d.el) });
+        } catch (error) {
+          console.error("Mermaid diagram render failed:", error);
+          return;
+        }
+        applied = theme;
+      }
+    } finally {
+      rendering = false;
+      if (queued) queueRender();
+    }
+  }
+  if (document.readyState === "complete") queueRender();
+  else window.addEventListener("load", queueRender, { once: true });
+  const themeObserver = new MutationObserver(queueRender);
+  for (const el of [document.documentElement, document.body]) {
+    if (!el) continue;
+    themeObserver.observe(el, { attributes: true, attributeFilter: ["data-theme", "class", "style"] });
+  }
+  document.addEventListener("change", queueRender, true);
+  document.addEventListener("transitionend", ({ propertyName }) => {
+    if (propertyName === "background-color") queueRender();
+  }, true);
+  darkQuery.addEventListener("change", queueRender);
+</script>
+</body>
+</html>

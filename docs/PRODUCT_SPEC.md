@@ -21,8 +21,10 @@ or Bayyinah-style programs. Assumes the user can read voweled Arabic script.
 |---|---|---|
 | Form I drills by verb type (sālim/ajwaf/nāqiṣ/…) | ✅ | ✅ |
 | Mazīd fīhi drills (one form at a time, II–X) | ✅ | ✅ |
-| Custom practice (categories × forms × verb types) | ✅ | ✅ |
+| Custom practice (categories × forms × verb types; fixed count or endless) | ✅ | ✅ |
 | Per-question feedback + contextual meanings | ✅ | ✅ |
+| **Endless drill mode** (feed-style stream, end anytime) | ✅ | ✅ |
+| **Conjugation table browser** (any chart, all 14 pronouns, offline) | ✅ | ✅ |
 | End-of-quiz results + vocab recap (session only) | ✅ | ✅ |
 | **Quiz history** (every completed quiz saved) | — | ✅ |
 | **Stats dashboard** (averages by quiz type, form, verb type; trends; streaks) | — | ✅ |
@@ -56,14 +58,23 @@ Paywall placement (contextual, never blocking quizzes):
 ### 5.1 Home (tabs, as in prototype)
 1. **Form I** — verb-type preset cards (sālim, ajwaf, nāqiṣ, muḍāʿaf…, mixed)
 2. **Mazīd fīhi** — cards for forms II–X with wazn + meaning hints
-3. **Custom** — category/form/type/count pickers (prototype's builder)
-4. **Stats** (Pro) — see 5.4
-5. **Settings** — subscription management, appearance, Arabic-only mode toggle,
+3. **Custom** — category/form/type pickers plus quiz length: fixed count (5/10/20)
+   or **endless**
+4. **Tables** — conjugation-table browser (5.6): any root × form × chart, offline
+5. **Stats** (Pro) — see 5.4
+6. **Settings** — subscription management, appearance, Arabic-only mode toggle,
    about/privacy
 
 ### 5.2 Quiz screen (as prototyped, plus)
 - Word card: word, generic gloss, "Word i / N" tag for bundles, category chip
-- Options → instant feedback: contextual meaning line + explanation
+- **Multi-select options with a Check button**: when one written form serves
+  several pronouns (تَكْتُبُ = "she" *and* "you (m)"), every matching option is
+  correct and all must be selected — the quiz teaches the ambiguity instead of
+  dodging it. Single-answer questions still auto-check on first tap.
+- Instant feedback on check: contextual meaning line + explanation
+- **Endless mode**: questions stream like a feed with a running score and an
+  **End quiz** button that jumps to results; fixed-count mode keeps the
+  progress bar
 - **Explain ✨ button** (bottom of feedback box) → AI explanation sheet (5.5)
 - Progress bar, quit confirmation if mid-quiz
 
@@ -98,12 +109,24 @@ asked only to *teach*, not to derive. This keeps hallucination risk low.
 Explanations are cached (same word + question type → same explanation) locally and
 server-side to control cost. Offline → button disabled with tooltip.
 
+### 5.6 Tables browser
+
+Pick a root, a form, and a chart — māḍī maʿlūm/majhūl, muḍāriʿ maʿlūm/majhūl
+(each in rafʿ/naṣb/jazm), or amr — and see the complete 14-pronoun conjugation
+table, rendered offline by the engine, with the wazn (on ف-ع-ل) shown alongside.
+Entry points: the Tables tab, and a "See full table" link on every quiz
+feedback box. Free feature: it showcases the engine and feeds the study loop
+that makes the drills valuable.
+
 ## 6. Content scope at launch (v1.0)
 
-- Engine-generated: all sālim roots (~20 curated roots) across Form I (6 abwāb) and
-  forms II–X; māḍī/muḍāriʿ (maʿlūm+majhūl, all 3 moods), amr, ism fāʿil/mafʿūl, maṣdar
-- Hand-authored: ajwaf (قول + 2–3 more), nāqiṣ (رمي + 2–3 more), muḍāʿaf (مدّ),
-  mahmūz (أخذ، سأل) — full tables incl. naṣb/jazm
+- Engine-generated: **every verb type gets its own conjugator** (see technical
+  plan §A.5). Sālim ships first (~20 roots, Form I 6 abwāb + forms II–X, all
+  charts); ajwaf and nāqiṣ engines follow, then muḍāʿaf and mahmūz — each
+  encoding its own stem and letter-change quirks per chart
+- Hand-authored tables (قول، رمي today; 2–3 more roots per type as they land)
+  are demoted to **test fixtures**: a per-type engine must reproduce them
+  cell-for-cell before it replaces them in the app
 - 9 question categories (as prototyped + iʿrāb)
 - Form IX recognition-only (wazn/meaning/masdar questions)
 
