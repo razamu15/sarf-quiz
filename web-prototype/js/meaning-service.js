@@ -1,20 +1,20 @@
-// English meaning rendering: turns (root form, tense, voice, pronoun) into a
-// contextual translation like "he hit" / "she was taught" / "throw! (you, f)".
-// Generic gloss ("to hit") is shown before answering; the contextual meaning
-// after — for vocab enrichment alongside the sarf drilling.
+// English meaning rendering: (root, form, chart, slot) → contextual
+// translation like "he hit" / "she was taught" / "throw! (you (f))".
+// Chart-aware v2 port of the v1 renderer — same output strings.
 
-import { PRONOUNS } from '../data/patterns.js';
+import { CHARTS } from './vocabulary.js';
+import { PRONOUNS } from './glossary.js';
 
 const SING3 = new Set(['3ms', '3fs']);
 
 const bePast = (slot) => (SING3.has(slot) || slot === '1s') ? 'was' : 'were';
 const bePres = (slot) => slot === '1s' ? 'am' : SING3.has(slot) ? 'is' : 'are';
 
-/** English verb pieces for a form entry, with regular-verb fallbacks. */
-function enForms(formInfo) {
-  const base = (formInfo.gloss ?? '').replace(/^to /, '');
+/** English verb pieces for a form usage, with regular-verb fallbacks. */
+function enForms(usage) {
+  const base = (usage.gloss ?? '').replace(/^to /, '');
   if (base.startsWith('be ')) return { be: base.slice(3) }; // stative: "be safe"
-  const e = formInfo.en ?? {};
+  const e = usage.en ?? {};
   return {
     base,
     past: e.past ?? base + 'ed',
@@ -24,12 +24,13 @@ function enForms(formInfo) {
   };
 }
 
-/** "he hit", "it was said", "they write / will write", "throw! (you, f)" */
-export function verbMeaning(rootEntry, formId, tense, voice, slot) {
-  const formInfo = rootEntry.forms[formId];
-  if (!formInfo) return '';
+/** "he hit", "it was said", "they write / will write", "throw! (you (f))" */
+export function verbMeaning(root, formId, chartId, slot) {
+  const usage = root.forms[formId];
+  if (!usage) return '';
+  const { tense, voice } = CHARTS[chartId];
   const subj = PRONOUNS[slot]?.en ?? '';
-  const e = enForms(formInfo);
+  const e = enForms(usage);
 
   if (e.be) {
     if (tense === 'madi') return `${subj} ${bePast(slot)} ${e.be}`;
@@ -48,10 +49,10 @@ export function verbMeaning(rootEntry, formId, tense, voice, slot) {
 }
 
 /** "one who teaches", "that which is written", "teaching (the act)" */
-export function derivedMeaning(rootEntry, formId, kind) {
-  const formInfo = rootEntry.forms[formId];
-  if (!formInfo) return '';
-  const e = enForms(formInfo);
+export function derivedMeaning(root, formId, kind) {
+  const usage = root.forms[formId];
+  if (!usage) return '';
+  const e = enForms(usage);
   if (e.be) {
     if (kind === 'ismFail') return `one who is ${e.be}`;
     if (kind === 'masdar') return `being ${e.be} (the quality itself)`;

@@ -18,23 +18,20 @@
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
-body {
-  background: var(--bg);
-  color: var(--ink);
-  font-family: var(--latin);
-  display: flex;
-  justify-content: center;
-  min-height: 100vh;
-}
+/* NOTE: copied verbatim from web-prototype/css/style.css for this review
+   artifact. Only the `body` and `.phone` rules below are re-scoped so the
+   mocks sit inside a device frame instead of owning the whole page. */
 
 .phone {
   width: 100%;
   max-width: 430px;
-  min-height: 100vh;
-  padding: 28px 20px 40px;
+  padding: 24px 18px 30px;
   display: flex;
   flex-direction: column;
   gap: 18px;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--latin);
 }
 
 h1 { font-size: 26px; letter-spacing: -0.02em; }

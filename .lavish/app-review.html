@@ -1,0 +1,1258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sarf Quiz — features, screens &amp; behaviour review</title>
+<link rel="stylesheet" href="sarf-app.css">
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+  :where(p, h1, h2, h3, h4, li, td, th) { overflow-wrap: anywhere; }
+
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font-family: var(--latin); line-height: 1.6; -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 40px 22px 120px; }
+
+  .masthead { border-bottom: 1px solid #2b3547; padding-bottom: 26px; margin-bottom: 34px; }
+  .eyebrow { font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--accent); font-weight: 700; }
+  .masthead h1 { font-size: clamp(28px, 4vw, 40px); line-height: 1.15; margin: 10px 0 12px; letter-spacing: -0.02em; }
+  .masthead h1 .ar { font-family: var(--arabic); color: var(--accent); }
+  .lede { color: var(--ink-dim); font-size: 16px; max-width: 70ch; }
+
+  .rev-note {
+    margin-top: 20px; border-inline-start: 3px solid var(--good); background: var(--card2);
+    border-radius: 10px; padding: 14px 18px; font-size: 14.5px;
+  }
+  .rev-note b { color: var(--ink); }
+  .rev-note ul { margin: 8px 0 0; padding-inline-start: 20px; }
+  .rev-note li { margin-bottom: 4px; color: var(--ink-dim); }
+  .rev-note li b { color: var(--ink); }
+
+  h2.sec {
+    font-size: 13px; text-transform: uppercase; letter-spacing: .12em; color: var(--ink-dim);
+    margin: 58px 0 18px; padding-bottom: 10px; border-bottom: 1px solid #2b3547;
+  }
+  h2.sec b { color: var(--accent); font-weight: 700; margin-inline-end: 8px; }
+
+  .screen { margin-bottom: 34px; }
+  .screen-head { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; margin-bottom: 6px; }
+  .screen-head h3 { font-size: 21px; letter-spacing: -0.01em; }
+  .screen-head .path { color: var(--ink-dim); font-size: 12.5px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+  .screen-sub { color: var(--ink-dim); font-size: 14.5px; max-width: 78ch; margin-bottom: 16px; }
+
+  .split { display: grid; grid-template-columns: minmax(0, 320px) minmax(0, 1fr); gap: 26px; align-items: start; }
+  .split.trio { grid-template-columns: minmax(0, 300px) minmax(0, 300px) minmax(0, 1fr); }
+  @media (max-width: 1080px) { .split.trio { grid-template-columns: minmax(0, 300px) minmax(0, 300px); } }
+  @media (max-width: 900px) {
+    .split, .split.trio { grid-template-columns: minmax(0, 1fr); }
+  }
+
+  .device {
+    border: 1px solid #37425a; border-radius: 26px; padding: 8px; background: #0a0d13;
+    box-shadow: 0 18px 40px rgba(0,0,0,.35);
+  }
+  .device .phone { border-radius: 19px; overflow: hidden; }
+  .device-cap { text-align: center; font-size: 11.5px; color: var(--ink-dim); padding: 8px 4px 2px; letter-spacing: .04em; }
+
+  .notes h4 { font-size: 12px; text-transform: uppercase; letter-spacing: .1em; color: var(--ink-dim); margin: 0 0 8px; }
+  .notes h4 + * { margin-top: 0; }
+  .notes h4:not(:first-child) { margin-top: 18px; }
+  .notes ul { margin: 0 0 4px; padding-inline-start: 20px; }
+  .notes li { font-size: 14.5px; margin-bottom: 7px; }
+  .notes li .ar { font-family: var(--arabic); font-size: 17px; }
+  .notes b.k { color: var(--ink); }
+
+  .tagrow { display: flex; gap: 7px; flex-wrap: wrap; align-items: center; }
+  .tag {
+    font-size: 11px; letter-spacing: .05em; text-transform: uppercase; font-weight: 700;
+    border-radius: 999px; padding: 3px 10px; border: 1px solid; white-space: nowrap;
+  }
+  .tag.built  { color: var(--good); border-color: rgba(63,185,111,.45); background: rgba(63,185,111,.12); }
+  .tag.spec   { color: #d8a13a; border-color: rgba(216,161,58,.45); background: rgba(216,161,58,.12); }
+  .tag.new    { color: var(--accent); border-color: rgba(78,168,222,.45); background: rgba(78,168,222,.12); }
+  .tag.pro    { color: #c48ce0; border-color: rgba(196,140,224,.45); background: rgba(196,140,224,.12); }
+  .tag.gap    { color: var(--bad); border-color: rgba(224,93,93,.45); background: rgba(224,93,93,.12); }
+  .tag.free   { color: var(--good); border-color: rgba(63,185,111,.45); background: rgba(63,185,111,.12); }
+
+  .tbl-wrap { overflow-x: auto; border: 1px solid #303a4d; border-radius: var(--radius); }
+  table.rev { width: 100%; border-collapse: collapse; background: var(--card); font-size: 14px; min-width: 640px; }
+  table.rev th {
+    text-align: start; padding: 11px 14px; font-size: 11px; text-transform: uppercase;
+    letter-spacing: .08em; color: var(--ink-dim); border-bottom: 1px solid #303a4d; background: var(--card2);
+  }
+  table.rev td { padding: 11px 14px; border-bottom: 1px solid #232c3c; vertical-align: top; }
+  table.rev tr:last-child td { border-bottom: 0; }
+  table.rev td.mid { text-align: center; white-space: nowrap; }
+  table.rev .ar { font-family: var(--arabic); font-size: 17px; }
+  .yes { color: var(--good); font-weight: 700; }
+  .no  { color: var(--ink-dim); }
+  .done { color: var(--good); font-weight: 600; }
+
+  .decision {
+    border: 1px solid #3a4761; border-radius: var(--radius); padding: 18px 20px; margin-top: 16px;
+    background: linear-gradient(160deg, var(--card2), var(--card));
+  }
+  .decision > .q { font-size: 15.5px; font-weight: 600; margin-bottom: 4px; }
+  .decision > .why { color: var(--ink-dim); font-size: 13.5px; margin-bottom: 14px; }
+  .decision label {
+    display: flex; gap: 10px; align-items: flex-start; padding: 10px 12px; border-radius: 12px;
+    border: 1px solid #303a4d; background: var(--card); margin-bottom: 8px; cursor: pointer; font-size: 14px;
+  }
+  .decision label:hover { border-color: var(--accent); }
+  .decision label input { margin-top: 4px; accent-color: var(--accent); }
+  .decision label .opt-b { display: block; font-weight: 600; }
+  .decision label .opt-d { display: block; color: var(--ink-dim); font-size: 13px; }
+  .decision label .opt-d .ar { font-family: var(--arabic); font-size: 16px; }
+  .decision .acts { display: flex; gap: 10px; align-items: center; margin-top: 6px; flex-wrap: wrap; }
+  .decision button {
+    border: 0; border-radius: 12px; padding: 9px 16px; font-size: 14px; font-weight: 600;
+    background: var(--accent); color: var(--accent-ink); cursor: pointer; font-family: var(--latin);
+  }
+  .decision .queued { font-size: 13px; color: var(--good); }
+
+  .mermaid { background: var(--card); border: 1px solid #303a4d; border-radius: var(--radius); padding: 18px; overflow-x: auto; }
+  .callout { border-inline-start: 3px solid var(--accent); background: var(--card2); border-radius: 10px; padding: 12px 16px; font-size: 14px; margin: 14px 0; }
+  .callout b { color: var(--ink); }
+  .callout.warn { border-inline-start-color: #d8a13a; }
+
+  pre.code {
+    background: #0b0e14; border: 1px solid #2b3547; border-radius: var(--radius);
+    padding: 16px 18px; overflow-x: auto; font-size: 13px; line-height: 1.65;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace; color: #cdd8ea; margin: 14px 0;
+  }
+  pre.code .c { color: #6b7a91; }
+  pre.code .k { color: #c48ce0; }
+  pre.code .s { color: #8fd3a4; }
+  pre.code .f { color: #4ea8de; }
+
+  /* ---- mock helpers, extending the app's own CSS ---- */
+  .phone .tabbar { display: flex; gap: 2px; background: var(--card); border-radius: 14px; padding: 6px; margin-top: 6px; }
+  .phone .tabbar div { flex: 1; text-align: center; font-size: 10.5px; color: var(--ink-dim); padding: 6px 2px; border-radius: 10px; }
+  .phone .tabbar div.on { background: var(--card2); color: var(--accent); }
+  .phone .tabbar div i { display: block; font-style: normal; font-size: 16px; margin-bottom: 2px; }
+
+  .phone .statcard {
+    background: linear-gradient(160deg, var(--card2), var(--card));
+    border: 1px solid #2c3850; border-radius: var(--radius); padding: 16px;
+    display: flex; align-items: center; gap: 16px;
+  }
+  .phone .statcard .ring {
+    width: 74px; height: 74px; border-radius: 50%; flex: none;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    background: radial-gradient(closest-side, var(--card) 78%, transparent 79% 100%),
+                conic-gradient(var(--accent) calc(var(--pct) * 1%), var(--card2) 0);
+  }
+  .phone .statcard .ring b { font-size: 19px; }
+  .phone .statcard .ring span { font-size: 9px; color: var(--ink-dim); text-transform: uppercase; letter-spacing: .06em; }
+  .phone .statcard .meta b { font-size: 15px; display: block; }
+  .phone .statcard .meta small { color: var(--ink-dim); font-size: 12.5px; display: block; margin-bottom: 8px; }
+  .phone .week { display: flex; gap: 5px; }
+  .phone .week i { width: 15px; height: 15px; border-radius: 4px; background: var(--card2); display: block; }
+  .phone .week i.d1 { background: rgba(78,168,222,.35); }
+  .phone .week i.d2 { background: rgba(78,168,222,.65); }
+  .phone .week i.d3 { background: var(--accent); }
+  .phone .statcard .chev { margin-inline-start: auto; color: var(--ink-dim); font-size: 18px; }
+
+  .phone .search {
+    display: flex; align-items: center; gap: 8px; background: var(--card); border: 1px solid #303a4d;
+    border-radius: 12px; padding: 11px 14px; color: var(--ink-dim); font-size: 15px;
+  }
+  .phone .search .cursor { color: var(--ink); }
+  .phone .result {
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    background: var(--card); border: 1px solid #303a4d; border-radius: 12px; padding: 11px 14px; margin-bottom: 7px;
+  }
+  .phone .result.on { border-color: var(--accent); background: var(--chip-on); }
+  .phone .result .ar { font-family: var(--arabic); font-size: 21px; }
+  .phone .result small { color: var(--ink-dim); font-size: 12.5px; }
+
+  .phone .row-nav {
+    display: flex; justify-content: space-between; align-items: center; gap: 12px;
+    background: var(--card); border: 1px solid #303a4d; border-radius: 12px; padding: 13px 14px; font-size: 14.5px; margin-bottom: 8px;
+  }
+  .phone .row-nav small { color: var(--ink-dim); display: block; font-size: 12px; }
+  .phone .row-nav .chev { color: var(--ink-dim); }
+
+  .phone .bar-row { display: grid; grid-template-columns: 88px minmax(0,1fr) 38px; gap: 10px; align-items: center; font-size: 13px; margin-bottom: 9px; }
+  .phone .bar-track { height: 8px; background: var(--card2); border-radius: 4px; overflow: hidden; }
+  .phone .bar-track i { display: block; height: 100%; background: var(--accent); }
+  .phone .bar-track i.low { background: var(--bad); }
+  .phone .bar-row small { color: var(--ink-dim); text-align: end; }
+  .phone .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .phone .stat-tile { background: var(--card); border: 1px solid #303a4d; border-radius: 14px; padding: 12px 14px; }
+  .phone .stat-tile b { display: block; font-size: 24px; }
+  .phone .stat-tile span { font-size: 11.5px; color: var(--ink-dim); text-transform: uppercase; letter-spacing: .06em; }
+
+  .phone .mock-sheet { background: var(--card2); border: 1px solid #3a4761; border-radius: 20px 20px 0 0; padding: 18px 16px 22px; }
+  .phone .sheet-grab { width: 38px; height: 4px; border-radius: 2px; background: #4a5670; margin: 0 auto 14px; }
+  .phone .explain-h { font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: var(--accent); margin-bottom: 4px; }
+  .phone .explain-b { font-size: 14px; line-height: 1.6; margin-bottom: 14px; }
+  .phone .explain-b .ar { font-family: var(--arabic); font-size: 19px; }
+  .phone .link-row { font-size: 13px; color: var(--accent); text-align: center; padding: 6px; }
+  .phone .fullwidth-note { font-size: 12.5px; color: var(--ink-dim); text-align: center; }
+  .phone .seetable { font-size: 13px; color: var(--accent); display: inline-block; margin-top: 8px; }
+  .phone .explainbtn {
+    margin-top: 10px; width: 100%; border: 1px solid rgba(78,168,222,.4); background: rgba(78,168,222,.1);
+    color: var(--accent); border-radius: 12px; padding: 10px; font-size: 14px; font-weight: 600; font-family: var(--latin);
+  }
+  .phone .lock { font-size: 11px; color: #c48ce0; border: 1px solid rgba(196,140,224,.4); border-radius: 999px; padding: 2px 8px; }
+
+  /* ---- production-question mocks ---- */
+  .phone .cue-card {
+    background: linear-gradient(160deg, var(--card2), var(--card));
+    border: 1px solid #2c3850; border-radius: 20px; padding: 20px 18px; text-align: center;
+  }
+  .phone .cue-card .root { font-family: var(--arabic); font-size: 40px; direction: rtl; letter-spacing: 8px; }
+  .phone .cue-card .en-cue { font-size: 20px; font-weight: 600; }
+  .phone .cue-spec { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; margin-top: 12px; }
+  .phone .cue-spec span {
+    font-size: 12px; color: var(--accent); background: rgba(78,168,222,.12);
+    padding: 4px 10px; border-radius: 999px;
+  }
+  .phone .cue-spec span .ar { font-family: var(--arabic); font-size: 15px; margin-inline-start: 4px; }
+  .phone .answer-box {
+    border: 1px solid var(--accent); background: var(--card); border-radius: 14px;
+    padding: 14px; text-align: center; min-height: 62px;
+  }
+  .phone .answer-box .ar { font-family: var(--arabic); font-size: 34px; direction: rtl; }
+  .phone .answer-box .caret { color: var(--accent); font-weight: 300; }
+  .phone .answer-box.empty { color: var(--ink-dim); font-size: 14px; border-style: dashed; border-color: #3a4761; padding: 20px; }
+  .phone .kbd { background: var(--card); border: 1px solid #303a4d; border-radius: 14px; padding: 10px; }
+  .phone .kbd .krow { display: flex; gap: 6px; justify-content: center; margin-bottom: 6px; }
+  .phone .kbd .krow:last-child { margin-bottom: 0; }
+  .phone .kbd .key {
+    flex: 1; text-align: center; background: var(--card2); border: 1px solid #35405a; border-radius: 9px;
+    padding: 9px 0; font-family: var(--arabic); font-size: 21px; min-width: 0;
+  }
+  .phone .kbd .key.radical { background: var(--chip-on); border-color: var(--accent); }
+  .phone .kbd .key.haraka { font-size: 23px; color: var(--accent); }
+  .phone .kbd .key.util { font-family: var(--latin); font-size: 13px; color: var(--ink-dim); }
+  .phone .kbd .klabel { font-size: 10px; color: var(--ink-dim); text-transform: uppercase; letter-spacing: .08em; margin: 8px 0 4px; }
+  .phone .diff { font-family: var(--arabic); font-size: 30px; direction: rtl; }
+  .phone .diff u { text-decoration: none; background: rgba(224,93,93,.3); border-radius: 4px; padding: 0 2px; }
+  .phone .diff.ok u { background: rgba(63,185,111,.28); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="masthead">
+  <div class="eyebrow">Product review · revision 3</div>
+  <h1>Sarf Quiz <span class="ar">الصَّرْف</span> — features, screens &amp; behaviour</h1>
+  <p class="lede">
+    Your quiz overhaul is the centre of this revision: four question types instead of one, a shared
+    configuration that constrains all of them, and an architecture that can carry them without a
+    special case per type. Screens render in the prototype's own stylesheet, so a mock and the app
+    look like the same product.
+  </p>
+  <div class="rev-note">
+    <b>Applied from your last pass:</b>
+    <ul>
+      <li><b>Muʿtall = one mixed drill</b> on Home; per-type practice lives in Practice.</li>
+      <li><b>No presets in Practice</b> — the chips already express any preset in two taps.</li>
+      <li><b>Free history = rolling 30-day summary</b> (daily counts + accuracy), no per-answer records.</li>
+      <li><b>No skip button</b> — guessing is part of the drill.</li>
+      <li><b>Explain appears only on wrong answers</b>, for free and Pro alike.</li>
+      <li><b>Wazn column removed</b> from the full table view.</li>
+      <li><b>Home subtitle removed.</b></li>
+      <li><b>Four quiz types + the new Practice config</b> — §02 and §03 below.</li>
+    </ul>
+  </div>
+</header>
+
+<h2 class="sec"><b>01</b> The four quiz types</h2>
+<p class="screen-sub">
+  Every question in the app is one morphological fact — a root poured into a chart at a pronoun slot.
+  What changes between quiz types is <b>which side of that fact you're given</b> and <b>how you answer</b>.
+  Laying them out on those two axes is what keeps this from becoming four separate quiz engines.
+</p>
+
+<div class="tbl-wrap">
+  <table class="rev">
+    <thead><tr><th style="width:20%">Type</th><th>You're given</th><th>You produce</th><th style="width:14%">Response</th><th style="width:12%">Status</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><b class="k">1 · Identify</b><br><small style="color:var(--ink-dim)">"read the signs"</small></td>
+        <td>The conjugated word: <span class="ar">تُنْصَرَانِ</span></td>
+        <td>Its tense, voice, doer, wazn, iʿrāb, bāb, root…</td>
+        <td>Multiple choice</td>
+        <td><span class="tag built">Built</span></td>
+      </tr>
+      <tr>
+        <td><b class="k">2 · Write the word</b><br><small style="color:var(--ink-dim)">grammatical cue</small></td>
+        <td>Root <span class="ar">ن ص ر</span> + Form I + muḍāriʿ maʿlūm marfūʿ + <span class="ar">هُوَ</span></td>
+        <td>The word itself, fully vowelled</td>
+        <td>Typed Arabic</td>
+        <td><span class="tag new">New</span></td>
+      </tr>
+      <tr>
+        <td><b class="k">3 · Derived nouns</b><br><small style="color:var(--ink-dim)">al-mushtaqqāt</small></td>
+        <td>The verb <span class="ar">نَصَرَ</span> + which derivative is wanted</td>
+        <td>The maṣdar / ism fāʿil / ism mafʿūl</td>
+        <td>Typed Arabic</td>
+        <td><span class="tag new">New</span></td>
+      </tr>
+      <tr>
+        <td><b class="k">4 · English → Arabic</b><br><small style="color:var(--ink-dim)">meaning cue</small></td>
+        <td>"he helped" (+ the root, see the question below)</td>
+        <td>The word itself, fully vowelled</td>
+        <td>Typed Arabic</td>
+        <td><span class="tag new">New</span></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="callout">
+  <b>Types 2 and 4 are the same question with a different cue.</b> Both ask you to produce a word;
+  one describes the target in grammatical labels, the other in English meaning. Type 3 is the same
+  again with a derived noun as the target instead of a chart cell. That collapses four quiz types
+  into <b>two directions</b> (recognise ↔ produce) × <b>two cues</b> (grammatical ↔ English) ×
+  <b>two targets</b> (chart cell ↔ derived noun) — which is exactly what the architecture in §04 encodes.
+</div>
+
+<!-- ============ PRACTICE ============ -->
+<div class="screen">
+  <div class="screen-head">
+    <h3>Practice — the shared configuration</h3>
+    <span class="tag new">Overhauled</span>
+    <span class="path">one config, every quiz type</span>
+  </div>
+  <p class="screen-sub">
+    The point you made: configurability has to be the same across all types. So the config doesn't
+    describe a quiz — it describes a <b>pool of words</b>. The quiz type then decides how to interrogate
+    whatever comes out of that pool.
+  </p>
+  <div class="split trio">
+    <div>
+      <div class="device">
+        <div class="phone">
+          <h1>Practice</h1>
+          <div class="section-label">Quiz type</div>
+          <div class="chips">
+            <button class="chip on">Identify<span class="ar">تَمْيِيز</span></button>
+            <button class="chip on">Write the word<span class="ar">إِعْلَال</span></button>
+            <button class="chip">Derived nouns<span class="ar">المُشْتَقَّات</span></button>
+            <button class="chip">English → Arabic</button>
+          </div>
+          <div class="section-label">What to identify <small style="text-transform:none;letter-spacing:0">· type 1 only</small></div>
+          <div class="chips">
+            <button class="chip on">Tense</button><button class="chip on">Voice</button>
+            <button class="chip on">Doer</button><button class="chip on">Wazn</button>
+            <button class="chip">Iʿrāb</button><button class="chip">Bāb</button>
+            <button class="chip">Root</button><button class="chip">Meanings</button>
+          </div>
+          <div class="section-label">Tense</div>
+          <div class="chips">
+            <button class="chip">māḍī<span class="ar">المَاضِي</span></button>
+            <button class="chip on">muḍāriʿ<span class="ar">المُضَارِع</span></button>
+            <button class="chip">amr<span class="ar">الأَمْر</span></button>
+          </div>
+          <div class="section-label">Voice</div>
+          <div class="chips">
+            <button class="chip on">maʿrūf<span class="ar">مَعْرُوف</span></button>
+            <button class="chip">majhūl<span class="ar">مَجْهُول</span></button>
+          </div>
+          <div class="section-label">Iʿrāb <small style="text-transform:none;letter-spacing:0">· muḍāriʿ only</small></div>
+          <div class="chips">
+            <button class="chip on">marfūʿ<span class="ar">مَرْفُوع</span></button>
+            <button class="chip on">manṣūb<span class="ar">مَنْصُوب</span></button>
+            <button class="chip">majzūm<span class="ar">مَجْزُوم</span></button>
+          </div>
+          <div class="section-label">Abwāb / forms</div>
+          <div class="chips">
+            <button class="chip on">I</button><button class="chip on">II</button>
+            <button class="chip">III</button><button class="chip">IV</button>
+            <button class="chip">V</button><button class="chip on">X</button>
+          </div>
+          <div class="section-label">Verb types</div>
+          <div class="chips">
+            <button class="chip on">sound<span class="ar">سَالِم</span></button>
+            <button class="chip">hollow<span class="ar">أَجْوَف</span></button>
+            <button class="chip">defective<span class="ar">نَاقِص</span></button>
+          </div>
+          <div class="section-label">Questions</div>
+          <div class="chips">
+            <button class="chip">5</button><button class="chip on">10</button>
+            <button class="chip">20</button><button class="chip">∞ endless</button>
+          </div>
+          <p class="subtitle">≈ 180 possible questions from this selection</p>
+          <button class="btn primary">Start quiz</button>
+          <div class="tabbar">
+            <div><i>⌂</i>Home</div><div class="on"><i>✎</i>Practice</div>
+            <div><i>▤</i>Tables</div><div><i>⋯</i>More</div>
+          </div>
+        </div>
+        <div class="device-cap">Every row filters the same word pool</div>
+      </div>
+    </div>
+    <div>
+      <div class="device">
+        <div class="phone">
+          <h1>Practice</h1>
+          <div class="section-label">Quiz type</div>
+          <div class="chips">
+            <button class="chip on">Identify<span class="ar">تَمْيِيز</span></button>
+            <button class="chip">Write the word<span class="ar">إِعْلَال</span></button>
+            <button class="chip">Derived nouns<span class="ar">المُشْتَقَّات</span></button>
+            <button class="chip">English → Arabic</button>
+          </div>
+          <div class="section-label">Tense</div>
+          <div class="chips">
+            <button class="chip on">māḍī<span class="ar">المَاضِي</span></button>
+            <button class="chip">muḍāriʿ<span class="ar">المُضَارِع</span></button>
+            <button class="chip">amr<span class="ar">الأَمْر</span></button>
+          </div>
+          <div class="section-label">Voice</div>
+          <div class="chips">
+            <button class="chip on">maʿrūf<span class="ar">مَعْرُوف</span></button>
+            <button class="chip on">majhūl<span class="ar">مَجْهُول</span></button>
+          </div>
+          <div class="section-label" style="opacity:.4">Iʿrāb <small style="text-transform:none;letter-spacing:0">· muḍāriʿ only</small></div>
+          <div class="chips" style="opacity:.4">
+            <button class="chip" disabled>marfūʿ<span class="ar">مَرْفُوع</span></button>
+            <button class="chip" disabled>manṣūb<span class="ar">مَنْصُوب</span></button>
+            <button class="chip" disabled>majzūm<span class="ar">مَجْزُوم</span></button>
+          </div>
+          <p class="subtitle">Iʿrāb applies to muḍāriʿ only — turn muḍāriʿ on to choose moods.</p>
+        </div>
+        <div class="device-cap">Iʿrāb greys out when muḍāriʿ is off</div>
+      </div>
+    </div>
+    <div class="notes">
+      <h4>What the config now controls</h4>
+      <ul>
+        <li><b class="k">Quiz type</b> — multi-select. Turn on two and the quiz alternates between them, so one session can mix reading and writing.</li>
+        <li><b class="k">Tense</b> (māḍī / muḍāriʿ / amr), <b class="k">Voice</b> (maʿrūf / majhūl) and <b class="k">Iʿrāb</b> (marfūʿ / manṣūb / majzūm) are now first-class chip rows. Together they select the charts — you no longer pick a "chart", you pick its attributes.</li>
+        <li><b class="k">Iʿrāb enables only when muḍāriʿ is on</b>, exactly as you asked — it's meaningless for māḍī and amr, so it greys out rather than lying.</li>
+        <li><b class="k">Bāb is not configurable.</b> Each root's Form I bāb is a lexical fact, so choosing "bāb naṣara" would really be choosing a subset of roots. Bāb stays a <em>question</em> category ("which bāb is this?"), never a filter.</li>
+        <li><b class="k">"What to identify"</b> only applies to type 1 — it dims when Identify is off, because "wazn" isn't a thing you can ask of a writing question.</li>
+      </ul>
+      <h4>Consequences worth naming</h4>
+      <ul>
+        <li>Amr has no voice and no mood; selecting amr alone will grey out both rows. Same mechanism as Iʿrāb.</li>
+        <li>Some combinations are legitimately empty — majhūl of an intransitive verb, amr outside the 2nd person. The <b class="k">question-count line</b> is what makes that visible before you tap Start.</li>
+        <li>The old flat "Custom" categories list is now split: <em>what to identify</em> (type 1) versus <em>which words to draw from</em> (all types).</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<h2 class="sec"><b>02</b> The new question screens</h2>
+
+<!-- ============ WRITE THE WORD ============ -->
+<div class="screen">
+  <div class="screen-head">
+    <h3>Type 2 · Write the word</h3>
+    <span class="tag new">New</span>
+    <span class="path">grammatical cue → typed Arabic</span>
+  </div>
+  <p class="screen-sub">
+    The inverse of the existing quiz, and the harder skill: given the root and the exact chart cell,
+    produce the word with correct ḥarakāt. Typing vowelled Arabic on iOS is the whole design problem —
+    the system keyboard hides ḥarakāt behind long-presses, so I've drawn a purpose-built one.
+  </p>
+  <div class="split trio">
+    <div>
+      <div class="device">
+        <div class="phone">
+          <div class="topbar">
+            <button class="quit">✕</button>
+            <div class="progress"><i style="width:30%"></i></div>
+            <span class="count">3 / 10</span>
+          </div>
+          <div class="cue-card">
+            <div class="root">ن ص ر</div>
+            <div class="cue-spec">
+              <span>Form I</span>
+              <span>muḍāriʿ<span class="ar">المُضَارِع</span></span>
+              <span>maʿrūf<span class="ar">مَعْرُوف</span></span>
+              <span>marfūʿ<span class="ar">مَرْفُوع</span></span>
+              <span>هُوَ</span>
+            </div>
+          </div>
+          <div class="prompt">Write this verb</div>
+          <div class="answer-box"><span class="ar">يَنْصُ<span class="caret">|</span></span></div>
+          <div class="kbd">
+            <div class="klabel">Root letters</div>
+            <div class="krow">
+              <span class="key radical">ن</span><span class="key radical">ص</span><span class="key radical">ر</span>
+            </div>
+            <div class="klabel">Prefixes &amp; endings</div>
+            <div class="krow">
+              <span class="key">ي</span><span class="key">ت</span><span class="key">أ</span>
+              <span class="key">ن</span><span class="key">ا</span><span class="key">و</span><span class="key">م</span>
+            </div>
+            <div class="klabel">Ḥarakāt</div>
+            <div class="krow">
+              <span class="key haraka">◌َ</span><span class="key haraka">◌ُ</span><span class="key haraka">◌ِ</span>
+              <span class="key haraka">◌ْ</span><span class="key haraka">◌ّ</span>
+              <span class="key util">⌫</span>
+            </div>
+          </div>
+          <button class="btn primary">Check</button>
+        </div>
+        <div class="device-cap">Purpose-built keyboard — root letters highlighted</div>
+      </div>
+    </div>
+    <div>
+      <div class="device">
+        <div class="phone">
+          <div class="topbar">
+            <button class="quit">✕</button>
+            <div class="progress"><i style="width:30%"></i></div>
+            <span class="count">3 / 10</span>
+          </div>
+          <div class="cue-card">
+            <div class="root">ن ص ر</div>
+            <div class="cue-spec">
+              <span>Form I</span><span>muḍāriʿ</span><span>maʿrūf</span><span>marfūʿ</span><span>هُوَ</span>
+            </div>
+          </div>
+          <div class="feedback bad">
+            <div class="meaning" style="text-align:center">
+              <div style="font-size:11px;color:var(--ink-dim);text-transform:uppercase;letter-spacing:.08em;margin-bottom:2px">You wrote</div>
+              <div class="diff">يَنْ<u>صَ</u>رُ</div>
+              <div style="font-size:11px;color:var(--ink-dim);text-transform:uppercase;letter-spacing:.08em;margin:8px 0 2px">Correct</div>
+              <div class="diff ok">يَنْ<u>صُ</u>رُ</div>
+            </div>
+            <b>Not quite — one ḥaraka.</b> <span class="ar-inline">نَصَرَ</span> is bāb <span class="ar-inline">نَصَرَ يَنْصُرُ</span>, so the ʿayn takes a ḍamma in the muḍāriʿ, not a fatḥa.
+            <a class="seetable">▤ See the full table →</a>
+            <button class="explainbtn">✨ Explain why</button>
+          </div>
+          <button class="btn primary">Next</button>
+        </div>
+        <div class="device-cap">Grading shows the exact ḥaraka you missed</div>
+      </div>
+    </div>
+    <div class="notes">
+      <h4>Why a custom keyboard</h4>
+      <ul>
+        <li>The iOS Arabic keyboard puts ḥarakāt behind long-press. A drill about ḥarakāt cannot make ḥarakāt the hardest thing to type — the interface would be testing dexterity, not sarf.</li>
+        <li>Offering <b class="k">the three radicals as highlighted keys</b> plus the small closed set of prefix/suffix letters turns the task into what it actually is: assembling a known template, not free writing.</li>
+        <li>It also constrains errors to <em>meaningful</em> ones. You can't typo <span class="ar">ط</span> for <span class="ar">ص</span>; every mistake you can make is a sarf mistake, which is what makes the diff feedback teachable.</li>
+      </ul>
+      <h4>Grading</h4>
+      <ul>
+        <li>Compare NFC-normalised strings — the engine's answer is already normalised, so equality is safe (a hard-won invariant from the prototype).</li>
+        <li>On a miss, diff at the <b class="k">character-plus-ḥaraka level</b> and highlight the first divergence. "One ḥaraka off" is a completely different message from "wrong word", and the app knows which it is.</li>
+        <li>Several slots share a written form, but the reverse — one slot, one form — is unambiguous, so a produce question has exactly one correct string. No multi-answer complications here.</li>
+      </ul>
+      <div class="decision" data-lavish-question="kbd">
+        <div class="q">Which input method for the writing questions?</div>
+        <label><input type="radio" name="kbd" value="Custom in-app keyboard: the three radicals highlighted, common affix letters, and a dedicated haraka row">
+          <span><span class="opt-b">Custom in-app keyboard (as drawn)</span>
+          <span class="opt-d">Radicals + affix letters + ḥaraka row. Fastest to use, constrains errors to real sarf mistakes, most build work.</span></span></label>
+        <label><input type="radio" name="kbd" value="System Arabic keyboard with a haraka accessory row above it">
+          <span><span class="opt-b">System keyboard + ḥaraka accessory bar</span>
+          <span class="opt-d">Familiar layout, ḥarakāt one tap away. Users without an Arabic keyboard installed are stuck.</span></span></label>
+        <label><input type="radio" name="kbd" value="Tile assembly: tap prefix, stem and ending tiles rather than typing letters">
+          <span><span class="opt-b">Tile assembly instead of typing</span>
+          <span class="opt-d">Pick <span class="ar">يَـ</span> + <span class="ar">نْصُر</span> + <span class="ar">ُ</span>. Teaches the structure explicitly, but it's recognition wearing production's clothes.</span></span></label>
+        <div class="acts">
+          <button type="button" data-lavish-action onclick="queueAnswer('kbd','Writing input method')">Queue this answer</button>
+          <span class="queued" id="q-kbd"></span>
+        </div>
+      </div>
+      <div class="decision" data-lavish-question="strict">
+        <div class="q">How strict is the grading?</div>
+        <div class="why">Every option below still requires the ḥarakāt inside the word — the question is only about the ending and about near-equivalent spellings.</div>
+        <label><input type="radio" name="strict" value="Fully strict: the answer must match the engine string exactly, including the final haraka">
+          <span><span class="opt-b">Fully strict</span>
+          <span class="opt-d">Exact match including the final ḥaraka. It's an iʿrāb app; the ending is the lesson.</span></span></label>
+        <label><input type="radio" name="strict" value="Strict inside the word, forgiving on the final haraka, with a note that the ending was omitted">
+          <span><span class="opt-b">Forgiving on the final ḥaraka only</span>
+          <span class="opt-d">Accepts <span class="ar">يَنْصُر</span> for <span class="ar">يَنْصُرُ</span> but says so. Kinder; risks teaching sukūn-on-everything.</span></span></label>
+        <label><input type="radio" name="strict" value="Strict, but accept alternative hamza seats and other orthographic variants as correct">
+          <span><span class="opt-b">Strict + orthographic tolerance</span>
+          <span class="opt-d">Same as strict, but hamza-seat variants pass. Matters once mahmūz verbs land.</span></span></label>
+        <div class="acts">
+          <button type="button" data-lavish-action onclick="queueAnswer('strict','Grading strictness')">Queue this answer</button>
+          <span class="queued" id="q-strict"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ DERIVED + ENGLISH ============ -->
+<div class="screen">
+  <div class="screen-head">
+    <h3>Type 3 · Derived nouns &nbsp;·&nbsp; Type 4 · English → Arabic</h3>
+    <span class="tag new">New</span>
+  </div>
+  <p class="screen-sub">
+    Same production screen, different cue. Type 3 asks for a derivative of a verb you're shown;
+    type 4 gives you only the meaning and expects the word.
+  </p>
+  <div class="split trio">
+    <div>
+      <div class="device">
+        <div class="phone">
+          <div class="topbar">
+            <button class="quit">✕</button>
+            <div class="progress"><i style="width:60%"></i></div>
+            <span class="count">6 / 10</span>
+          </div>
+          <div class="cue-card">
+            <div class="word" style="font-family:var(--arabic);font-size:44px;direction:rtl">نَصَرَ</div>
+            <div class="gloss">“to help”</div>
+            <div class="cue-spec"><span>Form I</span><span>ism fāʿil<span class="ar">اِسْم الفَاعِل</span></span></div>
+          </div>
+          <div class="prompt">Write the ism fāʿil</div>
+          <div class="answer-box empty">Tap the keyboard to start</div>
+          <div class="kbd">
+            <div class="klabel">Root letters</div>
+            <div class="krow"><span class="key radical">ن</span><span class="key radical">ص</span><span class="key radical">ر</span></div>
+            <div class="klabel">Pattern letters</div>
+            <div class="krow"><span class="key">ا</span><span class="key">م</span><span class="key">ت</span><span class="key">و</span><span class="key">ي</span></div>
+            <div class="klabel">Ḥarakāt</div>
+            <div class="krow">
+              <span class="key haraka">◌َ</span><span class="key haraka">◌ُ</span><span class="key haraka">◌ِ</span>
+              <span class="key haraka">◌ْ</span><span class="key haraka">◌ّ</span><span class="key util">⌫</span>
+            </div>
+          </div>
+          <button class="btn primary" disabled>Check</button>
+        </div>
+        <div class="device-cap">Type 3 · answer: <span class="ar">نَاصِر</span></div>
+      </div>
+    </div>
+    <div>
+      <div class="device">
+        <div class="phone">
+          <div class="topbar">
+            <button class="quit">✕</button>
+            <div class="progress"><i style="width:80%"></i></div>
+            <span class="count">8 / 10</span>
+          </div>
+          <div class="cue-card">
+            <div class="en-cue">“they two (f) are being helped”</div>
+            <div class="cue-spec"><span>root <span class="ar">ن ص ر</span></span><span>Form I</span></div>
+          </div>
+          <div class="prompt">Write this in Arabic</div>
+          <div class="answer-box"><span class="ar">تُنْصَ<span class="caret">|</span></span></div>
+          <div class="kbd">
+            <div class="klabel">Root letters</div>
+            <div class="krow"><span class="key radical">ن</span><span class="key radical">ص</span><span class="key radical">ر</span></div>
+            <div class="klabel">Prefixes &amp; endings</div>
+            <div class="krow">
+              <span class="key">ي</span><span class="key">ت</span><span class="key">أ</span>
+              <span class="key">ن</span><span class="key">ا</span><span class="key">و</span><span class="key">م</span>
+            </div>
+            <div class="klabel">Ḥarakāt</div>
+            <div class="krow">
+              <span class="key haraka">◌َ</span><span class="key haraka">◌ُ</span><span class="key haraka">◌ِ</span>
+              <span class="key haraka">◌ْ</span><span class="key haraka">◌ّ</span><span class="key util">⌫</span>
+            </div>
+          </div>
+          <button class="btn primary">Check</button>
+        </div>
+        <div class="device-cap">Type 4 · answer: <span class="ar">تُنْصَرَانِ</span></div>
+      </div>
+    </div>
+    <div class="notes">
+      <h4>Type 3 — derived nouns</h4>
+      <ul>
+        <li>The engine already generates ism fāʿil, ism mafʿūl and maṣdar patterns per form, so the answer is engine-produced like everything else.</li>
+        <li>Two real caveats: <b class="k">Form I maṣdar is samāʿī</b> — not derivable, stored per root in the lexicon — and <b class="k">ism mafʿūl needs a transitive verb</b>. Both are already flags in the data, so the builder skips what it can't ask.</li>
+        <li>Keyboard shifts from "prefixes &amp; endings" to <b class="k">pattern letters</b> (<span class="ar">ا م ت و ي</span>) — the letters the mushtaqq patterns actually add.</li>
+      </ul>
+      <h4>Type 4 — English → Arabic</h4>
+      <ul>
+        <li>The cue is the <b class="k">contextual meaning</b> the MeaningService already produces for feedback: "they two (f) are being helped". Nothing new to author — the sentence that currently teaches becomes the sentence that tests.</li>
+        <li><span class="tag gap">Problem</span> "he helped" doesn't identify a root — <span class="ar">نَصَرَ</span>, <span class="ar">أَعَانَ</span> and <span class="ar">سَاعَدَ</span> all mean it. I've shown the root alongside the English, which makes the question answerable but softens it. The decision below.</li>
+        <li>Your example phrasing, "he one male helped", suggests you want the pronoun spelled out rather than natural English. Worth deciding whether the cue reads naturally or grammatically — see below.</li>
+      </ul>
+      <div class="decision" data-lavish-question="en-cue">
+        <div class="q">What does the English cue show?</div>
+        <div class="why">"he helped" alone is ambiguous across roots; too much scaffolding makes it a translation exercise instead of a sarf one.</div>
+        <label><input type="radio" name="en-cue" value="Natural English plus the root letters and form, as drawn">
+          <span><span class="opt-b">Natural English + root + form (as drawn)</span>
+          <span class="opt-d">"they two (f) are being helped" · <span class="ar">ن ص ر</span> · Form I. Unambiguous, still requires the whole chart in your head.</span></span></label>
+        <label><input type="radio" name="en-cue" value="Explicit grammatical English naming the pronoun, like he one male helped, plus root and form">
+          <span><span class="opt-b">Explicit grammatical English</span>
+          <span class="opt-d">"he (one, male) helped" — your original phrasing. Leaves no doubt about the slot; reads like an exercise book, which may be the point.</span></span></label>
+        <label><input type="radio" name="en-cue" value="English meaning only, no root shown, and accept any root whose meaning matches">
+          <span><span class="opt-b">Meaning only, accept any valid root</span>
+          <span class="opt-d">Hardest and most realistic, but grading gets fuzzy and it becomes a vocabulary test as much as a sarf test.</span></span></label>
+        <div class="acts">
+          <button type="button" data-lavish-action onclick="queueAnswer('en-cue','English cue format')">Queue this answer</button>
+          <span class="queued" id="q-en-cue"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<h2 class="sec"><b>03</b> Architecture — how four quiz types stay one engine</h2>
+<p class="screen-sub">
+  Your constraint: serve different quiz types while keeping configuration identical across them.
+  The move that makes this work is to stop thinking of the config as describing a quiz, and start
+  thinking of it as <b>describing a pool of words</b>. Everything else follows.
+</p>
+
+<div class="mermaid">
+flowchart TD
+  PLAN["QuizPlan<br/>tense, voice, mood, forms, verb types,<br/>quiz types, length"]:::new
+  POOL["WordPool<br/>every WordSpec the plan allows"]:::new
+  SPEC["WordSpec<br/>root + form + chart + slot"]:::new
+  ENG["ConjugationService<br/>+ MeaningService"]:::built
+
+  B1["IdentifyBuilder"]:::built
+  B2["ProduceBuilder<br/>grammatical cue"]:::new
+  B3["DerivedNounBuilder"]:::new
+  B4["ProduceBuilder<br/>english cue"]:::new
+
+  Q["Question<br/>prompt + response + grader"]:::new
+  UI1["ChoiceView"]:::built
+  UI2["ArabicInputView"]:::new
+  REC["AnswerRecord<br/>same shape for every type"]:::new
+
+  PLAN --> POOL --> SPEC
+  SPEC --> B1 & B2 & B3 & B4
+  ENG --> B1 & B2 & B3 & B4
+  B1 --> Q
+  B2 --> Q
+  B3 --> Q
+  B4 --> Q
+  Q -->|"response: choice"| UI1
+  Q -->|"response: arabicInput"| UI2
+  UI1 --> REC
+  UI2 --> REC
+
+  classDef built stroke-width:2px;
+  classDef new stroke-dasharray: 5 4;
+</div>
+
+<div class="split" style="grid-template-columns:minmax(0,1fr) minmax(0,1fr);margin-top:20px">
+  <div class="notes">
+    <h4>1 · The plan selects words, not questions</h4>
+    <p style="font-size:14.5px;color:var(--ink-dim);margin-bottom:10px">
+      Tense × voice × mood collapse into a set of <code>ChartID</code>s; forms and verb types filter roots.
+      The result is a pool of <code>WordSpec</code> — the same pool no matter which quiz type consumes it.
+      This is what makes the configuration genuinely shared rather than four configs that look alike.
+    </p>
+    <pre class="code"><span class="c">// One plan. Every quiz type reads the same fields.</span>
+<span class="k">const</span> plan = {
+  <span class="f">quizTypes</span>: [<span class="s">'identify'</span>, <span class="s">'produce'</span>],   <span class="c">// multi-select</span>
+  <span class="f">categories</span>: [<span class="s">'tense'</span>, <span class="s">'doer'</span>],       <span class="c">// identify only</span>
+  <span class="f">tenses</span>:  [<span class="s">'mudari'</span>],
+  <span class="f">voices</span>:  [<span class="s">'malum'</span>],
+  <span class="f">moods</span>:   [<span class="s">'raf'</span>, <span class="s">'nasb'</span>],           <span class="c">// ignored unless mudari</span>
+  <span class="f">forms</span>:   [<span class="s">'I'</span>, <span class="s">'II'</span>, <span class="s">'X'</span>],
+  <span class="f">verbTypes</span>: [<span class="s">'salim'</span>],
+  <span class="f">length</span>: { <span class="f">kind</span>: <span class="s">'fixed'</span>, <span class="f">n</span>: <span class="s">10</span> },
+};
+
+<span class="c">// charts = the cross product, computed once</span>
+<span class="k">function</span> <span class="f">chartsFor</span>(plan) { <span class="c">/* tense × voice × mood → ChartID[] */</span> }
+
+<span class="c">// the pool every builder draws from</span>
+<span class="k">function</span>* <span class="f">wordPool</span>(plan, lexicon) {
+  <span class="k">for</span> (<span class="k">const</span> root <span class="k">of</span> rootsMatching(plan))
+    <span class="k">for</span> (<span class="k">const</span> form <span class="k">of</span> formsOf(root, plan))
+      <span class="k">for</span> (<span class="k">const</span> chart <span class="k">of</span> chartsFor(plan))
+        <span class="k">for</span> (<span class="k">const</span> slot <span class="k">of</span> slotsFor(chart))
+          <span class="k">yield</span> { root, form, chart, slot };
+}</pre>
+  </div>
+  <div class="notes">
+    <h4>2 · A builder per quiz type, one shape out</h4>
+    <p style="font-size:14.5px;color:var(--ink-dim);margin-bottom:10px">
+      Each builder is a pure function from a <code>WordSpec</code> to a <code>Question</code> — or to
+      <code>null</code> when it can't ask anything about that word (no ism mafʿūl for an intransitive verb,
+      no amr outside the 2nd person). The stream retries with the next word, so adding a fifth quiz type
+      later is one file and one registry entry, touching nothing else.
+    </p>
+    <pre class="code"><span class="c">// Every builder returns this, whatever the type.</span>
+Question = {
+  identity,          <span class="c">// WordSpec — what history records</span>
+  <span class="f">prompt</span>: {
+    kind: <span class="s">'word'</span> | <span class="s">'spec'</span> | <span class="s">'english'</span> | <span class="s">'derived'</span>,
+    ...                <span class="c">// what the card renders</span>
+  },
+  <span class="f">response</span>: {
+    kind: <span class="s">'choice'</span>,  options, correctIndices
+  } | {
+    kind: <span class="s">'arabicInput'</span>, accepted: [<span class="s">'يَنْصُرُ'</span>],
+    keyboard: { radicals, affixes }
+  },
+  <span class="f">explanation</span>,       <span class="c">// rule-based, from engine metadata</span>
+  <span class="f">explainPayload</span>,    <span class="c">// grounding for AI Explain</span>
+};
+
+<span class="k">const</span> BUILDERS = {
+  identify:    buildIdentify,     <span class="c">// existing, unchanged</span>
+  produce:     buildProduce,      <span class="c">// grammatical cue</span>
+  derived:     buildDerivedNoun,
+  translate:   buildTranslate,    <span class="c">// english cue</span>
+};
+
+<span class="k">function</span>* <span class="f">questionStream</span>(plan) {
+  <span class="k">const</span> pool = shuffled([...wordPool(plan)]);
+  <span class="k">for</span> (<span class="k">const</span> spec <span class="k">of</span> cycle(pool)) {
+    <span class="k">const</span> type = pick(plan.quizTypes);
+    <span class="k">const</span> q = BUILDERS[type](spec, plan);
+    <span class="k">if</span> (q) <span class="k">yield</span> q;      <span class="c">// null → try the next word</span>
+  }
+}</pre>
+  </div>
+</div>
+
+<div class="split" style="grid-template-columns:minmax(0,1fr) minmax(0,1fr)">
+  <div class="notes">
+    <h4>3 · Two response modes, one contract</h4>
+    <p style="font-size:14.5px;color:var(--ink-dim);margin-bottom:10px">
+      The UI switches on <code>response.kind</code> and nothing else: a choice list or an Arabic input with its
+      keyboard. Grading lives with the response, not with the quiz type, so a future "choose the correct
+      spelling" question would reuse the choice renderer with a produce-style prompt at no cost.
+    </p>
+    <pre class="code"><span class="k">function</span> <span class="f">grade</span>(question, given) {
+  <span class="k">const</span> r = question.response;
+  <span class="k">if</span> (r.kind === <span class="s">'choice'</span>)
+    <span class="k">return</span> setEquals(given, r.correctIndices);
+
+  <span class="c">// arabicInput: NFC first — the engine's strings</span>
+  <span class="c">// are already normalised, so equality is safe.</span>
+  <span class="k">const</span> typed = nfc(given);
+  <span class="k">if</span> (r.accepted.some((a) =&gt; nfc(a) === typed))
+    <span class="k">return</span> { correct: <span class="s">true</span> };
+
+  <span class="c">// wrong → say *how* wrong, not just "no"</span>
+  <span class="k">return</span> { correct: <span class="s">false</span>, diff: firstDivergence(typed, r.accepted[0]) };
+}</pre>
+  </div>
+  <div class="notes">
+    <h4>4 · History stays one table</h4>
+    <p style="font-size:14.5px;color:var(--ink-dim);margin-bottom:10px">
+      Because every question carries the same <code>WordSpec</code> identity, an answer record is the same shape
+      for all four types — the only difference is what lands in the "what you gave" column. Stats can then
+      compare your <em>recognition</em> of muḍāriʿ majhūl against your <em>production</em> of it, which is a far
+      better weak-spot signal than either alone.
+    </p>
+    <pre class="code">AnswerRecord {
+  <span class="c">// identity — identical across all quiz types</span>
+  quizType, category, form, verbType,
+  chart, rootKey, slot,
+
+  <span class="c">// what happened</span>
+  given:    [<span class="s">'3fs'</span>] | <span class="s">'يَنْصَرُ'</span>,
+  expected: [<span class="s">'3fs'</span>,<span class="s">'2ms'</span>] | <span class="s">'يَنْصُرُ'</span>,
+  wasCorrect: <span class="s">false</span>,
+  answeredAt,
+}</pre>
+    <div class="callout warn" style="margin-top:14px">
+      <b>One thing to decide later:</b> production questions are strictly harder than recognition ones, so
+      mixing them in a single accuracy number flatters or punishes depending on the mix. Stats probably
+      need to report them separately rather than as one percentage.
+    </div>
+  </div>
+</div>
+
+<div class="decision" data-lavish-question="arch">
+  <div class="q">Does this architecture hold?</div>
+  <div class="why">It's the shape I'd write in the prototype first, then port to Swift under the same names.</div>
+  <label><input type="radio" name="arch" value="Yes - build it: shared WordPool, one builder per quiz type, response kind drives the UI">
+    <span><span class="opt-b">Yes — pool + builders + response modes</span>
+    <span class="opt-d">Build it this way in the prototype and mirror it in SarfCore.</span></span></label>
+  <label><input type="radio" name="arch" value="Mostly right, but keep the four quiz types as fully separate services rather than builders over a shared pool">
+    <span><span class="opt-b">Keep the types more separate</span>
+    <span class="opt-d">Four services sharing only the plan. More duplication, less coupling between types.</span></span></label>
+  <label><input type="radio" name="arch" value="Simplify: ship types 1 and 2 first and defer the derived-noun and english-cue builders">
+    <span><span class="opt-b">Same shape, but ship types 1 + 2 first</span>
+    <span class="opt-d">Prove the pool/builder split on two types before adding the other two.</span></span></label>
+  <div class="acts">
+    <button type="button" data-lavish-action onclick="queueAnswer('arch','Quiz architecture')">Queue this answer</button>
+    <span class="queued" id="q-arch"></span>
+  </div>
+</div>
+
+<h2 class="sec"><b>04</b> The rest of the app</h2>
+
+<!-- ============ HOME ============ -->
+<div class="screen">
+  <div class="screen-head">
+    <h3>Home</h3>
+    <span class="tag new">Subtitle removed</span>
+  </div>
+  <div class="split">
+    <div>
+      <div class="device">
+        <div class="phone">
+          <h1>Sarf Quiz<span class="ar">الصَّرْف</span></h1>
+          <div class="statcard">
+            <div class="ring" style="--pct:78"><b>78%</b><span>accuracy</span></div>
+            <div class="meta">
+              <b>6 day streak 🔥</b>
+              <small>84 questions this week</small>
+              <div class="week"><i class="d2"></i><i class="d3"></i><i class="d1"></i><i class="d3"></i><i class="d2"></i><i class="d3"></i><i></i></div>
+            </div>
+            <span class="chev">›</span>
+          </div>
+          <div class="section-label">Start a drill</div>
+          <div class="preset"><div class="preset-head"><div>
+            <b>Sound verbs</b><span class="ar">سَالِم</span>
+            <div class="preset-desc">No weak letters — the foundation. 5 words · 15 questions.</div>
+          </div><button class="btn primary small">Start</button></div></div>
+          <div class="preset"><div class="preset-head"><div>
+            <b>Weak verbs</b><span class="ar">مُعْتَلّ</span>
+            <div class="preset-desc">Hollow, defective, assimilated and doubly-weak, mixed.</div>
+          </div><button class="btn primary small">Start</button></div></div>
+          <div class="preset"><div class="preset-head"><div>
+            <b>Mazīd fīhi</b><span class="ar">مَزِيد فِيه</span>
+            <div class="preset-desc">The derived forms II–X, shuffled.</div>
+          </div><button class="btn primary small">Start</button></div></div>
+          <div class="tabbar">
+            <div class="on"><i>⌂</i>Home</div><div><i>✎</i>Practice</div>
+            <div><i>▤</i>Tables</div><div><i>⋯</i>More</div>
+          </div>
+        </div>
+        <div class="device-cap">Muʿtall = one mixed drill, as decided</div>
+      </div>
+    </div>
+    <div class="notes">
+      <h4>Settled</h4>
+      <ul>
+        <li>Subtitle removed — the app name and the stats card carry the top of the screen.</li>
+        <li>Muʿtall is one mixed drill covering ajwaf, nāqiṣ, mithāl and lafīf; per-type practice is a two-tap job in Practice.</li>
+        <li>Basic stats are free, from a rolling 30-day summary: daily counts and accuracy, no per-answer records. The dashboard behind the card stays Pro.</li>
+      </ul>
+      <h4>Still open</h4>
+      <ul>
+        <li>What the stats card shows on <b class="k">day one</b>, before any history exists.</li>
+        <li>Whether the three drill cards should now be able to launch a <b class="k">writing</b> drill rather than only the identify drill — the quiz types make "Sound verbs" ambiguous about what kind of question you'll get.</li>
+      </ul>
+      <div class="decision" data-lavish-question="home-type">
+        <div class="q">Which quiz type do the Home drills use?</div>
+        <div class="why">There are four now; the Home cards say "Sound verbs" without saying what you'll be asked to do.</div>
+        <label><input type="radio" name="home-type" value="Home drills stay identify-only; writing lives in Practice">
+          <span><span class="opt-b">Identify only</span>
+          <span class="opt-d">Home stays the quick, low-friction drill; writing is a deliberate choice you make in Practice.</span></span></label>
+        <label><input type="radio" name="home-type" value="Home drills mix identify and writing questions automatically">
+          <span><span class="opt-b">Mixed automatically</span>
+          <span class="opt-d">A Home drill exercises both directions — better learning, slower sessions.</span></span></label>
+        <label><input type="radio" name="home-type" value="Each Home card offers a small type toggle - identify or write - before starting">
+          <span><span class="opt-b">A type toggle on the card</span>
+          <span class="opt-d">One extra tap, full control, slightly busier Home.</span></span></label>
+        <div class="acts">
+          <button type="button" data-lavish-action onclick="queueAnswer('home-type','Home drill quiz type')">Queue this answer</button>
+          <span class="queued" id="q-home-type"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ TABLES ============ -->
+<div class="screen">
+  <div class="screen-head">
+    <h3>Tables</h3>
+    <span class="tag new">Wazn column removed</span>
+  </div>
+  <p class="screen-sub">Search the lexicon, pick the chart by attribute, view the table. The wazn column is gone as you asked — the table is now the word and the pronoun, nothing else.</p>
+  <div class="split trio">
+    <div>
+      <div class="device">
+        <div class="phone">
+          <h1>Tables</h1>
+          <div class="search"><span>🔍</span><span class="cursor">nas</span></div>
+          <div class="section-label">3 matches</div>
+          <div class="result on"><div><span class="ar">نَصَرَ</span> <small>ن ص ر</small></div><small>to help</small></div>
+          <div class="result"><div><span class="ar">نَظَرَ</span> <small>ن ظ ر</small></div><small>to look</small></div>
+          <div class="result"><div><span class="ar">اِنْتَصَرَ</span> <small>ن ص ر · VIII</small></div><small>to be victorious</small></div>
+          <div class="section-label">Form</div>
+          <div class="chips">
+            <button class="chip on">I</button><button class="chip">II</button>
+            <button class="chip">VIII</button><button class="chip">X</button>
+          </div>
+          <div class="section-label">Tense</div>
+          <div class="chips">
+            <button class="chip">māḍī<span class="ar">المَاضِي</span></button>
+            <button class="chip on">muḍāriʿ<span class="ar">المُضَارِع</span></button>
+            <button class="chip">amr<span class="ar">الأَمْر</span></button>
+          </div>
+          <div class="section-label">Voice</div>
+          <div class="chips">
+            <button class="chip on">maʿrūf<span class="ar">مَعْرُوف</span></button>
+            <button class="chip">majhūl<span class="ar">مَجْهُول</span></button>
+          </div>
+          <div class="section-label">Iʿrāb</div>
+          <div class="chips">
+            <button class="chip on">marfūʿ<span class="ar">مَرْفُوع</span></button>
+            <button class="chip">manṣūb<span class="ar">مَنْصُوب</span></button>
+            <button class="chip">majzūm<span class="ar">مَجْزُوم</span></button>
+          </div>
+          <button class="btn primary">View table</button>
+          <div class="tabbar">
+            <div><i>⌂</i>Home</div><div><i>✎</i>Practice</div>
+            <div class="on"><i>▤</i>Tables</div><div><i>⋯</i>More</div>
+          </div>
+        </div>
+        <div class="device-cap">Picker</div>
+      </div>
+    </div>
+    <div>
+      <div class="device">
+        <div class="phone">
+          <div class="topbar">
+            <button class="quit">‹</button>
+            <span class="count" style="flex:1"><span class="ar-inline">نَصَرَ</span> · Form I · muḍāriʿ maʿrūf marfūʿ</span>
+          </div>
+          <div class="conj-table-wrap">
+            <table class="conj-table">
+              <thead><tr><th>Pronoun</th><th>Word</th></tr></thead>
+              <tbody>
+                <tr><td class="pron"><span class="ar">هُوَ</span><small>he</small></td><td class="word-cell"><span class="ar">يَنْصُرُ</span></td></tr>
+                <tr><td class="pron"><span class="ar">هُمَا</span><small>they two (m)</small></td><td class="word-cell"><span class="ar">يَنْصُرَانِ</span></td></tr>
+                <tr><td class="pron"><span class="ar">هُمْ</span><small>they (m, 3+)</small></td><td class="word-cell"><span class="ar">يَنْصُرُونَ</span></td></tr>
+                <tr><td class="pron"><span class="ar">هِيَ</span><small>she</small></td><td class="word-cell"><span class="ar">تَنْصُرُ</span></td></tr>
+                <tr><td class="pron"><span class="ar">أَنْتَ</span><small>you (m)</small></td><td class="word-cell"><span class="ar">تَنْصُرُ</span></td></tr>
+                <tr><td class="pron"><span class="ar">أَنَا</span><small>I</small></td><td class="word-cell"><span class="ar">أَنْصُرُ</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="subtitle">6 of 14 rows shown</p>
+        </div>
+        <div class="device-cap">No wazn column</div>
+      </div>
+    </div>
+    <div class="notes">
+      <h4>Still open from last round</h4>
+      <ul>
+        <li><span class="tag gap">Q</span> You didn't answer the search-scope question, and it's the one that decides how big this feature is. Repeated below.</li>
+        <li>Arriving from a quiz's "See full table", the row for that exact word should be highlighted.</li>
+      </ul>
+      <h4>Note on the removed wazn</h4>
+      <ul>
+        <li>The wazn is still generated by the engine and still used by the Identify quiz ("what is the wazn of this word?") — it's only the table column that's gone.</li>
+        <li>If you ever want it back, it's a toggle, not a rebuild.</li>
+      </ul>
+      <div class="decision" data-lavish-question="tables-search">
+        <div class="q">What should the Tables search match?</div>
+        <label><input type="radio" name="tables-search" value="Root letters and English gloss only">
+          <span><span class="opt-b">Root letters + English gloss</span>
+          <span class="opt-d">As drawn. Simple, fast, no index needed.</span></span></label>
+        <label><input type="radio" name="tables-search" value="Also match any conjugated form, so typing a word from a text finds its chart">
+          <span><span class="opt-b">Also any conjugated form</span>
+          <span class="opt-d">Type <span class="ar">يَنْصُرُونَ</span>, land on the chart with that row highlighted. Needs a generated reverse index; by far the most useful for reading practice.</span></span></label>
+        <label><input type="radio" name="tables-search" value="Root, gloss and conjugated forms, plus derived nouns like ism fail and masdar">
+          <span><span class="opt-b">Everything the engine can generate</span>
+          <span class="opt-d">Including <span class="ar">نَاصِر</span> and <span class="ar">نَصْر</span>. Biggest index, most complete answer.</span></span></label>
+        <div class="acts">
+          <button type="button" data-lavish-action onclick="queueAnswer('tables-search','Tables search scope')">Queue this answer</button>
+          <span class="queued" id="q-tables-search"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ FEEDBACK + MORE ============ -->
+<div class="screen">
+  <div class="screen-head">
+    <h3>Answered state &amp; More</h3>
+    <span class="tag new">Explain now only on wrong answers</span>
+  </div>
+  <div class="split trio">
+    <div>
+      <div class="device">
+        <div class="phone">
+          <div class="topbar">
+            <button class="quit">✕</button>
+            <div class="progress"><i style="width:47%"></i></div>
+            <span class="count">8 / 15</span>
+          </div>
+          <div class="word-card">
+            <div class="word">تُنْصَرَانِ</div>
+            <div class="gloss">“to help”</div>
+            <span class="cat">Voice</span>
+          </div>
+          <div class="prompt">Is the doer known or unknown?</div>
+          <div class="options">
+            <button class="option wrong" disabled><span class="en">active — doer is known</span><span class="ar">مَعْرُوف</span></button>
+            <button class="option correct" disabled><span class="en">passive — doer is unknown</span><span class="ar">مَجْهُول</span></button>
+          </div>
+          <div class="feedback bad">
+            <div class="meaning"><span class="ar">تُنْصَرَانِ</span> — “they two (f) are being helped”</div>
+            <b>Not quite.</b> تُنْصَرَانِ is مَجْهُول — on the pattern تُفْعَلَانِ.
+            <a class="seetable">▤ See the full table →</a>
+            <button class="explainbtn">✨ Explain why</button>
+          </div>
+          <button class="btn primary">Next</button>
+        </div>
+        <div class="device-cap">Wrong answer — Explain shown</div>
+      </div>
+    </div>
+    <div>
+      <div class="device">
+        <div class="phone">
+          <div class="topbar">
+            <button class="quit">✕</button>
+            <div class="progress"><i style="width:53%"></i></div>
+            <span class="count">9 / 15</span>
+          </div>
+          <div class="word-card">
+            <div class="word">يَنْصُرُونَ</div>
+            <div class="gloss">“to help”</div>
+            <span class="cat">Doer</span>
+          </div>
+          <div class="prompt">Who is doing the action?</div>
+          <div class="options">
+            <button class="option correct" disabled><span class="en">they (m, 3+)</span><span class="ar">هُمْ</span></button>
+            <button class="option" disabled><span class="en">you (m, 3+)</span><span class="ar">أَنْتُمْ</span></button>
+          </div>
+          <div class="feedback good">
+            <div class="meaning"><span class="ar">يَنْصُرُونَ</span> — “they (m) help / will help”</div>
+            <b>Correct!</b> The <span class="ar-inline">ونَ</span> ending with a <span class="ar-inline">يـ</span> prefix is 3rd person masculine plural.
+            <a class="seetable">▤ See the full table →</a>
+          </div>
+          <button class="btn primary">Next</button>
+        </div>
+        <div class="device-cap">Correct answer — no Explain button</div>
+      </div>
+    </div>
+    <div class="notes">
+      <h4>Settled</h4>
+      <ul>
+        <li><b class="k">Explain appears only on wrong answers</b>, for free and Pro alike. It reads as remediation rather than an upsell, and it halves the exposure of the trial counter.</li>
+        <li><b class="k">No skip button</b> — guessing is part of the drill, and the answer is revealed immediately anyway.</li>
+        <li>"See full table" stays on both correct and incorrect feedback; it's free and it's study, not sales.</li>
+      </ul>
+      <h4>Consequence to watch</h4>
+      <ul>
+        <li>Explain is now invisible to a user who answers well — which is exactly the user least likely to subscribe on the strength of it. If conversion matters more than restraint, the fallback is a single Explain entry on the results screen for any question, right or wrong.</li>
+      </ul>
+      <h4>More tab — unchanged this round</h4>
+      <ul>
+        <li>Detailed stats (Pro) · quiz history (Pro) · subscription · default quiz length · Arabic text size · appearance · restore · privacy.</li>
+        <li>No Arabic-only mode.</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<h2 class="sec"><b>05</b> Where every decision stands</h2>
+<div class="tbl-wrap">
+  <table class="rev">
+    <thead><tr><th style="width:26%">Item</th><th>Decision</th><th style="width:22%">State</th></tr></thead>
+    <tbody>
+      <tr><td><b class="k">Navigation</b></td><td>Four tabs: Home · Practice · Tables · More.</td><td class="done">Decided · spec updated</td></tr>
+      <tr><td><b class="k">Home muʿtall card</b></td><td>One mixed drill across all four weak types.</td><td class="done">Decided</td></tr>
+      <tr><td><b class="k">Practice presets</b></td><td>None — the chips express any preset in two taps.</td><td class="done">Decided</td></tr>
+      <tr><td><b class="k">Free-tier history</b></td><td>Rolling 30-day summary: daily counts + accuracy, no per-answer records.</td><td class="done">Decided</td></tr>
+      <tr><td><b class="k">Skip button</b></td><td>None — guessing is part of the drill.</td><td class="done">Decided</td></tr>
+      <tr><td><b class="k">Explain placement</b></td><td>Only on wrong answers, free and Pro alike.</td><td class="done">Decided</td></tr>
+      <tr><td><b class="k">Wazn column</b></td><td>Removed from the table view; wazn stays a question category.</td><td class="done">Decided</td></tr>
+      <tr><td><b class="k">Basic stats free</b></td><td>Home card free; detailed dashboard Pro.</td><td class="done">Decided · spec updated</td></tr>
+      <tr><td><b class="k">Arabic-only mode</b></td><td>Dropped.</td><td class="done">Removed from spec + plan</td></tr>
+      <tr><td><b class="k">Verb-type roadmap</b></td><td>All seven engines ship at launch.</td><td class="done">Spec §6 fixed</td></tr>
+      <tr><td><b class="k">Four quiz types</b></td><td>Identify · write the word · derived nouns · English → Arabic.</td><td>Proposed — §01–§03</td></tr>
+      <tr><td><b class="k">Practice config</b></td><td>Tense / voice / iʿrāb chips; iʿrāb gated on muḍāriʿ; bāb not configurable.</td><td>Drawn — confirm §01</td></tr>
+      <tr><td><b class="k">Writing input method</b></td><td>Custom keyboard vs system keyboard vs tiles.</td><td>Open — §02</td></tr>
+      <tr><td><b class="k">Grading strictness</b></td><td>How the final ḥaraka and spelling variants are treated.</td><td>Open — §02</td></tr>
+      <tr><td><b class="k">English cue format</b></td><td>Natural, explicit grammatical, or meaning-only.</td><td>Open — §02</td></tr>
+      <tr><td><b class="k">Quiz architecture</b></td><td>Shared word pool + builder per type + response modes.</td><td>Open — §03</td></tr>
+      <tr><td><b class="k">Tables search scope</b></td><td>Roots only, or conjugated forms too.</td><td>Open — §04</td></tr>
+      <tr><td><b class="k">Home drill quiz type</b></td><td>Identify only, mixed, or a toggle.</td><td>Open — §04</td></tr>
+      <tr><td><b class="k">Endless dedup window</b></td><td>How long before a question may repeat.</td><td>Open</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="decision" data-lavish-question="build">
+  <div class="q">What should I build in the prototype next?</div>
+  <div class="why">Pick as many as you like — this sets the implementation order.</div>
+  <label><input type="checkbox" name="build" value="Refactor the quiz engine to the shared WordPool plus per-type builder architecture, keeping the existing identify quiz working"><span><span class="opt-b">The engine refactor (pool + builders)</span><span class="opt-d">Foundation for everything else; identify keeps working throughout.</span></span></label>
+  <label><input type="checkbox" name="build" value="Build the Practice configuration with quiz-type chips and tense, voice and irab chip rows, with irab gated on mudari"><span><span class="opt-b">New Practice config</span><span class="opt-d">Tense / voice / iʿrāb chips + quiz-type selection.</span></span></label>
+  <label><input type="checkbox" name="build" value="Build the Arabic input question type with a custom keyboard and haraka-level diff grading"><span><span class="opt-b">Write-the-word questions + keyboard</span><span class="opt-d">The biggest new surface; needs the input-method decision first.</span></span></label>
+  <label><input type="checkbox" name="build" value="Restructure the prototype into the four tabs with the new Home and its stats card"><span><span class="opt-b">Four-tab shell + new Home</span><span class="opt-d">Structural, independent of the quiz work.</span></span></label>
+  <label><input type="checkbox" name="build" value="Rework Tables: search, per-attribute chips, View table screen, no wazn column, plus the See full table deep link"><span><span class="opt-b">Tables rework + “See full table” link</span><span class="opt-d">Needs the search-scope decision.</span></span></label>
+  <div class="acts">
+    <button type="button" data-lavish-action onclick="queueMulti('build','Build next')">Queue these</button>
+    <span class="queued" id="q-build"></span>
+  </div>
+</div>
+
+<p style="color:var(--ink-dim);font-size:13px;margin-top:40px;border-top:1px solid #2b3547;padding-top:18px">
+  Built screens render with <code>web-prototype/css/style.css</code> and real engine output; proposed
+  screens use the same stylesheet so they read as the same product.
+</p>
+
+</div>
+
+<script>
+  function queueAnswer(name, title) {
+    const form = document.querySelector('[data-lavish-question="' + name + '"]');
+    const picked = form.querySelector('input:checked');
+    const out = document.getElementById('q-' + name);
+    if (!picked) { out.textContent = 'Pick an option first'; return; }
+    window.lavish?.queuePrompt(title + ': ' + picked.value, {
+      tag: 'decision', text: title + ' → ' + picked.value, element: form, queueKey: name,
+      data: { question: title, answer: picked.value }
+    });
+    out.textContent = '✓ queued — press Send to Agent when ready';
+  }
+  function queueMulti(name, title) {
+    const form = document.querySelector('[data-lavish-question="' + name + '"]');
+    const picked = [...form.querySelectorAll('input:checked')].map(i => i.value);
+    const out = document.getElementById('q-' + name);
+    if (!picked.length) { out.textContent = 'Pick at least one'; return; }
+    window.lavish?.queuePrompt(title + ':\n- ' + picked.join('\n- '), {
+      tag: 'decision', text: title + ' (' + picked.length + ')', element: form, queueKey: name,
+      data: { question: title, answers: picked }
+    });
+    out.textContent = '✓ ' + picked.length + ' queued — press Send to Agent when ready';
+  }
+</script>
+
+<script type="module">
+  import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.15.0/dist/mermaid.esm.min.mjs";
+  const darkQuery = window.matchMedia("(prefers-color-scheme: dark)");
+  const paint = document.createElement("canvas").getContext("2d");
+  function toRgba(color) {
+    paint.clearRect(0, 0, 1, 1); paint.fillStyle = "#000"; paint.fillStyle = color;
+    paint.fillRect(0, 0, 1, 1); return paint.getImageData(0, 0, 1, 1).data;
+  }
+  function compositeRgba(fg, bg) {
+    const fa = fg[3] / 255, ba = bg[3] / 255; const a = fa + ba * (1 - fa);
+    if (a === 0) return [0, 0, 0, 0];
+    return [(fg[0]*fa + bg[0]*ba*(1-fa))/a, (fg[1]*fa + bg[1]*ba*(1-fa))/a, (fg[2]*fa + bg[2]*ba*(1-fa))/a, a*255];
+  }
+  function pageIsDark() {
+    const root = document.documentElement;
+    const rb = toRgba(getComputedStyle(root).backgroundColor);
+    const bb = document.body ? toRgba(getComputedStyle(document.body).backgroundColor) : [0,0,0,0];
+    const [r, g, b, a] = compositeRgba(bb, rb);
+    if (a > 0) return (0.2126*r + 0.7152*g + 0.0722*b) / 255 < 0.5;
+    return darkQuery.matches;
+  }
+  const diagrams = [...document.querySelectorAll(".mermaid")].map((el) => ({ el, src: el.textContent }));
+  let applied, rendering = false, queued = false;
+  function queueRender() { queued = true; if (!rendering) void render(); }
+  async function render() {
+    rendering = true;
+    try {
+      while (queued) {
+        queued = false;
+        const theme = pageIsDark() ? "dark" : "default";
+        if (theme === applied) continue;
+        mermaid.initialize({ startOnLoad: false, theme, securityLevel: "strict" });
+        for (const { el, src } of diagrams) { el.removeAttribute("data-processed"); el.textContent = src; }
+        try { await mermaid.run({ nodes: diagrams.map((d) => d.el) }); }
+        catch (error) { console.error("Mermaid render failed:", error); return; }
+        applied = theme;
+      }
+    } finally { rendering = false; if (queued) queueRender(); }
+  }
+  if (document.readyState === "complete") queueRender();
+  else window.addEventListener("load", queueRender, { once: true });
+  const obs = new MutationObserver(queueRender);
+  for (const el of [document.documentElement, document.body]) {
+    if (el) obs.observe(el, { attributes: true, attributeFilter: ["data-theme", "class", "style"] });
+  }
+  darkQuery.addEventListener("change", queueRender);
+</script>
+</body>
+</html>

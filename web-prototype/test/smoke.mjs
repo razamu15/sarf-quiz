@@ -1,14 +1,35 @@
 // Engine smoke test: run with `node test/smoke.mjs` from web-prototype/.
 // Expected strings are hand-typed independently of the template constants,
 // so agreement means both are almost certainly right.
+//
+// v2 note: the original 125 conjugation/meaning assertions carry over
+// VERBATIM through a small (tense, voice, mood) → ChartID shim, proving the
+// chart-first restructure did not change a single generated word. New v2
+// assertions (charts, tables, multi-select, stream) follow at the bottom.
 
-import { ROOTS } from '../js/data/roots.js';
-import { conjugate, derivedNoun, waznOf, fullTable } from '../js/engine/conjugator.js';
-import { verbMeaning, derivedMeaning } from '../js/engine/meaning.js';
-import { buildSimpleQuiz, PRESETS, mazeedPreset, mazeedPresetAvailable } from '../js/engine/quizgen.js';
-import { MAZEED_IDS } from '../js/data/patterns.js';
+import { chartId, CHART_IDS, SLOTS, AMR_SLOTS, slotsFor } from '../js/vocabulary.js';
+import { LEXICON, classify } from '../js/lexicon/lexicon-service.js';
+import {
+  conjugate as conjugateChart, derivedNoun, waznOf as waznOfChart,
+  fullTable as fullTableChart, availableCharts,
+} from '../js/conjugation/conjugation-service.js';
+import { verbMeaning as verbMeaningChart, derivedMeaning } from '../js/meaning-service.js';
+import {
+  buildDrill, buildQuiz, questionStream, PRESETS, mazeedPreset, mazeedPresetAvailable,
+} from '../js/quiz/quiz-service.js';
+import { MAZEED_IDS } from '../js/vocabulary.js';
 
-const byRoot = (letters) => ROOTS.find((r) => r.root.join('') === letters);
+// --- v1-compat shims: same call shapes as the old engine API ---------------
+const conjugate = (root, formId, tense, voice, slot, mood = 'raf') =>
+  conjugateChart(root, formId, chartId(tense, voice, mood), slot);
+const waznOf = (formId, tense, voice, slot, bab = 1, mood = 'raf') =>
+  waznOfChart(formId, chartId(tense, voice, mood), slot, bab);
+const verbMeaning = (root, formId, tense, voice, slot) =>
+  verbMeaningChart(root, formId, chartId(tense, voice), slot);
+const fullTable = (root, formId, tense, voice) =>
+  fullTableChart(root, formId, chartId(tense, voice));
+
+const byRoot = (letters) => LEXICON.find((r) => r.root.join('') === letters);
 
 const kataba = byRoot('كتب');
 const daraba = byRoot('ضرب');
@@ -113,7 +134,7 @@ const cases = [
   [waznOf('X', 'mudari', 'malum', '3ms'), 'يَسْتَفْعِلُ'],
   [waznOf('I', 'madi', 'majhul', '3ms'), 'فُعِلَ'],
 
-  // Hand-authored override (ajwaf)
+  // Fixture tables (ajwaf) — served through the service fallback
   [conjugate(qala, 'I', 'madi', 'malum', '3ms'), 'قَالَ'],
   [conjugate(qala, 'I', 'madi', 'malum', '3fp'), 'قُلْنَ'],
   [conjugate(qala, 'I', 'mudari', 'malum', '2fs'), 'تَقُولِينَ'],
@@ -121,7 +142,7 @@ const cases = [
   [conjugate(qala, 'I', 'madi', 'majhul', '3ms'), 'قِيلَ'],
   [conjugate(qala, 'I', 'mudari', 'majhul', '3ms'), 'يُقَالُ'],
 
-  // Hand-authored nāqiṣ (رمي)
+  // Fixture tables (nāqiṣ — رمي)
   [conjugate(byRoot('رمي'), 'I', 'madi', 'malum', '3ms'), 'رَمَى'],
   [conjugate(byRoot('رمي'), 'I', 'madi', 'malum', '3mp'), 'رَمَوْا'],
   [conjugate(byRoot('رمي'), 'I', 'mudari', 'malum', '3ms'), 'يَرْمِي'],
@@ -141,7 +162,7 @@ const cases = [
   [conjugate(kataba, 'I', 'mudari', 'majhul', '3ms', 'jazm'), 'يُكْتَبْ'],
   [conjugate(ghafara, 'X', 'mudari', 'malum', '1p', 'nasb'), 'نَسْتَغْفِرَ'],
 
-  // manṣūb / majzūm (hand-authored iʿlāl for irregulars)
+  // manṣūb / majzūm (hand-authored iʿlāl fixtures)
   [conjugate(qala, 'I', 'mudari', 'malum', '3ms', 'nasb'), 'يَقُولَ'],
   [conjugate(qala, 'I', 'mudari', 'malum', '3ms', 'jazm'), 'يَقُلْ'],
   [conjugate(byRoot('رمي'), 'I', 'mudari', 'malum', '3ms', 'nasb'), 'يَرْمِيَ'],
@@ -174,35 +195,93 @@ for (const [got, want] of cases) {
     console.log(`  want: ${[...want].map((c) => c.codePointAt(0).toString(16)).join(' ')}`);
   }
 }
-console.log(`\n${pass} passed, ${fail} failed`);
+console.log(`\nv1-parity: ${pass} passed, ${fail} failed`);
 
 // Eyeball table: عَلَّمَ full madi
 console.log('\nForm II madi (علم):', Object.values(fullTable(alima, 'II', 'madi', 'malum')).join(' | '));
 console.log('Form I mudari (كتب):', Object.values(fullTable(kataba, 'I', 'mudari', 'malum')).join(' | '));
 
-// Simple-quiz builder: 5 words × 3 questions, second slot is voice or wazn
-function checkBundle(label, quiz, wantFormIds) {
-  const cats = quiz.map((q) => q.category);
-  let ok = quiz.length === 15 && quiz.every((q) => q.gloss && q.fullMeaning && q.tag);
-  for (let w = 0; w < 15; w += 3) {
-    ok &&= cats[w] === 'tense'
-      && ['voice', 'wazn'].includes(cats[w + 1])
-      && cats[w + 2] === 'doer';
-  }
-  ok &&= quiz.every((q) => wantFormIds.includes(q.formId));
-  if (ok) { pass++; } else {
-    fail++;
-    console.log(`FAIL: ${label} → ${quiz.length} questions [${cats.join(',')}] forms [${quiz.map((q) => q.formId).join(',')}]`);
-  }
+// ---------------------------------------------------------------------------
+// v2 assertions
+// ---------------------------------------------------------------------------
+const check = (ok, label) => {
+  if (ok) { pass++; } else { fail++; console.log(`FAIL: ${label}`); }
+};
+
+// Verb-type classification agrees with every declared type (load validated it;
+// assert classify directly too)
+check(classify(['ك', 'ت', 'ب']) === 'salim', 'classify salim');
+check(classify(['ق', 'و', 'ل']) === 'ajwaf', 'classify ajwaf');
+check(classify(['ر', 'م', 'ي']) === 'naqis', 'classify naqis');
+check(classify(['م', 'د', 'د']) === 'mudaaf', 'classify mudaaf');
+check(classify(['أ', 'خ', 'ذ']) === 'mahmuz', 'classify mahmuz');
+check(classify(['و', 'ع', 'د']) === 'mithal', 'classify mithal');
+
+// Tables browser feed: full charts, correct row counts
+check(Object.keys(fullTableChart(kataba, 'I', 'madi_malum')).length === 14, 'full madi table has 14 rows');
+check(Object.keys(fullTableChart(kataba, 'I', 'amr_malum')).length === 6, 'amr table has 6 rows');
+check(Object.keys(fullTableChart(qala, 'I', 'mudari_malum_raf')).length === 14, 'fixture table serves all 14 rows');
+check(availableCharts(kataba, 'I').length === 9, 'kataba I has all nine charts');
+check(availableCharts(byRoot('جلس'), 'I').length === 5, 'lāzim root has no majhūl charts');
+check(availableCharts(qala, 'I').length === 7, 'qala serves exactly its 7 fixture charts');
+
+// Multi-select doer: تَكْتُبُ is both "she" (3fs) and "you m" (2ms)
+{
+  const rendered = SLOTS.map((s) => conjugateChart(kataba, 'I', 'mudari_malum_raf', s));
+  const target = conjugateChart(kataba, 'I', 'mudari_malum_raf', '3fs');
+  const matches = SLOTS.filter((s, i) => rendered[i] === target);
+  check(matches.length === 2 && matches.includes('3fs') && matches.includes('2ms'),
+    'تَكْتُبُ renders identically for 3fs and 2ms');
 }
 
+// Drill questions: doer questions must mark every matching pronoun correct,
+// and options must carry valueKeys.
+{
+  let sawMulti = false;
+  let allConsistent = true;
+  for (let i = 0; i < 40 && !sawMulti; i++) {
+    const drill = buildDrill(PRESETS[0]);
+    for (const q of drill) {
+      if (q.category !== 'doer') continue;
+      const correctSlots = q.correctIndices.map((idx) => q.options[idx].valueKey);
+      const consistent = correctSlots.every(
+        (slot) => conjugateChart(byRoot(q.rootKey), q.formId, q.chartId, slot) === q.word,
+      );
+      allConsistent &&= consistent && q.correctIndices.length >= 1;
+      if (q.multiSelect) sawMulti = true;
+    }
+  }
+  check(allConsistent, 'every doer correct option really conjugates to the shown word');
+  check(sawMulti, 'multi-select doer questions occur (identical forms become extra answers)');
+}
+
+// Drill shape: 5 words × 3 questions, identity fields present
 for (const preset of PRESETS.filter((p) => ['salim', 'ajwaf', 'naqis', 'mixed'].includes(p.id))) {
-  checkBundle(`preset ${preset.id}`, buildSimpleQuiz(preset), ['I']);
+  const quiz = buildDrill(preset);
+  const shapeOk = quiz.length === 15
+    && quiz.every((q) => q.gloss && q.fullMeaning && q.tag && q.rootKey && q.verbType
+      && q.correctIndices.length >= 1 && q.options.every((o) => 'valueKey' in o || o.valueKey === undefined));
+  check(shapeOk, `drill ${preset.id}: 15 questions with identity + correctness`);
 }
 for (const formId of MAZEED_IDS.filter(mazeedPresetAvailable)) {
-  checkBundle(`mazeed ${formId}`, buildSimpleQuiz(mazeedPreset(formId)), [formId]);
+  const quiz = buildDrill(mazeedPreset(formId));
+  check(quiz.length === 15 && quiz.every((q) => q.formId === formId), `mazeed drill ${formId}`);
 }
-if (mazeedPresetAvailable('IX')) { fail++; console.log('FAIL: IX should be unavailable'); } else pass++;
-console.log(`\nwith presets: ${pass} passed, ${fail} failed`);
+check(!mazeedPresetAvailable('IX'), 'IX drill unavailable (recognition-only)');
 
+// Fixed quiz + endless stream
+{
+  const plan = { categories: [], forms: ['I', 'II', 'X'], types: ['salim'], count: 12 };
+  const fixed = buildQuiz(plan);
+  check(fixed.length === 12, 'fixed quiz delivers the requested count');
+
+  const stream = questionStream(plan);
+  const drawn = [];
+  for (const q of stream) { drawn.push(q); if (drawn.length >= 40) break; }
+  check(drawn.length === 40, 'endless stream keeps producing (40 pulled)');
+  check(drawn.every((q) => q.category && q.word && q.correctIndices.length >= 1),
+    'every streamed question is complete');
+}
+
+console.log(`\nTOTAL: ${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

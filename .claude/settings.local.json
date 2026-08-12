@@ -2,7 +2,21 @@
   "permissions": {
     "allow": [
       "Bash(node test/smoke.mjs)",
-      "Bash(python3 -)"
+      "Bash(python3 -)",
+      "Bash(grep -n \"^function \\\\|^const \\\\|^async function \\\\|=> {$\" js/app.js)",
+      "Bash(npx -y lavish-axi playbook plan)",
+      "Bash(npx -y lavish-axi playbook input)",
+      "Bash(npx -y lavish-axi playbook comparison)",
+      "Bash(node -e ' *)",
+      "Bash(npx -y lavish-axi playbook diagram)",
+      "Bash(npx -y lavish-axi playbook table)",
+      "Bash(npx -y lavish-axi design)",
+      "Bash(npx -y lavish-axi .lavish/app-review.html)",
+      "Bash(npx -y lavish-axi poll .lavish/app-review.html --agent-reply \"Built a full review surface: every screen that exists today rendered in the prototype's own stylesheet with real engine output, plus first-draft mocks of the four screens the spec promises but nobody has drawn \\(Stats, AI Explain, Paywall, Settings\\). Start with §01 — the navigation decision, since six top-level destinations don't fit four tabs. Then §06 lists six real conflicts I found between the spec, the plan and the code — including a genuine bug where two answer options render identical Arabic and both are correct. Annotate anything; the decision cards have options you can queue.\")",
+      "Bash(npx -y lavish-axi poll .lavish/app-review.html --agent-reply \"Reopened — same doc, nothing lost. It covers every screen that exists today \\(rendered in the prototype's own stylesheet with real engine output\\) plus first-draft mocks of the four screens the spec promises but nobody has drawn: Stats, AI Explain, Paywall, Settings. Suggested order: §01 navigation decision \\(six top-level destinations don't fit four tabs\\), then §06 — six real conflicts I found between the spec, the plan and the code, including a genuine bug where two answer options render identical Arabic and both are correct. Annotate anything; decision cards have options you can queue.\")",
+      "Bash(awk 'NR>5' /Users/saad/.claude/projects/-Users-saad-Desktop-sarf-quiz-app/751a3dde-f867-4fdf-8534-7252faf42be9/tool-results/b03fh47xv.txt)",
+      "Bash(npx -y lavish-axi poll .lavish/app-review.html --agent-reply \"Redrawn around your four tabs — Home · Practice · Tables · More. Home is now three drill cards \\(sālim, muʿtall, mazīd fīhi\\) plus a free basic-stats card that opens the Pro dashboard under More; Tables is search-first with one chip row per attribute and a View table button. Docs updated too: spec §5.1 rewritten for the new nav, §5.4 split into free basic / Pro detailed, §5.6 rewritten for search + per-attribute picking, §6 fixed so all seven engines ship at launch, Arabic-only mode removed, and the contextual-meaning bug logged as §10 deferred fix. Three new questions I need you on: the muʿtall card \\(one mixed drill or a second level\\), Tables search scope \\(roots only, or also conjugated forms — that one's a big feature\\), and free-tier history, since a streak can't exist without storing something. §05 lists what's settled and has a checklist for what I build first.\")",
+      "Bash(npx -y lavish-axi poll .lavish/app-review.html --agent-reply \"Revision 3 is up — the quiz overhaul is the spine of it. §01 lays the four types on two axes \\(recognise↔produce × grammatical↔English cue\\), which is what lets one engine serve all four; the new Practice config is drawn beside it with tense/voice/iʿrāb chips, iʿrāb gated on muḍāriʿ, and bāb deliberately left non-configurable since it's a lexical property of each root, not a filter. §02 draws the writing questions with a purpose-built keyboard \\(radicals highlighted + ḥaraka row — the system Arabic keyboard buries ḥarakāt behind long-press\\) and ḥaraka-level diff grading. §03 is the architecture you asked for: the config selects a *word pool*, not a quiz; one pure builder per type turns a WordSpec into a Question; response.kind drives the UI; history stays one table. All your other calls are applied and written into the spec — Explain now only on wrong answers, no skip, muʿtall mixed, no Practice presets, 30-day rolling free history, wazn column gone, Home subtitle gone. Four things need you: input method, grading strictness, the English cue format, and whether the architecture holds. Tables search scope is still unanswered from last round and it's the one that decides how big that feature is.\")"
     ]
   }
 }

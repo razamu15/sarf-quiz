@@ -1,5 +1,8 @@
-// Root lexicon. Sālim roots are fully engine-conjugated; irregular roots carry
-// hand-authored tables (قول, رمي at the bottom) that override the engine.
+// Root lexicon — the only data file in the v2 model (everything else is
+// grammar-as-code). Sālim roots are engine-conjugated; verb types without an
+// engine yet (قول, رمي at the bottom) carry hand-authored FIXTURE tables,
+// keyed by ChartID, which ConjugationService serves as a fallback and the
+// test suite uses as the parity bar for future per-type engines.
 //
 // forms.I.bab   → which of the six abwāb (1..6)
 // forms.*.trans → transitive? (majhūl questions only make sense when true)
@@ -229,14 +232,14 @@ export const ROOTS = [
             '2fs': 'قِلْتِ', '2fd': 'قِلْتُمَا', '2fp': 'قِلْتُنَّ',
             '1s': 'قِلْتُ', '1p': 'قِلْنَا',
           },
-          mudari_malum: {
+          mudari_malum_raf: {
             '3ms': 'يَقُولُ', '3md': 'يَقُولَانِ', '3mp': 'يَقُولُونَ',
             '3fs': 'تَقُولُ', '3fd': 'تَقُولَانِ', '3fp': 'يَقُلْنَ',
             '2ms': 'تَقُولُ', '2md': 'تَقُولَانِ', '2mp': 'تَقُولُونَ',
             '2fs': 'تَقُولِينَ', '2fd': 'تَقُولَانِ', '2fp': 'تَقُلْنَ',
             '1s': 'أَقُولُ', '1p': 'نَقُولُ',
           },
-          mudari_majhul: {
+          mudari_majhul_raf: {
             '3ms': 'يُقَالُ', '3md': 'يُقَالَانِ', '3mp': 'يُقَالُونَ',
             '3fs': 'تُقَالُ', '3fd': 'تُقَالَانِ', '3fp': 'يُقَلْنَ',
             '2ms': 'تُقَالُ', '2md': 'تُقَالَانِ', '2mp': 'تُقَالُونَ',
@@ -286,14 +289,14 @@ export const ROOTS = [
             '2fs': 'رُمِيتِ', '2fd': 'رُمِيتُمَا', '2fp': 'رُمِيتُنَّ',
             '1s': 'رُمِيتُ', '1p': 'رُمِينَا',
           },
-          mudari_malum: {
+          mudari_malum_raf: {
             '3ms': 'يَرْمِي', '3md': 'يَرْمِيَانِ', '3mp': 'يَرْمُونَ',
             '3fs': 'تَرْمِي', '3fd': 'تَرْمِيَانِ', '3fp': 'يَرْمِينَ',
             '2ms': 'تَرْمِي', '2md': 'تَرْمِيَانِ', '2mp': 'تَرْمُونَ',
             '2fs': 'تَرْمِينَ', '2fd': 'تَرْمِيَانِ', '2fp': 'تَرْمِينَ',
             '1s': 'أَرْمِي', '1p': 'نَرْمِي',
           },
-          mudari_majhul: {
+          mudari_majhul_raf: {
             '3ms': 'يُرْمَى', '3md': 'يُرْمَيَانِ', '3mp': 'يُرْمَوْنَ',
             '3fs': 'تُرْمَى', '3fd': 'تُرْمَيَانِ', '3fp': 'يُرْمَيْنَ',
             '2ms': 'تُرْمَى', '2md': 'تُرْمَيَانِ', '2mp': 'تُرْمَوْنَ',

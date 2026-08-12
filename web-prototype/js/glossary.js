@@ -1,0 +1,116 @@
+// Display strings only — every Arabic/English label the UI shows. No engine
+// data lives here and no display strings live in the grammar (v2 split of the
+// old GrammarTables grab-bag; see docs/TECHNICAL_PLAN.md §A.3).
+
+export const PRONOUNS = {
+  '3ms': { ar: 'هُوَ',      en: 'he' },
+  '3md': { ar: 'هُمَا',     en: 'they two (m)' },
+  '3mp': { ar: 'هُمْ',      en: 'they (m, 3+)' },
+  '3fs': { ar: 'هِيَ',      en: 'she' },
+  '3fd': { ar: 'هُمَا',     en: 'they two (f)' },
+  '3fp': { ar: 'هُنَّ',     en: 'they (f, 3+)' },
+  '2ms': { ar: 'أَنْتَ',    en: 'you (m)' },
+  '2md': { ar: 'أَنْتُمَا', en: 'you two (m)' },
+  '2mp': { ar: 'أَنْتُمْ',  en: 'you (m, 3+)' },
+  '2fs': { ar: 'أَنْتِ',    en: 'you (f)' },
+  '2fd': { ar: 'أَنْتُمَا', en: 'you two (f)' },
+  '2fp': { ar: 'أَنْتُنَّ', en: 'you (f, 3+)' },
+  '1s':  { ar: 'أَنَا',     en: 'I' },
+  '1p':  { ar: 'نَحْنُ',    en: 'we' },
+};
+
+export const TENSE_LABELS = {
+  madi:   { ar: 'فِعْل مَاضٍ', en: 'past (māḍī)' },
+  mudari: { ar: 'فِعْل مُضَارِع', en: 'present/future (muḍāriʿ)' },
+  amr:    { ar: 'فِعْل أَمْر', en: 'command (amr)' },
+};
+
+export const VOICE_LABELS = {
+  malum:  { ar: 'مَعْلُوم', en: 'active — doer is known' },
+  majhul: { ar: 'مَجْهُول', en: 'passive — doer is unknown' },
+};
+
+export const MOOD_LABELS = {
+  raf:  { ar: 'مَرْفُوع', en: 'marfūʿ — the default state' },
+  nasb: { ar: 'مَنْصُوب', en: 'manṣūb — after أَنْ، لَنْ، كَيْ…' },
+  jazm: { ar: 'مَجْزُوم', en: 'majzūm — after لَمْ، لَا النَّاهِيَة…' },
+};
+
+/** Labels for the table browser's chart picker. */
+export const CHART_LABELS = {
+  madi_malum:         { ar: 'المَاضِي المَعْلُوم', en: 'past · active' },
+  madi_majhul:        { ar: 'المَاضِي المَجْهُول', en: 'past · passive' },
+  mudari_malum_raf:   { ar: 'المُضَارِع المَرْفُوع', en: 'present · active · rafʿ' },
+  mudari_malum_nasb:  { ar: 'المُضَارِع المَنْصُوب', en: 'present · active · naṣb' },
+  mudari_malum_jazm:  { ar: 'المُضَارِع المَجْزُوم', en: 'present · active · jazm' },
+  mudari_majhul_raf:  { ar: 'المُضَارِع المَجْهُول', en: 'present · passive · rafʿ' },
+  mudari_majhul_nasb: { ar: 'المُضَارِع المَجْهُول المَنْصُوب', en: 'present · passive · naṣb' },
+  mudari_majhul_jazm: { ar: 'المُضَارِع المَجْهُول المَجْزُوم', en: 'present · passive · jazm' },
+  amr_malum:          { ar: 'الأَمْر', en: 'command' },
+};
+
+export const NOUN_KIND_LABELS = {
+  ismFail:  { ar: 'اسْم فَاعِل', en: 'doer noun (ism fāʿil)' },
+  ismMaful: { ar: 'اسْم مَفْعُول', en: 'receiver noun (ism mafʿūl)' },
+  masdar:   { ar: 'مَصْدَر', en: 'verbal noun (maṣdar)' },
+};
+
+export const FORM_NAMES = {
+  I:    { name: 'الثلاثي المجرد',      nameEn: 'Form I (mujarrad)' },
+  II:   { name: 'بَابُ التَّفْعِيل',      nameEn: 'Form II (tafʿīl)' },
+  III:  { name: 'بَابُ المُفَاعَلَة',     nameEn: 'Form III (mufāʿala)' },
+  IV:   { name: 'بَابُ الإِفْعَال',       nameEn: 'Form IV (ifʿāl)' },
+  V:    { name: 'بَابُ التَّفَعُّل',       nameEn: 'Form V (tafaʿʿul)' },
+  VI:   { name: 'بَابُ التَّفَاعُل',      nameEn: 'Form VI (tafāʿul)' },
+  VII:  { name: 'بَابُ الانْفِعَال',      nameEn: 'Form VII (infiʿāl)' },
+  VIII: { name: 'بَابُ الافْتِعَال',      nameEn: 'Form VIII (iftiʿāl)' },
+  IX:   { name: 'بَابُ الافْعِلَال',      nameEn: 'Form IX (ifʿilāl)' },
+  X:    { name: 'بَابُ الاسْتِفْعَال',    nameEn: 'Form X (istifʿāl)' },
+};
+
+/** Display names of the six abwāb (the vowels themselves live in the grammar). */
+export const ABWAB_LABELS = {
+  1: { name: 'نَصَرَ يَنْصُرُ', en: 'fatḥa / ḍamma' },
+  2: { name: 'ضَرَبَ يَضْرِبُ', en: 'fatḥa / kasra' },
+  3: { name: 'فَتَحَ يَفْتَحُ', en: 'fatḥa / fatḥa' },
+  4: { name: 'سَمِعَ يَسْمَعُ', en: 'kasra / fatḥa' },
+  5: { name: 'كَرُمَ يَكْرُمُ', en: 'ḍamma / ḍamma' },
+  6: { name: 'حَسِبَ يَحْسِبُ', en: 'kasra / kasra' },
+};
+
+export const MEANINGS = {
+  taadiya:    { ar: 'التَّعْدِيَة',            en: 'making the verb transitive (taʿdiya)' },
+  takthir:    { ar: 'التَّكْثِير وَالمُبَالَغَة', en: 'intensity / repetition (takthīr)' },
+  musharaka2: { ar: 'المُشَارَكَة بَيْنَ اثْنَيْنِ', en: 'mutual action between two (mushāraka)' },
+  musharaka3: { ar: 'المُشَارَكَة بَيْنَ أَكْثَر',  en: 'mutual action among a group' },
+  mutawaa:    { ar: 'المُطَاوَعَة',             en: 'receiving the action (muṭāwaʿa)' },
+  mutawaa_II: { ar: 'مُطَاوَعَة فَعَّلَ',         en: 'result of Form II acting on you' },
+  takalluf:   { ar: 'التَّكَلُّف',              en: 'striving / taking on a quality (takalluf)' },
+  tazahur:    { ar: 'التَّظَاهُر',              en: 'pretending (taẓāhur)' },
+  ittikhadh:  { ar: 'الاتِّخَاذ',              en: 'adopting / taking for oneself (ittikhādh)' },
+  alwan_uyub: { ar: 'الأَلْوَان وَالعُيُوب',      en: 'colors and defects' },
+  talab:      { ar: 'الطَّلَب',                en: 'seeking / requesting (ṭalab)' },
+  itiqad:     { ar: 'الاعْتِقَاد / التَّحَوُّل',   en: 'deeming or transformation' },
+};
+
+export const VERB_TYPE_INFO = {
+  salim:  { ar: 'سَالِم',   en: 'sound (no weak letters)', group: 'ṣaḥīḥ' },
+  mahmuz: { ar: 'مَهْمُوز',  en: 'contains hamza', group: 'ṣaḥīḥ' },
+  mudaaf: { ar: 'مُضَاعَف',  en: 'doubled radical', group: 'ṣaḥīḥ' },
+  mithal: { ar: 'مِثَال',    en: 'weak 1st radical', group: 'muʿtall' },
+  ajwaf:  { ar: 'أَجْوَف',   en: 'weak middle radical (hollow)', group: 'muʿtall' },
+  naqis:  { ar: 'نَاقِص',    en: 'weak final radical (defective)', group: 'muʿtall' },
+  lafif:  { ar: 'لَفِيف',    en: 'two weak radicals', group: 'muʿtall' },
+};
+
+export const CATEGORIES = {
+  tense:   { label: 'Tense', ar: 'زمن الفعل', desc: 'māḍī / muḍāriʿ / amr' },
+  voice:   { label: 'Voice', ar: 'معلوم/مجهول', desc: 'doer known or unknown' },
+  doer:    { label: 'Doer', ar: 'الضمير', desc: 'person · gender · number' },
+  wazn:    { label: 'Wazn', ar: 'الوزن', desc: 'identify the pattern' },
+  mood:    { label: 'Iʿrāb', ar: 'الرفع والنصب والجزم', desc: 'marfūʿ / manṣūb / majzūm' },
+  bab:     { label: 'Bāb (Form I)', ar: 'أبواب المجرد', desc: 'the six abwāb' },
+  root:    { label: 'Root', ar: 'الجذر', desc: 'find the original letters' },
+  derived: { label: 'Derived nouns', ar: 'المشتقات', desc: 'ism fāʿil / mafʿūl / maṣdar' },
+  meaning: { label: 'Meanings', ar: 'معاني الأبواب', desc: 'what the bāb signifies' },
+};
