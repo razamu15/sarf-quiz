@@ -274,60 +274,123 @@ hand-verified against a printed sarf reference.
 English from (root, form, chart, slot), regular-verb fallbacks, stative
 ("to be …") handling.
 
-### A.7 Quiz — a stream, not a batch
+### A.7 Quiz — a word pool, builders, and two response modes
 
-Two review changes: **multi-select correctness** and **endless mode**.
+Three review changes: **multi-select correctness**, **endless mode**, and — the
+structural one — **three quiz types served by one engine** (spec §3.1):
+identify (tense · voice · doer, multiple choice), write the word (typed
+Arabic), and derived nouns (multiple choice, two question shapes).
+
+**The organizing idea: the plan selects a pool of words, not a set of
+questions.** Every quiz type consumes the same pool; only the interrogation
+differs. That is what makes the configuration genuinely shared instead of three
+configurations that happen to look alike.
 
 ```swift
+/// The full identity of one generated word. Everything downstream — questions,
+/// history, stats — is a projection of this.
+struct WordSpec: Codable, Hashable {
+  let rootKey: String                // "نصر"
+  let form: FormID
+  let chart: ChartID?                // nil for derived-noun targets
+  let slot: PronounSlot?             // nil for derived-noun targets
+  let derived: DerivedNounKind?      // ism fāʿil / mafʿūl / maṣdar
+}
+
 struct QuizPlan {
-  var categories: [QuestionCategory]
-  var forms: [FormID]
+  var quizType: QuizType             // .identify | .produce | .derivedNoun —
+                                     // one per session; mixing types in a single
+                                     // run is deliberately out of scope for now
+  var tenses:  [Tense]               // māḍī / muḍāriʿ / amr
+  var voices:  [Voice]               // maʿrūf / majhūl
+  var moods:   [Mood]                // ignored unless .mudari is selected
+  var forms:   [FormID]
   var verbTypes: [VerbType]
   var length: Length
   enum Length { case fixed(Int); case endless }
+
+  /// tense × voice × mood → the charts this plan admits. The UI never names a
+  /// chart; it names attributes, and this is where they become ChartIDs.
+  var charts: [ChartID] { … }
+}
+
+/// The shared pool. One lazy sequence, consumed by every builder.
+func wordPool(_ plan: QuizPlan, _ lexicon: LexiconService) -> AnySequence<WordSpec>
+```
+
+Bāb is deliberately absent from `QuizPlan`: a root's Form I bāb is lexical, so
+filtering by it would really be filtering the root list.
+
+**One builder per quiz type**, each a pure function from a `WordSpec` to a
+`Question` — or to `nil` when it can't ask anything about that word (no ism
+mafʿūl for an intransitive verb, no amr outside the 2nd person, no Form I
+maṣdar when the lexicon has none). The stream simply tries the next word, so a
+fourth quiz type later is one file plus one registry entry.
+
+```swift
+protocol QuestionBuilder {
+  var handles: QuizType { get }
+  func build(_ spec: WordSpec, _ plan: QuizPlan, _ rng: inout RNG) -> Question?
 }
 
 struct Question {
-  …                                  // word, prompt, options, explanation, payload
-  let correctIndices: Set<Int>       // ≥1 — multi-select replaces correctIndex
-  let identity: QuestionIdentity     // stable morphological identity (below)
+  let identity: WordSpec             // what history records
+  let prompt: Prompt                 // what the card renders
+  let response: Response             // how you answer + how it's graded
+  let explanation: String            // rule-based, from engine metadata
+  let explainPayload: ExplainPayload // grounding for AI Explain
 }
 
-/// Every question is engine-generated, so its full identity is known at
-/// birth. This is what history records (B.3) — never option indices, which
-/// are meaningless after shuffling.
-struct QuestionIdentity: Codable {
-  let category: QuestionCategory
-  let form: FormID
-  let verbType: VerbType
-  let chart: ChartID?                // verb questions
-  let rootKey: String                // "علم"
-  let slot: PronounSlot?             // slot of the displayed word
+enum Prompt {
+  case word(String, gloss: String)                    // identify
+  case spec(root: [Character], chips: [String])       // write the word
+  case derivedRequest(verb: String, kind: DerivedNounKind, form: FormID)
+  case derivedWord(String)                            // identify the derivative
+}
+
+enum Response {
+  /// Multi-select capable: correctIndices is a Set, never a single index.
+  /// Derived-noun options (type 3a) render Arabic only — an English label
+  /// would name the answer.
+  case choice(options: [AnswerOption], correctIndices: Set<Int>)
+  /// Typed Arabic, entered on the plain system Arabic keyboard (letters and
+  /// ḥarakāt alike — we add no accessory row). Graded fully strictly against
+  /// the engine's NFC string, final ḥaraka included: the ending is the lesson.
+  case arabicInput(accepted: [String])
 }
 
 /// Options carry the semantic value they represent (a PronounSlot, Tense,
-/// ChartID… raw value), so an answer can be recorded as *what was picked*,
+/// ChartID… raw value), so an answer is recorded as *what was picked*,
 /// not *which button position*.
 struct AnswerOption { let arabic, english: String; let valueKey: String? }
 
 final class QuizService {
   /// Lazy question source. Fixed plans take N; endless plans keep pulling
   /// until the user taps End quiz. Deduplication window instead of a global
-  /// seen-set so endless mode doesn't starve.
+  /// seen-set so endless mode doesn't starve. One builder per run (the plan
+  /// carries a single quizType), though the derived-noun builder alternates
+  /// between its own two question shapes.
   func stream(for plan: QuizPlan) -> QuestionStream   // AnyIterator<Question>
 }
 ```
+
+**Grading lives with the response, not the quiz type.** `choice` is an exact set
+match; `arabicInput` is NFC equality against the engine's own string, and on a
+miss returns the *first diverging position* so feedback can say "one ḥaraka off"
+rather than "wrong". A future "choose the correct spelling" question would reuse
+the choice renderer with a produce-style prompt at no cost.
 
 Multi-select flips the doer-question distractor rule on its head: instead of
 *excluding* slots whose written form matches the answer (تَكْتُبُ = "she" and
 "you (m)"), the builder groups slots by rendered form — every pronoun whose
 form equals the shown word is a correct option, and distractors come from
-slots that render differently. The ambiguity becomes the lesson. The same
-set-based check generalizes any other category where two options can be
-simultaneously true.
+slots that render differently. The ambiguity becomes the lesson.
 
-UI contract: single-correct questions still resolve on first tap;
-multi-correct questions show "Select all that apply" and a **Check** button.
+UI contract: single-correct choice questions resolve on first tap;
+multi-correct show "Select all that apply" and a **Check** button; typed
+questions use the plain system Arabic keyboard and a **Check** button. The app
+must detect the case where no Arabic keyboard is installed and route the user to
+Settings, since the question is otherwise unanswerable.
 
 ### A.8 Tables browser service
 
@@ -391,9 +454,13 @@ Sources/SarfCore/
     ConjugationService.swift  router, tables, wazn, citation
   MeaningService.swift
   Quiz/
-    Question.swift            Question, AnswerOption, ExplainPayload
-    QuizPlan.swift
-    QuizService.swift         stream builder + category builders
+    Question.swift            Question, Prompt, Response, AnswerOption
+    WordSpec.swift            the identity every question projects from
+    QuizPlan.swift            plan + chart resolution + wordPool
+    Builders/                 IdentifyBuilder, ProduceBuilder,
+                              DerivedNounBuilder — one per quiz type
+    Grading.swift             set match + strict NFC compare with diff
+    QuizService.swift         stream: pool × builders, dedup window
   Glossary.swift              display strings (was mixed into GrammarTables)
   Resources/roots.json
 
@@ -445,8 +512,9 @@ SarfQuiz/                     ← app target: UI + platform services only
     Quiz/         QuizView: multi-select options + Check button; endless-feed
                   mode with running score and End quiz; fixed mode keeps the bar
                   QuestionCard, FeedbackView, QuizRun (view model)
-    Tables/       TableBrowserView: lexicon search → per-attribute chart pickers
-                  → View table → 14-row table + wazn. Deep-linkable from quiz
+    Tables/       TableBrowserView: lexicon search (root + gloss) →
+                  per-attribute chart pickers → View table → all 14 rows,
+                  scrollable, no wazn column. Deep-linkable from quiz
                   feedback ("See full table")
     Results/      score ring, breakdowns, vocab recap
                   (endless mode enters via End quiz)
@@ -528,28 +596,41 @@ slot) and mine confusion pairs without re-deriving anything.
 }
 
 @Model final class AnswerRecord {
-  // QuestionIdentity, flattened to enum raw values:
-  var category: String               // "doer"
+  // WordSpec identity, flattened to enum raw values — identical across all
+  // three quiz types, which is what lets stats compare recognition against
+  // production of the very same chart:
+  var quizType: String               // "identify" | "produce" | "derivedNoun"
+  var category: String               // "doer" (identify only)
   var form: String                   // "II"
   var verbType: String               // "salim"
   var chart: String?                 // "mudariMalumRaf"
   var rootKey: String                // "علم"
   var slot: String?                  // "3fs"
-  var word: String                   // "تُعَلِّمُ" — as displayed
-  // Outcome, multi-select-aware and semantic (valueKeys, never indices):
-  var correctValues: [String]        // ["3fs", "2ms"]
-  var pickedValues: [String]         // ["3fs"]
-  var wasCorrect: Bool               // exact set match
+  var derived: String?               // "ismFail" — type 3 only
+  var word: String                   // "تُعَلِّمُ" — as displayed or expected
+  // Outcome, semantic (valueKeys or the typed string, never button indices):
+  var expectedValues: [String]       // ["3fs", "2ms"] | ["تُعَلِّمُ"]
+  var givenValues: [String]          // ["3fs"]        | ["تُعَلَّمُ"]
+  var wasCorrect: Bool               // exact set match | strict NFC equality
   var answeredAt: Date
 }
 ```
 
-Storing `pickedValues`/`correctValues` as valueKeys is what makes
-"common mistakes" analysis possible later: *picked 2ms when the answer
-included 3fs* aggregates directly into "you confuse أَنْتَ forms with هِيَ
-forms" — a weak-spot drill seed, not just a wrong-count. Endless sessions
-record exactly the questions actually served. Free = in-memory only for the
-results screen; Pro = persisted + CloudKit-synced, as v1.
+Storing `givenValues`/`expectedValues` semantically is what makes "common
+mistakes" analysis possible later: *picked 2ms when the answer included 3fs*
+aggregates directly into "you confuse أَنْتَ forms with هِيَ forms" — a
+weak-spot drill seed, not just a wrong-count. For typed answers the same two
+fields hold the strings, so a recurring ḥaraka error is mineable the same way.
+Endless sessions record exactly the questions actually served.
+
+**Tiering**: Pro = full per-answer records, persisted + CloudKit-synced. Free =
+a **rolling 30-day summary** — daily question counts and accuracy only, no
+per-answer rows — which is what the free Home stats card (spec §5.4) reads, and
+which keeps the Pro dashboard genuinely locked rather than merely hidden.
+
+Because production questions are strictly harder than recognition ones, stats
+should report the two **separately** rather than merging them into one accuracy
+number that moves with the mix.
 
 > **[from v1 — the tier behaviour referenced above, v1 §B.3]**
 >

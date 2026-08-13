@@ -20,7 +20,7 @@ or Bayyinah-style programs. Assumes the user can read voweled Arabic script.
 | Feature | Free | Pro |
 |---|---|---|
 | Home drills (sālim · muʿtall · mazīd fīhi) | ✅ | ✅ |
-| **All four quiz types** (identify, write the word, derived nouns, English → Arabic) | ✅ | ✅ |
+| **All three quiz types** (identify, write the word, derived nouns) | ✅ | ✅ |
 | Practice: quiz types × categories × charts × forms × verb types; fixed count or endless | ✅ | ✅ |
 | Per-question feedback + contextual meanings | ✅ | ✅ |
 | **Endless drill mode** (feed-style stream, end anytime) | ✅ | ✅ |
@@ -36,27 +36,41 @@ Principle: **free tier is a complete, unlimited quiz app** — never nag mid-qui
 sells *memory and insight* (tracking, deeper stats, explanations), not access to
 content.
 
-## 3.1 The four quiz types
+## 3.1 The three quiz types
 
 Every question is one morphological fact — a root poured into a chart at a pronoun
-slot. Quiz types differ in **which side of that fact you're given** and **how you
-answer**. All four are free, and all four are configured from the same Practice
-controls (§5.2a).
+slot, or into a derived-noun pattern. Quiz types differ in **which side of that
+fact you're given** and **how you answer**. All three are free, and all three are
+configured from the same Practice controls (§5.2a).
 
-| # | Type | Given | Produce | Response |
+| # | Type | Given | Answer | Response |
 |---|---|---|---|---|
-| 1 | **Identify** | The conjugated word (تُنْصَرَانِ) | Its tense, voice, doer, wazn, iʿrāb, bāb, root | Multiple choice |
+| 1 | **Identify** | The conjugated word (تُنْصَرَانِ) | Its tense, voice and doer | Multiple choice |
 | 2 | **Write the word** | Root + form + chart + pronoun | The word, fully vowelled | Typed Arabic |
-| 3 | **Derived nouns** | The verb + which derivative is wanted | Maṣdar / ism fāʿil / ism mafʿūl | Typed Arabic |
-| 4 | **English → Arabic** | The contextual meaning (+ root and form) | The word, fully vowelled | Typed Arabic |
+| 3 | **Derived nouns** | See below — two question shapes | The derivative, or its kind + form | Multiple choice |
 
-Types 2 and 4 are the same question with a different cue (grammatical labels vs
-English meaning); type 3 is the same again with a derived noun as the target. That
-is deliberate: it lets one engine serve all four (technical plan §A.7).
+**Type 1 asks exactly three things: tense, voice, doer** — the existing 3-question
+bundle per word. It is not configurable beyond that.
 
-Typed answers are graded against the engine's own NFC-normalised string, and a miss
-reports the **first diverging ḥaraka** rather than a bare "wrong" — the app knows
-the difference between "one ḥaraka off" and "wrong word".
+**Type 3 mixes two question shapes:**
+
+- *3a — pick the derivative*: given a verb, a form (I–X) and which derivative is
+  wanted (e.g. ism mafʿūl) → choose the correct derived noun from four options.
+  Distractors are the **other derivatives of the same verb** plus a same-kind
+  derivative from a neighbouring form, so every wrong option is a near-miss
+  (مُسْتَخْرِج vs مُسْتَخْرَج) rather than filler. Options show **Arabic only** — no
+  English labels, since the labels would give the answer away.
+- *3b — name the derivative*: given a derived noun → **two questions on the same
+  word**: which derivative it is (ism fāʿil / ism mafʿūl / maṣdar), then which
+  form (I–X) it comes from. Same rhythm as the tense → voice → doer bundle, and it
+  reveals which half you got wrong.
+
+Both are multiple choice; a type-3 session interleaves them.
+
+Typed answers (type 2) are graded **fully strictly** against the engine's own
+NFC-normalised string, final ḥaraka included — the ending is the lesson. A miss
+reports the **first diverging ḥaraka** rather than a bare "wrong", so the app can
+distinguish "one ḥaraka off" from "wrong word".
 
 ## 4. Monetization
 
@@ -84,7 +98,9 @@ Paywall placement (contextual, never blocking quizzes):
 1. **Home** — a short list of prebuilt drills to start in one tap: **sālim**,
    **muʿtall**, **mazīd fīhi** (not every preset — the full set lives in
    Practice), plus a **stats card** showing basic progress visually. The card
-   opens the detailed stats page under More.
+   opens the detailed stats page under More. Home drills are always **type 1
+   (identify)**; writing and derived-noun practice are a deliberate choice you
+   make in Practice.
 2. **Practice** — the full configuration surface: categories × forms × verb
    types, plus quiz length: fixed count (5/10/20) or **endless**
 3. **Tables** — conjugation-table browser (5.6), entered by **searching the
@@ -104,15 +120,18 @@ Pro.
   correct and all must be selected — the quiz teaches the ambiguity instead of
   dodging it. Single-answer questions still auto-check on first tap.
 
-**Typed questions (types 2–4)**
-- Cue card: the root (or the verb, or the English meaning) plus the target as
-  chips — form, tense, voice, iʿrāb, pronoun
-- An Arabic answer field and a purpose-built keyboard: the three radicals
-  highlighted, the closed set of prefix/suffix letters, and a dedicated ḥaraka
-  row. The system Arabic keyboard hides ḥarakāt behind long-press, which would
-  make a drill about ḥarakāt a test of dexterity
-- Grading compares NFC-normalised strings; a miss highlights the **first
-  diverging ḥaraka** in your answer against the correct one
+**Typed questions (type 2)**
+- Cue card: the root plus the target as chips — form, tense, voice, iʿrāb, pronoun
+- An Arabic answer field using the **system Arabic keyboard entirely** — letters
+  and ḥarakāt both. We add no accessory row and no custom keys; ḥarakāt are entered
+  the way iOS provides them (long-press). Least code, and the layout is the one the
+  user already knows
+- First encounter must handle the case where the user has **no Arabic keyboard
+  installed** — detect it and walk them through Settings → General → Keyboards,
+  otherwise the question is unanswerable rather than merely hard
+- Grading is **fully strict** on the NFC-normalised string, final ḥaraka included;
+  a miss highlights the **first diverging ḥaraka** in your answer against the
+  correct one
 
 **Both**
 - Instant feedback: contextual meaning line + rule-based explanation
@@ -132,9 +151,9 @@ Pro.
 One configuration serves every quiz type, because it describes **a pool of words**
 rather than a quiz. Chip rows:
 
-- **Quiz type** (multi-select) — turn on two and the session alternates between them
-- **What to identify** — the nine question categories; applies to type 1 only and
-  dims when Identify is off
+- **Quiz type** — **single-select**: one type per session. Mixing types in one
+  session is deliberately out of scope for now to keep the model and the results
+  screen simple
 - **Tense** — māḍī / muḍāriʿ / amr
 - **Voice** — maʿrūf / majhūl
 - **Iʿrāb** — marfūʿ / manṣūb / majzūm, **enabled only when muḍāriʿ is selected**
@@ -144,8 +163,11 @@ rather than a quiz. Chip rows:
 - **Questions** — 5 / 10 / 20 / endless
 
 **Bāb is deliberately not configurable.** Each root's Form I bāb is a lexical fact,
-so filtering by bāb would really be filtering the root list. Bāb remains a
-*question* category ("which bāb is this?"), never a filter.
+so filtering by bāb would really be filtering the root list.
+
+**What type 1 asks is also not configurable** — it is always tense, voice and doer.
+The earlier nine-category picker is gone; wazn, iʿrāb, bāb, root and meanings are no
+longer question categories (see §9).
 
 A live "≈ N possible questions" line sits above Start, so an over-narrow selection
 is visible before you tap rather than failing afterwards.
@@ -191,14 +213,16 @@ server-side to control cost. Offline → button disabled with tooltip.
 
 ### 5.6 Tables browser
 
-**Search first**: a search bar over the lexicon (root letters or English gloss)
-narrows to a word. Then pick the chart by **one chip row per attribute** —
+**Search first**: a search bar over the lexicon, matching **root letters and
+English gloss only** (not conjugated forms — a reverse index over every generated
+word was considered and deferred), narrows to a word. Then pick the chart by **one chip row per attribute** —
 form, then tense (māḍī / muḍāriʿ / amr), voice (maʿlūm / majhūl) and, for
 muḍāriʿ, mood (rafʿ / naṣb / jazm) — rather than one combined chip per chart.
-A **View table** button at the bottom opens the complete 14-pronoun conjugation
-table, rendered offline by the engine, as its own screen: pronoun and word only.
-(The wazn column was dropped — the wazn is still generated and still quizzed as a
-question category, it just isn't a column here.)
+A **View table** button at the bottom opens the conjugation table as its own
+screen, rendered offline by the engine: pronoun and word only, **all 14 rows**,
+vertically scrollable so a small phone shows the whole chart by scrolling rather
+than truncating it. (The wazn column was dropped — the wazn is still generated and
+still shown in quiz feedback, it just isn't a column here.)
 
 Entry points: the Tables tab, and a "See full table" link on every quiz
 feedback box, which deep-links straight to that word's chart. Free feature: it
@@ -217,7 +241,8 @@ showcases the engine and feeds the study loop that makes the drills valuable.
 - Hand-authored tables (قول، رمي today; 2–3 more roots per type as they land)
   are demoted to **test fixtures**: a per-type engine must reproduce them
   cell-for-cell before it replaces them in the app
-- 9 question categories (as prototyped + iʿrāb)
+- 3 quiz types (§3.1): identify (tense · voice · doer), write the word,
+  derived nouns
 - Form IX recognition-only (wazn/meaning/masdar questions)
 
 Post-launch content roadmap: ism zamān/makān/āla; iʿlāl-rule questions
@@ -250,6 +275,12 @@ Also dropped: **Arabic-only mode**. English labels stay load-bearing — several
 answer options (identical written forms for different pronouns) are only
 distinguishable by their English gloss, so hiding it would make questions
 unanswerable rather than harder.
+
+Also dropped from v1.0: **English → Arabic questions** (given a meaning, write the
+word), and the **wazn, iʿrāb, bāb, root and meanings question categories**. Type 1
+asks tense, voice and doer only; the derived-noun material moves into type 3. The
+engine still generates wazn, bāb and meanings — they appear in feedback and in the
+Tables browser, they are simply not asked as questions in v1.0.
 
 ## 10. Known deferred fixes
 
