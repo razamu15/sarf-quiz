@@ -10,9 +10,10 @@
 import { CHARTS, FATHA, DAMMA, slotsFor } from '../vocabulary.js';
 import { FORM_META, STEMS } from '../grammar/salim-grammar.js';
 import { SalimConjugator, fillTemplate } from './salim-conjugator.js';
+import { MudaafConjugator } from './mudaaf-conjugator.js';
 
 const ENGINES = Object.fromEntries(
-  [SalimConjugator].map((engine) => [engine.handles, engine]),
+  [SalimConjugator, MudaafConjugator].map((engine) => [engine.handles, engine]),
 );
 
 const norm = (s) => (s == null ? null : s.normalize('NFC'));

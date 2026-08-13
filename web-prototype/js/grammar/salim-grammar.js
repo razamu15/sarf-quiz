@@ -16,6 +16,7 @@
 // Every ending row is (final-radical ḥaraka, suffix): stem + h + s = word.
 
 import { FATHA as F, DAMMA as D, KASRA as K, SUKUN as S, SHADDA as SH, CHARTS } from '../vocabulary.js';
+import { FORM_META as FORMS } from './forms.js';
 
 const A = (h, s) => ({ h, s });
 
@@ -209,71 +210,65 @@ export const STEMS = {
 };
 
 // ---------------------------------------------------------------------------
-// Per-form metadata: conjugability, majhūl availability, derived-noun
-// templates, rhetorical meanings.
+// Derived-noun templates (al-mushtaqqāt), sālim. Each verb type carries its
+// own set; the form-level facts they share (conjugable, hasMajhul, meanings)
+// live in forms.js.
 // ---------------------------------------------------------------------------
-export const FORM_META = {
+export const DERIVED = {
   I: {
-    conjugable: true, hasMajhul: true, meanings: [],
     ismFail: '1' + F + 'ا' + '2' + K + '3',
     ismMaful: 'م' + F + '1' + S + '2' + D + 'و' + '3',
     masdar: null, // samāʿī — stored per root
   },
   II: {
-    conjugable: true, hasMajhul: true, meanings: ['taadiya', 'takthir'],
     ismFail: 'م' + D + '1' + F + '2' + SH + K + '3',
     ismMaful: 'م' + D + '1' + F + '2' + SH + F + '3',
     masdar: 'ت' + F + '1' + S + '2' + K + 'ي' + '3',
   },
   III: {
-    conjugable: true, hasMajhul: true, meanings: ['musharaka2'],
     ismFail: 'م' + D + '1' + F + 'ا' + '2' + K + '3',
     ismMaful: 'م' + D + '1' + F + 'ا' + '2' + F + '3',
     masdar: 'م' + D + '1' + F + 'ا' + '2' + F + '3' + F + 'ة',
   },
   IV: {
-    conjugable: true, hasMajhul: true, meanings: ['taadiya'],
     ismFail: 'م' + D + '1' + S + '2' + K + '3',
     ismMaful: 'م' + D + '1' + S + '2' + F + '3',
     masdar: 'إ' + K + '1' + S + '2' + F + 'ا' + '3',
   },
   V: {
-    conjugable: true, hasMajhul: true, meanings: ['mutawaa_II', 'takalluf'],
     ismFail: 'م' + D + 'ت' + F + '1' + F + '2' + SH + K + '3',
     ismMaful: 'م' + D + 'ت' + F + '1' + F + '2' + SH + F + '3',
     masdar: 'ت' + F + '1' + F + '2' + SH + D + '3',
   },
   VI: {
-    conjugable: true, hasMajhul: true, meanings: ['musharaka3', 'tazahur'],
     ismFail: 'م' + D + 'ت' + F + '1' + F + 'ا' + '2' + K + '3',
     ismMaful: 'م' + D + 'ت' + F + '1' + F + 'ا' + '2' + F + '3',
     masdar: 'ت' + F + '1' + F + 'ا' + '2' + D + '3',
   },
   VII: {
-    conjugable: true, hasMajhul: false, meanings: ['mutawaa'],
     ismFail: 'م' + D + 'ن' + S + '1' + F + '2' + K + '3',
     ismMaful: null, // lāzim
     masdar: 'ا' + K + 'ن' + S + '1' + K + '2' + F + 'ا' + '3',
   },
   VIII: {
-    conjugable: true, hasMajhul: true, meanings: ['mutawaa', 'ittikhadh'],
     ismFail: 'م' + D + '1' + S + 'ت' + F + '2' + K + '3',
     ismMaful: 'م' + D + '1' + S + 'ت' + F + '2' + F + '3',
     masdar: 'ا' + K + '1' + S + 'ت' + K + '2' + F + 'ا' + '3',
   },
   IX: {
-    conjugable: false, hasMajhul: false, meanings: ['alwan_uyub'],
     ismFail: 'م' + D + '1' + S + '2' + F + '3' + SH,
     ismMaful: null,
     masdar: 'ا' + K + '1' + S + '2' + K + '3' + F + 'ا' + '3',
   },
   X: {
-    conjugable: true, hasMajhul: true, meanings: ['talab', 'itiqad'],
     ismFail: 'م' + D + 'س' + S + 'ت' + F + '1' + S + '2' + K + '3',
     ismMaful: 'م' + D + 'س' + S + 'ت' + F + '1' + S + '2' + F + '3',
     masdar: 'ا' + K + 'س' + S + 'ت' + K + '1' + S + '2' + F + 'ا' + '3',
   },
 };
+
+// Re-exported so existing callers keep one import site for form facts.
+export { FORM_META } from './forms.js';
 
 // ---------------------------------------------------------------------------
 // Chart assembly: everything SalimConjugator needs to conjugate one chart.
@@ -286,7 +281,7 @@ export const FORM_META = {
  * muḍāriʿ charts (majhūl charts always carry ḍamma).
  */
 export function salimChart(formId, chartId, bab = 1) {
-  const meta = FORM_META[formId];
+  const meta = FORMS[formId];
   const chartInfo = CHARTS[chartId];
   if (!meta?.conjugable || !chartInfo) return null;
   if (chartInfo.voice === 'majhul' && !meta.hasMajhul) return null;

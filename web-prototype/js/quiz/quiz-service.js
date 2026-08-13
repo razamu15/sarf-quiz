@@ -431,6 +431,12 @@ export function buildDrill(preset, wordCount = WORDS_PER_DRILL) {
     const majhulChart = chartIdFor(tense, 'majhul', mood ?? 'raf');
     const majhulWord = conjugate(v.root, v.formId, majhulChart, v.slot);
     v.hasVoicePair = !!majhulWord;
+    // A drill word must be able to fill all three slots of its bundle. A lāzim
+    // word falls back to a wazn question, and that fallback only exists for
+    // sound verbs — a wazn shown beside مَدَّ would be the sound pattern the
+    // word visibly is not. Such words stay out of drills (custom quizzes still
+    // reach them) rather than yielding a short bundle.
+    if (!v.hasVoicePair && v.root.type !== 'salim') continue;
     if (majhulWord && Math.random() < 0.5) {
       v.chartId = majhulChart;
       v.word = majhulWord;

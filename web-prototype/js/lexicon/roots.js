@@ -208,6 +208,48 @@ export const ROOTS = [
   },
 
   // -------------------------------------------------------------------------
+  // Muḍāʿaf — engine-conjugated (MudaafConjugator). No fixture tables: the
+  // hand-checked charts for these roots live in the parity suite, which is
+  // where they do their job now.
+  // -------------------------------------------------------------------------
+  {
+    root: ['م', 'د', 'د'], type: 'mudaaf',
+    forms: {
+      I: { bab: 1, gloss: 'to stretch out / extend', masdar: 'مَدّ', trans: true,
+           en: { past: 'stretched out', pp: 'stretched out', pres3: 'stretches out', ing: 'stretching out' } },
+      VIII: { gloss: 'to extend / stretch', trans: false,
+              en: { past: 'extended', pres3: 'extends', ing: 'extending' } },
+      X: { gloss: 'to seek help / draw from', trans: true,
+           en: { past: 'drew on', pp: 'drawn on', pres3: 'draws on', ing: 'drawing on' } },
+    },
+  },
+  {
+    root: ['ر', 'د', 'د'], type: 'mudaaf',
+    forms: {
+      I: { bab: 1, gloss: 'to return / send back', masdar: 'رَدّ', trans: true,
+           en: { past: 'returned', pp: 'returned', pres3: 'returns', ing: 'returning' } },
+      VIII: { gloss: 'to turn back', trans: false,
+              en: { past: 'turned back', pres3: 'turns back', ing: 'turning back' } },
+    },
+  },
+  {
+    root: ['ح', 'ب', 'ب'], type: 'mudaaf',
+    forms: {
+      IV: { gloss: 'to love', trans: true,
+            en: { past: 'loved', pp: 'loved', pres3: 'loves', ing: 'loving' } },
+    },
+  },
+  {
+    root: ['ظ', 'ل', 'ل'], type: 'mudaaf',
+    forms: {
+      // bāb 4 (samiʿa) — the muḍāriʿ keeps the ʿayn's fatḥa: يَظَلُّ، and the
+      // unfolded past shows the kasra the merge hid: ظَلِلْتُ
+      I: { bab: 4, gloss: 'to remain / keep doing', masdar: 'ظُلُول', trans: false,
+           en: { past: 'remained', pres3: 'remains', ing: 'remaining' } },
+    },
+  },
+
+  // -------------------------------------------------------------------------
   // Hand-authored irregulars. Tables override the engine; slots the tables
   // don't cover simply aren't quizzed.
   // -------------------------------------------------------------------------

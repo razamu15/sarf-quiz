@@ -283,5 +283,178 @@ check(!mazeedPresetAvailable('IX'), 'IX drill unavailable (recognition-only)');
     'every streamed question is complete');
 }
 
+// ---------------------------------------------------------------------------
+// Muḍāʿaf parity suite (phase P2)
+//
+// These charts are typed out by hand from the paper tables, independently of
+// the templates in mudaaf-grammar.js. The engine ships only if it reproduces
+// every cell — that is the promotion bar in the build plan, and this is it.
+//
+// The thing to check while reading: where each chart flips between the merged
+// form (مَدَّ) and the unfolded one (مَدَدْتُ). It always flips exactly where
+// the ending puts a sukūn on the lām.
+// ---------------------------------------------------------------------------
+const madd = byRoot('مدد');
+const radd = byRoot('ردد');
+const zalla = byRoot('ظلل');
+
+const parity = (root, formId, chartId, expected, label) => {
+  const table = fullTableChart(root, formId, chartId) ?? {};
+  const slots = slotsFor(chartId);
+  const wrong = slots.filter((s) => nfc(table[s]) !== nfc(expected[s]));
+  check(wrong.length === 0,
+    `${label}: ${wrong.map((s) => `${s} got ${table[s]} want ${expected[s]}`).join(', ')}`);
+};
+
+parity(madd, 'I', 'madi_malum', {
+  '3ms': 'مَدَّ',     '3md': 'مَدَّا',      '3mp': 'مَدُّوا',
+  '3fs': 'مَدَّتْ',   '3fd': 'مَدَّتَا',    '3fp': 'مَدَدْنَ',
+  '2ms': 'مَدَدْتَ',  '2md': 'مَدَدْتُمَا', '2mp': 'مَدَدْتُمْ',
+  '2fs': 'مَدَدْتِ',  '2fd': 'مَدَدْتُمَا', '2fp': 'مَدَدْتُنَّ',
+  '1s': 'مَدَدْتُ',   '1p': 'مَدَدْنَا',
+}, 'مدّ I māḍī maʿlūm');
+
+parity(madd, 'I', 'madi_majhul', {
+  '3ms': 'مُدَّ',     '3md': 'مُدَّا',      '3mp': 'مُدُّوا',
+  '3fs': 'مُدَّتْ',   '3fd': 'مُدَّتَا',    '3fp': 'مُدِدْنَ',
+  '2ms': 'مُدِدْتَ',  '2md': 'مُدِدْتُمَا', '2mp': 'مُدِدْتُمْ',
+  '2fs': 'مُدِدْتِ',  '2fd': 'مُدِدْتُمَا', '2fp': 'مُدِدْتُنَّ',
+  '1s': 'مُدِدْتُ',   '1p': 'مُدِدْنَا',
+}, 'مدّ I māḍī majhūl');
+
+parity(madd, 'I', 'mudari_malum_raf', {
+  '3ms': 'يَمُدُّ',   '3md': 'يَمُدَّانِ',  '3mp': 'يَمُدُّونَ',
+  '3fs': 'تَمُدُّ',   '3fd': 'تَمُدَّانِ',  '3fp': 'يَمْدُدْنَ',
+  '2ms': 'تَمُدُّ',   '2md': 'تَمُدَّانِ',  '2mp': 'تَمُدُّونَ',
+  '2fs': 'تَمُدِّينَ', '2fd': 'تَمُدَّانِ', '2fp': 'تَمْدُدْنَ',
+  '1s': 'أَمُدُّ',    '1p': 'نَمُدُّ',
+}, 'مدّ I muḍāriʿ maʿlūm rafʿ');
+
+parity(madd, 'I', 'mudari_malum_nasb', {
+  '3ms': 'يَمُدَّ',   '3md': 'يَمُدَّا',    '3mp': 'يَمُدُّوا',
+  '3fs': 'تَمُدَّ',   '3fd': 'تَمُدَّا',    '3fp': 'يَمْدُدْنَ',
+  '2ms': 'تَمُدَّ',   '2md': 'تَمُدَّا',    '2mp': 'تَمُدُّوا',
+  '2fs': 'تَمُدِّي',  '2fd': 'تَمُدَّا',    '2fp': 'تَمْدُدْنَ',
+  '1s': 'أَمُدَّ',    '1p': 'نَمُدَّ',
+}, 'مدّ I muḍāriʿ maʿlūm naṣb');
+
+// Jazm takes the fakk (unfolded) form wherever the ending is sukūn — لَمْ
+// يَمْدُدْ. The merged alternative لَمْ يَمُدَّ is equally classical; the engine
+// commits to one, consistently.
+parity(madd, 'I', 'mudari_malum_jazm', {
+  '3ms': 'يَمْدُدْ',  '3md': 'يَمُدَّا',    '3mp': 'يَمُدُّوا',
+  '3fs': 'تَمْدُدْ',  '3fd': 'تَمُدَّا',    '3fp': 'يَمْدُدْنَ',
+  '2ms': 'تَمْدُدْ',  '2md': 'تَمُدَّا',    '2mp': 'تَمُدُّوا',
+  '2fs': 'تَمُدِّي',  '2fd': 'تَمُدَّا',    '2fp': 'تَمْدُدْنَ',
+  '1s': 'أَمْدُدْ',   '1p': 'نَمْدُدْ',
+}, 'مدّ I muḍāriʿ maʿlūm jazm');
+
+parity(madd, 'I', 'mudari_majhul_raf', {
+  '3ms': 'يُمَدُّ',   '3md': 'يُمَدَّانِ',  '3mp': 'يُمَدُّونَ',
+  '3fs': 'تُمَدُّ',   '3fd': 'تُمَدَّانِ',  '3fp': 'يُمْدَدْنَ',
+  '2ms': 'تُمَدُّ',   '2md': 'تُمَدَّانِ',  '2mp': 'تُمَدُّونَ',
+  '2fs': 'تُمَدِّينَ', '2fd': 'تُمَدَّانِ', '2fp': 'تُمْدَدْنَ',
+  '1s': 'أُمَدُّ',    '1p': 'نُمَدُّ',
+}, 'مدّ I muḍāriʿ majhūl rafʿ');
+
+// The amr loses its prosthetic alif wherever the fāʾ picks up a vowel.
+parity(madd, 'I', 'amr_malum', {
+  '2ms': 'اُمْدُدْ',  '2md': 'مُدَّا',      '2mp': 'مُدُّوا',
+  '2fs': 'مُدِّي',    '2fd': 'مُدَّا',      '2fp': 'اُمْدُدْنَ',
+}, 'مدّ I amr');
+
+// bāb 4 (samiʿa): the merge hides a kasra in the past and a fatḥa in the
+// present — both reappear on unfolding.
+parity(zalla, 'I', 'madi_malum', {
+  '3ms': 'ظَلَّ',     '3md': 'ظَلَّا',      '3mp': 'ظَلُّوا',
+  '3fs': 'ظَلَّتْ',   '3fd': 'ظَلَّتَا',    '3fp': 'ظَلِلْنَ',
+  '2ms': 'ظَلِلْتَ',  '2md': 'ظَلِلْتُمَا', '2mp': 'ظَلِلْتُمْ',
+  '2fs': 'ظَلِلْتِ',  '2fd': 'ظَلِلْتُمَا', '2fp': 'ظَلِلْتُنَّ',
+  '1s': 'ظَلِلْتُ',   '1p': 'ظَلِلْنَا',
+}, 'ظلّ I māḍī maʿlūm (bāb 4)');
+
+parity(zalla, 'I', 'mudari_malum_raf', {
+  '3ms': 'يَظَلُّ',   '3md': 'يَظَلَّانِ',  '3mp': 'يَظَلُّونَ',
+  '3fs': 'تَظَلُّ',   '3fd': 'تَظَلَّانِ',  '3fp': 'يَظْلَلْنَ',
+  '2ms': 'تَظَلُّ',   '2md': 'تَظَلَّانِ',  '2mp': 'تَظَلُّونَ',
+  '2fs': 'تَظَلِّينَ', '2fd': 'تَظَلَّانِ', '2fp': 'تَظْلَلْنَ',
+  '1s': 'أَظَلُّ',    '1p': 'نَظَلُّ',
+}, 'ظلّ I muḍāriʿ maʿlūm rafʿ (bāb 4)');
+
+// Mazīd: the same rule, one layer out.
+const mazeedCases = [
+  [madd, 'VIII', 'madi_malum', '3ms', 'اِمْتَدَّ'],
+  [madd, 'VIII', 'madi_malum', '1s', 'اِمْتَدَدْتُ'],
+  [madd, 'VIII', 'mudari_malum_raf', '3ms', 'يَمْتَدُّ'],
+  [madd, 'VIII', 'mudari_malum_raf', '3fp', 'يَمْتَدِدْنَ'],
+  [madd, 'X', 'madi_malum', '3ms', 'اِسْتَمَدَّ'],
+  [madd, 'X', 'madi_malum', '2ms', 'اِسْتَمْدَدْتَ'],
+  [madd, 'X', 'mudari_malum_raf', '3ms', 'يَسْتَمِدُّ'],
+  [madd, 'X', 'madi_majhul', '3ms', 'اُسْتُمِدَّ'],
+  [madd, 'X', 'mudari_majhul_raf', '3ms', 'يُسْتَمَدُّ'],
+  [radd, 'I', 'madi_malum', '3ms', 'رَدَّ'],
+  [radd, 'I', 'madi_malum', '1s', 'رَدَدْتُ'],
+  [radd, 'I', 'mudari_malum_raf', '3ms', 'يَرُدُّ'],
+  [radd, 'VIII', 'madi_malum', '3ms', 'اِرْتَدَّ'],
+  [radd, 'VIII', 'mudari_malum_raf', '3ms', 'يَرْتَدُّ'],
+  [byRoot('حبب'), 'IV', 'madi_malum', '3ms', 'أَحَبَّ'],
+  [byRoot('حبب'), 'IV', 'madi_malum', '1s', 'أَحْبَبْتُ'],
+  [byRoot('حبب'), 'IV', 'mudari_malum_raf', '3ms', 'يُحِبُّ'],
+  [byRoot('حبب'), 'IV', 'mudari_malum_raf', '3fp', 'يُحْبِبْنَ'],
+  [byRoot('حبب'), 'IV', 'mudari_majhul_raf', '3ms', 'يُحَبُّ'],
+  [byRoot('حبب'), 'IV', 'amr_malum', '2ms', 'أَحْبِبْ'],
+  [byRoot('حبب'), 'IV', 'amr_malum', '2mp', 'أَحِبُّوا'],
+];
+for (const [root, formId, chart, slot, want] of mazeedCases) {
+  const got = conjugateChart(root, formId, chart, slot);
+  check(nfc(got) === nfc(want),
+    `${root.root.join('')} ${formId} ${chart} ${slot}: got ${got} want ${want}`);
+}
+
+// Derived nouns: idghām applies wherever ʿayn and lām land adjacent, and
+// conspicuously does not where the pattern separates them (مَمْدُود).
+const derivedCases = [
+  [madd, 'I', 'ismFail', 'مَادّ'],
+  [madd, 'I', 'ismMaful', 'مَمْدُود'],
+  [madd, 'I', 'masdar', 'مَدّ'],
+  [madd, 'X', 'ismFail', 'مُسْتَمِدّ'],
+  [madd, 'X', 'ismMaful', 'مُسْتَمَدّ'],
+  [madd, 'X', 'masdar', 'اِسْتِمْدَاد'],
+  [madd, 'VIII', 'ismFail', 'مُمْتَدّ'],
+  [madd, 'VIII', 'masdar', 'اِمْتِدَاد'],
+  [byRoot('حبب'), 'IV', 'ismFail', 'مُحِبّ'],
+  [byRoot('حبب'), 'IV', 'ismMaful', 'مُحَبّ'],
+];
+for (const [root, formId, kind, want] of derivedCases) {
+  const got = derivedNoun(root, formId, kind);
+  check(nfc(got) === nfc(want),
+    `${root.root.join('')} ${formId} ${kind}: got ${got} want ${want}`);
+}
+
+// The engine, not a fixture table, is serving these roots.
+check(!madd.forms.I.tables && !radd.forms.I.tables,
+  'muḍāʿaf roots carry no fixture tables — the engine is authoritative');
+
+// Every muḍāʿaf cell is either valid NFC Arabic or null; never a crash, never
+// a stray placeholder digit left over from a template.
+{
+  let clean = true;
+  for (const root of LEXICON.filter((r) => r.type === 'mudaaf')) {
+    for (const formId of Object.keys(root.forms)) {
+      for (const chart of CHART_IDS) {
+        for (const slot of slotsFor(chart)) {
+          const w = conjugateChart(root, formId, chart, slot);
+          if (w == null) continue;
+          if (w !== w.normalize('NFC') || /[123]/.test(w) || !/^[ء-ٰٕ]+$/.test(w)) {
+            clean = false;
+            console.log(`  unclean: ${root.root.join('')} ${formId} ${chart} ${slot} → ${w}`);
+          }
+        }
+      }
+    }
+  }
+  check(clean, 'every muḍāʿaf cell is valid NFC Arabic with no template residue');
+}
+
 console.log(`\nTOTAL: ${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);
