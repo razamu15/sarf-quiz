@@ -47,7 +47,7 @@ import {
 import { FORM_META } from '../grammar/salim-grammar.js';
 import { LEXICON, availableTypes, candidates } from '../lexicon/lexicon-service.js';
 import { conjugate, derivedNoun, waznOf, citation } from '../conjugation/conjugation-service.js';
-import { verbMeaning, derivedMeaning } from '../meaning-service.js';
+import { verbMeaning, derivedMeaning, particleFor } from '../meaning-service.js';
 
 const rand = (arr) => arr[Math.floor(Math.random() * arr.length)];
 
@@ -122,10 +122,7 @@ export function poolProfile(plan) {
     forms: plan.forms?.length ? plan.forms : FORM_IDS,
   };
   const pool = conjugatable(rootFilter);
-  let charts = plan.tenses ? chartsFor(plan) : DEFAULT_CHARTS;
-  // "From the meaning" can only draw from charts English can tell apart, so the
-  // count under Start has to be measured over the same narrowed set.
-  if (plan.quizType === 'fromMeaning') charts = unambiguousCharts(charts);
+  const charts = plan.tenses ? chartsFor(plan) : DEFAULT_CHARTS;
 
   const a = {
     rootFilter, charts, cells: 0,
@@ -239,10 +236,8 @@ export const QUESTION_RULES = [
     // free point either — no configuration can make three wrong words look right.
     always: true,
     buildFromPool: (ctx) => {
-      const charts = unambiguousCharts(ctx.charts);
-      if (!charts.length) return null;
-      const spec = randomWordSpec(ctx.rootFilter, charts);
-      return spec ? makeFromMeaningQuestion(spec, charts) : null;
+      const spec = randomWordSpec(ctx.rootFilter, ctx.charts);
+      return spec ? makeFromMeaningQuestion(spec, ctx.charts) : null;
     },
   },
 ];
@@ -461,35 +456,20 @@ export function gradeInput(question, typed) {
 //
 // The hard constraint is ambiguity, and it runs the OPPOSITE way from the doer
 // question. There, one written form legitimately serves several pronouns and we
-// made that the lesson. Here, several different words can share one English
-// reading — يَنْصُرُ, يَنْصُرَ and يَنْصُرْ are all "he helps", because English
-// has no iʿrāb — and a question with two defensible answers is simply broken.
+// made that the lesson. Here, several different words could share one English
+// reading, and a question with two defensible answers is simply broken.
 //
-// Two rules keep it honest:
-//   1. at most one muḍāriʿ mood per voice is drawn from (rafʿ when it is in
-//      scope), so the prompt names one word rather than one of three
-//   2. every option must differ from every other in BOTH its word and its
-//      English meaning — the meaning check is what the mood collision needs
+// The muḍāriʿ was the whole difficulty: يَنْصُرُ, يَنْصُرَ and يَنْصُرْ all read
+// "he helps" while the iʿrāb is unvoiced. MeaningService now renders a governed
+// muḍāriʿ through its particle — لَنْ يَنْصُرَ is "he will not help", لَمْ
+// يَنْصُرْ is "he did not help" — so all three states are askable here, and the
+// mood is a thing this quiz type teaches rather than a thing it dodges.
+//
+// One rule remains, and it is the guarantee: every option must differ from
+// every other in BOTH its word and its English meaning.
 // ---------------------------------------------------------------------------
 
 const MEANING_OPTION_COUNT = 4;
-
-/**
- * The charts this quiz type may draw from: everything except the muḍāriʿ moods
- * that English cannot tell apart. When the plan selects only one mood, that
- * mood is unambiguous on its own and is kept as-is.
- */
-export function unambiguousCharts(charts) {
-  const mudari = charts.filter((c) => CHARTS[c].tense === 'mudari');
-  if (mudari.length <= 1) return charts;
-  const keep = new Set(charts.filter((c) => CHARTS[c].tense !== 'mudari'));
-  for (const voice of ['malum', 'majhul']) {
-    const inVoice = mudari.filter((c) => CHARTS[c].voice === voice);
-    if (!inVoice.length) continue;
-    keep.add(inVoice.find((c) => CHARTS[c].mood === 'raf') ?? inVoice[0]);
-  }
-  return charts.filter((c) => keep.has(c));
-}
 
 /**
  * Distractors are other cells of the SAME root — a different pronoun, voice,
@@ -520,7 +500,11 @@ function makeFromMeaningQuestion(spec, charts) {
   }
   if (others.length < 2) return null;
 
-  const { tense, voice } = CHARTS[spec.chartId];
+  const { tense, voice, mood } = CHARTS[spec.chartId];
+  // A governed muḍāriʿ is named through the particle that governs it, so the
+  // feedback shows WHY the ending is what it is rather than just asserting it.
+  const particle = mood && mood !== 'raf' ? particleFor(mood) : null;
+  const state = mood ? `${MOOD_LABELS[mood].ar}` : '';
   return {
     ...specFields(spec, 'fromMeaning', 'fromMeaning'),
     prompt: 'Which verb says this?',
@@ -529,7 +513,7 @@ function makeFromMeaningQuestion(spec, charts) {
     meaningPrompt: answerMeaning,
     // Options are Arabic only — an English label would restate the prompt.
     ...singleCorrect({ ar: spec.word, en: '', valueKey: spec.word }, others),
-    explanation: `${spec.word} — "${answerMeaning}": ${TENSE_LABELS[tense].ar} ${VOICE_LABELS[voice].ar}, ${PRONOUNS[spec.slot].ar} (${PRONOUNS[spec.slot].en}), from ${citation(spec.root, spec.formId)}.`,
+    explanation: `${spec.word} — "${answerMeaning}": ${TENSE_LABELS[tense].ar} ${VOICE_LABELS[voice].ar}${state ? ` ${state}` : ''}, ${PRONOUNS[spec.slot].ar} (${PRONOUNS[spec.slot].en})${particle ? `, as in ${particle.ar} ${spec.word} — ${particle.ar} ${particle.note}` : ''}. From ${citation(spec.root, spec.formId)}.`,
   };
 }
 

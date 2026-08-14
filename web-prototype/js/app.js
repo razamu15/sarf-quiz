@@ -16,6 +16,7 @@ import {
 } from './glossary.js';
 import { LEXICON } from './lexicon/lexicon-service.js';
 import { fullTable, citation } from './conjugation/conjugation-service.js';
+import { particleFor } from './meaning-service.js';
 import {
   questionStream, buildQuiz, buildDrill, DRILL_PRESETS, presetAvailable,
   possibleQuestions, gradeInput, relevance, WORDS_PER_DRILL,
@@ -255,13 +256,14 @@ function renderPractice() {
   </div>`);
   app.append(asks);
 
-  // English has no iʿrāb, so "Meaning → verb" cannot ask about it: يَنْصُرُ,
-  // يَنْصُرَ and يَنْصُرْ would all read "he helps" and the question would have
-  // three defensible answers. Say so rather than silently ignoring the row.
-  if (p.quizType === 'fromMeaning' && p.tenses.includes('mudari') && p.moods.length > 1) {
-    app.append(el(`<p class="subtitle">English can't express iʿrāb — this quiz type draws
-      one muḍāriʿ state per voice (${p.moods.includes('raf') ? 'marfūʿ' : MOOD_LABELS[p.moods[0]].ar})
-      so every prompt has exactly one right answer.</p>`));
+  // A bare muḍāriʿ has no English iʿrāb, so meanings voice the governing
+  // particle instead — which is what lets this type drill naṣb and jazm at all.
+  if (p.quizType === 'fromMeaning' && p.tenses.includes('mudari')
+      && p.moods.some((m) => m !== 'raf')) {
+    const shown = p.moods.filter((m) => m !== 'raf')
+      .map((m) => `${particleFor(m)?.ar ?? ''} → ${MOOD_LABELS[m].ar}`).join('، ');
+    app.append(el(`<p class="subtitle">Governed states are read through their particle
+      (${shown}), so "he did not help" and "he will not help" are separate answers.</p>`));
   }
 
   const possible = possibleQuestions(p, profile);

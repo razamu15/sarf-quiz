@@ -13,11 +13,15 @@ import {
   conjugate as conjugateChart, derivedNoun, waznOf as waznOfChart,
   fullTable as fullTableChart, availableCharts,
 } from '../js/conjugation/conjugation-service.js';
-import { verbMeaning as verbMeaningChart, derivedMeaning } from '../js/meaning-service.js';
+import {
+  verbMeaning as verbMeaningChart2, derivedMeaning,
+  MUDARI_PARTICLES, particlesFor, particleFor,
+} from '../js/meaning-service.js';
+const verbMeaningChart = (root, formId, chartId, slot) => verbMeaningChart2(root, formId, chartId, slot);
 import {
   buildDrill, buildQuiz, questionStream, DRILL_PRESETS, mazeedPreset, mazeedPresetAvailable,
   presetAvailable, chartsFor, gradeInput, possibleQuestions, IDENTIFY_CATEGORIES,
-  relevance, poolProfile, WORDS_PER_DRILL, unambiguousCharts,
+  relevance, poolProfile, WORDS_PER_DRILL,
 } from '../js/quiz/quiz-service.js';
 import { MAZEED_IDS } from '../js/vocabulary.js';
 
@@ -668,24 +672,65 @@ check(chartsFor({ tenses: ['madi'], voices: ['majhul'], moods: [] }).join() === 
     'the prompt is the engine\'s meaning for the answer cell');
 }
 
-// The mood collapse itself: English cannot express iʿrāb, so at most one
-// muḍāriʿ state per voice may be drawn from.
+// ---------------------------------------------------------------------------
+// Iʿrāb-aware meanings — the particle is what makes naṣb and jazm sayable.
+//
+// Without this, the three muḍāriʿ states all render "he helps" and a
+// meaning-first question about iʿrāb is unanswerable. These assertions are the
+// contract the whole fromMeaning type rests on.
+// ---------------------------------------------------------------------------
 {
-  const all = ['madi_malum', 'mudari_malum_raf', 'mudari_malum_nasb', 'mudari_malum_jazm',
-    'mudari_majhul_raf', 'mudari_majhul_nasb'];
-  const kept = unambiguousCharts(all);
-  check(kept.includes('madi_malum'), 'mood collapse leaves the māḍī alone');
-  check(kept.filter((c) => c.startsWith('mudari_malum')).length === 1
-     && kept.includes('mudari_malum_raf'), 'mood collapse keeps rafʿ for the maʿlūm');
-  check(kept.filter((c) => c.startsWith('mudari_majhul')).length === 1,
-    'mood collapse keeps one state for the majhūl too');
-  check(unambiguousCharts(['mudari_malum_jazm']).length === 1,
-    'a single selected mood is unambiguous on its own and survives');
+  const nasara = byRoot('نصر');
+  const m = (mood, slot = '3ms', voice = 'malum') =>
+    verbMeaningChart(nasara, 'I', mood ? `mudari_${voice}_${mood}` : 'madi_malum', slot);
 
-  // A plan that selects extra moods must not inflate the count for this type.
-  const oneMood = possibleQuestions({ quizType: 'fromMeaning', tenses: ['mudari'], voices: ['malum'], moods: ['raf'], forms: ['I'], types: ['salim'] });
-  const allMoods = possibleQuestions({ quizType: 'fromMeaning', tenses: ['mudari'], voices: ['malum'], moods: ['raf', 'nasb', 'jazm'], forms: ['I'], types: ['salim'] });
-  check(oneMood === allMoods, 'extra moods do not inflate the fromMeaning count');
+  check(m('raf') === 'he helps / will help', 'marfūʿ keeps the plain present/future reading');
+  check(m('nasb') === 'he will not help', 'manṣūb is read through لَنْ — negated future');
+  check(m('jazm') === 'he did not help', 'majzūm is read through لَمْ — negated PAST, not present');
+  check(new Set([m('raf'), m('nasb'), m('jazm'), m(null)]).size === 4,
+    'all three iʿrāb states and the māḍī are distinct in English');
+
+  check(m('nasb', '3ms', 'majhul') === 'he will not be helped', 'naṣb majhūl negates the future passive');
+  check(m('jazm', '3ms', 'majhul') === 'he was not helped', 'jazm majhūl negates the past passive');
+  check(m('jazm', '3mp') === 'they (m, 3+) did not help', 'the particle reading carries the pronoun');
+
+  // Stative verbs ("to be …") take the same treatment through their own branch.
+  const salima = byRoot('سلم');
+  if (salima) {
+    check(verbMeaningChart(salima, 'I', 'mudari_malum_nasb', '3ms') === 'he will not be safe',
+      'stative verbs negate through the particle too');
+  }
+
+  // The registry, not a hardcoded pair: this is what makes أَنْ/كَيْ/لَمَّا a
+  // one-object change later.
+  check(particlesFor('nasb').length >= 1 && particlesFor('nasb').every((p) => p.mood === 'nasb'),
+    'particlesFor returns only particles that force that mood');
+  check(particleFor('nasb').ar === 'لَنْ' && particleFor('jazm').ar === 'لَمْ',
+    'the canonical particles are لَنْ for naṣb and لَمْ for jazm');
+  check(particleFor('raf') === null, 'the marfūʿ is ungoverned — no particle');
+  check(MUDARI_PARTICLES.every((p) => p.id && p.ar && p.mood && typeof p.en === 'function'),
+    'every registered particle declares an id, an Arabic form, its mood and a renderer');
+
+  // Explicitly asking for a particle by id must beat the canonical default.
+  check(verbMeaningChart2(nasara, 'I', 'mudari_malum_nasb', '3ms', 'lan') === 'he will not help',
+    'a named particle renders that particle');
+  check(verbMeaningChart2(nasara, 'I', 'mudari_malum_nasb', '3ms', 'lam') === 'he will not help',
+    'a particle whose mood does not match is ignored, not misapplied');
+}
+
+// Now that iʿrāb is expressible, all three states really do get asked here.
+{
+  const qs = buildQuiz({
+    quizType: 'fromMeaning', tenses: ['mudari'], voices: ['malum'],
+    moods: ['raf', 'nasb', 'jazm'], forms: ['I'], types: ['salim'], count: 90,
+  });
+  const moods = new Set(qs.map((q) => q.chartId));
+  check(moods.size === 3, 'fromMeaning now draws all three muḍāriʿ states');
+
+  // Extra moods widen the pool rather than being collapsed away.
+  const one = possibleQuestions({ quizType: 'fromMeaning', tenses: ['mudari'], voices: ['malum'], moods: ['raf'], forms: ['I'], types: ['salim'] });
+  const all = possibleQuestions({ quizType: 'fromMeaning', tenses: ['mudari'], voices: ['malum'], moods: ['raf', 'nasb', 'jazm'], forms: ['I'], types: ['salim'] });
+  check(all > one, 'selecting more iʿrāb states grows the fromMeaning pool');
 }
 
 // The count under Start is real: a narrow plan reports fewer than a wide one,

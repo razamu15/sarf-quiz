@@ -20,7 +20,7 @@ or Bayyinah-style programs. Assumes the user can read voweled Arabic script.
 | Feature | Free | Pro |
 |---|---|---|
 | Home drills (sālim · muʿtall · mazīd fīhi) | ✅ | ✅ |
-| **All three quiz types** (identify, write the word, derived nouns) | ✅ | ✅ |
+| **All four quiz types** (identify, write the word, derived nouns, meaning → verb) | ✅ | ✅ |
 | Practice: quiz types × categories × charts × forms × verb types; fixed count or endless | ✅ | ✅ |
 | Per-question feedback + contextual meanings | ✅ | ✅ |
 | **Endless drill mode** (feed-style stream, end anytime) | ✅ | ✅ |
@@ -37,11 +37,11 @@ Principle: **free tier is a complete, unlimited quiz app** — never nag mid-qui
 sells *memory and insight* (tracking, deeper stats, explanations), not access to
 content.
 
-## 3.1 The three quiz types
+## 3.1 The four quiz types
 
 Every question is one morphological fact — a root poured into a chart at a pronoun
 slot, or into a derived-noun pattern. Quiz types differ in **which side of that
-fact you're given** and **how you answer**. All three are free, and all three are
+fact you're given** and **how you answer**. All four are free, and all four are
 configured from the same Practice controls (§5.2a).
 
 | # | Type | Given | Answer | Response |
@@ -49,6 +49,28 @@ configured from the same Practice controls (§5.2a).
 | 1 | **Identify** | The conjugated word (تُنْصَرَانِ) | Its tense, voice, doer, iʿrāb or bāb — whichever the configuration still makes worth asking (§5.2b) | Multiple choice |
 | 2 | **Write the word** | Root + form + chart + pronoun | The word, fully vowelled | Typed Arabic |
 | 3 | **Derived nouns** | See below — two question shapes | The derivative, or its kind + form | Multiple choice |
+| 4 | **Meaning → verb** | An English reading ("they two (m) helped") | Which of four verbs says it | Multiple choice |
+
+**Type 4 is type 1 run backwards.** Instead of showing the word and asking what
+it encodes, it states what the word encodes and asks which word says it. The
+four options are all real conjugations of **the same root** — differing in
+pronoun, voice, tense, iʿrāb, or form — so every wrong answer is a near-miss
+and the only thing separating them is the grammar being drilled. Options show
+**Arabic only**; an English label would restate the prompt.
+
+Its one hard constraint is the mirror image of type 1's multi-select rule. There,
+one written form legitimately serving several pronouns *is* the lesson. Here the
+same collapse would be a defect — a prompt with two defensible answers marks the
+user wrong for being right. So **every option must differ from every other in
+both its word and its English reading.**
+
+That constraint is why the muḍāriʿ needed work: يَنْصُرُ, يَنْصُرَ and يَنْصُرْ
+all read "he helps" while the iʿrāb is unvoiced. Meanings therefore render a
+**governed muḍāriʿ through the particle that governs it** — لَنْ يَنْصُرَ is
+"he will not help", لَمْ يَنْصُرْ is "he did not help" (jussive in form, past in
+meaning — the trap worth drilling). Launch ships لَنْ for manṣūb and لَمْ for
+majzūm; the particle table is a registry, so أَنْ، كَيْ، حَتَّى and
+لَمَّا، لَا النَّاهِيَة، لَامُ الأَمْر are additions rather than rewrites.
 
 **Type 1's repertoire is tense, voice, doer, iʿrāb and bāb.** Which of them a
 given session asks is decided by the configuration, not by the user — see §5.2b.
@@ -121,6 +143,16 @@ Pro.
   correct and all must be selected — the quiz teaches the ambiguity instead of
   dodging it. Single-answer questions still auto-check on first tap.
 
+**Meaning questions (type 4)**
+- Meaning card: the **English reading alone**, at the size the Arabic word
+  normally gets, with the root letters beneath it. No Arabic on the card — every
+  Arabic string there would be the answer or a hint toward it. The root is safe
+  and orienting, since all four options are built from it
+- Four Arabic options, no English labels, single-select with auto-check
+- Feedback names the governing particle where there is one ("as in لَمْ يَنْصُرْ
+  — لَمْ negates the past, despite the jussive form"), so the ending is
+  explained rather than asserted
+
 **Typed questions (type 2)**
 - Cue card: the root plus the target as chips — form, tense, voice, iʿrāb, pronoun
 - An Arabic answer field using the **system Arabic keyboard entirely** — letters
@@ -191,6 +223,7 @@ possible answers and it never enters the quiz:
 | Which derivative | one kind of derivative in scope |
 | Which form | **one form selected** |
 | Write the word | never — producing a vowelled word is not a multiple choice |
+| Meaning → verb | never — no configuration can make three wrong words look right |
 
 Practice shows the result as a **"This setup asks"** panel listing the live
 questions and, struck through, the retired ones with their reason — so widening a
@@ -284,9 +317,11 @@ showcases the engine and feeds the study loop that makes the drills valuable.
 - Hand-authored tables (قول، رمي today; 2–3 more roots per type as they land)
   are demoted to **test fixtures**: a per-type engine must reproduce them
   cell-for-cell before it replaces them in the app
-- 3 quiz types (§3.1): identify (tense · voice · doer), write the word,
-  derived nouns
+- 4 quiz types (§3.1): identify (tense · voice · doer), write the word,
+  derived nouns, meaning → verb
 - Form IX recognition-only (wazn/meaning/masdar questions)
+- Governing particles: لَنْ (manṣūb) and لَمْ (majzūm) at launch, so type 4 can
+  drill iʿrāb; the rest of the ḥurūf are post-launch content, not new code
 
 Post-launch content roadmap: ism zamān/makān/āla; iʿlāl-rule questions
 ("why did the و become ا?"); rubāʿī (فَعْلَلَ) if curriculum demands.
@@ -319,11 +354,18 @@ answer options (identical written forms for different pronouns) are only
 distinguishable by their English gloss, so hiding it would make questions
 unanswerable rather than harder.
 
-Also dropped from v1.0: **English → Arabic questions** (given a meaning, write the
-word), and the **wazn, root and meanings question categories**. Iʿrāb and bāb are
-back in type 1's repertoire (§3.1); the derived-noun material lives in type 3. The
-engine still generates the wazn and the bāb meanings — they appear in feedback and
-in explanations, they are simply not asked as their own questions.
+Also dropped from v1.0: **typed English → Arabic questions** (given a meaning,
+*write* the word), and the **wazn, root and meanings question categories**.
+Iʿrāb and bāb are back in type 1's repertoire (§3.1); the derived-noun material
+lives in type 3. The engine still generates the wazn and the bāb meanings — they
+appear in feedback and in explanations, they are simply not asked as their own
+questions.
+
+Note what is **not** dropped: the *multiple-choice* English → Arabic question is
+**type 4** and ships in v1.0 (§3.1). Only the typed variant is deferred — asking
+someone to produce a fully vowelled word from an English prompt alone stacks two
+hard skills, where picking it out of four near-misses drills the same recognition
+at a workable difficulty.
 
 Also **not** exported at launch: quiz history. It can be deleted in Settings but
 not extracted.

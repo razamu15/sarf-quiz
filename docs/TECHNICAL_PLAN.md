@@ -272,23 +272,62 @@ it reproduces every hand-authored fixture cell for its type (قول for ajwaf,
 رمي for nāqiṣ, مدّ for muḍāʿaf, أخذ/سأل for mahmūz), plus spot-check charts
 hand-verified against a printed sarf reference.
 
-### A.6 Meanings (rename only)
+### A.6 Meanings — and the governing particles
 
-`MeaningRenderer` → **`MeaningService`**. Behavior unchanged: contextual
-English from (root, form, chart, slot), regular-verb fallbacks, stative
-("to be …") handling.
+`MeaningRenderer` → **`MeaningService`**. Contextual English from
+(root, form, chart, slot), regular-verb fallbacks, stative ("to be …") handling
+— all unchanged. One capability is new, and it is load-bearing for quiz type 4.
+
+**A bare muḍāriʿ has no English iʿrāb.** يَنْصُرُ, يَنْصُرَ and يَنْصُرْ all
+render "he helps", so a meaning-first question about iʿrāb would have three
+defensible answers. The fix is to read a *governed* muḍāriʿ through the particle
+that governs it:
+
+```swift
+/// One governing particle: the mood it forces, and how it rewrites the English.
+/// Adding أَنْ, كَيْ, حَتَّى (naṣb) or لَمَّا, لَا النَّاهِيَة, لَامُ الأَمْر
+/// (jazm) is one value here — no branch in the renderer, no call-site change.
+struct MudariParticle {
+  let id: String                 // "lan"
+  let arabic: String             // لَنْ
+  let mood: Mood                 // .nasb
+  let note: String               // "negates the future"
+  let render: (MeaningContext) -> String
+}
+
+func particles(for mood: Mood) -> [MudariParticle]   // registration order
+func particle(for mood: Mood) -> MudariParticle?     // the canonical one
+```
+
+`verbMeaning(…, particleId:)` takes an optional particle; omitted, the mood's
+canonical one is used. **The mood always wins over the requested particle** — a
+particle that governs a different mood falls back to the canonical one rather
+than to the ungoverned reading, because "he helps" for a manṣūb word silently
+restores the exact ambiguity this exists to remove.
+
+Launch ships لَنْ (naṣb) and لَمْ (jazm). لَمْ is the pedagogically interesting
+one: jussive in form, **past in meaning** — "he did not help", not "he does not
+help". Marfūʿ, māḍī and amr ignore the particle entirely, so every pre-existing
+meaning string is byte-identical.
 
 ### A.7 Quiz — a word pool, builders, and two response modes
 
 Three review changes: **multi-select correctness**, **endless mode**, and — the
-structural one — **three quiz types served by one engine** (spec §3.1):
+structural one — **four quiz types served by one engine** (spec §3.1):
 identify (tense · voice · doer, multiple choice), write the word (typed
-Arabic), and derived nouns (multiple choice, two question shapes).
+Arabic), derived nouns (multiple choice, two question shapes), and meaning →
+verb (multiple choice, English prompt).
 
 **The organizing idea: the plan selects a pool of words, not a set of
 questions.** Every quiz type consumes the same pool; only the interrogation
-differs. That is what makes the configuration genuinely shared instead of three
+differs. That is what makes the configuration genuinely shared instead of four
 configurations that happen to look alike.
+
+Type 4 is the evidence that the idea holds: it was added with **no new
+configuration surface at all** — same pool, same filters, one new builder and
+one registry entry. What it did need was `MeaningService` learning iʿrāb, since
+a meaning-first question cannot ask about a distinction English does not make
+(A.6).
 
 ```swift
 /// The full identity of one generated word. Everything downstream — questions,
@@ -657,9 +696,10 @@ slot) and mine confusion pairs without re-deriving anything.
 
 @Model final class AnswerRecord {
   // WordSpec identity, flattened to enum raw values — identical across all
-  // three quiz types, which is what lets stats compare recognition against
+  // four quiz types, which is what lets stats compare recognition against
   // production of the very same chart:
-  var quizType: String               // "identify" | "produce" | "derivedNoun"
+  var quizType: String               // "identify" | "produce" | "derivedNoun" | "fromMeaning"
+                                     // carried by the Question, never inferred from its shape
   var category: String               // "doer" (identify only)
   var form: String                   // "II"
   var verbType: String               // "salim"
