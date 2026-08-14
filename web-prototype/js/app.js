@@ -1,41 +1,51 @@
-// UI layer: home (Form I | Mazīd | Custom | Tables) → quiz → results.
-// All sarf logic lives in the services — this file only draws and routes.
+// UI layer: four tabs — Home · Practice · Tables · More — plus the quiz and
+// results screens. All sarf logic lives in the services; this file only draws
+// and routes.
 //
-// v2 quiz UI: multi-select answers (identical written forms → several correct
-// pronouns; Check button confirms) and endless mode (feed-style stream with a
-// running score and an End-quiz button).
+// Home      three prebuilt drills (always quiz type 1) + a free stats card
+// Practice  the shared configuration: quiz type, then which words to draw from
+// Tables    search the lexicon → pick the chart by attribute → view all 14 rows
+// More      settings, and the way in to detailed stats
+//
+// Quiz screens render from question.response: 'choice' → option buttons,
+// 'input' → an Arabic answer field graded strictly (spec §5.2).
 
-import { FORM_IDS, MAZEED_IDS, slotsFor } from './vocabulary.js';
+import { FORM_IDS, MAZEED_IDS, CHARTS, slotsFor, chartId as chartIdFor } from './vocabulary.js';
 import {
-  PRONOUNS, FORM_NAMES, MEANINGS, VERB_TYPE_INFO, CATEGORIES, CHART_LABELS,
+  PRONOUNS, FORM_NAMES, VERB_TYPE_INFO, CATEGORIES, TENSE_LABELS, VOICE_LABELS, MOOD_LABELS,
 } from './glossary.js';
-import { FORM_META } from './grammar/salim-grammar.js';
 import { LEXICON } from './lexicon/lexicon-service.js';
-import { fullTable, availableCharts, waznOf, waznCitation } from './conjugation/conjugation-service.js';
+import { fullTable, citation } from './conjugation/conjugation-service.js';
 import {
-  questionStream, buildQuiz, buildDrill, PRESETS,
-  presetAvailable, mazeedPreset, mazeedPresetAvailable, WORDS_PER_DRILL,
+  questionStream, buildQuiz, buildDrill, PRESETS, presetAvailable,
+  possibleQuestions, gradeInput, WORDS_PER_DRILL,
 } from './quiz/quiz-service.js';
+import { recordAnswer, summary, dailyRows } from './stats.js';
 
 const app = document.getElementById('app');
 
 const AVAILABLE_TYPES = new Set(LEXICON.map((r) => r.type));
 
 const state = {
-  tab: 'quick', // 'quick' | 'mazeed' | 'custom' | 'tables'
-  settings: {
-    categories: ['tense', 'voice', 'doer', 'wazn'],
-    forms: ['I', 'II', 'V', 'X'],
+  tab: 'home', // 'home' | 'practice' | 'tables' | 'more'
+  plan: {
+    quizType: 'identify',            // single-select: one type per session
+    tenses: ['madi', 'mudari'],
+    voices: ['malum'],
+    moods: ['raf'],
+    forms: ['I', 'II', 'X'],
     types: ['salim'],
-    count: 10, // 5 | 10 | 20 | 'endless'
+    count: 10,                       // 5 | 10 | 20 | 'endless'
   },
-  tables: { rootKey: null, formId: null, chartId: null },
-  quiz: null,       // active questions (grows in endless mode)
-  stream: null,     // generator feeding endless mode
+  tables: { rootKey: null, formId: null, tense: 'madi', voice: 'malum', mood: 'raf', viewing: false, highlight: null },
+  search: '',
+  quiz: null,
+  stream: null,
   endless: false,
   index: 0,
-  answers: [],      // {question, picked:[i…], correct}
+  answers: [],
   selected: new Set(),
+  typed: '',
 };
 
 const el = (html) => {
@@ -44,33 +54,64 @@ const el = (html) => {
   return t.content.firstElementChild;
 };
 
-// --------------------------------------------------------------------------
-// Home
-// --------------------------------------------------------------------------
-function renderHome() {
-  app.innerHTML = '';
-  app.append(
-    el(`<div>
-      <h1>Sarf Quiz<span class="ar">الصَّرْف</span></h1>
-      <p class="subtitle">Read the signs on the word — tense, voice, doer, wazn, and more.</p>
-    </div>`),
-  );
+const TABS = [
+  ['home', '⌂', 'Home'],
+  ['practice', '✎', 'Practice'],
+  ['tables', '▤', 'Tables'],
+  ['more', '⋯', 'More'],
+];
 
-  const tabs = el(`<div class="tabs">
-    <button class="tab ${state.tab === 'quick' ? 'on' : ''}" data-tab="quick">Form I</button>
-    <button class="tab ${state.tab === 'mazeed' ? 'on' : ''}" data-tab="mazeed">Mazīd</button>
-    <button class="tab ${state.tab === 'custom' ? 'on' : ''}" data-tab="custom">Custom</button>
-    <button class="tab ${state.tab === 'tables' ? 'on' : ''}" data-tab="tables">Tables</button>
-  </div>`);
-  tabs.querySelectorAll('.tab').forEach((t) => {
-    t.onclick = () => { state.tab = t.dataset.tab; renderHome(); };
+function tabBar() {
+  const bar = el(`<div class="tabbar">${TABS.map(([id, icon, label]) =>
+    `<button class="tabbtn ${state.tab === id ? 'on' : ''}" data-tab="${id}">
+       <i>${icon}</i>${label}</button>`).join('')}</div>`);
+  bar.querySelectorAll('.tabbtn').forEach((b) => {
+    b.onclick = () => { state.tab = b.dataset.tab; state.tables.viewing = false; render(); };
   });
-  app.append(tabs);
+  return bar;
+}
 
-  if (state.tab === 'quick') renderQuickTab();
-  else if (state.tab === 'mazeed') renderMazeedTab();
-  else if (state.tab === 'custom') renderCustomTab();
-  else renderTablesTab();
+function render() {
+  app.innerHTML = '';
+  if (state.tab === 'home') renderHome();
+  else if (state.tab === 'practice') renderPractice();
+  else if (state.tab === 'tables') renderTables();
+  else renderMore();
+  app.append(el('<div class="spacer"></div>'), tabBar());
+}
+
+// ---------------------------------------------------------------------------
+// Home — three drills and the free stats card
+// ---------------------------------------------------------------------------
+function renderHome() {
+  app.append(el(`<h1>Sarf Quiz<span class="ar">الصَّرْف</span></h1>`));
+  app.append(statsCard());
+
+  app.append(el(`<div class="section-label">Start a drill</div>`));
+  for (const preset of PRESETS) {
+    app.append(presetCard({
+      title: preset.title,
+      ar: preset.ar,
+      desc: `${preset.desc} ${WORDS_PER_DRILL} words · ${WORDS_PER_DRILL * 3} questions.`,
+      available: presetAvailable(preset),
+      onStart: () => startDrill(preset),
+    }));
+  }
+}
+
+function statsCard() {
+  const s = summary();
+  const card = el(`<button class="statcard">
+    <span class="ring" style="--pct:${s.accuracy}"><b>${s.hasHistory ? `${s.accuracy}%` : '—'}</b><span>accuracy</span></span>
+    <span class="meta">
+      <b>${s.hasHistory ? `${s.streak} day streak 🔥` : 'No drills yet'}</b>
+      <small>${s.hasHistory ? `${s.weekTotal} questions this week` : 'Your progress shows up here'}</small>
+      <span class="week">${s.week.map((n) => `<i class="${n === 0 ? '' : n < 10 ? 'd1' : n < 30 ? 'd2' : 'd3'}"></i>`).join('')}</span>
+    </span>
+    <span class="chev">›</span>
+  </button>`);
+  card.onclick = () => { state.tab = 'more'; state.showStats = true; render(); };
+  return card;
 }
 
 function presetCard({ title, ar, desc, available, onStart }) {
@@ -96,103 +137,25 @@ function startDrill(preset) {
   beginQuiz(quiz, { endless: false });
 }
 
-function renderQuickTab() {
-  app.append(el(`<p class="subtitle">Form I (mujarrad) drills by verb type:
-    ${WORDS_PER_DRILL} words, 3 questions per word — tense, maʿlūm/majhūl, then the pronoun.</p>`));
+// ---------------------------------------------------------------------------
+// Practice — one configuration, every quiz type
+// ---------------------------------------------------------------------------
+const QUIZ_TYPES = [
+  ['identify', 'Identify', 'تَمْيِيز'],
+  ['produce', 'Write the word', 'كِتَابَة'],
+  ['derived', 'Derived nouns', 'المُشْتَقَّات'],
+];
 
-  for (const preset of PRESETS) {
-    app.append(presetCard({
-      title: preset.title,
-      ar: preset.ar,
-      desc: preset.desc,
-      available: presetAvailable(preset),
-      onStart: () => startDrill(preset),
-    }));
+function chipRow(items, isOn, onPick, { disabled = false } = {}) {
+  const chips = el(`<div class="chips ${disabled ? 'chips-off' : ''}"></div>`);
+  for (const { value, label, ar, sub } of items) {
+    const chip = el(`<button class="chip ${isOn(value) ? 'on' : ''}" ${disabled ? 'disabled' : ''}>
+      ${label}${ar ? `<span class="ar">${ar}</span>` : ''}${sub ? `<small>${sub}</small>` : ''}
+    </button>`);
+    if (!disabled) chip.onclick = () => { onPick(value); render(); };
+    chips.append(chip);
   }
-}
-
-function renderMazeedTab() {
-  app.append(el(`<p class="subtitle">The same drill, one mazīd fīhi form at a time:
-    ${WORDS_PER_DRILL} words, 3 questions per word.</p>`));
-
-  for (const formId of MAZEED_IDS) {
-    const meaningHints = FORM_META[formId].meanings
-      .map((m) => MEANINGS[m].en.split(' (')[0]).join(' · ');
-    app.append(presetCard({
-      title: `Form ${formId}`,
-      ar: FORM_NAMES[formId].name.replace('بَابُ ', ''),
-      desc: `<span class="ar-inline">${waznCitation(formId)}</span> — ${meaningHints}`,
-      available: mazeedPresetAvailable(formId),
-      onStart: () => startDrill(mazeedPreset(formId)),
-    }));
-  }
-}
-
-function renderCustomTab() {
-  app.append(el(`<div class="section-label">What to quiz</div>`));
-  const catChips = el(`<div class="chips"></div>`);
-  for (const [id, c] of Object.entries(CATEGORIES)) {
-    const chip = el(`<button class="chip ${state.settings.categories.includes(id) ? 'on' : ''}">
-      ${c.label}<span class="ar">${c.ar}</span></button>`);
-    chip.title = c.desc;
-    chip.onclick = () => { toggle(state.settings.categories, id); renderHome(); };
-    catChips.append(chip);
-  }
-  app.append(catChips);
-
-  app.append(el(`<div class="section-label">Abwāb / forms</div>`));
-  const formChips = el(`<div class="chips"></div>`);
-  for (const id of FORM_IDS) {
-    const chip = el(`<button class="chip ${state.settings.forms.includes(id) ? 'on' : ''}">
-      ${id}<span class="ar">${FORM_NAMES[id].name.replace('بَابُ ', '')}</span></button>`);
-    chip.onclick = () => { toggle(state.settings.forms, id); renderHome(); };
-    formChips.append(chip);
-  }
-  app.append(formChips);
-
-  app.append(el(`<div class="section-label">Verb types</div>`));
-  const typeChips = el(`<div class="chips"></div>`);
-  for (const [id, t] of Object.entries(VERB_TYPE_INFO)) {
-    const available = AVAILABLE_TYPES.has(id);
-    const chip = el(`<button class="chip ${state.settings.types.includes(id) ? 'on' : ''}" ${available ? '' : 'disabled'}>
-      ${t.en.split(' (')[0]}<span class="ar">${t.ar}</span>${available ? '' : '<small>content coming</small>'}</button>`);
-    if (available) chip.onclick = () => { toggle(state.settings.types, id); renderHome(); };
-    typeChips.append(chip);
-  }
-  app.append(typeChips);
-
-  app.append(el(`<div class="section-label">Questions</div>`));
-  const countChips = el(`<div class="chips"></div>`);
-  for (const n of [5, 10, 20, 'endless']) {
-    const label = n === 'endless' ? '∞ endless' : n;
-    const chip = el(`<button class="chip ${state.settings.count === n ? 'on' : ''}">${label}</button>`);
-    chip.onclick = () => { state.settings.count = n; renderHome(); };
-    countChips.append(chip);
-  }
-  app.append(countChips);
-
-  app.append(el(`<div class="spacer"></div>`));
-  const start = el(`<button class="btn primary">Start quiz</button>`);
-  const ready = state.settings.categories.length && state.settings.forms.length && state.settings.types.length;
-  start.disabled = !ready;
-  start.onclick = () => {
-    const plan = { ...state.settings };
-    if (state.settings.count === 'endless') {
-      // note: prime with .next(), never `for…of + break` — breaking a for…of
-      // closes the generator and would end the "endless" quiz after 1 question
-      const stream = questionStream(plan);
-      const first = stream.next();
-      if (first.done) return alert('No questions possible for this selection — widen the forms or categories.');
-      state.rebuild = null;
-      beginQuiz([first.value], { endless: true, stream });
-    } else {
-      state.rebuild = () => buildQuiz({ ...plan, count: plan.count });
-      const quiz = state.rebuild();
-      if (!quiz.length) return alert('No questions possible for this selection — widen the forms or categories.');
-      beginQuiz(quiz, { endless: false });
-    }
-  };
-  app.append(start);
+  return chips;
 }
 
 function toggle(arr, val) {
@@ -200,78 +163,346 @@ function toggle(arr, val) {
   if (i >= 0) arr.splice(i, 1); else arr.push(val);
 }
 
-// --------------------------------------------------------------------------
-// Tables browser: root × form × chart → the full paper table, offline
-// --------------------------------------------------------------------------
-function renderTablesTab() {
-  app.append(el(`<p class="subtitle">Look up any complete conjugation chart —
-    all 14 pronouns, straight from the engine.</p>`));
+function renderPractice() {
+  const p = state.plan;
+  app.append(el(`<h1>Practice</h1>`));
 
-  const t = state.tables;
-  if (!t.rootKey || !LEXICON.find((r) => r.root.join('') === t.rootKey)) {
-    t.rootKey = LEXICON[0].root.join('');
+  // Quiz type is single-select: one type per session, so the results screen
+  // never mixes two incomparable skills into one number.
+  app.append(el(`<div class="section-label">Quiz type <small>one per session</small></div>`));
+  app.append(chipRow(
+    QUIZ_TYPES.map(([value, label, ar]) => ({ value, label: `${p.quizType === value ? '◉' : '○'} ${label}`, ar })),
+    (v) => p.quizType === v,
+    (v) => { p.quizType = v; },
+  ));
+  if (p.quizType === 'identify') {
+    app.append(el(`<p class="subtitle">Identify always asks tense, voice and doer.</p>`));
   }
-  const root = LEXICON.find((r) => r.root.join('') === t.rootKey);
-  const forms = Object.keys(root.forms);
-  if (!forms.includes(t.formId)) t.formId = forms[0];
-  const charts = availableCharts(root, t.formId);
-  if (!charts.includes(t.chartId)) t.chartId = charts[0] ?? null;
 
-  const picker = (labelText, options, current, onPick) => {
-    const wrap = el(`<div><div class="section-label">${labelText}</div></div>`);
-    const chips = el(`<div class="chips"></div>`);
-    for (const [value, label] of options) {
-      const chip = el(`<button class="chip ${value === current ? 'on' : ''}">${label}</button>`);
-      chip.onclick = () => { onPick(value); renderHome(); };
-      chips.append(chip);
+  const isDerived = p.quizType === 'derived';
+  if (!isDerived) {
+    app.append(el(`<div class="section-label">Tense</div>`));
+    app.append(chipRow(
+      [['madi', TENSE_LABELS.madi], ['mudari', TENSE_LABELS.mudari], ['amr', TENSE_LABELS.amr]]
+        .map(([value, l]) => ({ value, label: l.en.split(' (')[0], ar: l.ar.replace('فِعْل ', '') })),
+      (v) => p.tenses.includes(v),
+      (v) => toggle(p.tenses, v),
+    ));
+
+    // Amr has neither voice nor iʿrāb; muḍāriʿ is the only tense with moods.
+    // Rows that don't apply grey out rather than lying about what they filter.
+    const hasVoiced = p.tenses.some((t) => t !== 'amr');
+    app.append(el(`<div class="section-label ${hasVoiced ? '' : 'off'}">Voice</div>`));
+    app.append(chipRow(
+      [['malum', VOICE_LABELS.malum], ['majhul', VOICE_LABELS.majhul]]
+        .map(([value, l]) => ({ value, label: value === 'malum' ? 'maʿrūf' : 'majhūl', ar: l.ar })),
+      (v) => p.voices.includes(v),
+      (v) => toggle(p.voices, v),
+      { disabled: !hasVoiced },
+    ));
+
+    const hasMudari = p.tenses.includes('mudari');
+    app.append(el(`<div class="section-label ${hasMudari ? '' : 'off'}">Iʿrāb <small>muḍāriʿ only</small></div>`));
+    app.append(chipRow(
+      ['raf', 'nasb', 'jazm'].map((value) => ({
+        value, label: MOOD_LABELS[value].en.split(' —')[0], ar: MOOD_LABELS[value].ar,
+      })),
+      (v) => p.moods.includes(v),
+      (v) => toggle(p.moods, v),
+      { disabled: !hasMudari },
+    ));
+    if (!hasMudari) {
+      app.append(el(`<p class="subtitle">Iʿrāb applies to the muḍāriʿ only — turn it on to choose states.</p>`));
     }
-    wrap.append(chips);
-    return wrap;
+  }
+
+  app.append(el(`<div class="section-label">Abwāb / forms</div>`));
+  app.append(chipRow(
+    FORM_IDS.map((value) => ({ value, label: value, ar: FORM_NAMES[value].name.replace('بَابُ ', '') })),
+    (v) => p.forms.includes(v),
+    (v) => toggle(p.forms, v),
+  ));
+
+  app.append(el(`<div class="section-label">Verb types</div>`));
+  app.append(chipRow(
+    Object.entries(VERB_TYPE_INFO).map(([value, t]) => ({
+      value, label: t.en.split(' (')[0], ar: t.ar,
+      sub: AVAILABLE_TYPES.has(value) ? null : 'content coming',
+    })),
+    (v) => p.types.includes(v),
+    (v) => { if (AVAILABLE_TYPES.has(v)) toggle(p.types, v); },
+  ));
+
+  app.append(el(`<div class="section-label">Questions</div>`));
+  app.append(chipRow(
+    [5, 10, 20, 'endless'].map((value) => ({ value, label: value === 'endless' ? '∞ endless' : String(value) })),
+    (v) => p.count === v,
+    (v) => { p.count = v; },
+  ));
+
+  // The count replaces the old failure-after-tap: an over-narrow selection is
+  // visible before you start, and you can see which row to widen.
+  const possible = possibleQuestions(p);
+  app.append(el(`<p class="subtitle count-line ${possible ? '' : 'empty'}">${
+    possible ? `≈ ${possible.toLocaleString()} possible questions from this selection`
+             : 'No questions possible — widen the selection above'
+  }</p>`));
+
+  const start = el(`<button class="btn primary">Start quiz</button>`);
+  start.disabled = !possible;
+  start.onclick = () => startPlan(p);
+  app.append(start);
+}
+
+function startPlan(p) {
+  const plan = { ...p, tenses: [...p.tenses], voices: [...p.voices], moods: [...p.moods],
+    forms: [...p.forms], types: [...p.types] };
+  if (plan.count === 'endless') {
+    // prime with .next(), never `for…of + break` — breaking a for…of closes
+    // the generator and would end the "endless" quiz after one question
+    const stream = questionStream(plan);
+    const first = stream.next();
+    if (first.done) return alert('No questions possible for this selection.');
+    state.rebuild = null;
+    beginQuiz([first.value], { endless: true, stream });
+  } else {
+    state.rebuild = () => buildQuiz(plan);
+    const quiz = state.rebuild();
+    if (!quiz.length) return alert('No questions possible for this selection.');
+    beginQuiz(quiz, { endless: false });
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Tables — search the lexicon, pick the chart by attribute, view all 14 rows
+// ---------------------------------------------------------------------------
+function matchingRoots(query) {
+  const q = query.trim().toLowerCase();
+  if (!q) return LEXICON;
+  return LEXICON.filter((r) => {
+    const letters = r.root.join('');
+    const glosses = Object.values(r.forms).map((f) => f.gloss.toLowerCase()).join(' ');
+    return letters.includes(q) || r.root.join(' ').includes(q) || glosses.includes(q);
+  });
+}
+
+function currentTableRoot() {
+  const t = state.tables;
+  return LEXICON.find((r) => r.root.join('') === t.rootKey) ?? null;
+}
+
+function renderTables() {
+  const t = state.tables;
+  if (t.viewing && currentTableRoot()) return renderTableView();
+
+  app.append(el(`<h1>Tables</h1>`));
+  const search = el(`<div class="search">
+    <span>🔍</span><input type="search" placeholder="Search root letters or meaning" value="${state.search}">
+  </div>`);
+  const input = search.querySelector('input');
+  input.oninput = () => {
+    state.search = input.value;
+    const results = app.querySelector('.results');
+    if (results) results.replaceWith(resultList());
+    const label = app.querySelector('.results-label');
+    if (label) label.textContent = `${matchingRoots(state.search).length} matches`;
   };
+  app.append(search);
 
-  app.append(picker('Verb', LEXICON.map((r) => {
-    const key = r.root.join('');
-    const gloss = Object.values(r.forms)[0]?.gloss ?? '';
-    return [key, `<span class="ar">${r.root.join(' ')}</span> <small>${gloss}</small>`];
-  }), t.rootKey, (v) => {
-    t.rootKey = v; t.formId = null; t.chartId = null;
-  }));
+  app.append(el(`<div class="section-label results-label">${matchingRoots(state.search).length} matches</div>`));
+  app.append(resultList());
 
-  app.append(picker('Form', forms.map((f) => [f, f]), t.formId, (v) => {
-    t.formId = v; t.chartId = null;
-  }));
-
-  app.append(picker('Chart', charts.map((c) => [c,
-    `${CHART_LABELS[c].en}<span class="ar">${CHART_LABELS[c].ar}</span>`,
-  ]), t.chartId, (v) => { t.chartId = v; }));
-
-  if (!t.chartId) {
-    app.append(el(`<p class="subtitle">No charts available for this selection yet.</p>`));
+  const root = currentTableRoot();
+  if (!root) {
+    app.append(el(`<p class="subtitle">Pick a verb to choose its chart.</p>`));
     return;
   }
 
-  const table = fullTable(root, t.formId, t.chartId);
-  const bab = root.forms[t.formId]?.bab ?? 1;
-  const isSalim = root.type === 'salim';
-  const rows = slotsFor(t.chartId)
-    .filter((slot) => table[slot])
-    .map((slot) => `<tr>
-      <td class="pron"><span class="ar">${PRONOUNS[slot].ar}</span><small>${PRONOUNS[slot].en}</small></td>
-      <td class="word-cell"><span class="ar">${table[slot]}</span></td>
-      ${isSalim ? `<td class="wazn-cell"><span class="ar">${waznOf(t.formId, t.chartId, slot, bab) ?? ''}</span></td>` : ''}
-    </tr>`).join('');
+  const forms = Object.keys(root.forms);
+  if (!forms.includes(t.formId)) t.formId = forms[0];
 
-  app.append(el(`<div class="conj-table-wrap">
-    <table class="conj-table">
-      <thead><tr><th>Pronoun</th><th>Word</th>${isSalim ? '<th>Wazn</th>' : ''}</tr></thead>
-      <tbody>${rows}</tbody>
-    </table>
-  </div>`));
+  app.append(el(`<div class="section-label">Form</div>`));
+  app.append(chipRow(
+    forms.map((value) => ({ value, label: value, ar: FORM_NAMES[value].name.replace('بَابُ ', '') })),
+    (v) => t.formId === v,
+    (v) => { t.formId = v; },
+  ));
+
+  app.append(el(`<div class="section-label">Tense</div>`));
+  app.append(chipRow(
+    ['madi', 'mudari', 'amr'].map((value) => ({
+      value, label: TENSE_LABELS[value].en.split(' (')[0], ar: TENSE_LABELS[value].ar.replace('فِعْل ', ''),
+    })),
+    (v) => t.tense === v,
+    (v) => { t.tense = v; },
+  ));
+
+  const voiced = t.tense !== 'amr';
+  app.append(el(`<div class="section-label ${voiced ? '' : 'off'}">Voice</div>`));
+  app.append(chipRow(
+    [['malum', 'maʿrūf'], ['majhul', 'majhūl']].map(([value, label]) => ({
+      value, label, ar: VOICE_LABELS[value].ar,
+    })),
+    (v) => t.voice === v,
+    (v) => { t.voice = v; },
+    { disabled: !voiced },
+  ));
+
+  const mooded = t.tense === 'mudari';
+  app.append(el(`<div class="section-label ${mooded ? '' : 'off'}">Iʿrāb</div>`));
+  app.append(chipRow(
+    ['raf', 'nasb', 'jazm'].map((value) => ({
+      value, label: MOOD_LABELS[value].en.split(' —')[0], ar: MOOD_LABELS[value].ar,
+    })),
+    (v) => t.mood === v,
+    (v) => { t.mood = v; },
+    { disabled: !mooded },
+  ));
+
+  const chart = chartIdFor(t.tense, t.voice, t.mood);
+  const table = fullTable(root, t.formId, chart);
+  const view = el(`<button class="btn primary">View table</button>`);
+  view.disabled = !table;
+  view.onclick = () => { t.viewing = true; render(); };
+  app.append(view);
+  if (!table) {
+    app.append(el(`<p class="subtitle count-line empty">This verb has no ${chart.includes('majhul') ? 'passive' : ''} chart for that selection.</p>`));
+  }
 }
 
-// --------------------------------------------------------------------------
+function resultList() {
+  const list = el(`<div class="results"></div>`);
+  for (const r of matchingRoots(state.search).slice(0, 8)) {
+    const key = r.root.join('');
+    const gloss = Object.values(r.forms)[0]?.gloss ?? '';
+    const row = el(`<button class="result ${state.tables.rootKey === key ? 'on' : ''}">
+      <span><span class="ar">${r.root.join(' ')}</span></span><small>${gloss}</small>
+    </button>`);
+    row.onclick = () => {
+      state.tables.rootKey = key;
+      state.tables.formId = null;
+      render();
+    };
+    list.append(row);
+  }
+  if (!matchingRoots(state.search).length) {
+    list.append(el(`<p class="subtitle">Nothing matches "${state.search}".</p>`));
+  }
+  return list;
+}
+
+function renderTableView() {
+  const t = state.tables;
+  const root = currentTableRoot();
+  const chart = chartIdFor(t.tense, t.voice, t.mood);
+  const table = fullTable(root, t.formId, chart) ?? {};
+
+  const bar = el(`<div class="topbar">
+    <button class="quit">‹</button>
+    <span class="count table-title"><span class="ar-inline">${citation(root, t.formId).split(' ')[0]}</span>
+      · Form ${t.formId} · ${chartLabel(chart)}</span>
+  </div>`);
+  bar.querySelector('.quit').onclick = () => { t.viewing = false; t.highlight = null; render(); };
+  app.append(bar);
+
+  const rows = slotsFor(chart).filter((slot) => table[slot]).map((slot) => `
+    <tr class="${t.highlight === slot ? 'hit' : ''}">
+      <td class="pron"><span class="ar">${PRONOUNS[slot].ar}</span><small>${PRONOUNS[slot].en}</small></td>
+      <td class="word-cell"><span class="ar">${table[slot]}</span></td>
+    </tr>`).join('');
+
+  const wrap = el(`<div class="conj-table-wrap tall">
+    <table class="conj-table">
+      <thead><tr><th>Pronoun</th><th>Word</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+  </div>`);
+  app.append(wrap);
+
+  // Arriving from a quiz, bring the row you just met into view — otherwise
+  // the highlight is a promise you have to go hunting for.
+  if (t.highlight) {
+    requestAnimationFrame(() => {
+      wrap.querySelector('tr.hit')?.scrollIntoView({ block: 'center', behavior: 'smooth' });
+    });
+  }
+}
+
+const chartLabel = (chart) => {
+  const { tense, voice, mood } = CHARTS[chart];
+  return [TENSE_LABELS[tense].en.split(' (')[0],
+    tense === 'amr' ? null : (voice === 'malum' ? 'maʿrūf' : 'majhūl'),
+    mood ? MOOD_LABELS[mood].en.split(' —')[0] : null].filter(Boolean).join(' · ');
+};
+
+// ---------------------------------------------------------------------------
+// More — settings, and the way in to detailed stats
+// ---------------------------------------------------------------------------
+function renderMore() {
+  if (state.showStats) return renderDetailedStats();
+
+  app.append(el(`<h1>More</h1>`));
+
+  app.append(el(`<div class="section-label">Progress</div>`));
+  const stats = rowNav('Detailed stats', 'By category, form and verb type · trends · weak spots', 'PRO');
+  stats.onclick = () => { state.showStats = true; render(); };
+  app.append(stats);
+  app.append(rowNav('Quiz history', 'Every session you\'ve completed', 'PRO'));
+
+  app.append(el(`<div class="section-label">Subscription</div>`));
+  app.append(rowNav('Free plan', '3 AI explanations left', 'Upgrade'));
+
+  app.append(el(`<div class="section-label">Study</div>`));
+  app.append(rowNav('Default quiz length', `${state.plan.count === 'endless' ? 'Endless' : state.plan.count} questions`));
+  app.append(rowNav('Arabic text size', 'Large'));
+
+  app.append(el(`<div class="section-label">App</div>`));
+  app.append(rowNav('Appearance', 'Match system'));
+  app.append(rowNav('Restore purchases'));
+  app.append(rowNav('Privacy policy'));
+}
+
+function rowNav(title, sub, badge) {
+  return el(`<button class="row-nav">
+    <span><b>${title}</b>${sub ? `<small>${sub}</small>` : ''}</span>
+    ${badge ? `<span class="${badge === 'PRO' ? 'lock' : 'badge-up'}">${badge}</span>` : '<span class="chev">›</span>'}
+  </button>`);
+}
+
+function renderDetailedStats() {
+  const s = summary();
+  const bar = el(`<div class="topbar"><button class="quit">‹</button>
+    <span class="count table-title">Your progress</span></div>`);
+  bar.querySelector('.quit').onclick = () => { state.showStats = false; render(); };
+  app.append(bar);
+
+  app.append(el(`<div class="stat-grid">
+    <div class="stat-tile"><b>${s.total}</b><span>questions</span></div>
+    <div class="stat-tile"><b>${s.hasHistory ? `${s.accuracy}%` : '—'}</b><span>accuracy</span></div>
+    <div class="stat-tile"><b>${s.streak} 🔥</b><span>day streak</span></div>
+    <div class="stat-tile"><b>${s.weekTotal}</b><span>this week</span></div>
+  </div>`));
+
+  app.append(el(`<div class="section-label">Last 30 days</div>`));
+  const rows = dailyRows().filter((r) => r.n > 0).reverse();
+  if (!rows.length) {
+    app.append(el(`<p class="subtitle">Answer some questions and this fills in.</p>`));
+  } else {
+    const list = el(`<div class="breakdown"></div>`);
+    for (const r of rows) {
+      const pct = Math.round((r.right / r.n) * 100);
+      list.append(el(`<div class="row"><span>${r.date}</span><span>${r.right} / ${r.n} · ${pct}%</span></div>`));
+    }
+    app.append(list);
+  }
+
+  app.append(el(`<p class="subtitle">Free stats are a rolling 30-day summary — daily counts and
+    accuracy, no per-answer records. Breakdowns by category, form and verb type are Pro.</p>`));
+}
+
+// ---------------------------------------------------------------------------
 // Quiz
-// --------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
 function beginQuiz(quiz, { endless, stream = null }) {
   state.quiz = quiz;
   state.stream = stream;
@@ -279,6 +510,7 @@ function beginQuiz(quiz, { endless, stream = null }) {
   state.index = 0;
   state.answers = [];
   state.selected = new Set();
+  state.typed = '';
   renderQuestion();
 }
 
@@ -286,7 +518,7 @@ function beginQuiz(quiz, { endless, stream = null }) {
 function ensureNext() {
   if (!state.endless || state.index + 1 < state.quiz.length) return true;
   const next = state.stream.next();
-  if (next.done) return false; // stream exhausted → behaves like a fixed quiz
+  if (next.done) return false;
   state.quiz.push(next.value);
   return true;
 }
@@ -294,6 +526,7 @@ function ensureNext() {
 function renderQuestion() {
   const q = state.quiz[state.index];
   state.selected = new Set();
+  state.typed = '';
   app.innerHTML = '';
 
   const right = state.answers.filter((a) => a.correct).length;
@@ -310,28 +543,51 @@ function renderQuestion() {
         <span class="count">${state.index + 1} / ${state.quiz.length}</span>
       </div>`);
   bar.querySelector('.quit').onclick = () => {
-    if (!state.answers.length || confirm('Quit this quiz?')) renderHome();
+    if (!state.answers.length || confirm('Quit this quiz?')) { state.tab = 'home'; render(); }
   };
   bar.querySelector('.endquiz')?.addEventListener('click', () => {
-    state.answers.length ? renderResults() : renderHome();
+    state.answers.length ? renderResults() : (state.tab = 'home', render());
   });
   app.append(bar);
 
-  app.append(el(`<div class="word-card">
-    ${q.tag ? `<div class="word-tag">${q.tag}</div>` : ''}
-    <div class="word">${q.word}</div>
-    ${q.gloss ? `<div class="gloss">“${q.gloss}”</div>` : ''}
-    <span class="cat">${CATEGORIES[q.category].label}</span>
-  </div>`));
+  app.append(q.response === 'input' ? cueCard(q) : wordCard(q));
   app.append(el(`<div class="prompt">${q.prompt}</div>`));
+
+  if (q.response === 'input') renderInputAnswer(q);
+  else renderChoiceAnswer(q);
+}
+
+function wordCard(q) {
+  // A 3a question shows the verb it's asking about, not the answer.
+  const shown = q.cue?.verb ?? q.word;
+  return el(`<div class="word-card">
+    ${q.tag ? `<div class="word-tag">${q.tag}</div>` : ''}
+    <div class="word">${shown}</div>
+    ${q.gloss ? `<div class="gloss">“${q.gloss}”</div>` : ''}
+    ${q.cue?.chips ? `<div class="cue-spec">${q.cue.chips.map(chipHtml).join('')}</div>`
+      : `<span class="cat">${CATEGORIES[q.category]?.label ?? ''}</span>`}
+  </div>`);
+}
+
+const chipHtml = (c) => `<span>${c.en ?? ''}${c.ar ? `<span class="ar">${c.ar}</span>` : ''}</span>`;
+
+function cueCard(q) {
+  return el(`<div class="word-card cue-card">
+    ${q.tag ? `<div class="word-tag">${q.tag}</div>` : ''}
+    <div class="root">${q.cue.radicals.join(' ')}</div>
+    ${q.gloss ? `<div class="gloss">“${q.gloss}”</div>` : ''}
+    <div class="cue-spec">${q.cue.chips.map(chipHtml).join('')}</div>
+  </div>`);
+}
+
+function renderChoiceAnswer(q) {
   if (q.multiSelect) {
     app.append(el(`<p class="multi-hint">Several answers are correct — select all that apply, then Check.</p>`));
   }
-
   const opts = el(`<div class="options"></div>`);
   q.options.forEach((o, i) => {
     const btn = el(`<button class="option">
-      <span class="en">${o.en ?? ''}</span><span class="ar">${o.ar}</span>
+      ${o.en ? `<span class="en">${o.en}</span>` : ''}<span class="ar">${o.ar}</span>
     </button>`);
     btn.onclick = () => {
       if (q.multiSelect) {
@@ -340,7 +596,7 @@ function renderQuestion() {
         check.disabled = state.selected.size === 0;
       } else {
         state.selected = new Set([i]);
-        answer(opts, q);
+        answerChoice(opts, q);
       }
     };
     opts.append(btn);
@@ -349,20 +605,33 @@ function renderQuestion() {
 
   const check = el(`<button class="btn primary" disabled>Check</button>`);
   if (q.multiSelect) {
-    check.onclick = () => answer(opts, q);
+    check.onclick = () => answerChoice(opts, q);
     app.append(check);
   }
 }
 
-function answer(opts, q) {
+/**
+ * Typed answers use the plain system Arabic keyboard — letters and ḥarakāt
+ * alike. We own the field and the grading, nothing else (spec §5.2).
+ */
+function renderInputAnswer(q) {
+  const box = el(`<input class="answer-box ar" type="text" dir="rtl" autocomplete="off"
+    autocorrect="off" spellcheck="false" placeholder="…">`);
+  const check = el(`<button class="btn primary" disabled>Check</button>`);
+  box.oninput = () => { state.typed = box.value; check.disabled = !box.value.trim(); };
+  box.onkeydown = (e) => { if (e.key === 'Enter' && box.value.trim()) check.click(); };
+  check.onclick = () => answerInput(q, box);
+  app.append(box, check);
+  app.append(el(`<p class="multi-hint">Fully vowelled — the final ḥaraka counts.</p>`));
+  box.focus();
+}
+
+function answerChoice(opts, q) {
   const picked = [...state.selected].sort((a, b) => a - b);
   const correctSet = new Set(q.correctIndices);
   const correct = picked.length === correctSet.size && picked.every((i) => correctSet.has(i));
-  state.answers.push({ question: q, picked, correct });
 
-  // remove the Check button if present
   app.querySelectorAll('.btn.primary').forEach((b) => { if (b.textContent === 'Check') b.remove(); });
-
   [...opts.children].forEach((btn, i) => {
     btn.disabled = true;
     btn.classList.remove('selected');
@@ -370,10 +639,68 @@ function answer(opts, q) {
     else if (picked.includes(i)) btn.classList.add('wrong');
   });
 
-  app.append(el(`<div class="feedback ${correct ? 'good' : 'bad'}">
+  finishAnswer(q, correct, {
+    picked: picked.map((i) => q.options[i].valueKey),
+    body: `<b>${correct ? 'Correct!' : 'Not quite.'}</b> ${q.explanation}`,
+  });
+}
+
+function answerInput(q, box) {
+  const result = gradeInput(q, box.value);
+  box.disabled = true;
+  box.classList.add(result.correct ? 'correct' : 'wrong');
+  app.querySelectorAll('.btn.primary').forEach((b) => { if (b.textContent === 'Check') b.remove(); });
+  app.querySelector('.multi-hint')?.remove();
+
+  // Show WHERE it diverged, not just that it did: "one ḥaraka off" is a
+  // different lesson from "wrong word", and the engine knows which it is.
+  const diff = result.correct ? '' : `
+    <div class="diff-pair">
+      <div><span class="diff-label">You wrote</span><span class="diff">${markAt(result.given, result.at)}</span></div>
+      <div><span class="diff-label">Correct</span><span class="diff ok">${markAt(result.expected, result.at)}</span></div>
+    </div>`;
+
+  finishAnswer(q, result.correct, {
+    picked: [result.given],
+    body: `${diff}<b>${result.correct ? 'Correct!' : 'Not quite.'}</b> ${q.explanation}`,
+  });
+}
+
+/** Underline the first diverging character so the eye lands on it. */
+function markAt(text, at) {
+  if (at < 0 || at >= text.length) return text;
+  return `${text.slice(0, at)}<u>${text[at]}</u>${text.slice(at + 1)}`;
+}
+
+function finishAnswer(q, correct, { picked, body }) {
+  state.answers.push({ question: q, picked, correct });
+  recordAnswer(correct);
+
+  const fb = el(`<div class="feedback ${correct ? 'good' : 'bad'}">
     ${q.fullMeaning ? `<div class="meaning"><span class="ar">${q.word}</span> — “${q.fullMeaning}”</div>` : ''}
-    <b>${correct ? 'Correct!' : 'Not quite.'}</b> ${q.explanation}
-  </div>`));
+    ${body}
+  </div>`);
+
+  // Free, and it turns a wrong answer into study — shown either way.
+  if (q.chartId) {
+    const link = el(`<a class="seetable">▤ See the full table →</a>`);
+    link.onclick = () => {
+      const { tense, voice, mood } = CHARTS[q.chartId];
+      state.tables = {
+        rootKey: q.rootKey, formId: q.formId,
+        tense, voice, mood: mood ?? 'raf',
+        viewing: true, highlight: q.slot,
+      };
+      state.tab = 'tables';
+      render();
+    };
+    fb.append(link);
+  }
+  // Explain appears only on wrong answers — remediation, not an upsell.
+  if (!correct) {
+    fb.append(el(`<button class="explainbtn">✨ Explain why</button>`));
+  }
+  app.append(fb);
 
   const hasNext = ensureNext() && state.index + 1 < state.quiz.length;
   const last = !state.endless && !hasNext;
@@ -387,9 +714,9 @@ function answer(opts, q) {
   next.scrollIntoView({ behavior: 'smooth', block: 'end' });
 }
 
-// --------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
 // Results
-// --------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
 function renderResults() {
   const total = state.answers.length;
   const right = state.answers.filter((a) => a.correct).length;
@@ -410,7 +737,7 @@ function renderResults() {
   const breakdown = el(`<div class="breakdown"></div>`);
   for (const [cat, s] of Object.entries(byCat)) {
     breakdown.append(el(`<div class="row">
-      <span>${CATEGORIES[cat].label}</span><span>${s.right} / ${s.total}</span>
+      <span>${CATEGORIES[cat]?.label ?? cat}</span><span>${s.right} / ${s.total}</span>
     </div>`));
   }
   app.append(el(`<div class="section-label">By category</div>`), breakdown);
@@ -438,6 +765,10 @@ function renderResults() {
     app.append(el(`<div class="section-label">Review</div>`), review);
   }
 
+  // A reward, not an ad: basic stats are free, so finishing always counts.
+  const s = summary();
+  app.append(el(`<p class="fullwidth-note">Added to your streak · ${s.streak} day${s.streak === 1 ? '' : 's'} 🔥</p>`));
+
   app.append(el(`<div class="spacer"></div>`));
   if (state.rebuild) {
     const again = el(`<button class="btn primary">New round (same setup)</button>`);
@@ -445,16 +776,12 @@ function renderResults() {
     app.append(again);
   } else if (state.endless) {
     const again = el(`<button class="btn primary">New endless round</button>`);
-    again.onclick = () => {
-      const stream = questionStream({ ...state.settings });
-      const first = stream.next();
-      if (!first.done) beginQuiz([first.value], { endless: true, stream });
-    };
+    again.onclick = () => startPlan(state.plan);
     app.append(again);
   }
-  const home = el(`<button class="btn ghost">Back to quizzes</button>`);
-  home.onclick = renderHome;
+  const home = el(`<button class="btn ghost">Back to home</button>`);
+  home.onclick = () => { state.tab = 'home'; render(); };
   app.append(home);
 }
 
-renderHome();
+render();

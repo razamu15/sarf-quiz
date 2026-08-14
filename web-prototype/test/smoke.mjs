@@ -16,6 +16,7 @@ import {
 import { verbMeaning as verbMeaningChart, derivedMeaning } from '../js/meaning-service.js';
 import {
   buildDrill, buildQuiz, questionStream, PRESETS, mazeedPreset, mazeedPresetAvailable,
+  presetAvailable, chartsFor, gradeInput, possibleQuestions, IDENTIFY_CATEGORIES,
 } from '../js/quiz/quiz-service.js';
 import { MAZEED_IDS } from '../js/vocabulary.js';
 
@@ -256,7 +257,7 @@ check(availableCharts(qala, 'I').length === 7, 'qala serves exactly its 7 fixtur
 }
 
 // Drill shape: 5 words × 3 questions, identity fields present
-for (const preset of PRESETS.filter((p) => ['salim', 'ajwaf', 'naqis', 'mixed'].includes(p.id))) {
+for (const preset of PRESETS.filter(presetAvailable)) {
   const quiz = buildDrill(preset);
   const shapeOk = quiz.length === 15
     && quiz.every((q) => q.gloss && q.fullMeaning && q.tag && q.rootKey && q.verbType
@@ -454,6 +455,80 @@ check(!madd.forms.I.tables && !radd.forms.I.tables,
     }
   }
   check(clean, 'every muḍāʿaf cell is valid NFC Arabic with no template residue');
+}
+
+// ---------------------------------------------------------------------------
+// The shared configuration: one plan, three quiz types
+// ---------------------------------------------------------------------------
+
+// tense × voice × iʿrāb → charts. Amr carries neither voice nor mood, so it
+// contributes exactly one chart however many are ticked.
+check(chartsFor({ tenses: ['mudari'], voices: ['malum'], moods: ['raf', 'nasb'] }).join() ===
+  'mudari_malum_raf,mudari_malum_nasb', 'charts: muḍāriʿ × maʿlūm × (rafʿ, naṣb)');
+check(chartsFor({ tenses: ['madi', 'amr'], voices: ['malum', 'majhul'], moods: ['raf'] }).join() ===
+  'madi_malum,madi_majhul,amr_malum', 'charts: amr ignores voice and mood');
+check(chartsFor({ tenses: ['madi'], voices: ['majhul'], moods: [] }).join() === 'madi_majhul',
+  'charts: iʿrāb is irrelevant to the past');
+
+// A plan's charts really do constrain every quiz type drawn from it.
+{
+  const plan = {
+    quizType: 'identify', tenses: ['madi'], voices: ['malum'], moods: [],
+    forms: ['I'], types: ['salim'], count: 20,
+  };
+  const qs = buildQuiz(plan);
+  check(qs.length === 20 && qs.every((q) => q.chartId === 'madi_malum'),
+    'identify honours the plan charts');
+  check(qs.every((q) => IDENTIFY_CATEGORIES.includes(q.category)),
+    'identify asks only tense, voice and doer');
+}
+
+// Type 2: the word is the answer, not the prompt.
+{
+  const plan = {
+    quizType: 'produce', tenses: ['mudari'], voices: ['malum'], moods: ['raf'],
+    forms: ['I'], types: ['salim'], count: 10,
+  };
+  const qs = buildQuiz(plan);
+  check(qs.length === 10, 'produce quiz delivers the requested count');
+  check(qs.every((q) => q.response === 'input' && q.accepted.length === 1 && q.cue?.radicals?.length === 3),
+    'every produce question carries a cue and one accepted answer');
+  check(qs.every((q) => q.accepted[0] === conjugateChart(byRoot(q.rootKey), q.formId, q.chartId, q.slot)),
+    'the accepted answer is the engine\'s own string');
+
+  const q = qs[0];
+  check(gradeInput(q, q.accepted[0]).correct, 'strict grading accepts the exact string');
+  check(!gradeInput(q, q.accepted[0].slice(0, -1)).correct,
+    'strict grading rejects a dropped final ḥaraka');
+  const near = gradeInput(q, q.accepted[0].slice(0, 3) + 'X' + q.accepted[0].slice(4));
+  check(!near.correct && near.at === 3, 'grading reports where the answer first diverged');
+}
+
+// Type 3: multiple choice, both shapes, Arabic-only options on the pick shape.
+{
+  const qs = buildQuiz({ quizType: 'derived', forms: ['I', 'II', 'X'], types: ['salim'], count: 30 });
+  check(qs.length === 30 && qs.every((q) => q.response === 'choice'),
+    'derived questions are multiple choice');
+  const picks = qs.filter((q) => q.prompt.startsWith('Which is the'));
+  const names = qs.filter((q) => q.prompt === 'Which derivative is this?');
+  check(picks.length > 0 && names.length > 0, 'derived interleaves both question shapes (3a + 3b)');
+  check(picks.every((q) => q.options.every((o) => o.en === '')),
+    '3a options carry no English — the label would name the answer');
+  check(picks.every((q) => new Set(q.options.map((o) => o.ar)).size === q.options.length),
+    '3a options are distinct — no accidental second right answer');
+  check(names.every((q) => q.options.length === 3), '3b asks which derivative out of the three kinds');
+  const forms = qs.filter((q) => q.prompt === 'And which form is it from?');
+  check(forms.every((q) => q.correctIndices.length === 1), '3b form question has exactly one answer');
+}
+
+// The count under Start is real: a narrow plan reports fewer than a wide one,
+// and an impossible one reports zero.
+{
+  const narrow = possibleQuestions({ quizType: 'produce', tenses: ['madi'], voices: ['malum'], moods: [], forms: ['I'], types: ['salim'] });
+  const wide = possibleQuestions({ quizType: 'produce', tenses: ['madi', 'mudari'], voices: ['malum', 'majhul'], moods: ['raf', 'nasb', 'jazm'], forms: ['I'], types: ['salim'] });
+  check(narrow > 0 && wide > narrow, 'possibleQuestions grows with the selection');
+  check(possibleQuestions({ quizType: 'identify', tenses: ['amr'], voices: [], moods: [], forms: ['IX'], types: ['salim'] }) === 0,
+    'possibleQuestions is 0 for a selection that can produce nothing');
 }
 
 console.log(`\nTOTAL: ${pass} passed, ${fail} failed`);

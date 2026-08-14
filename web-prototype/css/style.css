@@ -262,6 +262,152 @@ h1 .ar { font-family: var(--arabic); font-size: 30px; margin-inline-start: 8px; 
 .scorebar { color: var(--ink-dim); font-size: 13px; white-space: nowrap; }
 .topbar .btn.small.endquiz { padding: 8px 14px; font-size: 13px; }
 
+/* --- v3: four-tab shell --- */
+.tabbar {
+  position: sticky;
+  bottom: 6px;
+  display: flex;
+  gap: 2px;
+  background: var(--card);
+  border: 1px solid #303a4d;
+  border-radius: 16px;
+  padding: 6px;
+  margin-top: 16px;
+  /* The bar floats over content while scrolling; the halo keeps whatever
+     passes underneath from touching its edge. */
+  box-shadow: 0 0 0 6px var(--bg);
+}
+.tabbtn {
+  flex: 1;
+  border: 0;
+  background: none;
+  color: var(--ink-dim);
+  font-family: var(--latin);
+  font-size: 11px;
+  padding: 7px 2px;
+  border-radius: 11px;
+  cursor: pointer;
+}
+.tabbtn.on { background: var(--card2); color: var(--accent); }
+.tabbtn i { display: block; font-style: normal; font-size: 17px; margin-bottom: 2px; }
+
+/* --- v3: home stats card (free tier) --- */
+.statcard {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  text-align: start;
+  background: linear-gradient(160deg, var(--card2), var(--card));
+  border: 1px solid #2c3850;
+  border-radius: var(--radius);
+  padding: 16px;
+  cursor: pointer;
+  font-family: var(--latin);
+  color: var(--ink);
+}
+.statcard .ring {
+  width: 74px; height: 74px; flex: none;
+  border-radius: 50%;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  background:
+    radial-gradient(closest-side, var(--card) 78%, transparent 79% 100%),
+    conic-gradient(var(--accent) calc(var(--pct) * 1%), var(--card2) 0);
+}
+.statcard .ring b { font-size: 19px; }
+.statcard .ring span { font-size: 9px; color: var(--ink-dim); text-transform: uppercase; letter-spacing: .06em; }
+.statcard .meta { min-width: 0; }
+.statcard .meta b { font-size: 15px; display: block; }
+.statcard .meta small { color: var(--ink-dim); font-size: 12.5px; display: block; margin-bottom: 8px; }
+.statcard .chev { margin-inline-start: auto; color: var(--ink-dim); font-size: 18px; }
+.week { display: flex; gap: 5px; }
+.week i { width: 15px; height: 15px; border-radius: 4px; background: var(--card2); display: block; }
+.week i.d1 { background: rgba(78, 168, 222, 0.35); }
+.week i.d2 { background: rgba(78, 168, 222, 0.65); }
+.week i.d3 { background: var(--accent); }
+
+/* --- v3: practice config --- */
+.section-label small { text-transform: none; letter-spacing: 0; opacity: .8; }
+.section-label.off { opacity: 0.4; }
+.chips-off { opacity: 0.4; }
+.count-line { text-align: center; }
+.count-line.empty { color: var(--bad); }
+
+/* --- v3: tables search --- */
+.search {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--card); border: 1px solid #303a4d;
+  border-radius: 12px; padding: 4px 14px;
+}
+.search input {
+  flex: 1; min-width: 0;
+  background: none; border: 0; outline: none;
+  color: var(--ink); font-family: var(--latin); font-size: 15px; padding: 9px 0;
+}
+.results { display: flex; flex-direction: column; gap: 7px; }
+.result {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  background: var(--card); border: 1px solid #303a4d; border-radius: 12px;
+  padding: 11px 14px; cursor: pointer; font-family: var(--latin); color: var(--ink);
+  text-align: start;
+}
+.result.on { border-color: var(--accent); background: var(--chip-on); }
+.result .ar { font-family: var(--arabic); font-size: 21px; }
+.result small { color: var(--ink-dim); font-size: 12.5px; }
+
+/* --- v3: more tab rows --- */
+.row-nav {
+  display: flex; justify-content: space-between; align-items: center; gap: 12px;
+  width: 100%; text-align: start;
+  background: var(--card); border: 1px solid #303a4d; border-radius: 12px;
+  padding: 13px 14px; font-size: 14.5px; margin-bottom: 8px;
+  cursor: pointer; font-family: var(--latin); color: var(--ink);
+}
+.row-nav small { color: var(--ink-dim); display: block; font-size: 12px; }
+.row-nav .chev { color: var(--ink-dim); }
+.lock { font-size: 11px; color: #c48ce0; border: 1px solid rgba(196, 140, 224, 0.4); border-radius: 999px; padding: 2px 8px; }
+.badge-up { font-size: 12px; color: var(--accent-ink); background: var(--accent); border-radius: 999px; padding: 4px 12px; font-weight: 600; }
+.stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.stat-tile { background: var(--card); border: 1px solid #303a4d; border-radius: 14px; padding: 12px 14px; }
+.stat-tile b { display: block; font-size: 24px; }
+.stat-tile span { font-size: 11.5px; color: var(--ink-dim); text-transform: uppercase; letter-spacing: .06em; }
+.table-title { flex: 1; white-space: normal; }
+
+/* --- v3: write-the-word questions --- */
+.cue-card .root {
+  font-family: var(--arabic); font-size: 40px; direction: rtl; letter-spacing: 8px;
+  line-height: 1.6;
+}
+.cue-spec { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; margin-top: 12px; }
+.cue-spec span {
+  font-size: 12px; color: var(--accent); background: rgba(78, 168, 222, 0.12);
+  padding: 4px 10px; border-radius: 999px;
+}
+.cue-spec span .ar { font-family: var(--arabic); font-size: 15px; margin-inline-start: 4px; }
+.answer-box {
+  width: 100%;
+  border: 1px solid var(--accent); background: var(--card);
+  border-radius: 14px; padding: 12px 14px; text-align: center;
+  font-family: var(--arabic); font-size: 34px; color: var(--ink);
+  outline: none;
+}
+.answer-box.correct { border-color: var(--good); background: rgba(63, 185, 111, 0.12); }
+.answer-box.wrong { border-color: var(--bad); background: rgba(224, 93, 93, 0.1); }
+.diff-pair { display: flex; gap: 18px; justify-content: center; text-align: center; padding-bottom: 10px; margin-bottom: 10px; border-bottom: 1px solid rgba(147, 160, 180, 0.2); }
+.diff-label { display: block; font-size: 10px; color: var(--ink-dim); text-transform: uppercase; letter-spacing: .08em; }
+.diff { font-family: var(--arabic); font-size: 28px; direction: rtl; }
+.diff u { text-decoration: none; background: rgba(224, 93, 93, 0.35); border-radius: 4px; padding: 0 2px; }
+.diff.ok u { background: rgba(63, 185, 111, 0.3); }
+.seetable { font-size: 13px; color: var(--accent); display: inline-block; margin-top: 10px; cursor: pointer; }
+.explainbtn {
+  margin-top: 10px; width: 100%;
+  border: 1px solid rgba(78, 168, 222, 0.4); background: rgba(78, 168, 222, 0.1);
+  color: var(--accent); border-radius: 12px; padding: 10px;
+  font-size: 14px; font-weight: 600; font-family: var(--latin); cursor: pointer;
+}
+.fullwidth-note { font-size: 12.5px; color: var(--ink-dim); text-align: center; }
+
 /* --- v2: tables browser --- */
 .conj-table-wrap { overflow-x: auto; border-radius: var(--radius); border: 1px solid #303a4d; }
 .conj-table { width: 100%; border-collapse: collapse; background: var(--card); font-size: 14px; }
@@ -277,3 +423,11 @@ h1 .ar { font-family: var(--arabic); font-size: 30px; margin-inline-start: 8px; 
 .conj-table .word-cell .ar { font-family: var(--arabic); font-size: 26px; direction: rtl; }
 .conj-table .wazn-cell .ar { font-family: var(--arabic); font-size: 18px; color: var(--ink-dim); direction: rtl; }
 .chip small { display: block; font-size: 11px; color: var(--ink-dim); }
+
+/* All 14 rows, always — the page scrolls rather than the table truncating.
+   A nested scroll box would strand the chart in a short window on a small
+   phone and leave dead space below it. */
+.conj-table-wrap.tall { overflow-y: visible; }
+/* Arriving from a quiz's "See full table", the row you just met is marked. */
+.conj-table tr.hit td { background: rgba(78, 168, 222, 0.16); }
+.conj-table tr.hit .word-cell .ar { color: var(--accent); }

@@ -49,8 +49,33 @@ const rootKeyOf = (root) => root.root.join('');
 /** Options + correctIndices from one correct option and distractors. */
 function singleCorrect(correct, others) {
   const options = shuffle([correct, ...others]);
-  return { options, correctIndices: [options.indexOf(correct)], multiSelect: false };
+  return {
+    options, correctIndices: [options.indexOf(correct)], multiSelect: false, response: 'choice',
+  };
 }
+
+// ---------------------------------------------------------------------------
+// The plan selects a POOL OF WORDS, not a set of questions: tense × voice ×
+// iʿrāb collapse into chart ids, forms and verb types filter roots, and every
+// quiz type then draws from the same pool. That is what makes one
+// configuration serve all three types (docs/TECHNICAL_PLAN_MASTER.md §A.7).
+// ---------------------------------------------------------------------------
+
+/** tense × voice × iʿrāb → the chart ids a plan admits. */
+export function chartsFor({ tenses = ['madi', 'mudari'], voices = ['malum'], moods = ['raf'] } = {}) {
+  const out = [];
+  for (const tense of tenses) {
+    if (tense === 'amr') { out.push('amr_malum'); continue; }   // no voice, no mood
+    for (const voice of voices) {
+      if (tense === 'madi') out.push(`madi_${voice}`);
+      else for (const mood of moods) out.push(`mudari_${voice}_${mood}`);
+    }
+  }
+  return [...new Set(out)].filter((id) => CHART_IDS.includes(id));
+}
+
+/** Identify asks exactly these three things — not configurable (spec §5.2a). */
+export const IDENTIFY_CATEGORIES = ['tense', 'voice', 'doer'];
 
 // --- word selection ----------------------------------------------------------
 
@@ -173,19 +198,203 @@ function makeWaznQuestion(v) {
   };
 }
 
+// ---------------------------------------------------------------------------
+// Quiz type 2 — write the word. Same pool, opposite direction: the chart cell
+// is described in grammatical labels and the WORD is what you produce. The
+// answer is the engine's own string, so grading is equality, not judgement.
+// ---------------------------------------------------------------------------
+
+/**
+ * The cue chips that describe the target: form, tense, voice, iʿrāb, pronoun.
+ * Labels are trimmed to their short form — the card is a specification to be
+ * scanned, not prose to be read.
+ */
+const shortEn = (s) => s.split(' (')[0].split(' —')[0];
+
+function cueChips(v) {
+  const { tense, voice, mood } = CHARTS[v.chartId];
+  const chips = [
+    { en: `Form ${v.formId}`, ar: '' },
+    { en: shortEn(TENSE_LABELS[tense].en), ar: TENSE_LABELS[tense].ar.replace('فِعْل ', '') },
+  ];
+  if (tense !== 'amr') {
+    chips.push({ en: voice === 'malum' ? 'maʿrūf' : 'majhūl', ar: VOICE_LABELS[voice].ar });
+  }
+  if (mood) chips.push({ en: shortEn(MOOD_LABELS[mood].en), ar: MOOD_LABELS[mood].ar });
+  chips.push({ ar: PRONOUNS[v.slot].ar, en: PRONOUNS[v.slot].en });
+  return chips;
+}
+
+function makeProduceQuestion(v) {
+  return {
+    ...verbFields(v, 'produce'),
+    prompt: 'Write this verb',
+    response: 'input',
+    accepted: [v.word],
+    cue: { radicals: v.root.root, chips: cueChips(v) },
+    options: [],
+    correctIndices: [],
+    multiSelect: false,
+    explanation: `${v.word} — ${citation(v.root, v.formId)}, "${glossOf(v.root, v.formId)}".`,
+  };
+}
+
+/**
+ * Strict grading: the engine's string, final ḥaraka included. On a miss we
+ * report WHERE it first diverged, so feedback can say "one ḥaraka off" rather
+ * than "wrong" (spec §5.2).
+ */
+export function gradeInput(question, typed) {
+  const given = (typed ?? '').normalize('NFC').trim();
+  const expected = question.accepted[0].normalize('NFC');
+  if (given === expected) return { correct: true, given, expected, at: -1 };
+  let at = 0;
+  while (at < given.length && at < expected.length && given[at] === expected[at]) at++;
+  return { correct: false, given, expected, at };
+}
+
+// ---------------------------------------------------------------------------
+// Quiz type 3 — derived nouns (al-mushtaqqāt), two shapes interleaved:
+//   3a  given verb + form + which derivative → pick it out of four
+//   3b  given a derived noun → which derivative is it, and from which form
+// ---------------------------------------------------------------------------
+
+const DERIVED_KINDS = ['ismFail', 'ismMaful', 'masdar'];
+
+/** Every (kind → word) this root/form actually produces. */
+function derivativesOf(root, formId) {
+  const out = {};
+  for (const kind of DERIVED_KINDS) {
+    const word = derivedNoun(root, formId, kind);
+    if (word) out[kind] = word;
+  }
+  return out;
+}
+
+const derivedFields = (root, formId, kind, word) => ({
+  category: 'derived',
+  formId,
+  verbType: root.type,
+  chartId: null,
+  rootKey: rootKeyOf(root),
+  slot: null,
+  derivedKind: kind,
+  word,
+  gloss: glossOf(root, formId),
+  fullMeaning: derivedMeaning(root, formId, kind),
+});
+
+/**
+ * 3a. Distractors are the verb's OTHER derivatives plus the same derivative
+ * from a neighbouring form — so every wrong option is a near-miss
+ * (مُسْتَخْرِج vs مُسْتَخْرَج), never filler. Options carry no English: the
+ * label would name the answer.
+ */
+function makeDerivativePickQuestion(root, formId) {
+  const mine = derivativesOf(root, formId);
+  const kinds = Object.keys(mine);
+  if (kinds.length < 2) return null;
+  const kind = rand(kinds);
+  const correctWord = mine[kind];
+
+  const neighbours = shuffle(FORM_IDS.filter((f) => f !== formId && root.forms[f]))
+    .map((f) => derivedNoun(root, f, kind))
+    .filter(Boolean);
+  const pool = [...kinds.filter((k) => k !== kind).map((k) => mine[k]), ...neighbours]
+    .filter((w) => w !== correctWord);
+  const others = [...new Set(pool)].slice(0, 3).map((w) => ({ ar: w, en: '', valueKey: w }));
+  if (others.length < 2) return null;
+
+  return {
+    ...derivedFields(root, formId, kind, correctWord),
+    prompt: `Which is the ${NOUN_KIND_LABELS[kind].en} of this verb?`,
+    cue: { verb: citation(root, formId).split(' ')[0], chips: [
+      { en: `Form ${formId}`, ar: '' },
+      { en: NOUN_KIND_LABELS[kind].en, ar: NOUN_KIND_LABELS[kind].ar },
+    ] },
+    ...singleCorrect({ ar: correctWord, en: '', valueKey: correctWord }, others),
+    explanation: `${correctWord} is the ${NOUN_KIND_LABELS[kind].ar} of ${citation(root, formId)}.`,
+  };
+}
+
+/**
+ * 3b. Two questions on the same word — which derivative, then which form.
+ * Same rhythm as the tense → voice → doer bundle, and it tells you which half
+ * you got wrong instead of collapsing both skills into one verdict.
+ */
+function makeDerivativeNameBundle(root, formId) {
+  const mine = derivativesOf(root, formId);
+  const kinds = Object.keys(mine);
+  if (!kinds.length) return null;
+  const kind = rand(kinds);
+  const word = mine[kind];
+  const fields = derivedFields(root, formId, kind, word);
+
+  const kindQ = {
+    ...fields,
+    prompt: 'Which derivative is this?',
+    ...singleCorrect(
+      { ...NOUN_KIND_LABELS[kind], valueKey: kind },
+      DERIVED_KINDS.filter((k) => k !== kind).map((k) => ({ ...NOUN_KIND_LABELS[k], valueKey: k })),
+    ),
+    explanation: `${word} is the ${NOUN_KIND_LABELS[kind].ar} of ${citation(root, formId)}.`,
+  };
+
+  // Distractor forms must render a DIFFERENT word for this kind, or the
+  // question would have two right answers. Probing needs the root to "have"
+  // the form, so ask a copy that has them all — we only want the pattern.
+  const probe = {
+    ...root,
+    forms: Object.fromEntries(FORM_IDS.map(
+      (f) => [f, root.forms[f] ?? { trans: true, bab: root.forms[formId]?.bab ?? 1 }],
+    )),
+  };
+  const otherForms = shuffle(FORM_IDS.filter((f) => f !== formId && FORM_META[f].conjugable))
+    .filter((f) => {
+      const w = derivedNoun(probe, f, kind);
+      return w && w !== word;
+    })
+    .slice(0, 3);
+  if (otherForms.length < 2) return [kindQ];
+
+  const formLabel = (f) => ({ ar: FORM_NAMES[f].name, en: `Form ${f}`, valueKey: f });
+  const formQ = {
+    ...fields,
+    prompt: 'And which form is it from?',
+    ...singleCorrect(formLabel(formId), otherForms.map(formLabel)),
+    explanation: `${word} is on the pattern of ${FORM_NAMES[formId].name} — ${citation(root, formId)}.`,
+  };
+  return [kindQ, formQ];
+}
+
+function buildDerivedQuestion(scope) {
+  const pool = candidates(scope);
+  for (let i = 0; i < 60; i++) {
+    const c = rand(pool);
+    if (!c) return null;
+    const q = Math.random() < 0.5
+      ? makeDerivativePickQuestion(c.root, c.formId)
+      : makeDerivativeNameBundle(c.root, c.formId);
+    if (q) return q;
+  }
+  return null;
+}
+
 // --- per-category builders ----------------------------------------------------
 
 const BUILDERS = {
 
-  tense(scope) {
-    const v = randomVerb(scope);
+  tense(scope, charts = DEFAULT_CHARTS) {
+    const v = randomVerb(scope, charts);
     return v ? makeTenseQuestion(v) : null;
   },
 
-  voice(scope) {
+  voice(scope, charts = DEFAULT_CHARTS) {
     // only words where the opposite voice also exists, so both answers are live
+    const voiced = charts.filter((c) => CHARTS[c].tense !== 'amr');
+    if (!voiced.length) return null;
     for (let i = 0; i < 60; i++) {
-      const v = randomVerb(scope, ['madi_malum', 'madi_majhul', 'mudari_malum_raf', 'mudari_majhul_raf']);
+      const v = randomVerb(scope, voiced);
       if (!v) return null;
       const { tense, voice, mood } = CHARTS[v.chartId];
       const opposite = chartIdFor(tense, voice === 'malum' ? 'majhul' : 'malum', mood ?? 'raf');
@@ -195,8 +404,8 @@ const BUILDERS = {
     return null;
   },
 
-  doer(scope) {
-    const v = randomVerb(scope);
+  doer(scope, charts = DEFAULT_CHARTS) {
+    const v = randomVerb(scope, charts);
     return v ? makeDoerQuestion(v) : null;
   },
 
@@ -329,22 +538,39 @@ const BUILDERS = {
  * narrow that repeated attempts produce nothing new.
  */
 export function* questionStream(plan) {
-  const cats = plan.categories?.length ? plan.categories : Object.keys(BUILDERS);
   const scope = {
     types: plan.types?.length ? plan.types : availableTypes(),
     forms: plan.forms?.length ? plan.forms : FORM_IDS,
   };
+  const charts = plan.tenses ? chartsFor(plan) : DEFAULT_CHARTS;
+  const cats = plan.categories?.length
+    ? plan.categories
+    : (plan.quizType ? IDENTIFY_CATEGORIES : Object.keys(BUILDERS));
+
+  // One builder per run — the plan carries a single quizType. The derived
+  // builder alternates between its own two shapes and may return a bundle of
+  // two questions about one word; everything else returns one.
+  const draw = () => {
+    if (plan.quizType === 'produce') {
+      const v = randomVerb(scope, charts);
+      return v ? makeProduceQuestion(v) : null;
+    }
+    if (plan.quizType === 'derived') return buildDerivedQuestion(scope);
+    return BUILDERS[rand(cats)]?.(scope, charts);
+  };
+
   const recent = [];
   let failures = 0;
   while (failures < 250) {
-    const q = BUILDERS[rand(cats)]?.(scope);
-    if (!q) { failures++; continue; }
-    const key = `${q.category}|${q.word}|${q.prompt}`;
+    const drawn = draw();
+    if (!drawn) { failures++; continue; }
+    const batch = Array.isArray(drawn) ? drawn : [drawn];
+    const key = `${batch[0].category}|${batch[0].word}|${batch[0].prompt}`;
     if (recent.includes(key)) { failures++; continue; }
     recent.push(key);
     if (recent.length > 30) recent.shift();
     failures = 0;
-    yield q;
+    for (const q of batch) yield q;
   }
 }
 
@@ -362,33 +588,54 @@ export function buildQuiz(plan) {
 // Drills: presets + word bundles (N words × 3 questions each)
 // ---------------------------------------------------------------------------
 
+// Home offers three drills, not a wall of presets: sound, weak (all four
+// muʿtall types mixed), and the derived forms. Anything finer is two taps in
+// Practice. Home drills are always quiz type 1 — identify (spec §5.1).
 export const PRESETS = [
   {
     id: 'salim', title: 'Sound verbs', ar: 'سَالِم',
     desc: 'No weak letters — the foundation.',
-    types: ['salim'], forms: ['I'],
+    types: ['salim', 'mudaaf', 'mahmuz'], forms: ['I'],
   },
   {
-    id: 'ajwaf', title: 'Hollow verbs', ar: 'أَجْوَف',
-    desc: 'Weak middle radical, like قَالَ.',
-    types: ['ajwaf'], forms: ['I'],
+    id: 'mutall', title: 'Weak verbs', ar: 'مُعْتَلّ',
+    desc: 'Hollow, defective, assimilated and doubly-weak, mixed.',
+    types: ['ajwaf', 'naqis', 'mithal', 'lafif'], forms: ['I'],
   },
   {
-    id: 'naqis', title: 'Defective verbs', ar: 'نَاقِص',
-    desc: 'Weak final radical, like رَمَى.',
-    types: ['naqis'], forms: ['I'],
-  },
-  {
-    id: 'mudaaf', title: 'Doubled verbs', ar: 'مُضَاعَف',
-    desc: 'Doubled radical, like مَدَّ.',
-    types: ['mudaaf'], forms: ['I'],
-  },
-  {
-    id: 'mixed', title: 'Everything mix', ar: 'مُنَوَّع',
-    desc: 'All verb types with content, shuffled together.',
-    types: null, forms: ['I'],
+    id: 'mazeed', title: 'Mazīd fīhi', ar: 'مَزِيد فِيه',
+    desc: 'The derived forms II–X, shuffled.',
+    types: null, forms: MAZEED_IDS,
   },
 ];
+
+/**
+ * Roughly how many distinct questions a plan can produce — shown under Start
+ * so an over-narrow selection is visible before you tap, instead of failing
+ * after it. Counts real cells, so nils (majhūl of a lāzim verb, amr outside
+ * the 2nd person) are already excluded.
+ */
+export function possibleQuestions(plan) {
+  const scope = {
+    types: plan.types?.length ? plan.types : availableTypes(),
+    forms: plan.forms?.length ? plan.forms : FORM_IDS,
+  };
+  const pool = conjugatable(scope);
+  if (plan.quizType === 'derived') {
+    return pool.reduce((n, c) => n + Object.keys(derivativesOf(c.root, c.formId)).length, 0);
+  }
+  const charts = chartsFor(plan);
+  let cells = 0;
+  for (const c of pool) {
+    for (const chartId of charts) {
+      for (const slot of slotsFor(chartId)) {
+        if (conjugate(c.root, c.formId, chartId, slot)) cells++;
+      }
+    }
+  }
+  // Identify asks three things of each word; produce asks one.
+  return plan.quizType === 'produce' ? cells : cells * IDENTIFY_CATEGORIES.length;
+}
 
 export function presetAvailable(preset) {
   const types = preset.types ?? availableTypes();
