@@ -74,8 +74,160 @@ export function chartsFor({ tenses = ['madi', 'mudari'], voices = ['malum'], moo
   return [...new Set(out)].filter((id) => CHART_IDS.includes(id));
 }
 
-/** Identify asks exactly these three things — not configurable (spec §5.2a). */
-export const IDENTIFY_CATEGORIES = ['tense', 'voice', 'doer'];
+/** Identify's repertoire. Which of these a given plan actually asks is decided
+ *  by relevance, below — not by the user. */
+export const IDENTIFY_CATEGORIES = ['tense', 'voice', 'doer', 'mood', 'bab'];
+
+// ---------------------------------------------------------------------------
+// RELEVANCE — a question is dead when the property it asks about is constant
+// across the pool the plan admits.
+//
+// Ask for muḍāriʿ only and "what kind of verb is this?" has one possible
+// answer: it is a free point, and after two of them the user stops reading the
+// word. The same rule retires the voice question when only one voice is
+// selected (or when every root in scope is intransitive, so the majhūl never
+// materialises), the iʿrāb question outside the muḍāriʿ, the bāb question when
+// one bāb is in scope, and "which form is this derivative from?" when one form
+// is ticked.
+//
+// One walk over the pool answers three questions at once: how many cells exist
+// (the count under Start), which properties actually vary (the live questions),
+// and therefore what Practice can tell the user it is about to ask.
+// ---------------------------------------------------------------------------
+
+/**
+ * Everything relevance needs, from a single pass. Sets hold the distinct
+ * values each property takes over the words this plan admits.
+ */
+export function planAnalysis(plan) {
+  const scope = {
+    types: plan.types?.length ? plan.types : availableTypes(),
+    forms: plan.forms?.length ? plan.forms : FORM_IDS,
+  };
+  const pool = conjugatable(scope);
+  const charts = plan.tenses ? chartsFor(plan) : DEFAULT_CHARTS;
+
+  const a = {
+    scope, charts, cells: 0,
+    tenses: new Set(), voices: new Set(), moods: new Set(), slots: new Set(),
+    forms: new Set(), babs: new Set(), derivedKinds: new Set(), derivedForms: new Set(),
+    derivedCells: 0,
+  };
+
+  if (plan.quizType === 'derived') {
+    for (const c of pool) {
+      const kinds = Object.keys(derivativesOf(c.root, c.formId));
+      if (!kinds.length) continue;
+      a.derivedCells += kinds.length;
+      kinds.forEach((k) => a.derivedKinds.add(k));
+      a.derivedForms.add(c.formId);
+    }
+    return a;
+  }
+
+  for (const c of pool) {
+    for (const chartId of charts) {
+      for (const slot of slotsFor(chartId)) {
+        if (!conjugate(c.root, c.formId, chartId, slot)) continue;
+        a.cells++;
+        const { tense, voice, mood } = CHARTS[chartId];
+        a.tenses.add(tense);
+        a.voices.add(voice);
+        if (mood) a.moods.add(mood);
+        a.slots.add(slot);
+        a.forms.add(c.formId);
+        // The bāb question reads the ʿayn vowel off a citation, which only
+        // sits in plain view on a sound Form I verb.
+        if (c.formId === 'I' && c.root.type === 'salim') a.babs.add(c.root.forms.I.bab);
+      }
+    }
+  }
+  return a;
+}
+
+/**
+ * The question repertoire. Each kind declares the answer space it
+ * discriminates; fewer than two possible answers and it never enters the quiz.
+ * Order matters — drill bundles take the first few live kinds.
+ */
+export const QUESTION_KINDS = [
+  {
+    id: 'tense', quizType: 'identify', label: 'Tense',
+    space: (a) => a.tenses,
+    reason: 'only one tense selected',
+    draw: (ctx) => { const v = randomVerb(ctx.scope, ctx.charts); return v ? makeTenseQuestion(v) : null; },
+    forWord: (v) => makeTenseQuestion(v),
+  },
+  {
+    id: 'voice', quizType: 'identify', label: 'Voice',
+    space: (a) => a.voices,
+    reason: 'only one voice reachable',
+    draw: (ctx) => drawVoice(ctx),
+    forWord: (v) => (v.hasVoicePair ? makeVoiceQuestion(v) : null),
+  },
+  {
+    id: 'doer', quizType: 'identify', label: 'Who the doer is',
+    space: (a) => a.slots,
+    reason: 'only one pronoun reachable',
+    draw: (ctx) => { const v = randomVerb(ctx.scope, ctx.charts); return v ? makeDoerQuestion(v) : null; },
+    forWord: (v) => makeDoerQuestion(v),
+  },
+  {
+    id: 'mood', quizType: 'identify', label: 'Iʿrāb',
+    space: (a) => a.moods,
+    reason: 'iʿrāb needs the muḍāriʿ in more than one state',
+    draw: (ctx) => drawMood(ctx),
+  },
+  {
+    id: 'bab', quizType: 'identify', label: 'Bāb',
+    space: (a) => a.babs,
+    // You read the bāb off the citation نَصَرَ يَنْصُرُ, which shows both
+    // tenses — so this question doesn't belong in a single-tense quiz, where
+    // it would put a muḍāriʿ on screen in a past-tense drill.
+    requires: (a) => a.tenses.has('madi') && a.tenses.has('mudari'),
+    reason: 'needs both tenses in scope, and more than one bāb',
+    draw: (ctx) => BUILDERS.bab(ctx.scope),
+  },
+  {
+    id: 'derivedPick', quizType: 'derived', label: 'Pick the derivative',
+    space: (a) => a.derivedKinds,
+    reason: 'nothing to choose between',
+    draw: (ctx) => drawDerived(ctx, makeDerivativePickQuestion),
+  },
+  {
+    id: 'derivedKind', quizType: 'derived', label: 'Which derivative it is',
+    space: (a) => a.derivedKinds,
+    reason: 'only one kind of derivative in scope',
+    draw: (ctx) => drawDerived(ctx, (root, formId) => makeDerivativeKindQuestion(root, formId)),
+  },
+  {
+    id: 'derivedForm', quizType: 'derived', label: 'Which form it is from',
+    space: (a) => a.derivedForms,
+    reason: 'only one form selected',
+    draw: (ctx) => drawDerived(ctx, (root, formId) => makeDerivativeFormQuestion(root, formId)),
+  },
+  {
+    id: 'produce', quizType: 'produce', label: 'Write the word',
+    // Producing a fully-vowelled word is never a coin flip: no configuration
+    // can give the answer away.
+    always: true,
+    draw: (ctx) => { const v = randomVerb(ctx.scope, ctx.charts); return v ? makeProduceQuestion(v) : null; },
+  },
+];
+
+/** The kinds this plan will actually ask, and the ones it retired, with why. */
+export function relevance(plan, analysis = planAnalysis(plan)) {
+  const mine = QUESTION_KINDS.filter((k) => k.quizType === (plan.quizType ?? 'identify'));
+  const live = [], dead = [];
+  for (const k of mine) {
+    const ok = k.always
+      || ((k.requires ? k.requires(analysis) : true) && k.space(analysis).size > 1);
+    (ok ? live : dead).push(k);
+  }
+  return { live, dead, analysis };
+}
+
+export const activeKinds = (plan, analysis) => relevance(plan, analysis).live;
 
 // --- word selection ----------------------------------------------------------
 
@@ -317,21 +469,15 @@ function makeDerivativePickQuestion(root, formId) {
   };
 }
 
-/**
- * 3b. Two questions on the same word — which derivative, then which form.
- * Same rhythm as the tense → voice → doer bundle, and it tells you which half
- * you got wrong instead of collapsing both skills into one verdict.
- */
-function makeDerivativeNameBundle(root, formId) {
+/** 3b, first half: given a derived noun, which of the three kinds is it? */
+function makeDerivativeKindQuestion(root, formId) {
   const mine = derivativesOf(root, formId);
   const kinds = Object.keys(mine);
   if (!kinds.length) return null;
   const kind = rand(kinds);
   const word = mine[kind];
-  const fields = derivedFields(root, formId, kind, word);
-
-  const kindQ = {
-    ...fields,
+  return {
+    ...derivedFields(root, formId, kind, word),
     prompt: 'Which derivative is this?',
     ...singleCorrect(
       { ...NOUN_KIND_LABELS[kind], valueKey: kind },
@@ -339,6 +485,15 @@ function makeDerivativeNameBundle(root, formId) {
     ),
     explanation: `${word} is the ${NOUN_KIND_LABELS[kind].ar} of ${citation(root, formId)}.`,
   };
+}
+
+/** 3b, second half: which form is this derivative from? */
+function makeDerivativeFormQuestion(root, formId) {
+  const mine = derivativesOf(root, formId);
+  const kinds = Object.keys(mine);
+  if (!kinds.length) return null;
+  const kind = rand(kinds);
+  const word = mine[kind];
 
   // Distractor forms must render a DIFFERENT word for this kind, or the
   // question would have two right answers. Probing needs the root to "have"
@@ -355,27 +510,73 @@ function makeDerivativeNameBundle(root, formId) {
       return w && w !== word;
     })
     .slice(0, 3);
-  if (otherForms.length < 2) return [kindQ];
+  if (otherForms.length < 2) return null;
 
   const formLabel = (f) => ({ ar: FORM_NAMES[f].name, en: `Form ${f}`, valueKey: f });
-  const formQ = {
-    ...fields,
-    prompt: 'And which form is it from?',
+  return {
+    ...derivedFields(root, formId, kind, word),
+    prompt: 'Which form is this derivative from?',
     ...singleCorrect(formLabel(formId), otherForms.map(formLabel)),
     explanation: `${word} is on the pattern of ${FORM_NAMES[formId].name} — ${citation(root, formId)}.`,
   };
-  return [kindQ, formQ];
 }
 
-function buildDerivedQuestion(scope) {
-  const pool = candidates(scope);
+// --- draw helpers: retry until a word can carry the question ------------------
+
+function drawDerived(ctx, make) {
+  const pool = candidates(ctx.scope);
   for (let i = 0; i < 60; i++) {
     const c = rand(pool);
     if (!c) return null;
-    const q = Math.random() < 0.5
-      ? makeDerivativePickQuestion(c.root, c.formId)
-      : makeDerivativeNameBundle(c.root, c.formId);
+    const q = make(c.root, c.formId);
     if (q) return q;
+  }
+  return null;
+}
+
+/** Only words whose opposite voice also exists — both answers must be live. */
+function drawVoice(ctx) {
+  const voiced = ctx.charts.filter((c) => CHARTS[c].tense !== 'amr');
+  if (!voiced.length) return null;
+  for (let i = 0; i < 60; i++) {
+    const v = randomVerb(ctx.scope, voiced);
+    if (!v) return null;
+    const { tense, voice, mood } = CHARTS[v.chartId];
+    const opposite = chartIdFor(tense, voice === 'malum' ? 'majhul' : 'malum', mood ?? 'raf');
+    if (!conjugate(v.root, v.formId, opposite, v.slot)) continue;
+    return makeVoiceQuestion(v);
+  }
+  return null;
+}
+
+/**
+ * Iʿrāb of the muḍāriʿ. Only slots where the states are visually distinct, and
+ * only among the states the plan actually selected — asking about jazm in a
+ * rafʿ/naṣb quiz would be a question about a word the user never sees.
+ */
+function drawMood(ctx) {
+  const planMoods = [...ctx.analysis.moods];
+  if (planMoods.length < 2) return null;
+  for (let i = 0; i < 60; i++) {
+    const chart = rand(ctx.charts.filter((c) => CHARTS[c].mood));
+    if (!chart) return null;
+    const { voice, mood } = CHARTS[chart];
+    const v = randomVerb(ctx.scope, [chart]);
+    if (!v) return null;
+    if (!MOOD_DISTINCT_SLOTS.includes(v.slot)) continue;
+    const siblings = planMoods.map((m) => `mudari_${voice}_${m}`);
+    const rendered = siblings.map((c) => conjugate(v.root, v.formId, c, v.slot));
+    if (rendered.some((w) => !w)) continue;
+    if (new Set(rendered).size !== rendered.length) continue; // ambiguous — two states look alike
+    const correct = { ...MOOD_LABELS[mood], valueKey: mood };
+    const others = planMoods.filter((m) => m !== mood).map((m) => ({ ...MOOD_LABELS[m], valueKey: m }));
+    const example = mood === 'nasb' ? `لَنْ ${v.word}` : mood === 'jazm' ? `لَمْ ${v.word}` : v.word;
+    return {
+      ...verbFields(v, 'mood'),
+      prompt: 'What is the iʿrāb state of this muḍāriʿ?',
+      ...singleCorrect(correct, others),
+      explanation: `${v.word} is ${correct.ar}${mood === 'raf' ? ' — the default, no governing particle' : ` — as in "${example}"`}.`,
+    };
   }
   return null;
 }
@@ -538,39 +739,31 @@ const BUILDERS = {
  * narrow that repeated attempts produce nothing new.
  */
 export function* questionStream(plan) {
-  const scope = {
-    types: plan.types?.length ? plan.types : availableTypes(),
-    forms: plan.forms?.length ? plan.forms : FORM_IDS,
-  };
-  const charts = plan.tenses ? chartsFor(plan) : DEFAULT_CHARTS;
-  const cats = plan.categories?.length
-    ? plan.categories
-    : (plan.quizType ? IDENTIFY_CATEGORIES : Object.keys(BUILDERS));
+  const analysis = planAnalysis(plan);
+  const ctx = { scope: analysis.scope, charts: analysis.charts, analysis, plan };
 
-  // One builder per run — the plan carries a single quizType. The derived
-  // builder alternates between its own two shapes and may return a bundle of
-  // two questions about one word; everything else returns one.
-  const draw = () => {
-    if (plan.quizType === 'produce') {
-      const v = randomVerb(scope, charts);
-      return v ? makeProduceQuestion(v) : null;
-    }
-    if (plan.quizType === 'derived') return buildDerivedQuestion(scope);
-    return BUILDERS[rand(cats)]?.(scope, charts);
-  };
+  // Explicit categories are the escape hatch the older tests use; otherwise
+  // the plan's live kinds decide, so a configuration never asks a question it
+  // has already answered.
+  const legacy = plan.categories?.length ? plan.categories : null;
+  const kinds = legacy ? null : relevance(plan, analysis).live;
+  if (!legacy && !kinds.length) return;
+
+  const draw = () => (legacy
+    ? BUILDERS[rand(legacy)]?.(ctx.scope, ctx.charts)
+    : rand(kinds).draw(ctx));
 
   const recent = [];
   let failures = 0;
   while (failures < 250) {
-    const drawn = draw();
-    if (!drawn) { failures++; continue; }
-    const batch = Array.isArray(drawn) ? drawn : [drawn];
-    const key = `${batch[0].category}|${batch[0].word}|${batch[0].prompt}`;
+    const q = draw();
+    if (!q) { failures++; continue; }
+    const key = `${q.category}|${q.word}|${q.prompt}`;
     if (recent.includes(key)) { failures++; continue; }
     recent.push(key);
     if (recent.length > 30) recent.shift();
     failures = 0;
-    for (const q of batch) yield q;
+    yield q;
   }
 }
 
@@ -615,26 +808,14 @@ export const PRESETS = [
  * after it. Counts real cells, so nils (majhūl of a lāzim verb, amr outside
  * the 2nd person) are already excluded.
  */
-export function possibleQuestions(plan) {
-  const scope = {
-    types: plan.types?.length ? plan.types : availableTypes(),
-    forms: plan.forms?.length ? plan.forms : FORM_IDS,
-  };
-  const pool = conjugatable(scope);
-  if (plan.quizType === 'derived') {
-    return pool.reduce((n, c) => n + Object.keys(derivativesOf(c.root, c.formId)).length, 0);
-  }
-  const charts = chartsFor(plan);
-  let cells = 0;
-  for (const c of pool) {
-    for (const chartId of charts) {
-      for (const slot of slotsFor(chartId)) {
-        if (conjugate(c.root, c.formId, chartId, slot)) cells++;
-      }
-    }
-  }
-  // Identify asks three things of each word; produce asks one.
-  return plan.quizType === 'produce' ? cells : cells * IDENTIFY_CATEGORIES.length;
+export function possibleQuestions(plan, analysis = planAnalysis(plan)) {
+  const { live } = relevance(plan, analysis);
+  if (!live.length) return 0;
+  // Words × the questions still worth asking about them. Counting all five
+  // identify categories regardless of configuration is what made a
+  // muḍāriʿ-only plan claim 798 questions when 266 of them meant anything.
+  const words = plan.quizType === 'derived' ? analysis.derivedCells : analysis.cells;
+  return words * live.length;
 }
 
 export function presetAvailable(preset) {
@@ -658,48 +839,56 @@ export function mazeedPresetAvailable(formId) {
 
 export const WORDS_PER_DRILL = 5;
 
+export const QUESTIONS_PER_WORD = 3;
+
 /**
- * N words × 3 questions: tense → voice|wazn → doer, same word carried through.
- * A word only shows majhūl when both voices exist (never a giveaway); a word
- * with no majhūl at all (lāzim) gets a wazn question instead.
+ * A bundle is the live question kinds applied to one word — no fixed list of
+ * three, and no special case for the words that can't answer all of them. A
+ * word that only supports two questions contributes two, and the drill draws
+ * another word to make up its length.
  */
 export function buildDrill(preset, wordCount = WORDS_PER_DRILL) {
-  const scope = {
+  const plan = {
+    quizType: 'identify',
     types: preset.types ?? availableTypes(),
     forms: preset.forms ?? ['I'],
   };
-  const words = [];
+  const analysis = planAnalysis(plan);
+  // Bundles stay at three questions; the registry's order puts the per-word
+  // properties (tense, voice, doer) ahead of the per-root ones (bāb).
+  const kinds = relevance(plan, analysis).live
+    .filter((k) => k.forWord)
+    .slice(0, QUESTIONS_PER_WORD);
+  if (!kinds.length) return [];
+
+  // The word count is the invariant, not the question count: a word that can
+  // only carry two of the live kinds contributes two, and "Word 3 / 5" stays
+  // true either way.
+  const bundles = [];
   const seen = new Set();
   let guard = 0;
-  while (words.length < wordCount && guard++ < 400) {
-    const v = randomVerb(scope, ['madi_malum', 'mudari_malum_raf']);
+
+  while (bundles.length < wordCount && guard++ < 400) {
+    const v = randomVerb(analysis.scope, ['madi_malum', 'mudari_malum_raf']);
     if (!v) break;
     const { tense, mood } = CHARTS[v.chartId];
     const majhulChart = chartIdFor(tense, 'majhul', mood ?? 'raf');
     const majhulWord = conjugate(v.root, v.formId, majhulChart, v.slot);
     v.hasVoicePair = !!majhulWord;
-    // A drill word must be able to fill all three slots of its bundle. A lāzim
-    // word falls back to a wazn question, and that fallback only exists for
-    // sound verbs — a wazn shown beside مَدَّ would be the sound pattern the
-    // word visibly is not. Such words stay out of drills (custom quizzes still
-    // reach them) rather than yielding a short bundle.
-    if (!v.hasVoicePair && v.root.type !== 'salim') continue;
+    // Show the majhūl sometimes — but only when both voices exist, so the
+    // choice of chart never gives the voice question away.
     if (majhulWord && Math.random() < 0.5) {
       v.chartId = majhulChart;
       v.word = majhulWord;
     }
     if (seen.has(v.word)) continue;
+
+    const bundle = kinds.map((k) => k.forWord(v)).filter(Boolean);
+    if (!bundle.length) continue;
     seen.add(v.word);
-    words.push(v);
+    bundles.push(bundle);
   }
 
-  const questions = [];
-  words.forEach((v, i) => {
-    const tag = `Word ${i + 1} / ${words.length}`;
-    const second = v.hasVoicePair ? makeVoiceQuestion(v) : makeWaznQuestion(v);
-    for (const q of [makeTenseQuestion(v), second, makeDoerQuestion(v)]) {
-      if (q) questions.push({ ...q, tag });
-    }
-  });
-  return questions;
+  return bundles.flatMap((bundle, i) =>
+    bundle.map((q) => ({ ...q, tag: `Word ${i + 1} / ${bundles.length}` })));
 }

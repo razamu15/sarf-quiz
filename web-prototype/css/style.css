@@ -367,6 +367,20 @@ h1 .ar { font-family: var(--arabic); font-size: 30px; margin-inline-start: 8px; 
 .row-nav small { color: var(--ink-dim); display: block; font-size: 12px; }
 .row-nav .chev { color: var(--ink-dim); }
 .lock { font-size: 11px; color: #c48ce0; border: 1px solid rgba(196, 140, 224, 0.4); border-radius: 999px; padding: 2px 8px; }
+.row-nav.danger b { color: var(--bad); }
+
+/* Practice: what this configuration will actually ask, and what it retired. */
+.asks {
+  border: 1px solid #303a4d; background: var(--card); border-radius: 12px;
+  padding: 11px 14px; font-size: 13px; color: var(--ink-dim);
+  display: flex; flex-direction: column; gap: 3px;
+}
+.asks b {
+  color: var(--ink); font-size: 11px; text-transform: uppercase;
+  letter-spacing: .08em; margin-bottom: 3px;
+}
+.asks .tick { color: var(--good); }
+.asks .cross { color: var(--ink-dim); }
 .badge-up { font-size: 12px; color: var(--accent-ink); background: var(--accent); border-radius: 999px; padding: 4px 12px; font-weight: 600; }
 .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .stat-tile { background: var(--card); border: 1px solid #303a4d; border-radius: 14px; padding: 12px 14px; }

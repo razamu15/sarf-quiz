@@ -17,6 +17,7 @@ import { verbMeaning as verbMeaningChart, derivedMeaning } from '../js/meaning-s
 import {
   buildDrill, buildQuiz, questionStream, PRESETS, mazeedPreset, mazeedPresetAvailable,
   presetAvailable, chartsFor, gradeInput, possibleQuestions, IDENTIFY_CATEGORIES,
+  relevance, planAnalysis, WORDS_PER_DRILL,
 } from '../js/quiz/quiz-service.js';
 import { MAZEED_IDS } from '../js/vocabulary.js';
 
@@ -256,17 +257,22 @@ check(availableCharts(qala, 'I').length === 7, 'qala serves exactly its 7 fixtur
   check(sawMulti, 'multi-select doer questions occur (identical forms become extra answers)');
 }
 
-// Drill shape: 5 words × 3 questions, identity fields present
+// Drill shape: N words, each carrying the question kinds it can support.
+// The word count is the invariant — a word that can't take all three kinds
+// contributes fewer, which is why the question count is a range.
 for (const preset of PRESETS.filter(presetAvailable)) {
   const quiz = buildDrill(preset);
-  const shapeOk = quiz.length === 15
+  const words = new Set(quiz.map((q) => q.tag));
+  const shapeOk = words.size === WORDS_PER_DRILL
+    && quiz.length > 0 && quiz.length <= WORDS_PER_DRILL * 3
     && quiz.every((q) => q.gloss && q.fullMeaning && q.tag && q.rootKey && q.verbType
       && q.correctIndices.length >= 1 && q.options.every((o) => 'valueKey' in o || o.valueKey === undefined));
-  check(shapeOk, `drill ${preset.id}: 15 questions with identity + correctness`);
+  check(shapeOk, `drill ${preset.id}: ${WORDS_PER_DRILL} words with identity + correctness`);
 }
 for (const formId of MAZEED_IDS.filter(mazeedPresetAvailable)) {
   const quiz = buildDrill(mazeedPreset(formId));
-  check(quiz.length === 15 && quiz.every((q) => q.formId === formId), `mazeed drill ${formId}`);
+  check(new Set(quiz.map((q) => q.tag)).size === WORDS_PER_DRILL
+    && quiz.every((q) => q.formId === formId), `mazeed drill ${formId}`);
 }
 check(!mazeedPresetAvailable('IX'), 'IX drill unavailable (recognition-only)');
 
@@ -480,7 +486,83 @@ check(chartsFor({ tenses: ['madi'], voices: ['majhul'], moods: [] }).join() === 
   check(qs.length === 20 && qs.every((q) => q.chartId === 'madi_malum'),
     'identify honours the plan charts');
   check(qs.every((q) => IDENTIFY_CATEGORIES.includes(q.category)),
-    'identify asks only tense, voice and doer');
+    'identify asks only from its own repertoire');
+}
+
+// ---------------------------------------------------------------------------
+// Relevance: a question is dead when the property it asks about is constant
+// across the pool the plan admits.
+// ---------------------------------------------------------------------------
+{
+  const narrow = {
+    quizType: 'identify', tenses: ['mudari'], voices: ['malum'], moods: ['raf'],
+    forms: ['I'], types: ['salim'],
+  };
+  const r = relevance(narrow);
+  const liveIds = r.live.map((k) => k.id);
+  const deadIds = r.dead.map((k) => k.id);
+  check(!liveIds.includes('tense') && deadIds.includes('tense'),
+    'one tense selected → the tense question is retired');
+  check(!liveIds.includes('voice') && deadIds.includes('voice'),
+    'one voice reachable → the voice question is retired');
+  check(!liveIds.includes('mood'), 'one iʿrāb state → the iʿrāb question is retired');
+  check(liveIds.includes('doer'), 'the doer question survives — no plan can pin a pronoun');
+  check(r.dead.every((k) => k.reason), 'every retired question can say why');
+
+  // …and the stream really doesn't ask them.
+  const qs = buildQuiz({ ...narrow, count: 40 });
+  check(qs.length === 40 && qs.every((q) => q.category === 'doer'),
+    'a muḍāriʿ-only quiz asks nothing but the doer');
+
+  // The count reflects live kinds, not the whole repertoire.
+  const a = planAnalysis(narrow);
+  check(possibleQuestions(narrow, a) === a.cells * r.live.length,
+    'the question count multiplies by live kinds, not by the category list');
+}
+
+// Widening a row brings a question back — the property the panel promises.
+{
+  const wide = {
+    quizType: 'identify', tenses: ['madi', 'mudari'], voices: ['malum', 'majhul'],
+    moods: ['raf', 'nasb'], forms: ['I', 'II'], types: ['salim'],
+  };
+  const ids = relevance(wide).live.map((k) => k.id);
+  check(['tense', 'voice', 'doer', 'mood', 'bab'].every((id) => ids.includes(id)),
+    'a wide plan asks all five identify questions, iʿrāb and bāb included');
+}
+
+// The bāb question reads a citation showing both tenses, so it stays out of a
+// single-tense quiz rather than putting a muḍāriʿ on screen in a past drill.
+{
+  const pastOnly = {
+    quizType: 'identify', tenses: ['madi'], voices: ['malum', 'majhul'], moods: [],
+    forms: ['I'], types: ['salim'],
+  };
+  check(!relevance(pastOnly).live.some((k) => k.id === 'bab'),
+    'bāb is retired in a single-tense quiz');
+}
+
+// The same rule fixes quiz type 3: one form ticked, and "which form is this
+// derivative from?" already has its answer.
+{
+  const one = { quizType: 'derived', forms: ['I'], types: ['salim'] };
+  const many = { quizType: 'derived', forms: ['I', 'II', 'X'], types: ['salim'] };
+  check(!relevance(one).live.some((k) => k.id === 'derivedForm'),
+    'one form selected → the derived-form question is retired');
+  check(relevance(many).live.some((k) => k.id === 'derivedForm'),
+    'three forms selected → the derived-form question is live');
+  check(buildQuiz({ ...one, count: 20 }).every((q) => !q.prompt.includes('which form')),
+    'a single-form derived quiz never asks which form');
+}
+
+// Producing a word is never a coin flip, however narrow the plan.
+{
+  const narrowest = {
+    quizType: 'produce', tenses: ['mudari'], voices: ['malum'], moods: ['raf'],
+    forms: ['I'], types: ['salim'],
+  };
+  check(relevance(narrowest).live.length === 1 && relevance(narrowest).dead.length === 0,
+    'write-the-word survives any configuration');
 }
 
 // Type 2: the word is the answer, not the prompt.

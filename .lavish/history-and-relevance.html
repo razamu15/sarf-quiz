@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sarf Quiz — full history &amp; question relevance</title>
+<link rel="stylesheet" href="sarf-app.css">
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+  :where(p, h1, h2, h3, h4, li, td, th) { overflow-wrap: anywhere; }
+
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font-family: var(--latin); line-height: 1.6; -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 40px 22px 120px; }
+
+  .masthead { border-bottom: 1px solid #2b3547; padding-bottom: 26px; margin-bottom: 34px; }
+  .eyebrow { font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--accent); font-weight: 700; }
+  .masthead h1 { font-size: clamp(27px, 4vw, 38px); line-height: 1.15; margin: 10px 0 12px; letter-spacing: -0.02em; }
+  .lede { color: var(--ink-dim); font-size: 16px; max-width: 72ch; }
+
+  h2.sec {
+    font-size: 13px; text-transform: uppercase; letter-spacing: .12em; color: var(--ink-dim);
+    margin: 56px 0 18px; padding-bottom: 10px; border-bottom: 1px solid #2b3547;
+  }
+  h2.sec b { color: var(--accent); font-weight: 700; margin-inline-end: 8px; }
+  h3.sub { font-size: 20px; margin: 30px 0 8px; letter-spacing: -0.01em; }
+  p.body { font-size: 15px; color: var(--ink-dim); max-width: 78ch; margin: 0 0 14px; }
+  p.body b, li b { color: var(--ink); }
+  p.body .ar, li .ar, td .ar { font-family: var(--arabic); font-size: 18px; }
+  ul.body { font-size: 15px; color: var(--ink-dim); max-width: 78ch; padding-inline-start: 20px; margin: 0 0 14px; }
+  ul.body li { margin-bottom: 8px; }
+
+  .callout {
+    border-inline-start: 3px solid var(--accent); background: var(--card2);
+    border-radius: 10px; padding: 14px 18px; font-size: 15px; margin: 18px 0;
+  }
+  .callout.bad { border-inline-start-color: var(--bad); }
+  .callout.good { border-inline-start-color: var(--good); }
+  .callout.warn { border-inline-start-color: #d8a13a; }
+  .callout b { color: var(--ink); }
+  .callout .hd { display: block; font-size: 12px; text-transform: uppercase; letter-spacing: .08em; margin-bottom: 6px; color: var(--ink-dim); }
+
+  .tbl-wrap { overflow-x: auto; border: 1px solid #303a4d; border-radius: var(--radius); margin: 16px 0; }
+  table.rev { width: 100%; border-collapse: collapse; background: var(--card); font-size: 14px; min-width: 640px; }
+  table.rev th {
+    text-align: start; padding: 11px 14px; font-size: 11px; text-transform: uppercase;
+    letter-spacing: .08em; color: var(--ink-dim); border-bottom: 1px solid #303a4d; background: var(--card2);
+  }
+  table.rev td { padding: 11px 14px; border-bottom: 1px solid #232c3c; vertical-align: top; }
+  table.rev tr:last-child td { border-bottom: 0; }
+  table.rev code { font-size: 12.5px; color: var(--accent); font-family: ui-monospace, Menlo, monospace; }
+  .dead { color: var(--bad); font-weight: 600; }
+  .live { color: var(--good); font-weight: 600; }
+
+  pre.code {
+    background: #0b0e14; border: 1px solid #2b3547; border-radius: var(--radius);
+    padding: 16px 18px; overflow-x: auto; font-size: 13px; line-height: 1.65;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace; color: #cdd8ea; margin: 16px 0;
+  }
+  pre.code .c { color: #6b7a91; }
+  pre.code .k { color: #c48ce0; }
+  pre.code .s { color: #8fd3a4; }
+  pre.code .f { color: #4ea8de; }
+  pre.code .r { color: #e0817d; }
+
+  .mermaid { background: var(--card); border: 1px solid #303a4d; border-radius: var(--radius); padding: 18px; overflow-x: auto; margin: 18px 0; }
+
+  .grid2 { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 18px; }
+  @media (max-width: 860px) { .grid2 { grid-template-columns: minmax(0,1fr); } }
+
+  .panel { background: var(--card); border: 1px solid #303a4d; border-radius: var(--radius); padding: 18px 20px; }
+  .panel h4 { font-size: 12px; text-transform: uppercase; letter-spacing: .1em; color: var(--ink-dim); margin: 0 0 10px; }
+  .panel p { font-size: 14.5px; color: var(--ink-dim); margin: 0 0 10px; }
+  .panel p:last-child { margin-bottom: 0; }
+  .panel.pick { border-color: rgba(63,185,111,.5); }
+  .panel .verdict { font-size: 12px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; }
+  .panel.pick .verdict { color: var(--good); }
+  .panel.nope .verdict { color: var(--ink-dim); }
+
+  .decision {
+    border: 1px solid #3a4761; border-radius: var(--radius); padding: 18px 20px; margin: 20px 0;
+    background: linear-gradient(160deg, var(--card2), var(--card));
+  }
+  .decision > .q { font-size: 15.5px; font-weight: 600; margin-bottom: 4px; }
+  .decision > .why { color: var(--ink-dim); font-size: 13.5px; margin-bottom: 14px; }
+  .decision label {
+    display: flex; gap: 10px; align-items: flex-start; padding: 10px 12px; border-radius: 12px;
+    border: 1px solid #303a4d; background: var(--card); margin-bottom: 8px; cursor: pointer; font-size: 14px;
+  }
+  .decision label:hover { border-color: var(--accent); }
+  .decision label input { margin-top: 4px; accent-color: var(--accent); }
+  .decision label .opt-b { display: block; font-weight: 600; }
+  .decision label .opt-d { display: block; color: var(--ink-dim); font-size: 13px; }
+  .decision label .opt-d .ar { font-family: var(--arabic); font-size: 16px; }
+  .decision .acts { display: flex; gap: 10px; align-items: center; margin-top: 6px; flex-wrap: wrap; }
+  .decision button {
+    border: 0; border-radius: 12px; padding: 9px 16px; font-size: 14px; font-weight: 600;
+    background: var(--accent); color: var(--accent-ink); cursor: pointer; font-family: var(--latin);
+  }
+  .decision .queued { font-size: 13px; color: var(--good); }
+
+  .device { border: 1px solid #37425a; border-radius: 24px; padding: 8px; background: #0a0d13; max-width: 330px; }
+  .device .phone { border-radius: 17px; overflow: hidden; }
+  .device-cap { text-align: center; font-size: 11.5px; color: var(--ink-dim); padding: 8px 4px 2px; }
+  .phone .count-line { text-align: center; }
+  .phone .asks {
+    border: 1px solid #303a4d; background: var(--card); border-radius: 12px;
+    padding: 10px 14px; font-size: 13px; color: var(--ink-dim);
+  }
+  .phone .asks b { color: var(--ink); display: block; font-size: 12px; text-transform: uppercase; letter-spacing: .07em; margin-bottom: 4px; }
+  .phone .asks .tick { color: var(--good); }
+  .phone .asks .cross { color: var(--ink-dim); text-decoration: line-through; }
+  .num { font-size: 34px; font-weight: 700; color: var(--accent); display: block; line-height: 1.1; }
+  .numlabel { font-size: 12.5px; color: var(--ink-dim); }
+  .stat3 { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 14px; margin: 18px 0; }
+  .stat3 > div { background: var(--card); border: 1px solid #303a4d; border-radius: 14px; padding: 14px 16px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="masthead">
+  <div class="eyebrow">Implementation plan · built</div>
+  <h1>Full history from day one, and questions that know their own configuration</h1>
+  <p class="lede">
+    Two changes from your testing. The first is a storage decision that reverses something we settled
+    earlier — worth doing, and cheaper now than later. The second is the more interesting one: it
+    isn't a bug in the identify quiz, it's a missing concept that every quiz type needs, and you
+    already noticed we half-built it for the derived nouns.
+  </p>
+  <div class="callout good" style="margin-top:20px">
+    <span class="hd">Status — all of it is built and green (216 assertions)</span>
+    Your muḍāriʿ-only setup now asks the doer question and nothing else. <b>iʿrāb and bāb joined the
+    identify repertoire</b> as you asked, and both obey the same relevance rule — bāb needed one extra
+    predicate, since it reads a citation showing both tenses and so has no business in a past-only
+    quiz. Full per-answer history is stored for everyone, the gate moved to the view layer, and
+    Settings has Delete my history. Decisions recorded: drop dead questions and show a
+    "This setup asks" panel · answer-space-over-pool (design B) · local-only for free with CloudKit
+    as a Pro benefit · localStorage uncapped in the prototype · delete but no export.
+  </div>
+</header>
+
+<h2 class="sec"><b>01</b> The bug you found is bigger than the identify quiz</h2>
+
+<p class="body">
+  You selected muḍāriʿ only and the quiz kept asking "what kind of verb is this?". I measured it —
+  <b>a muḍāriʿ · maʿlūm · rafʿ configuration produces 30 questions, of which 18 are free points</b>:
+</p>
+
+<div class="stat3">
+  <div><span class="num">8</span><span class="numlabel">tense questions, every answer <span class="ar">مُضَارِع</span></span></div>
+  <div><span class="num">10</span><span class="numlabel">voice questions, every answer <span class="ar">مَعْلُوم</span></span></div>
+  <div><span class="num">12</span><span class="numlabel">doer questions — the only ones that still require reading the word</span></div>
+</div>
+
+<p class="body">
+  The count line compounds it: it reports <b>798 possible questions</b> for that configuration because
+  it multiplies the word pool by three categories. The honest number is 266 — the doer questions.
+  Everything else is a coin with one face.
+</p>
+
+<div class="callout bad">
+  <span class="hd">The general rule</span>
+  <b>A question is dead when the property it asks about is constant across the pool the plan admits.</b>
+  Tense is dead when the plan admits one tense. Voice is dead when it admits one voice — or when
+  every root in scope is intransitive, so the majhūl never materialises. "Which form is this
+  derivative from?" is dead when the plan admits one form. It is one rule, and it explains every
+  case including the two we already handle by hand.
+</div>
+
+<h3 class="sub">We already do this — three times, three different ways</h3>
+
+<p class="body">
+  That's the real finding. Relevance is already enforced at three levels, each invented separately,
+  none of them named:
+</p>
+
+<div class="tbl-wrap">
+  <table class="rev">
+    <thead><tr><th style="width:16%">Level</th><th style="width:30%">Question it answers</th><th>Where it lives today</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><b>Plan</b></td>
+        <td>Is this question worth asking <em>at all</em>, given the whole configuration?</td>
+        <td class="dead">Nowhere. This is the gap you found.</td>
+      </tr>
+      <tr>
+        <td><b>Word</b></td>
+        <td>Can <em>this word</em> support this question?</td>
+        <td>Ad hoc, three places: the voice builder retries until it finds a word whose opposite voice exists; the iʿrāb builder skips slots where the three states look identical; <code>buildDrill</code> skips lāzim non-sound words because their wazn fallback doesn't exist.</td>
+      </tr>
+      <tr>
+        <td><b>Option</b></td>
+        <td>Are the distractors genuinely wrong?</td>
+        <td>Done well: doer questions promote same-form pronouns to correct answers; 3a draws distractors from the verb's other derivatives.</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<p class="body">
+  So the fix isn't to bolt a special case onto the tense question. It's to give the plan level the
+  same first-class treatment the option level already has — and, while we're there, to fold the
+  scattered word-level retries into the same shape.
+</p>
+
+<h2 class="sec"><b>02</b> Proposed: every question declares what it discriminates</h2>
+
+<p class="body">
+  A question kind becomes a small object that knows three things: what property it tests, how to
+  compute that property's <b>answer space</b> for a given plan, and how to build itself. If the answer
+  space has fewer than two members, the question never enters the quiz.
+</p>
+
+<pre class="code"><span class="c">// One entry per question kind. `space` returns the set of distinct answers</span>
+<span class="c">// this question could have under the given plan. Two or more → live.</span>
+<span class="k">const</span> QUESTION_KINDS = [
+  {
+    id: <span class="s">'tense'</span>, quizType: <span class="s">'identify'</span>,
+    <span class="f">space</span>: (plan) =&gt; <span class="k">new</span> Set(chartsFor(plan).map((c) =&gt; CHARTS[c].tense)),
+    <span class="f">make</span>: makeTenseQuestion,
+  },
+  {
+    id: <span class="s">'voice'</span>, quizType: <span class="s">'identify'</span>,
+    <span class="c">// not just the plan's voices: a pool of intransitive roots has no</span>
+    <span class="c">// majhūl however many boxes are ticked</span>
+    <span class="f">space</span>: (plan, pool) =&gt; <span class="k">new</span> Set(pool.map((w) =&gt; CHARTS[w.chart].voice)),
+    <span class="f">make</span>: makeVoiceQuestion,
+  },
+  {
+    id: <span class="s">'doer'</span>, quizType: <span class="s">'identify'</span>,
+    <span class="c">// 14 slots; only degenerate if a plan could pin one, which it can't</span>
+    <span class="f">space</span>: (plan) =&gt; <span class="k">new</span> Set(chartsFor(plan).flatMap(slotsFor)),
+    <span class="f">make</span>: makeDoerQuestion,
+  },
+  {
+    id: <span class="s">'derivedKind'</span>, quizType: <span class="s">'derived'</span>,
+    <span class="f">space</span>: (plan, pool) =&gt; <span class="k">new</span> Set(pool.flatMap((w) =&gt; w.kinds)),
+    <span class="f">make</span>: makeDerivedKindQuestion,
+  },
+  {
+    id: <span class="s">'derivedForm'</span>, quizType: <span class="s">'derived'</span>,
+    <span class="f">space</span>: (plan) =&gt; <span class="k">new</span> Set(plan.forms),      <span class="c">// one form ticked → dead</span>
+    <span class="f">make</span>: makeDerivedFormQuestion,
+  },
+  {
+    id: <span class="s">'produce'</span>, quizType: <span class="s">'produce'</span>,
+    <span class="f">space</span>: () =&gt; INFINITE,                    <span class="c">// writing is never a coin flip</span>
+    <span class="f">make</span>: makeProduceQuestion,
+  },
+];
+
+<span class="c">// Computed once when the plan changes — not per question.</span>
+<span class="k">function</span> <span class="f">activeKinds</span>(plan, pool) {
+  <span class="k">return</span> QUESTION_KINDS
+    .filter((k) =&gt; k.quizType === plan.quizType)
+    .filter((k) =&gt; k.space(plan, pool).size &gt; 1);
+}</pre>
+
+<div class="mermaid">
+flowchart TD
+  PLAN["QuizPlan<br/>quiz type, tense, voice, irab,<br/>forms, verb types, length"]:::new
+  POOL["Word pool<br/>every WordSpec the plan admits"]:::built
+  KINDS["QUESTION_KINDS<br/>each declares its answer space"]:::new
+  ACTIVE["Active kinds<br/>space size > 1"]:::new
+  DEAD["Dropped<br/>space size = 1"]:::dead
+  COUNT["Question count<br/>pool x active kinds"]:::new
+  UI["Practice: 'This setup asks...'"]:::new
+  STREAM["questionStream<br/>draws only from active kinds"]:::built
+
+  PLAN --> POOL
+  PLAN --> KINDS
+  POOL --> KINDS
+  KINDS --> ACTIVE
+  KINDS --> DEAD
+  ACTIVE --> COUNT --> UI
+  ACTIVE --> STREAM
+
+  classDef built stroke-width:2px;
+  classDef new stroke-dasharray: 5 4;
+  classDef dead stroke-dasharray: 2 3;
+</div>
+
+<h3 class="sub">One pass, three answers</h3>
+
+<p class="body">
+  The pool walk already exists — <code>possibleQuestions()</code> does it to print the count line. The
+  same walk now yields three things at once, which is why this costs almost nothing:
+</p>
+
+<ul class="body">
+  <li><b>Which questions are live</b> — the answer spaces.</li>
+  <li><b>An honest count</b> — pool size × live kinds, instead of × 3 regardless.</li>
+  <li><b>Something to tell the user</b> — Practice can name what this configuration will actually ask.</li>
+</ul>
+
+<p class="body">
+  Most spaces are cheap: tense and iʿrāb are computed from the chart list alone (nine items), forms
+  from the plan directly. Only voice needs the pool, because transitivity is a property of roots
+  rather than of the configuration. Worth memoising per plan on iOS once the lexicon is in the
+  hundreds — flagged, not urgent.
+</p>
+
+<h3 class="sub">What actually changes, question by question</h3>
+
+<div class="tbl-wrap">
+  <table class="rev">
+    <thead><tr><th style="width:18%">Question</th><th style="width:32%">Dies when</th><th>Effect</th></tr></thead>
+    <tbody>
+      <tr><td><b>Tense</b></td><td>The plan admits one tense</td><td>Your muḍāriʿ-only case. Question disappears; count drops from 798 to the honest number.</td></tr>
+      <tr><td><b>Voice</b></td><td>One voice ticked, <em>or</em> every root in scope is intransitive</td><td>The second half is the one a plan-only check would miss.</td></tr>
+      <tr><td><b>Doer</b></td><td>Never — 14 slots, and no plan can pin one</td><td>Identify can therefore never go empty. Narrow configs collapse to doer-only, which is the hardest question of the three.</td></tr>
+      <tr><td><b>Iʿrāb</b><br><small style="color:var(--ink-dim)">if it returns</small></td><td>One mood ticked, or the tense isn't muḍāriʿ</td><td>Already half-handled per word; this makes it a plan-level rule too.</td></tr>
+      <tr><td><b>3a pick the derivative</b></td><td>The verb has fewer than two derivatives to choose between</td><td>Existing guard, restated in the new shape.</td></tr>
+      <tr><td><b>3b which derivative</b></td><td>The form produces one kind only</td><td>Existing guard.</td></tr>
+      <tr><td><b>3b which form</b></td><td><b>One form ticked</b></td><td>New. Today a single-form derived quiz still asks "which form is it from?" with the answer pinned — the same bug as tense, in the type you thought was already handled.</td></tr>
+      <tr><td><b>Write the word</b></td><td>Never</td><td>Producing a fully-vowelled word is not a multiple choice; nothing about the plan can give it away.</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="callout warn">
+  <span class="hd">A consequence to accept deliberately</span>
+  <b>Narrowing your configuration now makes the quiz harder, not shorter.</b> Pick muḍāriʿ only and
+  you no longer get two free questions per word — you get the doer question, every time. That is the
+  correct behaviour and it is also a difficulty cliff. The mitigation, if you want one, is the
+  Practice line telling you what you're about to get before you tap Start.
+</div>
+
+<h3 class="sub">The same idea fixes the drill bundle</h3>
+
+<p class="body">
+  Home drills are hardcoded as three questions per word — tense, then voice-or-wazn, then doer — with
+  a special case that skips lāzim non-sound words because the wazn fallback only exists for sound
+  verbs. Under the new model a bundle is simply <b>the active kinds applied to one word</b>. The
+  special case dissolves: a word that can only support two questions gives two, and the drill draws
+  another word to reach its length.
+</p>
+
+<div class="grid2">
+  <div>
+    <div class="device">
+      <div class="phone">
+        <div class="section-label">Questions</div>
+        <div class="chips">
+          <button class="chip">5</button><button class="chip on">10</button>
+          <button class="chip">20</button><button class="chip">∞ endless</button>
+        </div>
+        <p class="subtitle count-line">≈ 798 possible questions from this selection</p>
+        <button class="btn primary">Start quiz</button>
+      </div>
+      <div class="device-cap">Today — the count counts dead questions</div>
+    </div>
+  </div>
+  <div>
+    <div class="device">
+      <div class="phone">
+        <div class="section-label">Questions</div>
+        <div class="chips">
+          <button class="chip">5</button><button class="chip on">10</button>
+          <button class="chip">20</button><button class="chip">∞ endless</button>
+        </div>
+        <div class="asks">
+          <b>This setup asks</b>
+          <span class="tick">✓ Who the doer is</span><br>
+          <span class="cross">Tense — only muḍāriʿ selected</span><br>
+          <span class="cross">Voice — only maʿrūf selected</span>
+        </div>
+        <p class="subtitle count-line">≈ 266 possible questions</p>
+        <button class="btn primary">Start quiz</button>
+      </div>
+      <div class="device-cap">Proposed — and it explains itself</div>
+    </div>
+  </div>
+</div>
+
+<p class="body" style="margin-top:16px">
+  The struck-through lines are the part I'd argue hardest for. They turn a silent narrowing into a
+  teaching moment: widen the tense row and the tense question comes back, visibly.
+</p>
+
+<div class="decision" data-lavish-question="dead-q">
+  <div class="q">What happens to a question the configuration has made trivial?</div>
+  <div class="why">All three keep the doer question; they differ in how loudly the app admits it.</div>
+  <label><input type="radio" name="dead-q" value="Drop it silently: the quiz simply never asks a question whose answer the configuration pins">
+    <span><span class="opt-b">Drop it silently</span>
+    <span class="opt-d">Simplest. The user notices only that they never see a tense question.</span></span></label>
+  <label><input type="radio" name="dead-q" value="Drop it and show a This setup asks panel in Practice listing the live and dead questions with reasons">
+    <span><span class="opt-b">Drop it and say so in Practice (as drawn)</span>
+    <span class="opt-d">The panel names what's live, what's dead and why. Turns a narrowing into feedback.</span></span></label>
+  <label><input type="radio" name="dead-q" value="Keep the question but widen its options beyond the plan so it stays informative">
+    <span><span class="opt-b">Keep it, widen the options</span>
+    <span class="opt-d">Ask tense anyway with all three options. I'd advise against: after two questions the user learns the answer is always the same, and it's a free point either way.</span></span></label>
+  <div class="acts">
+    <button type="button" data-lavish-action onclick="queueAnswer('dead-q','Dead questions')">Queue this answer</button>
+    <span class="queued" id="q-dead-q"></span>
+  </div>
+</div>
+
+<h3 class="sub">Two ways to build it — and why I'd pick the second</h3>
+
+<div class="grid2">
+  <div class="panel nope">
+    <h4>A · Gate on the plan only</h4>
+    <p>Each question kind declares which plan fields it depends on; drop it when that field has one value.</p>
+    <p>Cheap, fully static, no pool walk. But it can't see that a pool of intransitive roots has no
+    majhūl, or that the only selected root lacks a maṣdar — so degenerate questions still slip through
+    for content reasons rather than configuration reasons.</p>
+    <p class="verdict">Not enough on its own</p>
+  </div>
+  <div class="panel pick">
+    <h4>B · Answer space over the actual pool</h4>
+    <p>Each kind computes the set of answers it could have, over the cheapest domain that suffices —
+    the chart list, the plan's forms, or the pool where it genuinely needs it.</p>
+    <p>Catches configuration <em>and</em> content degeneracy in one mechanism, reuses the pool walk we
+    already do for the count, and yields the "this setup asks…" copy for free.</p>
+    <p class="verdict">Recommended</p>
+  </div>
+</div>
+
+<h2 class="sec"><b>03</b> Full history for everyone, from the first build</h2>
+
+<p class="body">
+  Straightforward, and I agree with it — but it <b>reverses a decision from the last review</b>, so it's
+  worth naming: we settled on a rolling 30-day summary for free users (daily counts and accuracy, no
+  per-answer rows), and that is what <code>PRODUCT_SPEC §5.4</code> and <code>js/stats.js</code> say
+  today. The new position is: <b>store everything for everyone, gate the reading of it.</b>
+</p>
+
+<div class="callout good">
+  <span class="hd">Why this is the better call</span>
+  Data you didn't keep can't be backfilled. Under the summary model, a user who subscribes in March
+  gets a dashboard that starts in March. Under this model they get every answer they ever gave — which
+  is both a better product and the strongest upsell the app has: <b>"2,341 answers are waiting to be
+  analysed."</b> You can only say that if you kept them.
+</div>
+
+<h3 class="sub">What changes</h3>
+
+<div class="tbl-wrap">
+  <table class="rev">
+    <thead><tr><th style="width:22%">Piece</th><th style="width:34%">Today</th><th>After</th></tr></thead>
+    <tbody>
+      <tr><td><b>Free storage</b></td><td>30-day rolling summary: one row per day</td><td>Every answer, same as Pro</td></tr>
+      <tr><td><b>The gate</b></td><td>In the data layer — free users don't have the rows</td><td>In the view layer — free users have the rows, the detailed screens are locked</td></tr>
+      <tr><td><b><code>js/stats.js</code></b></td><td>Stores the summary, reads it back</td><td>Becomes <code>js/history.js</code>: stores answers and sessions; the Home card's numbers are <em>derived</em> from them, not stored separately</td></tr>
+      <tr><td><b>Record shape</b></td><td><code>{ n, right }</code> per day</td><td>The <code>AnswerRecord</code> already specified in the plan (§B.3): quiz type, category, form, verb type, chart, root, slot, word, expected, given, correct, timestamp</td></tr>
+      <tr><td><b>Sessions</b></td><td>Not stored at all</td><td><code>QuizSessionRecord</code> with the serialized plan — which is what makes "replay this setup" and per-session history possible</td></tr>
+      <tr><td><b>iCloud sync</b></td><td>n/a</td><td>Open question — see below</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<pre class="code"><span class="c">// One source of truth. The free Home card is a query, not a second store.</span>
+<span class="k">function</span> <span class="f">basicSummary</span>() {
+  <span class="k">const</span> since = daysAgo(<span class="s">30</span>);
+  <span class="k">const</span> rows = answers().filter((a) =&gt; a.answeredAt &gt;= since);
+  <span class="k">return</span> {
+    accuracy: pct(rows.filter((a) =&gt; a.correct).length, rows.length),
+    streak: consecutiveDaysWithAnswers(),
+    weekTotal: rows.filter((a) =&gt; a.answeredAt &gt;= daysAgo(<span class="s">7</span>)).length,
+  };
+}
+
+<span class="c">// Pro screens read the same rows, sliced harder. Nothing else changes.</span>
+<span class="k">function</span> <span class="f">accuracyByChart</span>() { <span class="k">return</span> groupBy(answers(), <span class="s">'chart'</span>); }
+<span class="k">function</span> <span class="f">confusionPairs</span>() { <span class="c">/* given vs expected, already stored semantically */</span> }</pre>
+
+<h2 class="sec"><b>04</b> Things you didn't mention that this forces</h2>
+
+<div class="callout bad">
+  <span class="hd">1 · localStorage will not hold it</span>
+  An answer record is roughly 150 bytes of JSON. A committed user doing 100 questions a day fills
+  <b>~5.5 MB in a year</b> — and localStorage caps around 5 MB, silently throwing once full. The
+  prototype needs IndexedDB, or a cap with a documented eviction rule. On iOS SwiftData doesn't care,
+  so this is a prototype-only problem — but it will bite during testing, not after.
+</div>
+
+<div class="callout warn">
+  <span class="hd">2 · Keeping everything means being able to delete everything</span>
+  Storing a complete behavioural record for free users changes the privacy posture. It stays
+  on-device and un-synced for free, so the App Privacy label is still "data not collected" — but
+  Settings needs a real <b>Delete my history</b>, and ideally an export. Cheap to build now,
+  awkward to retrofit after review feedback asks for it.
+</div>
+
+<div class="callout warn">
+  <span class="hd">3 · Does a free user's history sync to iCloud?</span>
+  If yes, free users get cross-device continuity and their history survives a reinstall — and Apple
+  hosts it at your cost. If no, a free user who reinstalls loses the very history that would have
+  converted them. My instinct: <b>local for free, CloudKit for Pro</b>, and say so on the paywall
+  ("your history, on every device"). It's a decision, not a detail.
+</div>
+
+<div class="callout">
+  <span class="hd">4 · The count line is wrong today, independently of all this</span>
+  <code>possibleQuestions()</code> multiplies the pool by three categories whatever the configuration.
+  Even before the relevance work lands, that number is overstated for any narrowed plan. Same fix,
+  same commit.
+</div>
+
+<div class="callout">
+  <span class="hd">5 · Stats will compare unlike things</span>
+  With the question mix varying by configuration, a raw accuracy number moves when your <em>habits</em>
+  change, not just your skill — a week of doer-only drills reads as a slump. Every record already
+  carries its category, so the fix is presentational: <b>report accuracy per question kind</b>, and
+  keep production (write-the-word) separate from recognition, which we already agreed.
+</div>
+
+<div class="callout">
+  <span class="hd">6 · Weak-spot drills get this for free</span>
+  The Pro feature builds a configuration from your worst cells — and a config that narrow is exactly
+  the degenerate case. With relevance in place, a weak-spot drill on "muḍāriʿ majhūl, Form VII"
+  automatically asks only the questions that still discriminate. Without it, that feature would have
+  shipped mostly free points.
+</div>
+
+<div class="decision" data-lavish-question="sync">
+  <div class="q">Does free-tier history sync to iCloud?</div>
+  <label><input type="radio" name="sync" value="Local only for free; CloudKit sync is a Pro benefit named on the paywall">
+    <span><span class="opt-b">Local for free, CloudKit for Pro</span>
+    <span class="opt-d">Sync becomes a named Pro benefit. A free reinstall loses history.</span></span></label>
+  <label><input type="radio" name="sync" value="Sync everyone's history to iCloud; Pro gates only the analysis screens">
+    <span><span class="opt-b">Sync for everyone</span>
+    <span class="opt-d">Best free experience, survives reinstalls, keeps the upsell intact — at your CloudKit cost.</span></span></label>
+  <label><input type="radio" name="sync" value="Sync a compact summary for free users and full records for Pro">
+    <span><span class="opt-b">Summary syncs, detail doesn't</span>
+    <span class="opt-d">Streak survives a reinstall, the per-answer detail doesn't. Two storage paths to maintain.</span></span></label>
+  <div class="acts">
+    <button type="button" data-lavish-action onclick="queueAnswer('sync','Free-tier iCloud sync')">Queue this answer</button>
+    <span class="queued" id="q-sync"></span>
+  </div>
+</div>
+
+<div class="decision" data-lavish-question="storage">
+  <div class="q">Prototype storage, given localStorage will overflow</div>
+  <label><input type="radio" name="storage" value="Move the prototype to IndexedDB so it holds a realistic history">
+    <span><span class="opt-b">IndexedDB</span>
+    <span class="opt-d">Holds hundreds of MB, async API, closest to what the iOS side will do.</span></span></label>
+  <label><input type="radio" name="storage" value="Keep localStorage with a rolling cap of the most recent N answers and document the eviction">
+    <span><span class="opt-b">localStorage with a rolling cap</span>
+    <span class="opt-d">Simplest; the prototype keeps the most recent ~20k answers. Fine for a UX prototype, wrong as a model of the shipped behaviour.</span></span></label>
+  <label><input type="radio" name="storage" value="Keep localStorage uncapped and accept that heavy prototype testing will hit the ceiling">
+    <span><span class="opt-b">Ignore it in the prototype</span>
+    <span class="opt-d">No work now; a confusing silent failure during a long testing session later.</span></span></label>
+  <div class="acts">
+    <button type="button" data-lavish-action onclick="queueAnswer('storage','Prototype storage')">Queue this answer</button>
+    <span class="queued" id="q-storage"></span>
+  </div>
+</div>
+
+<h2 class="sec"><b>05</b> Build order</h2>
+
+<div class="tbl-wrap">
+  <table class="rev">
+    <thead><tr><th style="width:6%">#</th><th style="width:30%">Step</th><th>What lands</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td><b>QUESTION_KINDS registry</b></td><td>Each existing builder wrapped in a kind object with its <code>space()</code>. No behaviour change yet — pure restructure, tests stay green.</td></tr>
+      <tr><td>2</td><td><b>Relevance filter in the stream</b></td><td><code>activeKinds(plan, pool)</code> drives <code>questionStream</code>. The muḍāriʿ-only case stops asking about tense. New assertions: a single-tense plan yields no tense questions; a single-form derived plan yields no form questions.</td></tr>
+      <tr><td>3</td><td><b>Honest count + "this setup asks"</b></td><td><code>possibleQuestions</code> multiplies by live kinds; Practice grows the panel.</td></tr>
+      <tr><td>4</td><td><b>Drill bundles use active kinds</b></td><td>Deletes the lāzim/wazn special case in <code>buildDrill</code>.</td></tr>
+      <tr><td>5</td><td><b><code>history.js</code></b></td><td>Per-answer and per-session records for everyone; <code>stats.js</code> summary becomes a query over them. Storage per the decision above.</td></tr>
+      <tr><td>6</td><td><b>Gate the views, not the data</b></td><td>Detailed stats and Quiz history read real records and show a paywall preview instead of an empty state. Settings gets Delete my history.</td></tr>
+      <tr><td>7</td><td><b>Docs</b></td><td><code>PRODUCT_SPEC §5.4</code> reversed to full-history-for-all; <code>TECHNICAL_PLAN_MASTER §A.7</code> gains the relevance model, <code>§B.3</code> loses the free-tier summary.</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="decision" data-lavish-question="go">
+  <div class="q">Anything to change before I start?</div>
+  <div class="why">Tick what you want built; add a note for anything I've got wrong.</div>
+  <label><input type="checkbox" name="go" value="Build the QUESTION_KINDS registry and the relevance filter as described"><span><span class="opt-b">Relevance model (steps 1–2)</span><span class="opt-d">The core change.</span></span></label>
+  <label><input type="checkbox" name="go" value="Fix the question count and add the This setup asks panel to Practice"><span><span class="opt-b">Honest count + the asks panel (step 3)</span><span class="opt-d">Makes the narrowing visible.</span></span></label>
+  <label><input type="checkbox" name="go" value="Rewrite drill bundles to use active kinds and delete the lazim wazn special case"><span><span class="opt-b">Drill bundles (step 4)</span><span class="opt-d">Removes an ad-hoc rule.</span></span></label>
+  <label><input type="checkbox" name="go" value="Build history.js with full per-answer and per-session records for all users"><span><span class="opt-b">Full history (steps 5–6)</span><span class="opt-d">Includes moving the gate to the view layer.</span></span></label>
+  <label><input type="checkbox" name="go" value="Update PRODUCT_SPEC and TECHNICAL_PLAN_MASTER for both changes"><span><span class="opt-b">Docs (step 7)</span></span></label>
+  <div class="acts">
+    <button type="button" data-lavish-action onclick="queueMulti('go','Build')">Queue these</button>
+    <span class="queued" id="q-go"></span>
+  </div>
+</div>
+
+<p style="color:var(--ink-dim);font-size:13px;margin-top:40px;border-top:1px solid #2b3547;padding-top:18px">
+  Numbers in §01 are measured from the current prototype, not estimated: a muḍāriʿ · maʿlūm · rafʿ ·
+  Form I · sound-verb plan, 30 questions drawn.
+</p>
+
+</div>
+
+<script>
+  function queueAnswer(name, title) {
+    const form = document.querySelector('[data-lavish-question="' + name + '"]');
+    const picked = form.querySelector('input:checked');
+    const out = document.getElementById('q-' + name);
+    if (!picked) { out.textContent = 'Pick an option first'; return; }
+    window.lavish?.queuePrompt(title + ': ' + picked.value, {
+      tag: 'decision', text: title + ' → ' + picked.value, element: form, queueKey: name,
+      data: { question: title, answer: picked.value }
+    });
+    out.textContent = '✓ queued — press Send to Agent when ready';
+  }
+  function queueMulti(name, title) {
+    const form = document.querySelector('[data-lavish-question="' + name + '"]');
+    const picked = [...form.querySelectorAll('input:checked')].map(i => i.value);
+    const out = document.getElementById('q-' + name);
+    if (!picked.length) { out.textContent = 'Pick at least one'; return; }
+    window.lavish?.queuePrompt(title + ':\n- ' + picked.join('\n- '), {
+      tag: 'decision', text: title + ' (' + picked.length + ')', element: form, queueKey: name,
+      data: { question: title, answers: picked }
+    });
+    out.textContent = '✓ ' + picked.length + ' queued — press Send to Agent when ready';
+  }
+</script>
+
+<script type="module">
+  import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.15.0/dist/mermaid.esm.min.mjs";
+  const darkQuery = window.matchMedia("(prefers-color-scheme: dark)");
+  const paint = document.createElement("canvas").getContext("2d");
+  function toRgba(color) {
+    paint.clearRect(0, 0, 1, 1); paint.fillStyle = "#000"; paint.fillStyle = color;
+    paint.fillRect(0, 0, 1, 1); return paint.getImageData(0, 0, 1, 1).data;
+  }
+  function compositeRgba(fg, bg) {
+    const fa = fg[3] / 255, ba = bg[3] / 255; const a = fa + ba * (1 - fa);
+    if (a === 0) return [0, 0, 0, 0];
+    return [(fg[0]*fa + bg[0]*ba*(1-fa))/a, (fg[1]*fa + bg[1]*ba*(1-fa))/a, (fg[2]*fa + bg[2]*ba*(1-fa))/a, a*255];
+  }
+  function pageIsDark() {
+    const root = document.documentElement;
+    const rb = toRgba(getComputedStyle(root).backgroundColor);
+    const bb = document.body ? toRgba(getComputedStyle(document.body).backgroundColor) : [0,0,0,0];
+    const [r, g, b, a] = compositeRgba(bb, rb);
+    if (a > 0) return (0.2126*r + 0.7152*g + 0.0722*b) / 255 < 0.5;
+    return darkQuery.matches;
+  }
+  const diagrams = [...document.querySelectorAll(".mermaid")].map((el) => ({ el, src: el.textContent }));
+  let applied, rendering = false, queued = false;
+  function queueRender() { queued = true; if (!rendering) void render(); }
+  async function render() {
+    rendering = true;
+    try {
+      while (queued) {
+        queued = false;
+        const theme = pageIsDark() ? "dark" : "default";
+        if (theme === applied) continue;
+        mermaid.initialize({ startOnLoad: false, theme, securityLevel: "strict" });
+        for (const { el, src } of diagrams) { el.removeAttribute("data-processed"); el.textContent = src; }
+        try { await mermaid.run({ nodes: diagrams.map((d) => d.el) }); }
+        catch (error) { console.error("Mermaid render failed:", error); return; }
+        applied = theme;
+      }
+    } finally { rendering = false; if (queued) queueRender(); }
+  }
+  if (document.readyState === "complete") queueRender();
+  else window.addEventListener("load", queueRender, { once: true });
+  const obs = new MutationObserver(queueRender);
+  for (const el of [document.documentElement, document.body]) {
+    if (el) obs.observe(el, { attributes: true, attributeFilter: ["data-theme", "class", "style"] });
+  }
+  darkQuery.addEventListener("change", queueRender);
+</script>
+</body>
+</html>

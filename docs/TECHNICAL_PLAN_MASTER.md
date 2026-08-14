@@ -321,11 +321,66 @@ func wordPool(_ plan: QuizPlan, _ lexicon: LexiconService) -> AnySequence<WordSp
 Bāb is deliberately absent from `QuizPlan`: a root's Form I bāb is lexical, so
 filtering by it would really be filtering the root list.
 
+**Relevance: three levels, one idea.** A question is only worth asking when its
+answer isn't already determined. That constraint applies at three scopes, and
+naming them keeps them from being reinvented ad hoc:
+
+| Level | Question | Mechanism |
+|---|---|---|
+| **Plan** | Is this kind worth asking at all under this configuration? | `QuestionKind.space(analysis).count > 1` — below |
+| **Word** | Can *this* word carry it? | the builder returns `nil`; the stream draws again |
+| **Option** | Are the distractors genuinely wrong? | same-form pronouns become extra correct answers; derived distractors come from the verb itself |
+
+The plan level is the one that generalizes across every quiz type: **a question
+is dead when the property it asks about is constant across the pool the plan
+admits.** Select muḍāriʿ only and the tense question has one possible answer —
+measured on the prototype, such a configuration produced 30 questions of which
+18 were free points.
+
+```swift
+/// One entry per question kind. `space` is the set of distinct answers this
+/// question could have under the given plan; fewer than two and it is retired.
+struct QuestionKind {
+  let id: String
+  let quizType: QuizType
+  let label: String                          // for the "This setup asks" panel
+  let reason: String                         // why it was retired, if it was
+  let space: (PlanAnalysis) -> Set<AnyHashable>
+  let requires: ((PlanAnalysis) -> Bool)?    // extra precondition (see bāb)
+  let build: (DrawContext) -> Question?
+}
+
+/// One pass over the pool answers three things at once: how many cells exist
+/// (the count under Start), which properties actually vary (the live kinds),
+/// and therefore what Practice can tell the user it is about to ask.
+struct PlanAnalysis {
+  let cells: Int
+  let tenses: Set<Tense>, voices: Set<Voice>, moods: Set<Mood>
+  let slots: Set<PronounSlot>, forms: Set<FormID>, babs: Set<Bab>
+  let derivedKinds: Set<DerivedNounKind>, derivedForms: Set<FormID>
+}
+
+func relevance(_ plan: QuizPlan) -> (live: [QuestionKind], dead: [QuestionKind])
+```
+
+Two rules that fall out and are worth stating:
+
+- **The doer question can never die** — no configuration can pin a pronoun — so
+  an identify quiz is never empty. Narrow configurations collapse to doer-only,
+  which makes them *harder*, not shorter. Deliberate.
+- **The bāb question needs both tenses**, because it reads the bāb off the
+  citation نَصَرَ يَنْصُرُ; asking it in a past-only quiz would put a muḍāriʿ on
+  screen. That's the `requires` predicate, distinct from the answer space.
+
 **One builder per quiz type**, each a pure function from a `WordSpec` to a
 `Question` — or to `nil` when it can't ask anything about that word (no ism
 mafʿūl for an intransitive verb, no amr outside the 2nd person, no Form I
 maṣdar when the lexicon has none). The stream simply tries the next word, so a
 fourth quiz type later is one file plus one registry entry.
+
+A **drill bundle is the live kinds applied to one word**, not a fixed list of
+three. The word count is the invariant: a word that can only carry two of them
+contributes two, and "Word 3 / 5" stays true.
 
 ```swift
 protocol QuestionBuilder {
@@ -457,10 +512,11 @@ Sources/SarfCore/
     Question.swift            Question, Prompt, Response, AnswerOption
     WordSpec.swift            the identity every question projects from
     QuizPlan.swift            plan + chart resolution + wordPool
+    Relevance.swift           PlanAnalysis, QuestionKind, relevance(plan)
     Builders/                 IdentifyBuilder, ProduceBuilder,
                               DerivedNounBuilder — one per quiz type
     Grading.swift             set match + strict NFC compare with diff
-    QuizService.swift         stream: pool × builders, dedup window
+    QuizService.swift         stream: pool × live kinds, dedup window
   Glossary.swift              display strings (was mixed into GrammarTables)
   Resources/roots.json
 
@@ -623,10 +679,21 @@ weak-spot drill seed, not just a wrong-count. For typed answers the same two
 fields hold the strings, so a recurring ḥaraka error is mineable the same way.
 Endless sessions record exactly the questions actually served.
 
-**Tiering**: Pro = full per-answer records, persisted + CloudKit-synced. Free =
-a **rolling 30-day summary** — daily question counts and accuracy only, no
-per-answer rows — which is what the free Home stats card (spec §5.4) reads, and
-which keeps the Pro dashboard genuinely locked rather than merely hidden.
+**Tiering — the gate is in the view layer, not the data layer.** Every user gets
+full per-answer records from the first build; free users simply can't open the
+screens that slice them. Free = local persistence only; Pro = the same records
+plus CloudKit sync and the screens.
+
+That reverses an earlier decision (a rolling 30-day summary for free) for one
+reason: **data you didn't keep can't be backfilled.** Under the summary model a
+user who subscribes in March gets a dashboard beginning in March; under this one
+they get everything they ever answered — a better product, and the app's
+strongest upsell.
+
+Two obligations follow. **Settings needs "Delete my history"** — storing a
+complete behavioural record for non-paying users and offering no way out is not
+defensible. And the free Home card must be a *query* over the records, never a
+second stored summary, or the two drift.
 
 Because production questions are strictly harder than recognition ones, stats
 should report the two **separately** rather than merging them into one accuracy

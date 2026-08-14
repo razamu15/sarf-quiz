@@ -18,9 +18,12 @@ import { LEXICON } from './lexicon/lexicon-service.js';
 import { fullTable, citation } from './conjugation/conjugation-service.js';
 import {
   questionStream, buildQuiz, buildDrill, PRESETS, presetAvailable,
-  possibleQuestions, gradeInput, WORDS_PER_DRILL,
+  possibleQuestions, gradeInput, relevance, WORDS_PER_DRILL,
 } from './quiz/quiz-service.js';
-import { recordAnswer, summary, dailyRows } from './stats.js';
+import {
+  startSession, recordAnswer, endSession, basicSummary, sessions,
+  accuracyBy, confusions, deleteAll,
+} from './history.js';
 
 const app = document.getElementById('app');
 
@@ -92,7 +95,7 @@ function renderHome() {
     app.append(presetCard({
       title: preset.title,
       ar: preset.ar,
-      desc: `${preset.desc} ${WORDS_PER_DRILL} words · ${WORDS_PER_DRILL * 3} questions.`,
+      desc: `${preset.desc} ${WORDS_PER_DRILL} words.`,
       available: presetAvailable(preset),
       onStart: () => startDrill(preset),
     }));
@@ -100,7 +103,7 @@ function renderHome() {
 }
 
 function statsCard() {
-  const s = summary();
+  const s = basicSummary();
   const card = el(`<button class="statcard">
     <span class="ring" style="--pct:${s.accuracy}"><b>${s.hasHistory ? `${s.accuracy}%` : '—'}</b><span>accuracy</span></span>
     <span class="meta">
@@ -134,6 +137,7 @@ function startDrill(preset) {
   state.rebuild = () => buildDrill(preset);
   const quiz = state.rebuild();
   if (!quiz.length) return alert('No questions possible for this preset yet.');
+  startSession({ types: preset.types, forms: preset.forms, quizType: 'identify' }, preset.id);
   beginQuiz(quiz, { endless: false });
 }
 
@@ -175,10 +179,6 @@ function renderPractice() {
     (v) => p.quizType === v,
     (v) => { p.quizType = v; },
   ));
-  if (p.quizType === 'identify') {
-    app.append(el(`<p class="subtitle">Identify always asks tense, voice and doer.</p>`));
-  }
-
   const isDerived = p.quizType === 'derived';
   if (!isDerived) {
     app.append(el(`<div class="section-label">Tense</div>`));
@@ -240,11 +240,23 @@ function renderPractice() {
     (v) => { p.count = v; },
   ));
 
-  // The count replaces the old failure-after-tap: an over-narrow selection is
-  // visible before you start, and you can see which row to widen.
-  const possible = possibleQuestions(p);
+  // Narrowing the configuration retires questions it has already answered —
+  // ask for muḍāriʿ only and "what tense is this?" has one possible answer.
+  // Rather than silently dropping them, say which questions survived and why
+  // the others didn't, so widening a row visibly brings one back.
+  const { live, dead, analysis } = relevance(p);
+  const asks = el(`<div class="asks">
+    <b>This setup asks</b>
+    ${live.length
+      ? live.map((k) => `<span class="tick">✓ ${k.label}</span>`).join('')
+      : '<span class="cross">Nothing — widen the selection</span>'}
+    ${dead.map((k) => `<span class="cross">${k.label} — ${k.reason}</span>`).join('')}
+  </div>`);
+  app.append(asks);
+
+  const possible = possibleQuestions(p, analysis);
   app.append(el(`<p class="subtitle count-line ${possible ? '' : 'empty'}">${
-    possible ? `≈ ${possible.toLocaleString()} possible questions from this selection`
+    possible ? `≈ ${possible.toLocaleString()} possible questions`
              : 'No questions possible — widen the selection above'
   }</p>`));
 
@@ -264,11 +276,13 @@ function startPlan(p) {
     const first = stream.next();
     if (first.done) return alert('No questions possible for this selection.');
     state.rebuild = null;
+    startSession(plan, 'endless');
     beginQuiz([first.value], { endless: true, stream });
   } else {
     state.rebuild = () => buildQuiz(plan);
     const quiz = state.rebuild();
     if (!quiz.length) return alert('No questions possible for this selection.');
+    startSession(plan, 'custom');
     beginQuiz(quiz, { endless: false });
   }
 }
@@ -460,6 +474,20 @@ function renderMore() {
   app.append(rowNav('Appearance', 'Match system'));
   app.append(rowNav('Restore purchases'));
   app.append(rowNav('Privacy policy'));
+
+  // We keep every answer for every user, so we owe them a way to be rid of it.
+  const s = basicSummary();
+  const wipe = rowNav('Delete my history',
+    s.hasHistory ? `${s.total} answers stored on this device` : 'Nothing stored yet');
+  wipe.classList.add('danger');
+  wipe.onclick = () => {
+    if (!s.hasHistory) return;
+    if (confirm(`Delete all ${s.total} stored answers? This cannot be undone.`)) {
+      deleteAll();
+      render();
+    }
+  };
+  app.append(wipe);
 }
 
 function rowNav(title, sub, badge) {
@@ -470,7 +498,7 @@ function rowNav(title, sub, badge) {
 }
 
 function renderDetailedStats() {
-  const s = summary();
+  const s = basicSummary();
   const bar = el(`<div class="topbar"><button class="quit">‹</button>
     <span class="count table-title">Your progress</span></div>`);
   bar.querySelector('.quit').onclick = () => { state.showStats = false; render(); };
@@ -483,21 +511,58 @@ function renderDetailedStats() {
     <div class="stat-tile"><b>${s.weekTotal}</b><span>this week</span></div>
   </div>`));
 
-  app.append(el(`<div class="section-label">Last 30 days</div>`));
-  const rows = dailyRows().filter((r) => r.n > 0).reverse();
-  if (!rows.length) {
+  if (!s.hasHistory) {
     app.append(el(`<p class="subtitle">Answer some questions and this fills in.</p>`));
-  } else {
-    const list = el(`<div class="breakdown"></div>`);
+    return;
+  }
+
+  // Every breakdown below is a query over the same stored answers a free user
+  // already has — what Pro buys is the screen, not the data.
+  const bars = (label, rows, name) => {
+    if (rows.length < 2) return;
+    app.append(el(`<div class="section-label">${label}</div>`));
+    const box = el(`<div></div>`);
     for (const r of rows) {
-      const pct = Math.round((r.right / r.n) * 100);
-      list.append(el(`<div class="row"><span>${r.date}</span><span>${r.right} / ${r.n} · ${pct}%</span></div>`));
+      box.append(el(`<div class="bar-row">
+        <span>${name(r.key)}</span>
+        <span class="bar-track"><i class="${r.pct < 50 ? 'low' : ''}" style="width:${r.pct}%"></i></span>
+        <small>${r.pct}%</small>
+      </div>`));
+    }
+    app.append(box);
+  };
+
+  bars('By question type', accuracyBy('category'), (k) => CATEGORIES[k]?.label ?? k);
+  bars('By form', accuracyBy('form'), (k) => `Form ${k}`);
+  bars('By verb type', accuracyBy('verbType'), (k) => VERB_TYPE_INFO[k]?.en.split(' (')[0] ?? k);
+
+  const pairs = confusions();
+  if (pairs.length) {
+    app.append(el(`<div class="section-label">Most common mistakes</div>`));
+    const list = el(`<div class="breakdown"></div>`);
+    for (const c of pairs) {
+      list.append(el(`<div class="row">
+        <span>gave <span class="ar-inline">${c.given || '—'}</span>, wanted <span class="ar-inline">${c.expected}</span></span>
+        <span>×${c.n}</span>
+      </div>`));
     }
     app.append(list);
   }
 
-  app.append(el(`<p class="subtitle">Free stats are a rolling 30-day summary — daily counts and
-    accuracy, no per-answer records. Breakdowns by category, form and verb type are Pro.</p>`));
+  const past = sessions();
+  if (past.length) {
+    app.append(el(`<div class="section-label">Recent sessions</div>`));
+    const list = el(`<div class="breakdown"></div>`);
+    for (const sess of past.slice(0, 8)) {
+      const n = sess.answers.length;
+      const r = sess.answers.filter((a) => a.correct).length;
+      list.append(el(`<div class="row">
+        <span>${sess.startedAt.slice(0, 10)} · ${sess.mode}</span>
+        <span>${r} / ${n} · ${Math.round((r / n) * 100)}%</span>
+      </div>`));
+    }
+    app.append(list);
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -543,7 +608,11 @@ function renderQuestion() {
         <span class="count">${state.index + 1} / ${state.quiz.length}</span>
       </div>`);
   bar.querySelector('.quit').onclick = () => {
-    if (!state.answers.length || confirm('Quit this quiz?')) { state.tab = 'home'; render(); }
+    if (!state.answers.length || confirm('Quit this quiz?')) {
+      endSession();   // an abandoned quiz still happened — keep what was answered
+      state.tab = 'home';
+      render();
+    }
   };
   bar.querySelector('.endquiz')?.addEventListener('click', () => {
     state.answers.length ? renderResults() : (state.tab = 'home', render());
@@ -674,7 +743,9 @@ function markAt(text, at) {
 
 function finishAnswer(q, correct, { picked, body }) {
   state.answers.push({ question: q, picked, correct });
-  recordAnswer(correct);
+  // Stored semantically — pronoun keys or the typed string, never a button
+  // position — so confusion pairs stay derivable later.
+  recordAnswer(q, { correct, given: picked });
 
   const fb = el(`<div class="feedback ${correct ? 'good' : 'bad'}">
     ${q.fullMeaning ? `<div class="meaning"><span class="ar">${q.word}</span> — “${q.fullMeaning}”</div>` : ''}
@@ -718,6 +789,8 @@ function finishAnswer(q, correct, { picked, body }) {
 // Results
 // ---------------------------------------------------------------------------
 function renderResults() {
+  endSession();   // commit the session before its numbers are read back
+
   const total = state.answers.length;
   const right = state.answers.filter((a) => a.correct).length;
   const pct = total ? Math.round((right / total) * 100) : 0;
@@ -766,7 +839,7 @@ function renderResults() {
   }
 
   // A reward, not an ad: basic stats are free, so finishing always counts.
-  const s = summary();
+  const s = basicSummary();
   app.append(el(`<p class="fullwidth-note">Added to your streak · ${s.streak} day${s.streak === 1 ? '' : 's'} 🔥</p>`));
 
   app.append(el(`<div class="spacer"></div>`));

@@ -27,8 +27,9 @@ or Bayyinah-style programs. Assumes the user can read voweled Arabic script.
 | **Conjugation table browser** (searchable, all 14 pronouns, offline) | ✅ | ✅ |
 | End-of-quiz results + vocab recap (session only) | ✅ | ✅ |
 | **Basic stats** (accuracy, daily streak, questions this week) | ✅ | ✅ |
-| **Quiz history** (every completed quiz saved) | — | ✅ |
-| **Detailed stats** (by category, form, verb type; trends; weak spots) | — | ✅ |
+| **Quiz history stored** (every answer, every session) | ✅ local | ✅ + iCloud sync |
+| **Quiz history browsable** | — | ✅ |
+| **Detailed stats** (by category, form, verb type; confusion pairs) | — | ✅ |
 | **Weak-spot drills** (auto-generated from your stats) | — | ✅ |
 | **AI Explain** (per-word morphological explanation) | 3 lifetime trial uses | ✅ (fair-use cap) |
 
@@ -45,12 +46,12 @@ configured from the same Practice controls (§5.2a).
 
 | # | Type | Given | Answer | Response |
 |---|---|---|---|---|
-| 1 | **Identify** | The conjugated word (تُنْصَرَانِ) | Its tense, voice and doer | Multiple choice |
+| 1 | **Identify** | The conjugated word (تُنْصَرَانِ) | Its tense, voice, doer, iʿrāb or bāb — whichever the configuration still makes worth asking (§5.2b) | Multiple choice |
 | 2 | **Write the word** | Root + form + chart + pronoun | The word, fully vowelled | Typed Arabic |
 | 3 | **Derived nouns** | See below — two question shapes | The derivative, or its kind + form | Multiple choice |
 
-**Type 1 asks exactly three things: tense, voice, doer** — the existing 3-question
-bundle per word. It is not configurable beyond that.
+**Type 1's repertoire is tense, voice, doer, iʿrāb and bāb.** Which of them a
+given session asks is decided by the configuration, not by the user — see §5.2b.
 
 **Type 3 mixes two question shapes:**
 
@@ -165,9 +166,39 @@ rather than a quiz. Chip rows:
 **Bāb is deliberately not configurable.** Each root's Form I bāb is a lexical fact,
 so filtering by bāb would really be filtering the root list.
 
-**What type 1 asks is also not configurable** — it is always tense, voice and doer.
-The earlier nine-category picker is gone; wazn, iʿrāb, bāb, root and meanings are no
-longer question categories (see §9).
+**What type 1 asks is not configurable either** — the app decides, from the
+configuration itself (§5.2b). Its repertoire is tense, voice, doer, iʿrāb and bāb.
+
+### 5.2b Question relevance — the app drops questions it has already answered
+
+A question is **dead when the property it asks about is constant across the pool
+the configuration admits**. Select muḍāriʿ only and "what kind of verb is this?"
+has one possible answer: it is a free point, and after two of them the user stops
+reading the word. Measured on the prototype, a muḍāriʿ · maʿrūf · rafʿ setup
+produced 30 questions of which 18 were free.
+
+Every question kind declares the answer space it discriminates; fewer than two
+possible answers and it never enters the quiz:
+
+| Question | Retired when |
+|---|---|
+| Tense | one tense selected |
+| Voice | one voice selected, **or** every root in scope is intransitive so the majhūl never appears |
+| Doer | never — no configuration can pin a pronoun, so identify is never empty |
+| Iʿrāb | fewer than two muḍāriʿ states selected |
+| Bāb | one bāb in scope, or a single tense selected (the question reads a citation showing both) |
+| Pick the derivative | the verb has fewer than two derivatives |
+| Which derivative | one kind of derivative in scope |
+| Which form | **one form selected** |
+| Write the word | never — producing a vowelled word is not a multiple choice |
+
+Practice shows the result as a **"This setup asks"** panel listing the live
+questions and, struck through, the retired ones with their reason — so widening a
+row visibly brings a question back. The possible-question count multiplies by the
+live questions, not by the whole repertoire.
+
+Consequence, accepted deliberately: **narrowing the configuration makes the quiz
+harder, not shorter.** A muḍāriʿ-only setup asks nothing but the doer question.
 
 A live "≈ N possible questions" line sits above Start, so an over-narrow selection
 is visible before you tap rather than failing afterwards.
@@ -179,11 +210,23 @@ is visible before you tap rather than failing afterwards.
 
 ### 5.4 Stats
 
-**Basic stats (free)** live on the Home card: overall accuracy, current daily
-streak, and questions answered this week, shown visually. Tapping the card opens
-the detailed dashboard. Free storage is a **rolling 30-day summary** — daily
-counts and accuracy only, no per-answer records — which is enough for the card
-and keeps the Pro dashboard genuinely locked.
+**Every user's full history is stored from the first build** — every answer,
+every session, free tier included. The free/Pro line is drawn in the **view
+layer**, not the data layer: free users accumulate the same records and simply
+can't open the screens that slice them.
+
+The reason is that data you didn't keep can't be backfilled. Under a
+summary-only model, someone who subscribes in March gets a dashboard that begins
+in March; under this one they get every answer they ever gave — a better product
+and the strongest upsell available ("2,341 answers are waiting to be analysed").
+
+- **Free**: records stored **locally only**, no iCloud sync. The Home card shows
+  overall accuracy, current daily streak and questions answered this week — all
+  computed from the records, never stored separately.
+- **Pro**: the same records, synced via CloudKit (named on the paywall), plus
+  the screens that read them.
+- **Settings → Delete my history** removes everything, with a count shown before
+  confirming. No export at launch.
 
 **Detailed dashboard (Pro)**, reached from the Home card or the More tab:
 - **Overview**: total quizzes, questions answered, overall accuracy, current/best
@@ -277,10 +320,13 @@ distinguishable by their English gloss, so hiding it would make questions
 unanswerable rather than harder.
 
 Also dropped from v1.0: **English → Arabic questions** (given a meaning, write the
-word), and the **wazn, iʿrāb, bāb, root and meanings question categories**. Type 1
-asks tense, voice and doer only; the derived-noun material moves into type 3. The
-engine still generates wazn, bāb and meanings — they appear in feedback and in the
-Tables browser, they are simply not asked as questions in v1.0.
+word), and the **wazn, root and meanings question categories**. Iʿrāb and bāb are
+back in type 1's repertoire (§3.1); the derived-noun material lives in type 3. The
+engine still generates the wazn and the bāb meanings — they appear in feedback and
+in explanations, they are simply not asked as their own questions.
+
+Also **not** exported at launch: quiz history. It can be deleted in Settings but
+not extracted.
 
 ## 10. Known deferred fixes
 
