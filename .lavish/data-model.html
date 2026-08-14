@@ -1,0 +1,1120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sarf Quiz — data objects, types &amp; entity model</title>
+<link rel="stylesheet" href="sarf-app.css">
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+  :where(.grid2, .grid3, .stat4) > * { min-width: 0; }
+  :where(p, h1, h2, h3, h4, li, td, th) { overflow-wrap: anywhere; }
+
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font-family: var(--latin); line-height: 1.6; -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 1140px; margin: 0 auto; padding: 40px 22px 120px; }
+
+  .masthead { border-bottom: 1px solid #2b3547; padding-bottom: 26px; margin-bottom: 34px; }
+  .eyebrow { font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--accent); font-weight: 700; }
+  .masthead h1 { font-size: clamp(27px, 4vw, 38px); line-height: 1.15; margin: 10px 0 12px; letter-spacing: -0.02em; }
+  .lede { color: var(--ink-dim); font-size: 16px; max-width: 76ch; }
+  .lede b { color: var(--ink); }
+
+  h2.sec {
+    font-size: 13px; text-transform: uppercase; letter-spacing: .12em; color: var(--ink-dim);
+    margin: 56px 0 18px; padding-bottom: 10px; border-bottom: 1px solid #2b3547;
+  }
+  h2.sec b { color: var(--accent); font-weight: 700; margin-inline-end: 8px; }
+  h2.sec .ans { color: var(--good); font-weight: 700; font-size: 11px; margin-inline-start: 10px; letter-spacing: .08em; }
+  h3.sub { font-size: 19px; margin: 30px 0 8px; letter-spacing: -0.01em; }
+  h3.sub .tag { font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--ink-dim); font-weight: 600; margin-inline-start: 10px; }
+  p.body { font-size: 15px; color: var(--ink-dim); max-width: 80ch; margin: 0 0 14px; }
+  p.body b, li b, td b { color: var(--ink); }
+  p.body .ar, li .ar, td .ar { font-family: var(--arabic); font-size: 18px; }
+  ul.body { font-size: 15px; color: var(--ink-dim); max-width: 80ch; padding-inline-start: 20px; margin: 0 0 14px; }
+  ul.body li { margin-bottom: 7px; }
+  ol.body { font-size: 15px; color: var(--ink-dim); max-width: 80ch; padding-inline-start: 20px; margin: 0 0 14px; }
+  ol.body li { margin-bottom: 9px; }
+  code, .mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+  p.body code, li code, td code, th code { font-size: 12.5px; color: var(--accent); }
+
+  .callout {
+    border-inline-start: 3px solid var(--accent); background: var(--card2);
+    border-radius: 10px; padding: 14px 18px; font-size: 15px; margin: 18px 0; color: var(--ink-dim);
+  }
+  .callout.bad  { border-inline-start-color: var(--bad); }
+  .callout.good { border-inline-start-color: var(--good); }
+  .callout.warn { border-inline-start-color: #d8a13a; }
+  .callout b { color: var(--ink); }
+  .callout .hd { display: block; font-size: 12px; text-transform: uppercase; letter-spacing: .08em; margin-bottom: 6px; color: var(--ink-dim); }
+
+  .tbl-wrap { overflow-x: auto; border: 1px solid #303a4d; border-radius: var(--radius); margin: 16px 0; }
+  table.rev { width: 100%; border-collapse: collapse; background: var(--card); font-size: 14px; min-width: 720px; }
+  table.rev.narrow { min-width: 0; }
+  table.rev th {
+    text-align: start; padding: 11px 14px; font-size: 11px; text-transform: uppercase;
+    letter-spacing: .08em; color: var(--ink-dim); border-bottom: 1px solid #303a4d; background: var(--card2);
+    white-space: nowrap;
+  }
+  table.rev td { padding: 11px 14px; border-bottom: 1px solid #232c3c; vertical-align: top; color: var(--ink-dim); }
+  table.rev tr:last-child td { border-bottom: 0; }
+  table.rev td.t { color: var(--ink); font-weight: 600; white-space: nowrap; }
+  table.rev td.t code { color: var(--ink); font-size: 13px; }
+  table.rev code { font-size: 12.5px; color: var(--accent); }
+  table.rev td .n { color: var(--ink); font-variant-numeric: tabular-nums; font-weight: 600; }
+  table.rev td.rec { color: var(--good); }
+
+  .pill { display: inline-block; font-size: 10.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase;
+          padding: 2px 8px; border-radius: 99px; white-space: nowrap; }
+  .pill.live  { background: rgba(63,185,111,.16); color: var(--good); }
+  .pill.part  { background: rgba(216,161,58,.16); color: #d8a13a; }
+  .pill.plan  { background: rgba(78,168,222,.14); color: var(--accent); }
+  .pill.gone  { background: rgba(224,93,93,.14); color: var(--bad); }
+  .pill.proto { background: #2a3346; color: var(--ink-dim); }
+  .pill.new   { background: rgba(196,140,224,.18); color: #c48ce0; }
+
+  .mermaid { background: var(--card); border: 1px solid #303a4d; border-radius: var(--radius); padding: 18px; overflow-x: auto; margin: 18px 0; }
+  .cap { font-size: 12.5px; color: var(--ink-dim); margin: -6px 0 24px; text-align: center; }
+
+  .grid2 { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 18px; }
+  .grid3 { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 16px; }
+  @media (max-width: 900px) { .grid2, .grid3 { grid-template-columns: minmax(0,1fr); } }
+
+  .panel { background: var(--card); border: 1px solid #303a4d; border-radius: var(--radius); padding: 18px 20px; }
+  .panel h4 { font-size: 12px; text-transform: uppercase; letter-spacing: .1em; color: var(--accent); margin: 0 0 10px; }
+  .panel p { font-size: 14px; color: var(--ink-dim); margin: 0 0 10px; }
+  .panel p:last-child { margin-bottom: 0; }
+  .panel ul { font-size: 14px; color: var(--ink-dim); margin: 0; padding-inline-start: 18px; }
+  .panel ul li { margin-bottom: 5px; }
+
+  .stat4 { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 14px; margin: 20px 0 8px; }
+  @media (max-width: 760px) { .stat4 { grid-template-columns: repeat(2, minmax(0,1fr)); } }
+  .stat4 > div { background: var(--card); border: 1px solid #303a4d; border-radius: 14px; padding: 14px 16px; }
+  .num { font-size: 30px; font-weight: 700; color: var(--accent); display: block; line-height: 1.15; font-variant-numeric: tabular-nums; }
+  .numlabel { font-size: 12.5px; color: var(--ink-dim); }
+
+  pre.code {
+    background: #0b0e14; border: 1px solid #2b3547; border-radius: var(--radius);
+    padding: 16px 18px; overflow-x: auto; font-size: 13px; line-height: 1.65;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace; color: #cdd8ea; margin: 16px 0;
+  }
+  pre.code .c { color: #6b7a91; }
+  pre.code .k { color: #c48ce0; }
+  pre.code .s { color: #8fd3a4; }
+  pre.code .f { color: #4ea8de; }
+  pre.code .r { color: #e0817d; }
+
+  .legend { display: flex; flex-wrap: wrap; gap: 10px 20px; align-items: center; margin: 14px 0 20px;
+            font-size: 13px; color: var(--ink-dim); background: var(--card2); border: 1px solid #303a4d;
+            border-radius: 12px; padding: 12px 16px; }
+  .legend > span { display: inline-flex; align-items: center; gap: 7px; }
+  .legend .sym { font-family: ui-monospace, Menlo, monospace; color: var(--ink); font-weight: 700; }
+  .legend b { color: var(--ink); }
+
+  /* decision forms */
+  .decision {
+    border: 1px solid #3a4761; border-radius: var(--radius); padding: 18px 20px; margin: 20px 0;
+    background: linear-gradient(160deg, var(--card2), var(--card));
+  }
+  .decision > .q { font-size: 15.5px; font-weight: 600; margin-bottom: 4px; color: var(--ink); }
+  .decision > .why { color: var(--ink-dim); font-size: 13.5px; margin-bottom: 14px; }
+  .decision label {
+    display: flex; gap: 10px; align-items: flex-start; padding: 10px 12px; border-radius: 12px;
+    border: 1px solid #303a4d; background: var(--card); margin-bottom: 8px; cursor: pointer; font-size: 14px;
+  }
+  .decision label:hover { border-color: var(--accent); }
+  .decision label input { margin-top: 4px; accent-color: var(--accent); flex: none; }
+  .decision label .opt-b { display: block; font-weight: 600; color: var(--ink); font-family: ui-monospace, Menlo, monospace; font-size: 13.5px; }
+  .decision label .opt-d { display: block; color: var(--ink-dim); font-size: 13px; }
+  .decision .rec { color: var(--good); font-size: 11px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; }
+  .decision button {
+    border: 0; border-radius: 12px; padding: 9px 16px; font-size: 14px; font-weight: 600;
+    background: var(--accent); color: var(--accent-ink); cursor: pointer; font-family: var(--latin); margin-top: 6px;
+  }
+  .decision button:hover { filter: brightness(1.08); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="masthead">
+  <div class="eyebrow">Sarf Quiz · data model · rev 3</div>
+  <h1>Every data object and type in the app, and how they link</h1>
+  <p class="lede">
+    Inventory taken from the <b>web prototype</b>, the authoritative implementation of the v2 model —
+    <code>web-prototype/js/</code>, 216 assertions green. <b>Every name on this page is what the code
+    says now:</b> your four naming picks are applied (§07), <code>tables</code> is
+    <code>manualTables</code>, and the <code>v</code> object is a named <code>WordSpec</code> with a
+    real typedef. The diagrams from rev 2 stand — §03 separates static code from live objects, §04
+    separates composition from id reference, and §06 explains the
+    <code>Question</code>/<code>AnswerRecord</code> overlap you flagged.
+  </p>
+  <div class="stat4">
+    <div><span class="num">11</span><span class="numlabel">closed enums (never grow)</span></div>
+    <div><span class="num">29</span><span class="numlabel">structural types</span></div>
+    <div><span class="num">11</span><span class="numlabel">display-label maps</span></div>
+    <div><span class="num">28</span><span class="numlabel">roots of content today</span></div>
+  </div>
+</header>
+
+<!-- ===================================================================== -->
+<h2 class="sec"><b>01</b> The shape of the model</h2>
+
+<p class="body">
+  Five layers, and one rule that explains the whole arrangement: <b>a word is never stored, it is a
+  join.</b> Everything on the left of the join is content or grammar; everything on the right is a
+  projection of the word that came out.
+</p>
+
+<div class="grid3">
+  <div class="panel">
+    <h4>1 · Closed vocabulary</h4>
+    <p>The enums. Nothing here grows with content — ChartID, PronounSlot, FormID, VerbType, Bāb and
+      friends. They are the join keys the rest of the system uses instead of strings.</p>
+  </div>
+  <div class="panel">
+    <h4>2 · Lexicon (content)</h4>
+    <p><code>Root</code> and its per-form usage. The only thing that grows per root added. The one
+      layer that would ship as JSON in Swift.</p>
+  </div>
+  <div class="panel">
+    <h4>3 · Grammar (code-as-data)</h4>
+    <p>Stems, ending tables, derived-noun templates, form metadata — written out explicitly per verb
+      type so each chart is auditable against the paper handout.</p>
+  </div>
+  <div class="panel">
+    <h4>4 · Engines</h4>
+    <p>One conjugator per verb type behind a single protocol, plus the service that routes to them by
+      <code>root.type</code>. Two of seven exist today.</p>
+  </div>
+  <div class="panel">
+    <h4>5 · Runtime</h4>
+    <p>Plan → analysis → question kinds → questions → answers → history. Every one of these is a
+      projection of the same word identity.</p>
+  </div>
+  <div class="panel">
+    <h4>+ Display</h4>
+    <p>Eleven label maps keyed by the enums. Deliberately separated from grammar in v2 — engine data
+      and display strings never share a type again.</p>
+  </div>
+</div>
+
+<div class="callout">
+  <span class="hd">The identity that ties it together</span>
+  <b>WordSpec</b> — <code>(rootKey, form, chart, slot)</code>, or <code>(rootKey, form, derived)</code>
+  for a derived noun. It is the composite key of the generated word, and it is what
+  <code>Question</code> carries, what <code>AnswerRecord</code> stores, and what every stat later
+  slices by. In the prototype it exists as loose fields rather than a named type — see §06 and §13.
+</div>
+
+<!-- ===================================================================== -->
+<h2 class="sec"><b>02</b> ERD — content, grammar, and the generated word</h2>
+
+<p class="body">
+  Cardinality view: <b>what does it take to produce one Arabic word.</b> The four keys at the bottom
+  are the composite that identifies a cell; <code>WORD_SPEC</code> is the associative entity where
+  they meet. §03 and §04 then cut the same material two other ways.
+</p>
+
+<div class="mermaid">
+erDiagram
+    ROOT ||--|{ ROOT_FORM_USAGE : "forms, by FormID"
+    ROOT_FORM_USAGE ||--o| ENGLISH_FORMS : "en"
+    ROOT_FORM_USAGE ||--o{ MANUAL_TABLE : "manualTables, by ChartID"
+    ROOT }o--|| VERB_TYPE : "type"
+
+    VERB_TYPE ||--o| CONJUGATOR : "2 of 7 built"
+    CONJUGATOR ||--|| GRAMMAR_MODULE : "owns"
+    GRAMMAR_MODULE ||--|{ STEM_SET : "per FormID"
+    GRAMMAR_MODULE ||--|{ DERIVED_TEMPLATES : "per FormID"
+    GRAMMAR_MODULE ||--|{ ENDING_TABLE : "per ChartID"
+    ENDING_TABLE ||--|{ AFFIX : "per PronounSlot"
+    FORM_ID ||--|| FORM_META : "form-level facts"
+
+    CHART_TEMPLATE }o--|| STEM_SET : "stem, by bab"
+    CHART_TEMPLATE }o--|| ENDING_TABLE : "endings"
+    CHART_TEMPLATE ||--o{ WORD_SPEC : "fills one per slot"
+    MANUAL_TABLE ||--o{ WORD_SPEC : "fallback source"
+
+    WORD_SPEC }o--|| ROOT : "rootKey"
+    WORD_SPEC }o--|| FORM_ID : "form"
+    WORD_SPEC }o--o| CHART_ID : "chart"
+    WORD_SPEC }o--o| PRONOUN_SLOT : "slot"
+
+    ROOT {
+        string rootKey PK
+        array radicals
+        VerbType type
+    }
+    ROOT_FORM_USAGE {
+        FormID form PK
+        Bab bab
+        string gloss
+        string masdar
+        bool trans
+    }
+    ENGLISH_FORMS {
+        string past
+        string pp
+        string pres3
+        string ing
+    }
+    MANUAL_TABLE {
+        ChartID chart PK
+        map slotToWord
+    }
+    CONJUGATOR {
+        VerbType handles PK
+        func conjugate
+        func derivedNoun
+    }
+    GRAMMAR_MODULE {
+        map ENDINGS
+        map STEMS
+        map DERIVED
+        map PREFIX_LETTERS
+    }
+    STEM_SET {
+        string madi_malum
+        string madi_majhul
+        string mudari_malum
+        string mudari_majhul
+        string amr
+        char mudariPrefixHaraka
+    }
+    DERIVED_TEMPLATES {
+        string ismFail
+        string ismMaful
+        string masdar
+    }
+    ENDING_TABLE {
+        ChartID chart PK
+    }
+    AFFIX {
+        char h
+        string s
+    }
+    CHART_TEMPLATE {
+        string stem
+        map endings
+        char prefixHaraka
+    }
+    FORM_META {
+        bool conjugable
+        bool hasMajhul
+        array meanings
+    }
+    CHART_ID {
+        Tense tense
+        Voice voice
+        Mood mood
+    }
+    WORD_SPEC {
+        string rootKey FK
+        FormID form FK
+        ChartID chart FK
+        PronounSlot slot FK
+        DerivedNounKind derived FK
+        string word
+    }
+</div>
+<p class="cap">Content and grammar meet at <code>WORD_SPEC</code>. Click any diagram to edit it as a whiteboard.</p>
+
+<!-- ===================================================================== -->
+<h2 class="sec"><b>03</b> Static code vs live objects <span class="ans">◆ answers your diagram-1 note</span></h2>
+
+<p class="body">
+  The ERD above deliberately says nothing about <b>when things exist</b>, which is what made it hard
+  to read. Here is that axis on its own. The question it answers: <b>which of these are compiled-in
+  constants I can just read, and which are objects the app creates while someone is using it?</b>
+</p>
+
+<div class="legend">
+  <span><span class="sym">◆</span> <b>Static</b> — one copy, compiled in, never instantiated</span>
+  <span><span class="sym">●</span> <b>Load-once</b> — built at launch, lives for the process</span>
+  <span><span class="sym">▲</span> <b>Runtime</b> — a new object per interaction</span>
+  <span><span class="sym">■</span> <b>Persisted</b> — outlives the app</span>
+</div>
+
+<div class="mermaid">
+flowchart TB
+    subgraph STATIC["&#9670; STATIC &mdash; compiled in, one copy, never instantiated"]
+        direction LR
+        ENUMS["Closed enums &#183; 11
+        ChartID &#183; PronounSlot &#183; FormID
+        VerbType &#183; Bab &#183; Tense/Voice/Mood"]
+        GRAM["Grammar tables
+        ENDINGS &#183; STEMS &#183; DERIVED
+        PREFIX_LETTERS &#183; FORM_META
+        MERGED_STEMS &#183; IDGHAM_FORMS"]
+        GLOSS["Glossary &#183; 11 label maps
+        PRONOUNS &#183; FORM_NAMES &#183; ..."]
+        ENG["Engine singletons
+        SalimConjugator
+        MudaafConjugator"]
+        REG["Registries
+        QUESTION_KINDS &#183; PRESETS"]
+    end
+
+    subgraph LOAD["&#9679; LOAD-ONCE &mdash; built at launch, lives for the process"]
+        LEX["LEXICON &#183; Root[]
+        + RootFormUsage, EnglishForms
+        + manualTables"]
+    end
+
+    subgraph RUN["&#9650; RUNTIME &mdash; new object per interaction"]
+        PLAN["QuizPlan
+        one per Start tap"]
+        ANA["PoolProfile
+        one per plan"]
+        CCH["ChartTemplate
+        one per conjugate call"]
+        Q["Question
+        one per question shown"]
+        SUB["AnswerOption &#183; Cue
+        Grade"]
+    end
+
+    subgraph PERS["&#9632; PERSISTED &mdash; outlives the app"]
+        SESS["SessionRecord"]
+        ANS["AnswerRecord"]
+    end
+
+    ENUMS -.->|"keys"| LEX
+    GRAM -->|"read by"| ENG
+    LEX -->|"root.type routes to"| ENG
+    ENG -->|"assembles"| CCH
+    LEX -->|"filtered by"| PLAN
+    PLAN -->|"one pass"| ANA
+    ANA -->|"live kinds"| Q
+    REG -->|"defines"| Q
+    CCH -->|"generates the word for"| Q
+    GLOSS -->|"labels"| Q
+    Q -->|"owns"| SUB
+    Q -->|"projected on answer"| ANS
+    ANS --> SESS
+    PLAN -->|"copied into"| SESS
+
+    classDef s fill:#1d2433,stroke:#4ea8de,stroke-width:1px,color:#eef2f8
+    classDef l fill:#1d2433,stroke:#c48ce0,stroke-width:1px,color:#eef2f8
+    classDef r fill:#1d2433,stroke:#3fb96f,stroke-width:1px,color:#eef2f8
+    classDef p fill:#1d2433,stroke:#d8a13a,stroke-width:1px,color:#eef2f8
+    class ENUMS,GRAM,GLOSS,ENG,REG s
+    class LEX l
+    class PLAN,ANA,CCH,Q,SUB r
+    class SESS,ANS p
+</div>
+<p class="cap">Everything in the top band is a constant you can read from anywhere. Only the green and amber bands are ever <code>new</code>-ed.</p>
+
+<div class="callout good">
+  <span class="hd">The practical consequence</span>
+  <b>Only seven types in this whole system are ever instantiated per user action</b> — QuizPlan,
+  PoolProfile, ChartTemplate, Question, AnswerOption, Cue, Grade — plus the two persisted
+  records. Everything else is either a compiled-in table or the one lexicon loaded at launch. That is
+  why the engine needs no state, no cache invalidation and no lifecycle: <code>conjugate()</code> is a
+  pure function over static data plus one <code>Root</code>.
+</div>
+
+<!-- ===================================================================== -->
+<h2 class="sec"><b>04</b> Composition vs id reference <span class="ans">◆ answers your diagram-1 note</span></h2>
+
+<p class="body">
+  The second thing the ERD hid: <b>which objects own their children, and which merely hold a key
+  pointing at something they don't own.</b> That distinction decides what gets deleted with what, what
+  can go stale, and what has to be copied rather than linked.
+</p>
+
+<div class="legend">
+  <span><span class="sym">◆──</span> <b>Composition</b> — owns it; child dies with the parent</span>
+  <span><span class="sym">◇──</span> <b>Aggregation</b> — borrows a shared static object</span>
+  <span><span class="sym">- -&gt;</span> <b>Reference by key</b> — holds a string id, not the object</span>
+</div>
+
+<div class="mermaid">
+classDiagram
+    direction TB
+
+    class Root {
+        +string rootKey
+        +array radicals
+        +VerbType type
+    }
+    class RootFormUsage {
+        +Bab bab
+        +string gloss
+        +bool trans
+    }
+    class EnglishForms
+    class ManualTable
+
+    Root "1" *-- "1..10" RootFormUsage : owns
+    RootFormUsage "1" *-- "0..1" EnglishForms : owns
+    RootFormUsage "1" *-- "0..9" ManualTable : owns
+
+    class ChartTemplate {
+        +string stem
+        +char prefixHaraka
+    }
+    class EndingTable
+    class StemSet
+    class Conjugator
+
+    ChartTemplate "1" o-- "1" EndingTable : borrows static
+    ChartTemplate "1" o-- "1" StemSet : borrows static
+    Conjugator ..> ChartTemplate : assembles
+
+    class WordSpec {
+        +string rootKey
+        +FormID form
+        +ChartID chart
+        +PronounSlot slot
+        +string word
+    }
+    WordSpec ..> Root : by rootKey string
+    Conjugator ..> WordSpec : produces
+
+    class Question {
+        +string prompt
+        +string explanation
+    }
+    class AnswerOption
+    class TargetSpec
+    class Grade
+
+    Question "1" *-- "0..4" AnswerOption : owns
+    Question "1" *-- "0..1" TargetSpec : owns
+    Question "1" *-- "0..1" Grade : owns
+    Question --* WordSpec : embeds identity
+
+    class SessionRecord
+    class AnswerRecord
+    SessionRecord "1" *-- "1..*" AnswerRecord : owns, cascade delete
+    AnswerRecord ..> Root : by rootKey string
+    AnswerRecord --* WordSpec : copies identity
+</div>
+<p class="cap">Filled diamond = owns. Open diamond = borrows something static and shared. Dotted = holds a key only.</p>
+
+<div class="tbl-wrap">
+<table class="rev">
+  <thead><tr><th>Link</th><th>Kind</th><th>Why it matters</th></tr></thead>
+  <tbody>
+    <tr><td class="t"><code>Root</code> → <code>RootFormUsage</code></td><td><b>Composition</b></td>
+        <td>A usage has no meaning without its root. Delete the root, the usages go. In Swift this is a stored property, not a relationship.</td></tr>
+    <tr><td class="t"><code>RootFormUsage</code> → <code>manualTables</code></td><td><b>Composition</b></td>
+        <td>Hand-authored charts belong to that one root's use of that one form. Deleted wholesale when the engine lands.</td></tr>
+    <tr><td class="t"><code>SessionRecord</code> → <code>AnswerRecord</code></td><td><b>Composition</b></td>
+        <td>The one place a cascade delete is explicitly specified (<code>deleteRule: .cascade</code>). "Delete my history" relies on it.</td></tr>
+    <tr><td class="t"><code>Question</code> → <code>AnswerOption</code>, <code>TargetSpec</code></td><td><b>Composition</b></td>
+        <td>Built with the question, discarded with it. Options are meaningless outside the question that framed them.</td></tr>
+    <tr><td class="t"><code>ChartTemplate</code> → <code>EndingTable</code>, <code>StemSet</code></td><td><b>Aggregation</b></td>
+        <td>The chart <i>points at</i> the shared static tables — it never copies them. Thousands of chart assemblies share one <code>ENDINGS</code>.</td></tr>
+    <tr><td class="t"><code>WordSpec</code> → <code>Root</code></td><td class="rec"><b>Key reference</b></td>
+        <td>Holds <code>rootKey: "نصر"</code>, not a <code>Root</code>. Serializable, comparable, and safe to store — the whole reason history survives lexicon edits.</td></tr>
+    <tr><td class="t"><code>AnswerRecord</code> → <code>Root</code></td><td class="rec"><b>Key reference</b></td>
+        <td>Same, and deliberately <b>not</b> a SwiftData relationship: a record from 2026 must still say what it asked even if that root is edited or removed in 2027.</td></tr>
+  </tbody>
+</table>
+</div>
+
+<!-- ===================================================================== -->
+<h2 class="sec"><b>05</b> ERD — quiz runtime and stored history</h2>
+
+<p class="body">
+  <code>WORD_SPEC</code> reappears on the left as the bridge from §02. Note that
+  <code>ANSWER_RECORD</code> flattens the word identity rather than referencing it — the reason is
+  §06, immediately below.
+</p>
+
+<div class="mermaid">
+erDiagram
+    DRILL_PRESET ||--o| QUIZ_PLAN : "Home drills build one"
+    QUIZ_PLAN ||--|| POOL_PROFILE : "one pass over the pool"
+    POOL_PROFILE ||--o{ QUESTION_RULE : "live and retired"
+    QUESTION_RULE ||--o{ QUESTION : "buildFromPool, may return null"
+    WORD_SPEC ||--o{ QUESTION : "identity, verbatim"
+
+    QUESTION ||--o{ ANSWER_OPTION : "choice"
+    QUESTION ||--o| TARGET_SPEC : "produce and derived-pick"
+    QUESTION ||--o| GRADE : "input, on check"
+
+    QUESTION ||--|| ANSWER_RECORD : "projected on answer"
+    SESSION_RECORD ||--|{ ANSWER_RECORD : "answers"
+    SESSION_RECORD }o--|| QUIZ_PLAN : "stored verbatim, replayable"
+    ANSWER_RECORD ||--o{ DERIVED_VIEW : "queried, never stored"
+
+    QUIZ_PLAN {
+        QuizType quizType
+        array tenses
+        array voices
+        array moods
+        array forms
+        array types
+        int_or_endless count
+    }
+    POOL_PROFILE {
+        int cells
+        int derivedCells
+        set tenses
+        set voices
+        set moods
+        set slots
+        set forms
+        set babs
+        set derivedKinds
+        set derivedForms
+    }
+    QUESTION_RULE {
+        string id PK
+        QuizType quizType
+        string label
+        string reason
+        func space
+        func requires
+        func buildFromPool
+        func forWord
+    }
+    QUESTION {
+        QuestionCategory category
+        string rootKey FK
+        FormID formId FK
+        ChartID chartId FK
+        PronounSlot slot FK
+        DerivedNounKind derivedKind
+        VerbType verbType
+        string word
+        string gloss
+        string fullMeaning
+        string prompt
+        string response
+        array correctIndices
+        bool multiSelect
+        array accepted
+        string explanation
+        string tag
+    }
+    ANSWER_OPTION {
+        string ar
+        string en
+        string valueKey
+    }
+    TARGET_SPEC {
+        array radicals
+        string verb
+        array chips
+    }
+    GRADE {
+        bool correct
+        string given
+        string expected
+        int at
+    }
+    ANSWER_RECORD {
+        string quizType
+        string category
+        string rootKey
+        FormID form
+        ChartID chart
+        PronounSlot slot
+        DerivedNounKind derivedKind
+        VerbType verbType
+        string word
+        array expected
+        array given
+        bool correct
+        datetime answeredAt
+    }
+    SESSION_RECORD {
+        string id PK
+        datetime startedAt
+        datetime endedAt
+        string mode
+        object plan
+    }
+    DERIVED_VIEW {
+        object BasicSummary
+        object AccuracyRow
+        object Confusion
+    }
+</div>
+<p class="cap">Plan → analysis → live kinds → questions → records. The three derived views are queries, never stored.</p>
+
+<!-- ===================================================================== -->
+<h2 class="sec"><b>06</b> Why Question and AnswerRecord overlap <span class="ans">◆ answers your diagram-2 note</span></h2>
+
+<p class="body">
+  You spotted it correctly: <b>eight fields appear on both</b> — <code>category</code>,
+  <code>rootKey</code>, <code>form</code>, <code>chart</code>, <code>slot</code>,
+  <code>derivedKind</code>, <code>verbType</code>, <code>word</code>. That is not an accident and it
+  is not (yet) a mistake, but it is <b>currently unenforced</b>, which is the real problem.
+</p>
+
+<h3 class="sub">The relationship is <i>projection</i>, not reference</h3>
+<pre class="code"><span class="c">// what exists today, spread across two files:</span>
+<span class="c">// quiz-service.js</span>
+<span class="k">function</span> <span class="f">verbFields</span>(v, category) {
+  <span class="k">return</span> { category, formId, verbType, chartId, rootKey, slot, word, gloss, fullMeaning };
+}
+<span class="c">// history.js — writes the SAME identity again, by hand</span>
+<span class="k">function</span> <span class="f">recordAnswer</span>(question, { correct, given }) {
+  current.answers.push({ quizType, category, form, verbType, chart, rootKey, slot, derivedKind, word, ... });
+}</pre>
+
+<p class="body">
+  Three reasons the copy is deliberate, in order of how much they matter:
+</p>
+
+<ol class="body">
+  <li><b>Records must survive content change.</b> If <code>AnswerRecord</code> held a pointer (or a
+    SwiftData relationship) to <code>Root</code>, then editing a gloss or deleting a root in 2027
+    would silently rewrite — or dangle — what a 2026 answer says it asked. Copying the identity
+    freezes the question as it was actually put to the user. <b>This is the load-bearing reason.</b></li>
+  <li><b>Different lifetimes.</b> A <code>Question</code> lives for one screen and is discarded; an
+    <code>AnswerRecord</code> is permanent. Objects with a 30-second lifetime and objects with a
+    10-year lifetime should not be the same object.</li>
+  <li><b>Stats query records directly, with no join.</b> <code>accuracyBy('form')</code> groups a flat
+    array. On SwiftData, keeping aggregates off relationship traversal is what keeps the dashboard
+    cheap as history grows.</li>
+</ol>
+
+<div class="callout warn">
+  <span class="hd">What is actually wrong with it today</span>
+  The eight fields are written out <b>three times</b> — <code>verbFields()</code>,
+  <code>derivedFields()</code> and <code>recordAnswer()</code> — and nothing checks that they agree.
+  Add a field to the identity and you must remember all three sites; miss one and history quietly
+  loses a dimension that stats will later need.<br><br>
+  <b>The fix is the same one §13 names:</b> make <code>WordSpec</code> a real type and have both
+  embed it. <code>Question = WordSpec + presentation</code>,
+  <code>AnswerRecord = WordSpec + outcome</code>. The overlap stays — it should — but it becomes
+  <i>one definition used twice</i> instead of three hand-kept copies.
+</div>
+
+<pre class="code"><span class="c">// the shape worth porting instead</span>
+<span class="k">struct</span> <span class="f">WordSpec</span> { rootKey; form; chart; slot; derived; word }
+
+<span class="k">struct</span> <span class="f">Question</span>    { <span class="s">let</span> identity: WordSpec; <span class="s">let</span> prompt; response; explanation }
+<span class="k">struct</span> <span class="f">AnswerRecord</span> { <span class="s">let</span> identity: WordSpec; <span class="s">let</span> expected; given; correct; answeredAt }</pre>
+
+<h2 class="sec"><b>07</b> Naming — applied <span class="ans">✓ your four picks are in the code</span></h2>
+
+<p class="body">
+  All four decisions applied across <code>quiz-service.js</code>, <code>salim-grammar.js</code>,
+  <code>salim-conjugator.js</code>, <code>lexicon-service.js</code>, <code>app.js</code> and the test
+  suite. <b>216 assertions still green</b>, and both renamed render paths verified in the browser.
+  Every name below is what the code says now.
+</p>
+
+<div class="tbl-wrap">
+<table class="rev">
+  <thead><tr><th>Was</th><th>Now</th><th>Where it changed</th></tr></thead>
+  <tbody>
+    <tr><td class="t"><code>ConjugationChart</code></td><td class="rec"><code>ChartTemplate</code></td>
+        <td><code>salimChart()</code> → <code>chartTemplate()</code>, plus its import in the sālim engine. The <b>recipe</b> side of §07a.</td></tr>
+    <tr><td class="t"><code>ConjugationTable</code></td><td><code>ConjugationTable</code> <span class="pill live">kept</span></td>
+        <td>Unchanged — it really is a table of words. The <b>result</b> side.</td></tr>
+    <tr><td class="t"><code>QuestionKind</code></td><td class="rec"><code>QuestionRule</code></td>
+        <td><code>QUESTION_KINDS</code> → <code>QUESTION_RULES</code>, <code>activeKinds</code> → <code>activeRules</code>. Note <code>derivedKind</code> and <code>DERIVED_KINDS</code> are a <i>different</i> "kind" and were deliberately left alone.</td></tr>
+    <tr><td class="t"><code>draw()</code></td><td class="rec"><code>buildFromPool()</code></td>
+        <td>The rule method and all 12 call sites. Helpers followed: <code>drawVoice/drawMood/drawDerived</code> → <code>buildVoice/buildMood/buildDerived</code>.</td></tr>
+    <tr><td class="t"><code>Scope</code></td><td class="rec"><code>RootFilter</code></td><td>26 references across the quiz and lexicon services.</td></tr>
+    <tr><td class="t"><code>PlanAnalysis</code></td><td class="rec"><code>PoolProfile</code></td><td><code>planAnalysis()</code> → <code>poolProfile()</code>; the <code>analysis</code> variable → <code>profile</code> (21 sites).</td></tr>
+    <tr><td class="t"><code>DrawContext</code></td><td class="rec"><code>BuildContext</code></td><td>The <code>ctx</code> object — documentation only, it has no declared name in JS.</td></tr>
+    <tr><td class="t">the <code>v</code> object</td><td class="rec"><code>WordSpec</code></td>
+        <td><code>randomVerb()</code> → <code>randomWordSpec()</code>, <code>verbFields()</code> → <code>specFields()</code>, all 100 <code>v</code> references → <code>spec</code>, <b>plus a real <code>@typedef</code></b> — see below.</td></tr>
+    <tr><td class="t"><code>Cue</code></td><td class="rec"><code>TargetSpec</code></td>
+        <td>The <code>cue</code> field on Question → <code>target</code>; <code>cueChips()</code> → <code>targetChips()</code>. Also updated in <code>app.js</code>'s two render paths.</td></tr>
+    <tr><td class="t"><code>GradeResult</code></td><td class="rec"><code>Grade</code></td><td>Documentation only — <code>gradeInput()</code> returns an anonymous object.</td></tr>
+    <tr><td class="t"><code>Preset</code></td><td class="rec"><code>DrillPreset</code></td><td><code>PRESETS</code> → <code>DRILL_PRESETS</code> across the service, the UI and the tests.</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h3 class="sub">The one that was more than a rename</h3>
+<p class="body">
+  Naming the <code>v</code> object was the pick with structural payoff (§06), so it got a real
+  definition rather than just a new label — the single source of truth those three hand-kept copies
+  should eventually share:
+</p>
+
+<pre class="code"><span class="c">/**
+ * WordSpec — the identity of one generated word, and the single most reused
+ * shape in the system. A Question embeds it; an AnswerRecord copies it. It is
+ * carried as a KEY (rootKey string), never as a Root object reference, so a
+ * stored record still says what it asked after the lexicon is edited.
+ *
+ * Today it is a plain object built by randomWordSpec() and flattened onto
+ * questions by specFields(); history.js writes the same fields again by hand.
+ * Making those three sites share one definition is the open item.
+ */</span>
+<span class="c">@typedef</span>  {object}   <span class="f">WordSpec</span>
+<span class="c">@property</span> {object}   root          <span class="c">// the Root it came from</span>
+<span class="c">@property</span> {string}   formId        <span class="c">// FormID — 'I' … 'X'</span>
+<span class="c">@property</span> {string}   chartId       <span class="c">// ChartID — null for derived nouns</span>
+<span class="c">@property</span> {string}   slot          <span class="c">// PronounSlot — null for derived nouns</span>
+<span class="c">@property</span> {string}   word          <span class="c">// the generated result, NFC-normalised</span>
+<span class="c">@property</span> {boolean} [hasVoicePair] <span class="c">// drills only: the majhūl also exists</span></pre>
+
+<div class="callout warn">
+  <span class="hd">Two judgement calls I made inside your picks</span>
+  <b>The <code>draw</code> helpers came along.</b> You renamed the method to
+  <code>buildFromPool</code>; leaving <code>drawVoice</code>/<code>drawMood</code>/<code>drawDerived</code>
+  behind would have kept the word you were removing. They became
+  <code>buildVoice</code>/<code>buildMood</code>/<code>buildDerived</code> — "FromPool" would have been
+  noise on three private helpers that only ever draw from the pool.<br><br>
+  <b>The <code>cue-card</code> and <code>cue-spec</code> CSS classes were left alone.</b> Renaming the
+  data field is a model change; renaming style hooks is churn across two stylesheets, and "cue card"
+  is still an accurate name for what that card looks like. Say the word if you want them aligned.
+</div>
+
+<div class="callout good">
+  <span class="hd">One thing the tests caught</span>
+  The <code>cue</code> → <code>target</code> pass initially missed <code>smoke.mjs</code>, and the
+  assertion <i>"every produce question carries a cue and one accepted answer"</i> failed immediately —
+  <code>215 passed, 1 failed</code>. Fixed and green. Worth noting because it is exactly the class of
+  half-applied rename that a weaker suite lets through silently.
+</div>
+
+<!-- ===================================================================== -->
+<h2 class="sec"><b>08</b> Inventory — closed vocabulary</h2>
+
+<div class="tbl-wrap">
+<table class="rev">
+  <thead><tr><th>Type</th><th>Members</th><th>Values</th><th>Notes</th></tr></thead>
+  <tbody>
+    <tr><td class="t"><code>ChartID</code></td><td><span class="n">9</span></td>
+        <td><code>madi_malum</code>, <code>madi_majhul</code>, <code>mudari_{malum|majhul}_{raf|nasb|jazm}</code>, <code>amr_malum</code></td>
+        <td>The first-class key of the whole system. One id = one paper table. Carries <code>{tense, voice, mood}</code>.</td></tr>
+    <tr><td class="t"><code>PronounSlot</code></td><td><span class="n">14</span></td>
+        <td><code>3ms 3md 3mp 3fs 3fd 3fp 2ms 2md 2mp 2fs 2fd 2fp 1s 1p</code></td>
+        <td>Classic sarf order. <code>AMR_SLOTS</code> is the 6-member 2nd-person subset; <code>slotsFor(chart)</code> picks.</td></tr>
+    <tr><td class="t"><code>FormID</code></td><td><span class="n">10</span></td><td><code>I</code>–<code>X</code></td>
+        <td><code>MAZEED_IDS</code> = II–X. Form IX is recognition-only (<code>conjugable: false</code>).</td></tr>
+    <tr><td class="t"><code>VerbType</code></td><td><span class="n">7</span></td>
+        <td><code>salim mahmuz mudaaf mithal ajwaf naqis lafif</code></td>
+        <td>The engine routing key. Derivable from radicals — <code>classify()</code> validates every root at load.</td></tr>
+    <tr><td class="t"><code>Bab</code></td><td><span class="n">6</span></td><td><code>1</code>–<code>6</code></td>
+        <td>Form I only, and lexical — which is why it is deliberately absent from <code>QuizPlan</code>.</td></tr>
+    <tr><td class="t"><code>Tense</code></td><td><span class="n">3</span></td><td><code>madi mudari amr</code></td><td>Derived from ChartID, not stored beside it.</td></tr>
+    <tr><td class="t"><code>Voice</code></td><td><span class="n">2</span></td><td><code>malum majhul</code></td><td>Amr charts have none.</td></tr>
+    <tr><td class="t"><code>Mood</code></td><td><span class="n">3</span></td><td><code>raf nasb jazm</code></td><td>Muḍāriʿ only. <code>MOOD_DISTINCT_SLOTS</code> (5 slots) is where the three are visually distinct.</td></tr>
+    <tr><td class="t"><code>DerivedNounKind</code></td><td><span class="n">3</span></td><td><code>ismFail ismMaful masdar</code></td><td>Local const <code>DERIVED_KINDS</code> in the quiz service.</td></tr>
+    <tr><td class="t"><code>QuestionCategory</code></td><td><span class="n">7</span></td>
+        <td><code>tense voice doer mood bab</code> · <code>produce</code> · <code>derived</code></td>
+        <td>Trimmed from 9 — <code>wazn</code>, <code>root</code>, <code>meaning</code> were dropped from v1.0 scope.</td></tr>
+    <tr><td class="t"><code>QuizType</code></td><td><span class="n">3</span></td><td><code>identify produce derived</code></td>
+        <td>Single-select per session. Lives as a string on the plan; no standalone type in JS.</td></tr>
+    <tr><td class="t">ḥaraka consts</td><td><span class="n">5</span></td><td><code>FATHA DAMMA KASRA SUKUN SHADDA</code></td><td>The only raw Arabic characters outside the grammar and lexicon files.</td></tr>
+  </tbody>
+</table>
+</div>
+
+<!-- ===================================================================== -->
+<h2 class="sec"><b>09</b> Inventory — lexicon, grammar and engines</h2>
+
+<h3 class="sub">Lexicon <span class="tag">js/lexicon/ · the only thing that grows with content</span></h3>
+<div class="tbl-wrap">
+<table class="rev">
+  <thead><tr><th>Type</th><th>Shape</th><th>Notes</th><th>Status</th></tr></thead>
+  <tbody>
+    <tr><td class="t"><code>Root</code></td>
+        <td><code>{ root: [3 chars], type, forms }</code></td>
+        <td>28 today: 22 sālim, 4 muḍāʿaf, 1 ajwaf, 1 nāqiṣ. In Swift this is the one remaining JSON resource.</td>
+        <td><span class="pill live">LIVE</span></td></tr>
+    <tr><td class="t"><code>RootFormUsage</code></td>
+        <td><code>{ bab?, gloss, masdar?, trans, en?, manualTables? }</code></td>
+        <td>One per FormID a root is actually used in. Holds only what is <b>lexical</b> — what cannot be derived. Renamed from v1's <code>FormEntry</code>.</td>
+        <td><span class="pill live">LIVE</span></td></tr>
+    <tr><td class="t"><code>EnglishForms</code></td>
+        <td><code>{ past, pp, pres3, ing }</code></td>
+        <td>Optional — regular verbs fall back to <code>+ed</code>/<code>+s</code>/<code>+ing</code>, and <i>"to be …"</i> glosses are auto-conjugated.</td>
+        <td><span class="pill live">LIVE</span></td></tr>
+    <tr><td class="t"><code>manualTables</code></td>
+        <td><code>{ ChartID: { PronounSlot: word } }</code></td>
+        <td><span class="pill new">RENAMED</span> was <code>tables</code>. Hand-authored charts for verb types with no engine yet (<span class="ar">قول</span>, <span class="ar">رمي</span>). Becomes the parity bar, then is deleted at P5.</td>
+        <td><span class="pill part">TEMPORARY</span></td></tr>
+  </tbody>
+</table>
+</div>
+<p class="body" style="font-size:13.5px">
+  Renamed across 5 sites (2 declarations in <code>roots.js</code>, 3 reads). Note the <code>state.tables</code>
+  in <code>app.js</code> is the Tables-<i>tab</i> UI state — unrelated, deliberately untouched. Used
+  camelCase <code>manualTables</code> rather than <code>ManualTables</code> to match every other field
+  in the codebase; say the word if you want PascalCase anyway.
+</p>
+
+<h3 class="sub">Grammar <span class="tag">js/grammar/ · code, not data · all static</span></h3>
+<div class="tbl-wrap">
+<table class="rev">
+  <thead><tr><th>Type</th><th>Shape</th><th>Notes</th></tr></thead>
+  <tbody>
+    <tr><td class="t"><code>Affix</code></td><td><code>{ h: ḥaraka, s: suffix }</code></td>
+        <td>One ending row: the ḥaraka the final radical takes, plus what follows. <code>stem + h + s = word</code>.</td></tr>
+    <tr><td class="t"><code>ENDINGS</code></td><td><code>{ ChartID: { PronounSlot: Affix } }</code></td>
+        <td>9 charts × 14 rows, every row written out. Duplication between charts is deliberate — auditability over DRY.</td></tr>
+    <tr><td class="t"><code>STEMS</code></td><td><code>{ FormID: StemSet }</code></td>
+        <td>One stem per chart family (mood never changes the stem). Form I's are per-bāb, all six written out.</td></tr>
+    <tr><td class="t"><code>DERIVED</code></td><td><code>{ FormID: { kind: template } }</code></td>
+        <td>Derived-noun templates. Form I maṣdar is <code>null</code> — samāʿī, so it comes from the root.</td></tr>
+    <tr><td class="t"><code>PREFIX_LETTERS</code></td><td><code>{ PronounSlot: letter }</code></td>
+        <td>Muḍāriʿ prefix letters. Universal across all seven verb types, so it lives once in the sālim file.</td></tr>
+    <tr><td class="t"><code>FORM_META</code></td><td><code>{ conjugable, hasMajhul, meanings[] }</code></td>
+        <td>Form-level facts true regardless of verb type — the reason this sits in <code>forms.js</code>, not per type.</td></tr>
+    <tr><td class="t"><code>ChartTemplate</code></td><td><code>{ stem, endings, prefixHaraka }</code></td>
+        <td>The one <b>runtime</b> object in this layer — assembled per call by <code>salimChart()</code>. See §07a.</td></tr>
+    <tr><td class="t"><code>MERGED_STEMS</code><br><code>IDGHAM_FORMS</code></td><td><code>{ FormID: StemSet }</code>, <code>Set&lt;FormID&gt;</code></td>
+        <td>Muḍāʿaf only. Holds just the <i>merged</i> stems — unfolded slots are written exactly like a sound verb, so the engine delegates them.</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h3 class="sub">Engines <span class="tag">js/conjugation/ · one per verb type</span></h3>
+<div class="tbl-wrap">
+<table class="rev">
+  <thead><tr><th>Type</th><th>Shape</th><th>Notes</th><th>Status</th></tr></thead>
+  <tbody>
+    <tr><td class="t"><code>VerbTypeConjugator</code></td>
+        <td><code>{ handles, conjugate(root, form, chart, slot), derivedNoun(root, form, kind) }</code></td>
+        <td>The protocol every engine implements. Returns <code>null</code> — never throws — when the cell doesn't exist.</td>
+        <td><span class="pill live">LIVE</span></td></tr>
+    <tr><td class="t"><code>SalimConjugator</code></td><td>implements the above</td><td>Pure template fill. Also the wazn renderer, run on <span class="ar">ف-ع-ل</span>.</td><td><span class="pill live">LIVE</span></td></tr>
+    <tr><td class="t"><code>MudaafConjugator</code></td><td>implements the above</td><td>One rule: idghām where the lām can take a ḥaraka, fakk where the ending forces sukūn.</td><td><span class="pill live">LIVE</span></td></tr>
+    <tr><td class="t">Mahmuz · Mithal · Ajwaf<br>Naqis · Lafif</td><td>same</td><td>P2–P4. Each ships only when it reproduces every <code>manualTables</code> cell for its type.</td><td><span class="pill plan">NOT BUILT</span></td></tr>
+    <tr><td class="t"><code>ENGINES</code> registry</td><td><code>{ VerbType: Conjugator }</code></td><td>Dictionary lookup on <code>root.type</code> — O(1), on data the lexicon already validated.</td><td><span class="pill live">LIVE</span></td></tr>
+    <tr><td class="t"><code>ConjugationTable</code></td><td><code>{ PronounSlot: word }</code></td><td>Returned by <code>fullTable()</code>. The <i>filled</i> chart — see §07a.</td><td><span class="pill live">LIVE</span></td></tr>
+  </tbody>
+</table>
+</div>
+
+<!-- ===================================================================== -->
+<h2 class="sec"><b>10</b> Inventory — quiz runtime</h2>
+
+<div class="tbl-wrap">
+<table class="rev">
+  <thead><tr><th>Type</th><th>Shape</th><th>Role</th></tr></thead>
+  <tbody>
+    <tr><td class="t"><code>QuizPlan</code></td>
+        <td><code>{ quizType, tenses[], voices[], moods[], forms[], types[], count }</code></td>
+        <td>Describes <b>a pool of words</b>, not a set of questions — which is what lets one configuration serve all three quiz types. <code>count</code> is <code>5|10|20|'endless'</code>.</td></tr>
+    <tr><td class="t"><code>RootFilter</code></td><td><code>{ types[], forms[] }</code></td><td>The root-filter half of the plan, passed to <code>candidates()</code>.</td></tr>
+    <tr><td class="t"><code>PoolProfile</code></td>
+        <td><code>{ rootFilter, charts[], cells, tenses, voices, moods, slots, forms, babs, derivedKinds, derivedForms, derivedCells }</code></td>
+        <td>One walk over the pool answers three things at once: how many cells exist, which properties actually vary, and therefore what Practice can say it is about to ask.</td></tr>
+    <tr><td class="t"><code>QuestionRule</code></td>
+        <td><code>{ id, quizType, label, reason, space(), requires?, always?, buildFromPool(), forWord? }</code></td>
+        <td>9 registered. A rule is <b>retired when <code>space(profile).size &lt; 2</code></b> — the property it asks about is constant, so the answer is already given.</td></tr>
+    <tr><td class="t"><code>BuildContext</code></td><td><code>{ rootFilter, charts, profile, plan }</code></td><td>What every <code>buildFromPool()</code> receives.</td></tr>
+    <tr><td class="t"><code>WordSpec</code></td><td><code>{ root, formId, chartId, slot, word, hasVoicePair? }</code></td>
+        <td>Now a named shape with a <code>@typedef</code> (&sect;07). <code>specFields(spec, category)</code> flattens it onto every question.</td></tr>
+    <tr><td class="t"><code>Question</code></td>
+        <td>identity fields + <code>{ prompt, response, options[], correctIndices[], multiSelect, explanation, target?, accepted?, tag? }</code></td>
+        <td>Flat by design — the identity fields <i>are</i> the record that lands in history, verbatim. See §06.</td></tr>
+    <tr><td class="t"><code>AnswerOption</code></td><td><code>{ ar, en, valueKey }</code></td>
+        <td>Carries the semantic value it represents, so an answer records <i>what was picked</i>, not <i>which button</i>. <code>en</code> is blank on derived-pick — the label would name the answer.</td></tr>
+    <tr><td class="t"><code>TargetSpec</code></td><td><code>{ radicals[], chips[] }</code> or <code>{ verb, chips[] }</code></td><td>The specification card for produce and derived-pick questions. A chip is <code>{ ar, en }</code>.</td></tr>
+    <tr><td class="t"><code>Grade</code></td><td><code>{ correct, given, expected, at }</code></td>
+        <td><code>at</code> is the first diverging character index — so feedback distinguishes <i>one ḥaraka off</i> from <i>wrong word</i>.</td></tr>
+    <tr><td class="t"><code>DrillPreset</code></td><td><code>{ id, title, ar, desc, types[], forms[] }</code></td><td>The three Home drills. Always quiz type 1.</td></tr>
+  </tbody>
+</table>
+</div>
+
+<!-- ===================================================================== -->
+<h2 class="sec"><b>11</b> Inventory — history, display, UI state</h2>
+
+<div class="grid2">
+  <div>
+    <h3 class="sub">History <span class="tag">js/history.js</span></h3>
+    <div class="tbl-wrap">
+    <table class="rev narrow">
+      <thead><tr><th>Type</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td class="t"><code>SessionRecord</code></td><td><code>{ id, startedAt, endedAt, mode, plan, answers[] }</code> — the plan is stored verbatim so a setup is replayable.</td></tr>
+        <tr><td class="t"><code>AnswerRecord</code></td><td>13 fields: the flattened word identity + <code>expected</code>/<code>given</code>/<code>correct</code>/<code>answeredAt</code>. Written for <b>every</b> user from build one.</td></tr>
+        <tr><td class="t"><code>BasicSummary</code></td><td><code>{ total, accuracy, streak, weekTotal, week[], hasHistory }</code> — a <i>query</i>, never a second stored summary, or the two drift.</td></tr>
+        <tr><td class="t"><code>AccuracyRow</code></td><td><code>{ key, n, right, pct }</code> — <code>accuracyBy(field)</code> groups by any identity field.</td></tr>
+        <tr><td class="t"><code>Confusion</code></td><td><code>{ expected, given, n }</code> — the weak-spot drill seed.</td></tr>
+      </tbody>
+    </table>
+    </div>
+  </div>
+  <div>
+    <h3 class="sub">Display <span class="tag">js/glossary.js · 11 maps · all static</span></h3>
+    <div class="tbl-wrap">
+    <table class="rev narrow">
+      <thead><tr><th>Map</th><th>Keyed by</th><th>N</th></tr></thead>
+      <tbody>
+        <tr><td class="t"><code>PRONOUNS</code></td><td>PronounSlot</td><td><span class="n">14</span></td></tr>
+        <tr><td class="t"><code>FORM_NAMES</code></td><td>FormID</td><td><span class="n">10</span></td></tr>
+        <tr><td class="t"><code>CHART_LABELS</code></td><td>ChartID</td><td><span class="n">9</span></td></tr>
+        <tr><td class="t"><code>VERB_TYPE_INFO</code></td><td>VerbType</td><td><span class="n">7</span></td></tr>
+        <tr><td class="t"><code>CATEGORIES</code></td><td>QuestionCategory</td><td><span class="n">7</span></td></tr>
+        <tr><td class="t"><code>ABWAB_LABELS</code></td><td>Bab</td><td><span class="n">6</span></td></tr>
+        <tr><td class="t"><code>MEANINGS</code></td><td>meaning key</td><td><span class="n">12</span></td></tr>
+        <tr><td class="t"><code>TENSE_LABELS</code></td><td>Tense</td><td><span class="n">3</span></td></tr>
+        <tr><td class="t"><code>MOOD_LABELS</code></td><td>Mood</td><td><span class="n">3</span></td></tr>
+        <tr><td class="t"><code>NOUN_KIND_LABELS</code></td><td>DerivedNounKind</td><td><span class="n">3</span></td></tr>
+        <tr><td class="t"><code>VOICE_LABELS</code></td><td>Voice</td><td><span class="n">2</span></td></tr>
+      </tbody>
+    </table>
+    </div>
+    <p class="body" style="font-size:13px">Every entry is <code>{ ar, en }</code> (plus <code>desc</code>/<code>group</code> on two). No engine data here and no display strings in the grammar — the v2 split of the old <code>GrammarTables</code> grab-bag.</p>
+  </div>
+</div>
+
+<h3 class="sub">UI state <span class="tag">js/app.js · prototype-only, replaced by SwiftUI view models</span></h3>
+<pre class="code"><span class="k">const</span> state = {
+  tab,                      <span class="c">// 'home' | 'practice' | 'tables' | 'more'</span>
+  plan,                     <span class="c">// the live QuizPlan being configured</span>
+  tables: { rootKey, formId, tense, voice, mood, viewing, highlight },  <span class="c">// Tables TAB state —</span>
+                            <span class="c">// unrelated to lexicon manualTables</span>
+  search, quiz, stream,     <span class="c">// stream = the generator, for endless mode</span>
+  endless, index,
+  answers: [{ question, picked, correct }],   <span class="c">// in-flight, for the results screen</span>
+  selected: <span class="f">Set</span>&lt;<span class="k">int</span>&gt;,        <span class="c">// multi-select answer state</span>
+  typed,                    <span class="c">// the Arabic input box</span>
+  rebuild, showStats,
+};</pre>
+
+<!-- ===================================================================== -->
+<h2 class="sec"><b>12</b> JS → Swift name map</h2>
+
+<div class="tbl-wrap">
+<table class="rev">
+  <thead><tr><th>Prototype (authoritative)</th><th>Planned Swift</th><th>v1 Swift as it exists today</th></tr></thead>
+  <tbody>
+    <tr><td class="t"><code>CHARTS</code> / chart id strings</td><td><code>enum ChartID</code></td><td><span class="pill gone">absent</span> — tuple of Tense/Voice/Mood</td></tr>
+    <tr><td class="t"><code>Root</code></td><td><code>struct Root</code></td><td><code>Root</code> <span class="pill part">old shape</span></td></tr>
+    <tr><td class="t">root <code>forms[FormID]</code></td><td><code>RootFormUsage</code></td><td><code>FormEntry</code> <span class="pill gone">renamed</span></td></tr>
+    <tr><td class="t"><code>ENDINGS</code>/<code>STEMS</code>/<code>DERIVED</code></td><td><code>ChartTemplate</code> literals, one file per verb type</td><td><code>GrammarTables</code> + <code>patterns.json</code> <span class="pill gone">decoded, not code</span></td></tr>
+    <tr><td class="t"><code>{h, s}</code></td><td><code>struct Affix</code></td><td><code>Affix</code> <span class="pill live">same</span></td></tr>
+    <tr><td class="t">engine objects</td><td><code>protocol VerbTypeConjugator</code> ×7</td><td><code>struct Conjugator</code> <span class="pill gone">one engine, special cases</span></td></tr>
+    <tr><td class="t"><code>conjugation-service.js</code></td><td><code>ConjugationService</code></td><td>split across <code>Conjugator</code> + <code>WaznService</code></td></tr>
+    <tr><td class="t"><code>meaning-service.js</code></td><td><code>MeaningService</code></td><td><code>MeaningRenderer</code> <span class="pill gone">renamed</span></td></tr>
+    <tr><td class="t"><code>lexicon-service.js</code></td><td><code>LexiconService</code></td><td><code>ContentStore</code> <span class="pill gone">renamed</span></td></tr>
+    <tr><td class="t"><code>WordSpec</code></td><td><code>struct WordSpec</code></td><td><span class="pill gone">absent</span></td></tr>
+    <tr><td class="t"><code>QuizPlan</code> object</td><td><code>struct QuizPlan</code></td><td><code>QuizSettings</code> <span class="pill gone">different model</span></td></tr>
+    <tr><td class="t"><code>planAnalysis</code>/<code>relevance</code></td><td><code>PoolProfile</code>, <code>QuestionRule</code>, <code>Relevance.swift</code></td><td><span class="pill gone">absent</span> — no relevance model in v1</td></tr>
+    <tr><td class="t"><code>Question</code> (flat)</td><td><code>Question</code> + <code>Prompt</code> + <code>Response</code> enums</td><td><code>Question</code> <span class="pill part">flat, single-answer</span></td></tr>
+    <tr><td class="t"><code>{ar, en, valueKey}</code></td><td><code>AnswerOption</code></td><td><code>AnswerOption</code> <span class="pill live">same</span></td></tr>
+    <tr><td class="t"><code>glossary.js</code></td><td><code>Glossary</code></td><td>mixed into <code>GrammarTables</code> <span class="pill gone">grab-bag</span></td></tr>
+    <tr><td class="t"><code>SessionRecord</code>/<code>AnswerRecord</code></td><td><code>@Model QuizSessionRecord</code> / <code>@Model AnswerRecord</code></td><td><span class="pill gone">absent</span> — no persistence yet</td></tr>
+    <tr><td class="t">—</td><td><code>ExplainPayload</code></td><td><code>ExplainPayload</code> <span class="pill live">exists</span></td></tr>
+  </tbody>
+</table>
+</div>
+
+<div class="callout bad">
+  <span class="hd">Read the right-hand column as history, not as a to-do</span>
+  Those v1 Swift types are not being migrated field by field. Track 2 · S1 ports the frozen prototype
+  structure whole, against a zero-diff run of <code>golden-corpus.json</code>. The v1 tree is
+  replaced, not evolved.
+</div>
+
+<!-- ===================================================================== -->
+<h2 class="sec"><b>13</b> Three things this inventory exposes</h2>
+
+<div class="grid3">
+  <div class="panel">
+    <h4>WordSpec — half fixed</h4>
+    <p><span class="pill part">PARTIAL</span> It now has a name and a <code>@typedef</code>, so the
+      shape is stated once. But the <b>fields are still written out three times</b> —
+      <code>specFields()</code>, <code>derivedFields()</code>, <code>recordAnswer()</code> — and
+      nothing checks they agree.</p>
+    <p>Naming it was the prerequisite; collapsing the three copies into one embedded value is the
+      remaining work, and it should land before the Swift port freezes the shape.</p>
+  </div>
+  <div class="panel">
+    <h4>Two grammars, one ENDINGS</h4>
+    <p><code>MudaafConjugator</code> imports <code>ENDINGS</code> and <code>PREFIX_LETTERS</code>
+      from <code>salim-grammar.js</code>. Correct — the endings genuinely are shared — but the file
+      name says otherwise.</p>
+    <p>Five more engines will import it too. Worth a shared <code>endings.js</code> before P2
+      finishes rather than after.</p>
+  </div>
+  <div class="panel">
+    <h4>The plan is stored twice</h4>
+    <p><code>SessionRecord.plan</code> holds a deep copy of the <code>QuizPlan</code>, and every
+      <code>AnswerRecord</code> under it repeats the identity fields.</p>
+    <p>Intentional (§06), but worth stating out loud before SwiftData turns it into a schema that is
+      expensive to change.</p>
+  </div>
+</div>
+
+<p class="body" style="margin-top:28px">
+  All of the above is read off the code as it stands: <code>216 passed, 0 failed</code> after the
+  <code>manualTables</code> rename and your four naming picks. The next structural move is the one
+  §06 and §13 both point at — collapsing the three hand-kept copies of the WordSpec fields into a
+  single embedded value, before the Swift port turns the shape into a SwiftData schema.
+</p>
+
+</div>
+
+<script type="module">
+  import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.15.0/dist/mermaid.esm.min.mjs";
+
+  const darkQuery = window.matchMedia("(prefers-color-scheme: dark)");
+  const paint = document.createElement("canvas").getContext("2d");
+  function toRgba(color) {
+    paint.clearRect(0, 0, 1, 1);
+    paint.fillStyle = "#000";
+    paint.fillStyle = color;
+    paint.fillRect(0, 0, 1, 1);
+    return paint.getImageData(0, 0, 1, 1).data;
+  }
+  function compositeRgba(foreground, background) {
+    const fa = foreground[3] / 255, ba = background[3] / 255;
+    const alpha = fa + ba * (1 - fa);
+    if (alpha === 0) return [0, 0, 0, 0];
+    return [
+      (foreground[0] * fa + background[0] * ba * (1 - fa)) / alpha,
+      (foreground[1] * fa + background[1] * ba * (1 - fa)) / alpha,
+      (foreground[2] * fa + background[2] * ba * (1 - fa)) / alpha,
+      alpha * 255,
+    ];
+  }
+  function pageIsDark() {
+    const root = document.documentElement;
+    const rootBackground = toRgba(getComputedStyle(root).backgroundColor);
+    const bodyBackground = document.body ? toRgba(getComputedStyle(document.body).backgroundColor) : [0, 0, 0, 0];
+    const [r, g, b, a] = compositeRgba(bodyBackground, rootBackground);
+    if (a > 0) return (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255 < 0.5;
+    const cs = getComputedStyle(root).colorScheme;
+    if (cs.includes("dark") && !cs.includes("light")) return true;
+    if (cs.includes("light") && !cs.includes("dark")) return false;
+    return darkQuery.matches;
+  }
+
+  const diagrams = [...document.querySelectorAll(".mermaid")].map((el) => ({ el, src: el.textContent }));
+  let applied, rendering = false, queued = false;
+  function queueRender() { queued = true; if (rendering) return; void render(); }
+  async function render() {
+    rendering = true;
+    try {
+      while (queued) {
+        queued = false;
+        const theme = pageIsDark() ? "dark" : "default";
+        if (theme === applied) continue;
+        mermaid.initialize({ startOnLoad: false, theme, securityLevel: "strict" });
+        for (const { el, src } of diagrams) { el.removeAttribute("data-processed"); el.textContent = src; }
+        try { await mermaid.run({ nodes: diagrams.map((d) => d.el) }); }
+        catch (error) { console.error("Mermaid diagram render failed:", error); return; }
+        applied = theme;
+      }
+    } finally { rendering = false; if (queued) queueRender(); }
+  }
+  if (document.readyState === "complete") queueRender();
+  else window.addEventListener("load", queueRender, { once: true });
+  const themeObserver = new MutationObserver(queueRender);
+  for (const el of [document.documentElement, document.body]) {
+    if (!el) continue;
+    themeObserver.observe(el, { attributes: true, attributeFilter: ["data-theme", "class", "style"] });
+  }
+  document.addEventListener("change", queueRender, true);
+  document.addEventListener("transitionend", ({ propertyName }) => {
+    if (propertyName === "background-color") queueRender();
+  }, true);
+  darkQuery.addEventListener("change", queueRender);
+</script>
+</body>
+</html>

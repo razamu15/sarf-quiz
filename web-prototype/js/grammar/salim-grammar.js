@@ -280,7 +280,7 @@ export { FORM_META } from './forms.js';
  * Returns { stem, endings, prefixHaraka } — prefixHaraka non-null only for
  * muḍāriʿ charts (majhūl charts always carry ḍamma).
  */
-export function salimChart(formId, chartId, bab = 1) {
+export function chartTemplate(formId, chartId, bab = 1) {
   const meta = FORMS[formId];
   const chartInfo = CHARTS[chartId];
   if (!meta?.conjugable || !chartInfo) return null;

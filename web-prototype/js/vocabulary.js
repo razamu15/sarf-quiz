@@ -71,4 +71,9 @@ export const CATEGORY_IDS = [
   'tense', 'voice', 'doer', 'mood', 'bab',   // type 1 — identify
   'produce',                                  // type 2 — write the word
   'derived',                                  // type 3 — derived nouns
+  'fromMeaning',                              // type 4 — pick the verb from its meaning
 ];
+
+// One per quiz type. Single-select in Practice: one type per session, so the
+// results screen never averages two incomparable skills into one number.
+export const QUIZ_TYPE_IDS = ['identify', 'produce', 'derived', 'fromMeaning'];

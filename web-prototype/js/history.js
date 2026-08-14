@@ -69,8 +69,10 @@ export function startSession(plan, mode) {
 export function recordAnswer(question, { correct, given }) {
   if (!current) startSession(null, 'unknown');
   current.answers.push({
-    quizType: question.response === 'input' ? 'produce'
-      : (question.derivedKind !== undefined ? 'derived' : 'identify'),
+    // Carried on the question itself. It used to be inferred from the
+    // question's shape here, which quietly misfiled any new quiz type that
+    // happened to be multiple choice.
+    quizType: question.quizType ?? 'identify',
     category: question.category,
     form: question.formId ?? null,
     verbType: question.verbType ?? null,

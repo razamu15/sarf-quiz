@@ -112,4 +112,5 @@ export const CATEGORIES = {
   bab:     { label: 'Bāb (Form I)', ar: 'أبواب المجرد', desc: 'the six abwāb' },
   produce: { label: 'Write the word', ar: 'كِتَابَة', desc: 'produce it fully vowelled' },
   derived: { label: 'Derived nouns', ar: 'المشتقات', desc: 'ism fāʿil / mafʿūl / maṣdar' },
+  fromMeaning: { label: 'Meaning → verb', ar: 'مِنَ المَعْنَى', desc: 'pick the verb the English describes' },
 };

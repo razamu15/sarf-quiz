@@ -17,7 +17,7 @@ import {
 import { LEXICON } from './lexicon/lexicon-service.js';
 import { fullTable, citation } from './conjugation/conjugation-service.js';
 import {
-  questionStream, buildQuiz, buildDrill, PRESETS, presetAvailable,
+  questionStream, buildQuiz, buildDrill, DRILL_PRESETS, presetAvailable,
   possibleQuestions, gradeInput, relevance, WORDS_PER_DRILL,
 } from './quiz/quiz-service.js';
 import {
@@ -91,7 +91,7 @@ function renderHome() {
   app.append(statsCard());
 
   app.append(el(`<div class="section-label">Start a drill</div>`));
-  for (const preset of PRESETS) {
+  for (const preset of DRILL_PRESETS) {
     app.append(presetCard({
       title: preset.title,
       ar: preset.ar,
@@ -148,6 +148,7 @@ const QUIZ_TYPES = [
   ['identify', 'Identify', 'تَمْيِيز'],
   ['produce', 'Write the word', 'كِتَابَة'],
   ['derived', 'Derived nouns', 'المُشْتَقَّات'],
+  ['fromMeaning', 'Meaning → verb', 'مِنَ المَعْنَى'],
 ];
 
 function chipRow(items, isOn, onPick, { disabled = false } = {}) {
@@ -244,7 +245,7 @@ function renderPractice() {
   // ask for muḍāriʿ only and "what tense is this?" has one possible answer.
   // Rather than silently dropping them, say which questions survived and why
   // the others didn't, so widening a row visibly brings one back.
-  const { live, dead, analysis } = relevance(p);
+  const { live, dead, profile } = relevance(p);
   const asks = el(`<div class="asks">
     <b>This setup asks</b>
     ${live.length
@@ -254,7 +255,16 @@ function renderPractice() {
   </div>`);
   app.append(asks);
 
-  const possible = possibleQuestions(p, analysis);
+  // English has no iʿrāb, so "Meaning → verb" cannot ask about it: يَنْصُرُ,
+  // يَنْصُرَ and يَنْصُرْ would all read "he helps" and the question would have
+  // three defensible answers. Say so rather than silently ignoring the row.
+  if (p.quizType === 'fromMeaning' && p.tenses.includes('mudari') && p.moods.length > 1) {
+    app.append(el(`<p class="subtitle">English can't express iʿrāb — this quiz type draws
+      one muḍāriʿ state per voice (${p.moods.includes('raf') ? 'marfūʿ' : MOOD_LABELS[p.moods[0]].ar})
+      so every prompt has exactly one right answer.</p>`));
+  }
+
+  const possible = possibleQuestions(p, profile);
   app.append(el(`<p class="subtitle count-line ${possible ? '' : 'empty'}">${
     possible ? `≈ ${possible.toLocaleString()} possible questions`
              : 'No questions possible — widen the selection above'
@@ -619,7 +629,11 @@ function renderQuestion() {
   });
   app.append(bar);
 
-  app.append(q.response === 'input' ? cueCard(q) : wordCard(q));
+  // Three card shapes: a spec to write from, an English meaning to match, or
+  // the word itself. The meaning card must never show q.word — it is the answer.
+  app.append(q.response === 'input' ? cueCard(q)
+    : q.meaningPrompt ? meaningCard(q)
+      : wordCard(q));
   app.append(el(`<div class="prompt">${q.prompt}</div>`));
 
   if (q.response === 'input') renderInputAnswer(q);
@@ -628,12 +642,12 @@ function renderQuestion() {
 
 function wordCard(q) {
   // A 3a question shows the verb it's asking about, not the answer.
-  const shown = q.cue?.verb ?? q.word;
+  const shown = q.target?.verb ?? q.word;
   return el(`<div class="word-card">
     ${q.tag ? `<div class="word-tag">${q.tag}</div>` : ''}
     <div class="word">${shown}</div>
     ${q.gloss ? `<div class="gloss">“${q.gloss}”</div>` : ''}
-    ${q.cue?.chips ? `<div class="cue-spec">${q.cue.chips.map(chipHtml).join('')}</div>`
+    ${q.target?.chips ? `<div class="cue-spec">${q.target.chips.map(chipHtml).join('')}</div>`
       : `<span class="cat">${CATEGORIES[q.category]?.label ?? ''}</span>`}
   </div>`);
 }
@@ -643,9 +657,22 @@ const chipHtml = (c) => `<span>${c.en ?? ''}${c.ar ? `<span class="ar">${c.ar}</
 function cueCard(q) {
   return el(`<div class="word-card cue-card">
     ${q.tag ? `<div class="word-tag">${q.tag}</div>` : ''}
-    <div class="root">${q.cue.radicals.join(' ')}</div>
+    <div class="root">${q.target.radicals.join(' ')}</div>
     ${q.gloss ? `<div class="gloss">“${q.gloss}”</div>` : ''}
-    <div class="cue-spec">${q.cue.chips.map(chipHtml).join('')}</div>
+    <div class="cue-spec">${q.target.chips.map(chipHtml).join('')}</div>
+  </div>`);
+}
+
+/**
+ * Type 4: the English IS the question. The root is shown because every option
+ * is built from it — it orients without narrowing, since the four words differ
+ * by grammar, not by lexicon.
+ */
+function meaningCard(q) {
+  return el(`<div class="word-card meaning-card">
+    ${q.tag ? `<div class="word-tag">${q.tag}</div>` : ''}
+    <div class="meaning-prompt">“${q.meaningPrompt}”</div>
+    <div class="root-hint">${q.rootKey.split('').join(' ')}</div>
   </div>`);
 }
 

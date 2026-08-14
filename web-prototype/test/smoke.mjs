@@ -15,9 +15,9 @@ import {
 } from '../js/conjugation/conjugation-service.js';
 import { verbMeaning as verbMeaningChart, derivedMeaning } from '../js/meaning-service.js';
 import {
-  buildDrill, buildQuiz, questionStream, PRESETS, mazeedPreset, mazeedPresetAvailable,
+  buildDrill, buildQuiz, questionStream, DRILL_PRESETS, mazeedPreset, mazeedPresetAvailable,
   presetAvailable, chartsFor, gradeInput, possibleQuestions, IDENTIFY_CATEGORIES,
-  relevance, planAnalysis, WORDS_PER_DRILL,
+  relevance, poolProfile, WORDS_PER_DRILL, unambiguousCharts,
 } from '../js/quiz/quiz-service.js';
 import { MAZEED_IDS } from '../js/vocabulary.js';
 
@@ -242,7 +242,7 @@ check(availableCharts(qala, 'I').length === 7, 'qala serves exactly its 7 fixtur
   let sawMulti = false;
   let allConsistent = true;
   for (let i = 0; i < 40 && !sawMulti; i++) {
-    const drill = buildDrill(PRESETS[0]);
+    const drill = buildDrill(DRILL_PRESETS[0]);
     for (const q of drill) {
       if (q.category !== 'doer') continue;
       const correctSlots = q.correctIndices.map((idx) => q.options[idx].valueKey);
@@ -260,7 +260,7 @@ check(availableCharts(qala, 'I').length === 7, 'qala serves exactly its 7 fixtur
 // Drill shape: N words, each carrying the question kinds it can support.
 // The word count is the invariant — a word that can't take all three kinds
 // contributes fewer, which is why the question count is a range.
-for (const preset of PRESETS.filter(presetAvailable)) {
+for (const preset of DRILL_PRESETS.filter(presetAvailable)) {
   const quiz = buildDrill(preset);
   const words = new Set(quiz.map((q) => q.tag));
   const shapeOk = words.size === WORDS_PER_DRILL
@@ -439,7 +439,7 @@ for (const [root, formId, kind, want] of derivedCases) {
 }
 
 // The engine, not a fixture table, is serving these roots.
-check(!madd.forms.I.tables && !radd.forms.I.tables,
+check(!madd.forms.I.manualTables && !radd.forms.I.manualTables,
   'muḍāʿaf roots carry no fixture tables — the engine is authoritative');
 
 // Every muḍāʿaf cell is either valid NFC Arabic or null; never a crash, never
@@ -515,7 +515,7 @@ check(chartsFor({ tenses: ['madi'], voices: ['majhul'], moods: [] }).join() === 
     'a muḍāriʿ-only quiz asks nothing but the doer');
 
   // The count reflects live kinds, not the whole repertoire.
-  const a = planAnalysis(narrow);
+  const a = poolProfile(narrow);
   check(possibleQuestions(narrow, a) === a.cells * r.live.length,
     'the question count multiplies by live kinds, not by the category list');
 }
@@ -573,8 +573,8 @@ check(chartsFor({ tenses: ['madi'], voices: ['majhul'], moods: [] }).join() === 
   };
   const qs = buildQuiz(plan);
   check(qs.length === 10, 'produce quiz delivers the requested count');
-  check(qs.every((q) => q.response === 'input' && q.accepted.length === 1 && q.cue?.radicals?.length === 3),
-    'every produce question carries a cue and one accepted answer');
+  check(qs.every((q) => q.response === 'input' && q.accepted.length === 1 && q.target?.radicals?.length === 3),
+    'every produce question carries a target spec and one accepted answer');
   check(qs.every((q) => q.accepted[0] === conjugateChart(byRoot(q.rootKey), q.formId, q.chartId, q.slot)),
     'the accepted answer is the engine\'s own string');
 
@@ -601,6 +601,91 @@ check(chartsFor({ tenses: ['madi'], voices: ['majhul'], moods: [] }).join() === 
   check(names.every((q) => q.options.length === 3), '3b asks which derivative out of the three kinds');
   const forms = qs.filter((q) => q.prompt === 'And which form is it from?');
   check(forms.every((q) => q.correctIndices.length === 1), '3b form question has exactly one answer');
+}
+
+// ---------------------------------------------------------------------------
+// Type 4: from the meaning. English in, one of four Arabic verbs out.
+//
+// The whole risk of this type is ambiguity in the OTHER direction from the doer
+// question: several distinct words can share one English reading, and a prompt
+// with two defensible answers is broken. These assertions are that guarantee.
+// ---------------------------------------------------------------------------
+{
+  // Every mood selected on purpose — this is the configuration that would break
+  // it if the mood collapse were missing.
+  const plan = {
+    quizType: 'fromMeaning', tenses: ['madi', 'mudari'], voices: ['malum', 'majhul'],
+    moods: ['raf', 'nasb', 'jazm'], forms: ['I', 'II', 'IV'], types: ['salim'], count: 60,
+  };
+  const qs = buildQuiz(plan);
+  check(qs.length === 60, 'fromMeaning quiz delivers the requested count');
+  check(qs.every((q) => q.response === 'choice' && q.quizType === 'fromMeaning'),
+    'fromMeaning questions are multiple choice and carry their own quizType');
+  check(qs.every((q) => q.meaningPrompt && q.meaningPrompt.length > 0),
+    'every fromMeaning question states the meaning it is asking about');
+  check(qs.every((q) => q.correctIndices.length === 1 && !q.multiSelect),
+    'fromMeaning has exactly one right answer');
+  check(qs.every((q) => q.options[q.correctIndices[0]].ar === q.word),
+    'the correct option is the word the identity names');
+  check(qs.every((q) => q.options.every((o) => o.en === '')),
+    'fromMeaning options carry no English — it would restate the prompt');
+  check(qs.every((q) => q.options.length >= 3 && q.options.length <= 4),
+    'fromMeaning offers three or four options');
+
+  // The two dedupe rules, stated separately because they catch different bugs.
+  check(qs.every((q) => new Set(q.options.map((o) => o.ar)).size === q.options.length),
+    'fromMeaning options are distinct words — no duplicate button');
+  // THE load-bearing assertion. For every distractor, walk every cell of the
+  // same root that renders that exact word and confirm none of those readings
+  // means what the prompt says. If one did, the question would have two
+  // defensible answers and the user would be marked wrong for being right.
+  const readings = (root, word) => {
+    const out = [];
+    for (const f of Object.keys(root.forms)) {
+      for (const c of CHART_IDS) {
+        for (const s of slotsFor(c)) {
+          if (conjugateChart(root, f, c, s) === word) out.push(verbMeaningChart(root, f, c, s));
+        }
+      }
+    }
+    return out;
+  };
+  check(qs.every((q) => {
+    const root = byRoot(q.rootKey);
+    const answer = q.options[q.correctIndices[0]].ar;
+    return q.options.filter((o) => o.ar !== answer)
+      .every((o) => !readings(root, o.ar).includes(q.meaningPrompt));
+  }), 'no distractor can legitimately mean the prompt');
+
+  // Every option must be a real cell of the same root, not filler.
+  check(qs.every((q) => {
+    const root = byRoot(q.rootKey);
+    return q.options.every((o) => readings(root, o.ar).length > 0);
+  }), 'every distractor is a real conjugation of the same root');
+
+  // The prompt is the engine's own meaning string for the answer cell.
+  check(qs.every((q) => q.meaningPrompt === verbMeaningChart(byRoot(q.rootKey), q.formId, q.chartId, q.slot)),
+    'the prompt is the engine\'s meaning for the answer cell');
+}
+
+// The mood collapse itself: English cannot express iʿrāb, so at most one
+// muḍāriʿ state per voice may be drawn from.
+{
+  const all = ['madi_malum', 'mudari_malum_raf', 'mudari_malum_nasb', 'mudari_malum_jazm',
+    'mudari_majhul_raf', 'mudari_majhul_nasb'];
+  const kept = unambiguousCharts(all);
+  check(kept.includes('madi_malum'), 'mood collapse leaves the māḍī alone');
+  check(kept.filter((c) => c.startsWith('mudari_malum')).length === 1
+     && kept.includes('mudari_malum_raf'), 'mood collapse keeps rafʿ for the maʿlūm');
+  check(kept.filter((c) => c.startsWith('mudari_majhul')).length === 1,
+    'mood collapse keeps one state for the majhūl too');
+  check(unambiguousCharts(['mudari_malum_jazm']).length === 1,
+    'a single selected mood is unambiguous on its own and survives');
+
+  // A plan that selects extra moods must not inflate the count for this type.
+  const oneMood = possibleQuestions({ quizType: 'fromMeaning', tenses: ['mudari'], voices: ['malum'], moods: ['raf'], forms: ['I'], types: ['salim'] });
+  const allMoods = possibleQuestions({ quizType: 'fromMeaning', tenses: ['mudari'], voices: ['malum'], moods: ['raf', 'nasb', 'jazm'], forms: ['I'], types: ['salim'] });
+  check(oneMood === allMoods, 'extra moods do not inflate the fromMeaning count');
 }
 
 // The count under Start is real: a narrow plan reports fewer than a wide one,

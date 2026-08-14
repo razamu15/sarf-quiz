@@ -1,8 +1,12 @@
 // Root lexicon — the only data file in the v2 model (everything else is
 // grammar-as-code). Sālim roots are engine-conjugated; verb types without an
-// engine yet (قول, رمي at the bottom) carry hand-authored FIXTURE tables,
+// engine yet (قول, رمي at the bottom) carry hand-authored MANUAL TABLES,
 // keyed by ChartID, which ConjugationService serves as a fallback and the
 // test suite uses as the parity bar for future per-type engines.
+//
+// forms.*.manualTables → { ChartID: { PronounSlot: word } }, hand-authored.
+//                 Temporary by design: when the verb type's engine lands, these
+//                 become its parity fixtures and the fallback path is deleted.
 //
 // forms.I.bab   → which of the six abwāb (1..6)
 // forms.*.trans → transitive? (majhūl questions only make sense when true)
@@ -250,7 +254,7 @@ export const ROOTS = [
   },
 
   // -------------------------------------------------------------------------
-  // Hand-authored irregulars. Tables override the engine; slots the tables
+  // Hand-authored irregulars. manualTables override the engine; slots they
   // don't cover simply aren't quizzed.
   // -------------------------------------------------------------------------
   {
@@ -259,7 +263,7 @@ export const ROOTS = [
       I: {
         bab: 1, gloss: 'to say', masdar: 'قَوْل', trans: true,
         en: { past: 'said', pp: 'said', pres3: 'says', ing: 'saying' },
-        tables: {
+        manualTables: {
           madi_malum: {
             '3ms': 'قَالَ', '3md': 'قَالَا', '3mp': 'قَالُوا',
             '3fs': 'قَالَتْ', '3fd': 'قَالَتَا', '3fp': 'قُلْنَ',
@@ -316,7 +320,7 @@ export const ROOTS = [
       I: {
         bab: 2, gloss: 'to throw', masdar: 'رَمْي', trans: true,
         en: { past: 'threw', pp: 'thrown', pres3: 'throws', ing: 'throwing' },
-        tables: {
+        manualTables: {
           madi_malum: {
             '3ms': 'رَمَى', '3md': 'رَمَيَا', '3mp': 'رَمَوْا',
             '3fs': 'رَمَتْ', '3fd': 'رَمَتَا', '3fp': 'رَمَيْنَ',

@@ -37,7 +37,7 @@ export const byRoot = (letters) => LEXICON.find((r) => r.root.join('') === lette
 
 export const availableTypes = () => [...new Set(LEXICON.map((r) => r.type))];
 
-/** (root, formId) pairs matching a scope of verb types + forms. */
+/** (root, formId) pairs matching a rootFilter of verb types + forms. */
 export function candidates({ types, forms }) {
   const out = [];
   for (const root of LEXICON) {

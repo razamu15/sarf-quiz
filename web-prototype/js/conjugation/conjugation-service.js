@@ -22,7 +22,7 @@ const norm = (s) => (s == null ? null : s.normalize('NFC'));
 export function conjugate(root, formId, chartId, slot) {
   const engine = ENGINES[root.type];
   if (engine) return engine.conjugate(root, formId, chartId, slot);
-  const fixture = root.forms[formId]?.tables?.[chartId];
+  const fixture = root.forms[formId]?.manualTables?.[chartId];
   return fixture ? norm(fixture[slot] ?? null) : null;
 }
 
