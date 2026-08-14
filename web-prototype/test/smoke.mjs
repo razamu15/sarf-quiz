@@ -278,7 +278,7 @@ check(!mazeedPresetAvailable('IX'), 'IX drill unavailable (recognition-only)');
 
 // Fixed quiz + endless stream
 {
-  const plan = { categories: [], forms: ['I', 'II', 'X'], types: ['salim'], count: 12 };
+  const plan = { forms: ['I', 'II', 'X'], types: ['salim'], count: 12 };
   const fixed = buildQuiz(plan);
   check(fixed.length === 12, 'fixed quiz delivers the requested count');
 

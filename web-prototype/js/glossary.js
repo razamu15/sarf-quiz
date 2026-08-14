@@ -103,14 +103,13 @@ export const VERB_TYPE_INFO = {
   lafif:  { ar: 'لَفِيف',    en: 'two weak radicals', group: 'muʿtall' },
 };
 
+/** One entry per live question category (vocabulary.js CATEGORY_IDS). */
 export const CATEGORIES = {
   tense:   { label: 'Tense', ar: 'زمن الفعل', desc: 'māḍī / muḍāriʿ / amr' },
   voice:   { label: 'Voice', ar: 'معلوم/مجهول', desc: 'doer known or unknown' },
   doer:    { label: 'Doer', ar: 'الضمير', desc: 'person · gender · number' },
-  wazn:    { label: 'Wazn', ar: 'الوزن', desc: 'identify the pattern' },
   mood:    { label: 'Iʿrāb', ar: 'الرفع والنصب والجزم', desc: 'marfūʿ / manṣūb / majzūm' },
   bab:     { label: 'Bāb (Form I)', ar: 'أبواب المجرد', desc: 'the six abwāb' },
-  root:    { label: 'Root', ar: 'الجذر', desc: 'find the original letters' },
+  produce: { label: 'Write the word', ar: 'كِتَابَة', desc: 'produce it fully vowelled' },
   derived: { label: 'Derived nouns', ar: 'المشتقات', desc: 'ism fāʿil / mafʿūl / maṣdar' },
-  meaning: { label: 'Meanings', ar: 'معاني الأبواب', desc: 'what the bāb signifies' },
 };

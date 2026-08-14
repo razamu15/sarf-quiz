@@ -4,7 +4,7 @@
 //   questionStream(plan)   generator; fixed plans take N from it, endless
 //                          plans keep pulling until the user ends the quiz
 //   buildQuiz(plan)        fixed-count convenience over the stream
-//   buildDrill(preset)     N words × 3 questions (tense → voice|wazn → doer)
+//   buildDrill(preset)     N words × the live question kinds (tense → voice → doer)
 //
 // Question shape (the flat fields ARE the QuestionIdentity — they land in
 // history records verbatim; see docs/TECHNICAL_PLAN.md §A.7/B.3):
@@ -18,18 +18,16 @@
 // — the ambiguity is the lesson, not a nuisance to filter out.
 
 import {
-  CHARTS, CHART_IDS, chartId as chartIdFor, slotsFor, SLOTS,
+  CHARTS, CHART_IDS, chartId as chartIdFor, slotsFor,
   MOOD_DISTINCT_SLOTS, FORM_IDS, MAZEED_IDS,
 } from '../vocabulary.js';
 import {
   PRONOUNS, TENSE_LABELS, VOICE_LABELS, MOOD_LABELS, NOUN_KIND_LABELS,
-  FORM_NAMES, ABWAB_LABELS, MEANINGS,
+  FORM_NAMES, ABWAB_LABELS,
 } from '../glossary.js';
 import { FORM_META } from '../grammar/salim-grammar.js';
 import { LEXICON, availableTypes, candidates } from '../lexicon/lexicon-service.js';
-import {
-  conjugate, derivedNoun, waznOf, waznOfDerived, citation, waznCitation,
-} from '../conjugation/conjugation-service.js';
+import { conjugate, derivedNoun, waznOf, citation } from '../conjugation/conjugation-service.js';
 import { verbMeaning, derivedMeaning } from '../meaning-service.js';
 
 const rand = (arr) => arr[Math.floor(Math.random() * arr.length)];
@@ -58,7 +56,7 @@ function singleCorrect(correct, others) {
 // The plan selects a POOL OF WORDS, not a set of questions: tense × voice ×
 // iʿrāb collapse into chart ids, forms and verb types filter roots, and every
 // quiz type then draws from the same pool. That is what makes one
-// configuration serve all three types (docs/TECHNICAL_PLAN_MASTER.md §A.7).
+// configuration serve all three types (docs/TECHNICAL_PLAN.md §A.7).
 // ---------------------------------------------------------------------------
 
 /** tense × voice × iʿrāb → the chart ids a plan admits. */
@@ -186,7 +184,7 @@ export const QUESTION_KINDS = [
     // it would put a muḍāriʿ on screen in a past-tense drill.
     requires: (a) => a.tenses.has('madi') && a.tenses.has('mudari'),
     reason: 'needs both tenses in scope, and more than one bāb',
-    draw: (ctx) => BUILDERS.bab(ctx.scope),
+    draw: (ctx) => makeBabQuestion(ctx.scope),
   },
   {
     id: 'derivedPick', quizType: 'derived', label: 'Pick the derivative',
@@ -331,22 +329,29 @@ function makeDoerQuestion(v) {
   };
 }
 
-function makeWaznQuestion(v) {
-  if (v.root.type !== 'salim') return null; // wazn rendering needs the sālim engine
-  const bab = v.root.forms[v.formId].bab ?? 1;
-  const correctWazn = waznOf(v.formId, v.chartId, v.slot, bab);
-  if (!correctWazn) return null;
-  const correct = { ar: correctWazn, en: FORM_NAMES[v.formId].nameEn, valueKey: v.formId };
-  const others = shuffle(FORM_IDS.filter((f) => f !== v.formId && FORM_META[f].conjugable))
-    .map((f) => ({ ar: waznOf(f, v.chartId, v.slot), en: FORM_NAMES[f].nameEn, valueKey: f }))
-    .filter((o) => o.ar && o.ar !== correctWazn)
-    .slice(0, 3);
-  if (others.length < 2) return null;
+/**
+ * The bāb question reads the ʿayn vowel off a citation (نَصَرَ يَنْصُرُ), which
+ * only sits in plain view on a sound Form I verb — so this one draws its own
+ * word rather than taking whatever the chart pool handed it.
+ */
+function makeBabQuestion(scope) {
+  const pool = candidates(scope).filter((c) => c.formId === 'I' && c.root.type === 'salim');
+  const c = rand(pool);
+  if (!c) return null;
+  const bab = c.root.forms.I.bab;
+  const correct = { ar: ABWAB_LABELS[bab].name, en: ABWAB_LABELS[bab].en, valueKey: String(bab) };
+  const others = shuffle(Object.keys(ABWAB_LABELS).filter((b) => Number(b) !== bab))
+    .slice(0, 3).map((b) => ({ ar: ABWAB_LABELS[b].name, en: ABWAB_LABELS[b].en, valueKey: b }));
+  const cite = citation(c.root, 'I');
   return {
-    ...verbFields(v, 'wazn'),
-    prompt: 'Which wazn is this word on?',
+    category: 'bab', formId: 'I', verbType: c.root.type,
+    chartId: null, rootKey: rootKeyOf(c.root), slot: null,
+    word: cite,
+    gloss: glossOf(c.root, 'I'),
+    fullMeaning: verbMeaning(c.root, 'I', 'madi_malum', '3ms'),
+    prompt: 'Which bāb of the thulāthī mujarrad is this verb from?',
     ...singleCorrect(correct, others),
-    explanation: `${v.word} = ${correctWazn} → ${FORM_NAMES[v.formId].name}.`,
+    explanation: `${cite} (${glossOf(c.root, 'I')}) follows ${ABWAB_LABELS[bab].name} (${ABWAB_LABELS[bab].en}).`,
   };
 }
 
@@ -581,177 +586,26 @@ function drawMood(ctx) {
   return null;
 }
 
-// --- per-category builders ----------------------------------------------------
-
-const BUILDERS = {
-
-  tense(scope, charts = DEFAULT_CHARTS) {
-    const v = randomVerb(scope, charts);
-    return v ? makeTenseQuestion(v) : null;
-  },
-
-  voice(scope, charts = DEFAULT_CHARTS) {
-    // only words where the opposite voice also exists, so both answers are live
-    const voiced = charts.filter((c) => CHARTS[c].tense !== 'amr');
-    if (!voiced.length) return null;
-    for (let i = 0; i < 60; i++) {
-      const v = randomVerb(scope, voiced);
-      if (!v) return null;
-      const { tense, voice, mood } = CHARTS[v.chartId];
-      const opposite = chartIdFor(tense, voice === 'malum' ? 'majhul' : 'malum', mood ?? 'raf');
-      if (!conjugate(v.root, v.formId, opposite, v.slot)) continue;
-      return makeVoiceQuestion(v);
-    }
-    return null;
-  },
-
-  doer(scope, charts = DEFAULT_CHARTS) {
-    const v = randomVerb(scope, charts);
-    return v ? makeDoerQuestion(v) : null;
-  },
-
-  wazn(scope) {
-    const v = randomVerb(scope, ['madi_malum', 'madi_majhul', 'mudari_malum_raf', 'mudari_majhul_raf']);
-    return v ? makeWaznQuestion(v) : null;
-  },
-
-  mood(scope) {
-    // iʿrāb of the muḍāriʿ — only slots where the three states are visually
-    // distinct, and only words where all three actually exist.
-    for (let i = 0; i < 60; i++) {
-      const voice = rand(['malum', 'majhul']);
-      const mood = rand(['raf', 'nasb', 'jazm']);
-      const charts = ['raf', 'nasb', 'jazm'].map((m) => `mudari_${voice}_${m}`);
-      const v = randomVerb(scope, [`mudari_${voice}_${mood}`]);
-      if (!v) return null;
-      if (!MOOD_DISTINCT_SLOTS.includes(v.slot)) continue;
-      if (!charts.every((c) => conjugate(v.root, v.formId, c, v.slot))) continue;
-      const correct = { ...MOOD_LABELS[mood], valueKey: mood };
-      const others = Object.entries(MOOD_LABELS)
-        .filter(([id]) => id !== mood)
-        .map(([id, label]) => ({ ...label, valueKey: id }));
-      const example = mood === 'nasb' ? `لَنْ ${v.word}` : mood === 'jazm' ? `لَمْ ${v.word}` : v.word;
-      return {
-        ...verbFields(v, 'mood'),
-        prompt: 'What is the iʿrāb state of this muḍāriʿ?',
-        ...singleCorrect(correct, others),
-        explanation: `${v.word} is ${correct.ar}${mood === 'raf' ? ' — the default, no governing particle' : ` — as in "${example}"`}.`,
-      };
-    }
-    return null;
-  },
-
-  root(scope) {
-    const v = randomVerb(scope);
-    if (!v) return null;
-    const label = (r) => ({ ar: r.root.join(' - '), en: '', valueKey: rootKeyOf(r) });
-    const others = shuffle(LEXICON.filter((r) => r !== v.root)).slice(0, 3).map(label);
-    if (others.length < 3) return null;
-    return {
-      ...verbFields(v, 'root'),
-      prompt: 'What is the root (three original letters)?',
-      ...singleCorrect(label(v.root), others),
-      explanation: `${v.word} is from ${label(v.root).ar} — ${citation(v.root, v.formId)}, "${glossOf(v.root, v.formId)}".`,
-    };
-  },
-
-  derived(scope) {
-    const pool = candidates(scope).filter((c) => c.root.type === 'salim');
-    for (let i = 0; i < 60; i++) {
-      const c = rand(pool);
-      if (!c) return null;
-      const kind = rand(['ismFail', 'ismMaful', 'masdar']);
-      const word = derivedNoun(c.root, c.formId, kind);
-      if (!word) continue;
-      const correct = { ...NOUN_KIND_LABELS[kind], valueKey: kind };
-      const others = Object.entries(NOUN_KIND_LABELS)
-        .filter(([id]) => id !== kind)
-        .map(([id, label]) => ({ ...label, valueKey: id }));
-      const wazn = kind === 'masdar' && c.formId === 'I'
-        ? null // samāʿī maṣdar has no single wazn
-        : waznOfDerived(c.formId, kind, c.root.forms[c.formId].bab ?? 1);
-      return {
-        category: 'derived', formId: c.formId, verbType: c.root.type,
-        chartId: null, rootKey: rootKeyOf(c.root), slot: null,
-        word,
-        gloss: glossOf(c.root, c.formId),
-        fullMeaning: derivedMeaning(c.root, c.formId, kind),
-        prompt: 'What type of word is this?',
-        ...singleCorrect(correct, others),
-        explanation: `${word} is the ${correct.ar} of ${citation(c.root, c.formId)}${wazn ? ` — pattern ${wazn}` : ''}.`,
-      };
-    }
-    return null;
-  },
-
-  meaning(scope) {
-    const pool = candidates(scope).filter(
-      (c) => MAZEED_IDS.includes(c.formId) && FORM_META[c.formId].meanings.length && c.root.type === 'salim',
-    );
-    const c = rand(pool);
-    if (!c) return null;
-    const meaningKey = rand(FORM_META[c.formId].meanings);
-    const correct = { ...MEANINGS[meaningKey], valueKey: meaningKey };
-    const others = shuffle(Object.keys(MEANINGS).filter((k) => !FORM_META[c.formId].meanings.includes(k)))
-      .slice(0, 3).map((k) => ({ ...MEANINGS[k], valueKey: k }));
-    if (others.length < 3) return null;
-    const word = citation(c.root, c.formId).split(' ')[0];
-    return {
-      category: 'meaning', formId: c.formId, verbType: c.root.type,
-      chartId: null, rootKey: rootKeyOf(c.root), slot: null,
-      word,
-      gloss: glossOf(c.root, c.formId),
-      fullMeaning: verbMeaning(c.root, c.formId, 'madi_malum', '3ms'),
-      prompt: `"${glossOf(c.root, c.formId)}" — what nuance does ${FORM_NAMES[c.formId].name} add here?`,
-      ...singleCorrect(correct, others),
-      explanation: `${FORM_NAMES[c.formId].name} (${FORM_NAMES[c.formId].nameEn}) commonly signifies ${correct.en}.`,
-    };
-  },
-
-  bab(scope) {
-    const pool = candidates(scope).filter((c) => c.formId === 'I' && c.root.type === 'salim');
-    const c = rand(pool);
-    if (!c) return null;
-    const bab = c.root.forms.I.bab;
-    const correct = { ar: ABWAB_LABELS[bab].name, en: ABWAB_LABELS[bab].en, valueKey: String(bab) };
-    const others = shuffle(Object.keys(ABWAB_LABELS).filter((b) => Number(b) !== bab))
-      .slice(0, 3).map((b) => ({ ar: ABWAB_LABELS[b].name, en: ABWAB_LABELS[b].en, valueKey: b }));
-    const cite = citation(c.root, 'I');
-    return {
-      category: 'bab', formId: 'I', verbType: c.root.type,
-      chartId: null, rootKey: rootKeyOf(c.root), slot: null,
-      word: cite,
-      gloss: glossOf(c.root, 'I'),
-      fullMeaning: verbMeaning(c.root, 'I', 'madi_malum', '3ms'),
-      prompt: 'Which bāb of the thulāthī mujarrad is this verb from?',
-      ...singleCorrect(correct, others),
-      explanation: `${cite} (${glossOf(c.root, 'I')}) follows ${ABWAB_LABELS[bab].name} (${ABWAB_LABELS[bab].en}).`,
-    };
-  },
-};
-
 // --- the stream ----------------------------------------------------------------
 
 /**
- * Lazy question source. plan: { categories, forms, types } (+ count for the
- * fixed helper below). Deduplicates over a sliding window (not a global set)
- * so endless mode never starves; returns (ends) only when the scope is so
- * narrow that repeated attempts produce nothing new.
+ * Lazy question source. plan: { quizType, tenses, voices, moods, forms, types }
+ * (+ count for the fixed helper below). Which questions it asks is never
+ * passed in — the plan's live kinds decide, so a configuration never asks a
+ * question it has already answered.
+ *
+ * Deduplicates over a sliding window (not a global set) so endless mode never
+ * starves; returns (ends) only when the scope is so narrow that repeated
+ * attempts produce nothing new.
  */
 export function* questionStream(plan) {
   const analysis = planAnalysis(plan);
   const ctx = { scope: analysis.scope, charts: analysis.charts, analysis, plan };
 
-  // Explicit categories are the escape hatch the older tests use; otherwise
-  // the plan's live kinds decide, so a configuration never asks a question it
-  // has already answered.
-  const legacy = plan.categories?.length ? plan.categories : null;
-  const kinds = legacy ? null : relevance(plan, analysis).live;
-  if (!legacy && !kinds.length) return;
+  const kinds = relevance(plan, analysis).live;
+  if (!kinds.length) return;
 
-  const draw = () => (legacy
-    ? BUILDERS[rand(legacy)]?.(ctx.scope, ctx.charts)
-    : rand(kinds).draw(ctx));
+  const draw = () => rand(kinds).draw(ctx);
 
   const recent = [];
   let failures = 0;
