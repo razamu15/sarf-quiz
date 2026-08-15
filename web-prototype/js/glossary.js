@@ -114,3 +114,13 @@ export const CATEGORIES = {
   derived: { label: 'Derived nouns', ar: 'المشتقات', desc: 'ism fāʿil / mafʿūl / maṣdar' },
   fromMeaning: { label: 'Meaning → verb', ar: 'مِنَ المَعْنَى', desc: 'pick the verb the English describes' },
 };
+
+// Question categories (what a quiz question tests) — one per live question
+// kind, grouped by quiz type. This is the closed set history records store and
+// stats group by; wazn, root and meanings were dropped from v1.0 (spec §9).
+// export const CATEGORY_IDS = [
+//   'tense', 'voice', 'doer', 'mood', 'bab',   // type 1 — identify
+//   'produce',                                  // type 2 — write the word
+//   'derived',                                  // type 3 — derived nouns
+//   'fromMeaning',                              // type 4 — pick the verb from its meaning
+// ];

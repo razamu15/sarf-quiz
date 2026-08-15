@@ -64,16 +64,6 @@ export const VERB_TYPE_IDS = ['salim', 'mahmuz', 'mudaaf', 'mithal', 'ajwaf', 'n
 
 export const BAB_IDS = [1, 2, 3, 4, 5, 6];
 
-// Question categories (what a quiz question tests) — one per live question
-// kind, grouped by quiz type. This is the closed set history records store and
-// stats group by; wazn, root and meanings were dropped from v1.0 (spec §9).
-export const CATEGORY_IDS = [
-  'tense', 'voice', 'doer', 'mood', 'bab',   // type 1 — identify
-  'produce',                                  // type 2 — write the word
-  'derived',                                  // type 3 — derived nouns
-  'fromMeaning',                              // type 4 — pick the verb from its meaning
-];
-
 // One per quiz type. Single-select in Practice: one type per session, so the
 // results screen never averages two incomparable skills into one number.
 export const QUIZ_TYPE_IDS = ['identify', 'produce', 'derived', 'fromMeaning'];

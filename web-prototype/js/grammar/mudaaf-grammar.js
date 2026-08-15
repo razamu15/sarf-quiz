@@ -58,16 +58,24 @@ export const MERGED_STEMS = {
     // In the muḍāriʿ the fāʾ had sukūn, so it takes the ʿayn's vowel and the
     // abwāb stay distinct: يَمُدُّ · يَفِرُّ · يَظَلُّ
     mudari_malum: {
-      1: '1' + D + '2' + SH, 2: '1' + K + '2' + SH, 3: '1' + F + '2' + SH,
-      4: '1' + F + '2' + SH, 5: '1' + D + '2' + SH, 6: '1' + K + '2' + SH,
+      1: '1' + D + '2' + SH, 
+      2: '1' + K + '2' + SH, 
+      3: '1' + F + '2' + SH,
+      4: '1' + F + '2' + SH, 
+      5: '1' + D + '2' + SH, 
+      6: '1' + K + '2' + SH,
     },
     mudari_majhul: '1' + F + '2' + SH,        // يُمَدُّ
 
     // No prosthetic alif: the fāʾ now carries a vowel, so nothing needs
     // supporting. مُدَّا · مُدُّوا · مُدِّي
     amr: {
-      1: '1' + D + '2' + SH, 2: '1' + K + '2' + SH, 3: '1' + F + '2' + SH,
-      4: '1' + F + '2' + SH, 5: '1' + D + '2' + SH, 6: '1' + K + '2' + SH,
+      1: '1' + D + '2' + SH, 
+      2: '1' + K + '2' + SH, 
+      3: '1' + F + '2' + SH,
+      4: '1' + F + '2' + SH, 
+      5: '1' + D + '2' + SH, 
+      6: '1' + K + '2' + SH,
     },
     mudariPrefixHaraka: F,
   },
