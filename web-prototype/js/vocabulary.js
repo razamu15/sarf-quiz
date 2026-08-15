@@ -62,7 +62,22 @@ export const MAZEED_IDS = FORM_IDS.slice(1);
 
 export const VERB_TYPE_IDS = ['salim', 'mahmuz', 'mudaaf', 'mithal', 'ajwaf', 'naqis', 'lafif'];
 
-export const BAB_IDS = [1, 2, 3, 4, 5, 6];
+// ---------------------------------------------------------------------------
+// The six abwāb of the thulāthī mujarrad, named by the vowel pair that IS the
+// bāb: the ʿayn's ḥaraka in the māḍī, then in the muḍāriʿ.
+//
+//   au  نَصَرَ يَنْصُرُ   fatḥa / ḍamma      ia  سَمِعَ يَسْمَعُ   kasra / fatḥa
+//   ai  ضَرَبَ يَضْرِبُ   fatḥa / kasra      uu  كَرُمَ يَكْرُمُ   ḍamma / ḍamma
+//   aa  فَتَحَ يَفْتَحُ   fatḥa / fatḥa      ii  حَسِبَ يَحْسِبُ   kasra / kasra
+//
+// Naming them this way makes the stem tables self-checking: bāb `ia` must
+// carry a kasra on the ʿayn in the māḍī and a fatḥa in the muḍāriʿ, and you can
+// see that in the literal without consulting a legend.
+// ---------------------------------------------------------------------------
+export const BAB_IDS = ['au', 'ai', 'aa', 'ia', 'uu', 'ii'];
+
+/** Form I's citation bāb — what the wazn renderer and probes assume. */
+export const DEFAULT_BAB = 'au';
 
 // One per quiz type. Single-select in Practice: one type per session, so the
 // results screen never averages two incomparable skills into one number.

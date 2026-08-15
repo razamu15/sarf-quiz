@@ -68,14 +68,14 @@ export const FORM_NAMES = {
   X:    { name: 'بَابُ الاسْتِفْعَال',    nameEn: 'Form X (istifʿāl)' },
 };
 
-/** Display names of the six abwāb (the vowels themselves live in the grammar). */
+/** Display names of the six abwāb, keyed by their vowel pair (vocabulary.js). */
 export const ABWAB_LABELS = {
-  1: { name: 'نَصَرَ يَنْصُرُ', en: 'fatḥa / ḍamma' },
-  2: { name: 'ضَرَبَ يَضْرِبُ', en: 'fatḥa / kasra' },
-  3: { name: 'فَتَحَ يَفْتَحُ', en: 'fatḥa / fatḥa' },
-  4: { name: 'سَمِعَ يَسْمَعُ', en: 'kasra / fatḥa' },
-  5: { name: 'كَرُمَ يَكْرُمُ', en: 'ḍamma / ḍamma' },
-  6: { name: 'حَسِبَ يَحْسِبُ', en: 'kasra / kasra' },
+  au: { name: 'نَصَرَ يَنْصُرُ', en: 'fatḥa / ḍamma' },
+  ai: { name: 'ضَرَبَ يَضْرِبُ', en: 'fatḥa / kasra' },
+  aa: { name: 'فَتَحَ يَفْتَحُ', en: 'fatḥa / fatḥa' },
+  ia: { name: 'سَمِعَ يَسْمَعُ', en: 'kasra / fatḥa' },
+  uu: { name: 'كَرُمَ يَكْرُمُ', en: 'ḍamma / ḍamma' },
+  ii: { name: 'حَسِبَ يَحْسِبُ', en: 'kasra / kasra' },
 };
 
 export const MEANINGS = {

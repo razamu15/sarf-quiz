@@ -7,7 +7,13 @@
 // chart-first restructure did not change a single generated word. New v2
 // assertions (charts, tables, multi-select, stream) follow at the bottom.
 
-import { chartId, CHART_IDS, SLOTS, AMR_SLOTS, slotsFor } from '../js/vocabulary.js';
+import {
+  chartId, CHART_IDS, SLOTS, AMR_SLOTS, slotsFor,
+  FORM_IDS, BAB_IDS, DEFAULT_BAB, FATHA as FATHA_C, DAMMA as DAMMA_C,
+} from '../js/vocabulary.js';
+import { mudariPrefixHaraka } from '../js/grammar/forms.js';
+import { stemFor } from '../js/grammar/salim-grammar.js';
+import { ABWAB_LABELS } from '../js/glossary.js';
 import { LEXICON, classify } from '../js/lexicon/lexicon-service.js';
 import {
   conjugate as conjugateChart, derivedNoun, waznOf as waznOfChart,
@@ -28,7 +34,7 @@ import { MAZEED_IDS } from '../js/vocabulary.js';
 // --- v1-compat shims: same call shapes as the old engine API ---------------
 const conjugate = (root, formId, tense, voice, slot, mood = 'raf') =>
   conjugateChart(root, formId, chartId(tense, voice, mood), slot);
-const waznOf = (formId, tense, voice, slot, bab = 1, mood = 'raf') =>
+const waznOf = (formId, tense, voice, slot, bab = 'au', mood = 'raf') =>
   waznOfChart(formId, chartId(tense, voice, mood), slot, bab);
 const verbMeaning = (root, formId, tense, voice, slot) =>
   verbMeaningChart(root, formId, chartId(tense, voice), slot);
@@ -213,6 +219,55 @@ console.log('Form I mudari (كتب):', Object.values(fullTable(kataba, 'I', 'mud
 const check = (ok, label) => {
   if (ok) { pass++; } else { fail++; console.log(`FAIL: ${label}`); }
 };
+
+// ---------------------------------------------------------------------------
+// The two seams every future conjugator will lean on.
+//
+// Both exist so that adding ajwaf/nāqiṣ/mithāl is writing stems, not rewriting
+// plumbing — so they get asserted directly rather than only through the engines.
+// ---------------------------------------------------------------------------
+
+// 1. The muḍāriʿ prefix ḥaraka is a FORM fact, shared by every verb type.
+check(mudariPrefixHaraka('I', 'malum') === FATHA_C, 'Form I maʿlūm prefix is fatḥa');
+check(mudariPrefixHaraka('V', 'malum') === FATHA_C, 'Form V maʿlūm prefix is fatḥa');
+check(mudariPrefixHaraka('X', 'malum') === FATHA_C, 'Form X maʿlūm prefix is fatḥa');
+check(['II', 'III', 'IV'].every((f) => mudariPrefixHaraka(f, 'malum') === DAMMA_C),
+  'Forms II–IV take ḍamma on the maʿlūm prefix');
+check(FORM_IDS.every((f) => mudariPrefixHaraka(f, 'majhul') === DAMMA_C),
+  'the majhūl prefix is ḍamma in every form, without exception');
+// The rule it replaces: both engines used to carry their own copy per form.
+check(FORM_IDS.every((f) => {
+  const viaFn = mudariPrefixHaraka(f, 'malum');
+  return viaFn === FATHA_C || viaFn === DAMMA_C;
+}), 'every form resolves to a real ḥaraka');
+
+// 2. Consulting a bāb is an explicit decision about the form, not a shape test.
+check(stemFor('I', 'madi_malum', 'ia') === stemFor('I', 'madi_malum', 'ii'),
+  'ia and ii share a māḍī stem — both kasra on the ʿayn');
+check(stemFor('I', 'madi_malum', 'uu') !== stemFor('I', 'madi_malum', 'au'),
+  'uu and au differ in the māḍī — ḍamma vs fatḥa');
+check(stemFor('I', 'mudari_malum', 'au') !== stemFor('I', 'mudari_malum', 'ai'),
+  'au and ai differ in the muḍāriʿ — ḍamma vs kasra');
+check(stemFor('I', 'madi_malum', null) === null,
+  'Form I without a bāb is refused, not silently defaulted');
+check(stemFor('I', 'madi_majhul', null) !== null,
+  'the Form I majhūl neutralises the bāb, so it needs none');
+check(stemFor('II', 'madi_malum', null) === stemFor('II', 'madi_malum', 'uu'),
+  'a mazīd form ignores the bāb entirely — passing one changes nothing');
+check(stemFor('IX', 'amr', null) === null, 'Form IX has no amr stem');
+check(stemFor('nonsense', 'madi_malum', 'au') === null, 'an unknown form yields null');
+
+// 3. The bāb vocabulary agrees with itself across the three places it appears.
+check(BAB_IDS.length === 6 && BAB_IDS.every((b) => /^[aiu][aiu]$/.test(b)),
+  'the six abwāb are vowel-pair strings');
+check(BAB_IDS.every((b) => ABWAB_LABELS[b]), 'every bāb id has a display label');
+check(Object.keys(ABWAB_LABELS).every((b) => BAB_IDS.includes(b)),
+  'no display label names a bāb that does not exist');
+check(BAB_IDS.every((b) => stemFor('I', 'madi_malum', b) && stemFor('I', 'mudari_malum', b)),
+  'every bāb has both a māḍī and a muḍāriʿ Form I stem');
+check(LEXICON.filter((r) => r.forms.I).every((r) => BAB_IDS.includes(r.forms.I.bab)),
+  'every Form I root in the lexicon declares a real bāb');
+check(BAB_IDS.includes(DEFAULT_BAB), 'the default bāb is one of the six');
 
 // Verb-type classification agrees with every declared type (load validated it;
 // assert classify directly too)

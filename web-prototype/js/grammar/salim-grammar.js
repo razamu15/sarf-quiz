@@ -8,15 +8,19 @@
 //             the madrasa handout on its own, without chasing shared
 //             constants. (madi_malum and madi_majhul really do share
 //             endings in the language; they are still written twice.)
-//   STEMS     per form: one stem per chart family (mood never changes the
-//             stem). Form I stems are per-bāb, written out for all six.
-//   FORM_META conjugability, majhūl availability, derived-noun templates,
-//             rhetorical meanings.
+//   VERB_FORM_STEMS   per form: one stem per chart family (mood never changes
+//             the stem). Form I stems are per-bāb, written out for all six.
+//   DERIVED_NOUN_STEMS  ism fāʿil / ism mafʿūl / maṣdar templates per form.
+//   FORM_META conjugability, majhūl availability, rhetorical meanings — and
+//             the muḍāriʿ prefix ḥaraka, which is shared by every verb type.
 //
 // Every ending row is (final-radical ḥaraka, suffix): stem + h + s = word.
 
-import { FATHA as F, DAMMA as D, KASRA as K, SUKUN as S, SHADDA as SH, CHARTS } from '../vocabulary.js';
-import { FORM_META as FORMS } from './forms.js';
+import {
+  FATHA as F, DAMMA as D, KASRA as K, SUKUN as S, SHADDA as SH,
+  CHARTS, DEFAULT_BAB,
+} from '../vocabulary.js';
+import { FORM_META as FORMS, mudariPrefixHaraka } from './forms.js';
 
 const A = (h, s) => ({ h, s });
 
@@ -113,37 +117,49 @@ export const ENDINGS = {
 // Stems. One per chart family (moods share the stem). Form I varies by bāb —
 // all six written out. Templates use 1/2/3 as radical placeholders and omit
 // the final radical's ḥaraka (the ending row supplies it).
+//
+// The muḍāriʿ prefix ḥaraka is NOT here: it is a form-level fact shared by
+// every verb type, so it lives once in forms.js.
 // ---------------------------------------------------------------------------
-export const STEMS = {
+
+/**
+ * The Form I stem keys that vary by bāb. The bāb IS the ʿayn's vowel pair, so
+ * only the charts that expose that vowel are per-bāb — the majhūl neutralises
+ * it (فُعِلَ / يُفْعَلُ regardless of bāb), which is why it is absent here.
+ * Mazīd forms fix the ʿayn vowel in their pattern and never consult a bāb.
+ */
+export const FORM_I_PER_BAB = new Set(['madi_malum', 'mudari_malum', 'amr']);
+
+export const VERB_FORM_STEMS = {
   I: {
-    // bāb:            1 naṣara        2 ḍaraba        3 fataḥa        4 samiʿa        5 karuma        6 ḥasiba
+    // Read each bāb key against its stem: `ia` must show kasra on the ʿayn in
+    // the māḍī and fatḥa in the muḍāriʿ, and it does.
     madi_malum: {
-      1: '1' + F + '2' + F + '3',
-      2: '1' + F + '2' + F + '3', 
-      3: '1' + F + '2' + F + '3',
-      4: '1' + F + '2' + K + '3', 
-      5: '1' + F + '2' + D + '3', 
-      6: '1' + F + '2' + K + '3',
+      au: '1' + F + '2' + F + '3',
+      ai: '1' + F + '2' + F + '3',
+      aa: '1' + F + '2' + F + '3',
+      ia: '1' + F + '2' + K + '3',
+      uu: '1' + F + '2' + D + '3',
+      ii: '1' + F + '2' + K + '3',
     },
     madi_majhul: '1' + D + '2' + K + '3',
     mudari_malum: {
-      1: '1' + S + '2' + D + '3', 
-      2: '1' + S + '2' + K + '3', 
-      3: '1' + S + '2' + F + '3',
-      4: '1' + S + '2' + F + '3', 
-      5: '1' + S + '2' + D + '3', 
-      6: '1' + S + '2' + K + '3',
+      au: '1' + S + '2' + D + '3',
+      ai: '1' + S + '2' + K + '3',
+      aa: '1' + S + '2' + F + '3',
+      ia: '1' + S + '2' + F + '3',
+      uu: '1' + S + '2' + D + '3',
+      ii: '1' + S + '2' + K + '3',
     },
     mudari_majhul: '1' + S + '2' + F + '3',
     amr: {
-      1: 'ا' + D + '1' + S + '2' + D + '3', 
-      2: 'ا' + K + '1' + S + '2' + K + '3', 
-      3: 'ا' + K + '1' + S + '2' + F + '3',
-      4: 'ا' + K + '1' + S + '2' + F + '3', 
-      5: 'ا' + D + '1' + S + '2' + D + '3', 
-      6: 'ا' + K + '1' + S + '2' + K + '3',
+      au: 'ا' + D + '1' + S + '2' + D + '3',
+      ai: 'ا' + K + '1' + S + '2' + K + '3',
+      aa: 'ا' + K + '1' + S + '2' + F + '3',
+      ia: 'ا' + K + '1' + S + '2' + F + '3',
+      uu: 'ا' + D + '1' + S + '2' + D + '3',
+      ii: 'ا' + K + '1' + S + '2' + K + '3',
     },
-    mudariPrefixHaraka: F,
   },
   II: {
     madi_malum: '1' + F + '2' + SH + F + '3',
@@ -151,7 +167,6 @@ export const STEMS = {
     mudari_malum: '1' + F + '2' + SH + K + '3',
     mudari_majhul: '1' + F + '2' + SH + F + '3',
     amr: '1' + F + '2' + SH + K + '3',
-    mudariPrefixHaraka: D,
   },
   III: {
     madi_malum: '1' + F + 'ا' + '2' + F + '3',
@@ -159,7 +174,6 @@ export const STEMS = {
     mudari_malum: '1' + F + 'ا' + '2' + K + '3',
     mudari_majhul: '1' + F + 'ا' + '2' + F + '3',
     amr: '1' + F + 'ا' + '2' + K + '3',
-    mudariPrefixHaraka: D,
   },
   IV: {
     madi_malum: 'أ' + F + '1' + S + '2' + F + '3',
@@ -167,7 +181,6 @@ export const STEMS = {
     mudari_malum: '1' + S + '2' + K + '3',
     mudari_majhul: '1' + S + '2' + F + '3',
     amr: 'أ' + F + '1' + S + '2' + K + '3',
-    mudariPrefixHaraka: D,
   },
   V: {
     madi_malum: 'ت' + F + '1' + F + '2' + SH + F + '3',
@@ -175,7 +188,6 @@ export const STEMS = {
     mudari_malum: 'ت' + F + '1' + F + '2' + SH + F + '3',
     mudari_majhul: 'ت' + F + '1' + F + '2' + SH + F + '3',
     amr: 'ت' + F + '1' + F + '2' + SH + F + '3',
-    mudariPrefixHaraka: F,
   },
   VI: {
     madi_malum: 'ت' + F + '1' + F + 'ا' + '2' + F + '3',
@@ -183,7 +195,6 @@ export const STEMS = {
     mudari_malum: 'ت' + F + '1' + F + 'ا' + '2' + F + '3',
     mudari_majhul: 'ت' + F + '1' + F + 'ا' + '2' + F + '3',
     amr: 'ت' + F + '1' + F + 'ا' + '2' + F + '3',
-    mudariPrefixHaraka: F,
   },
   VII: {
     madi_malum: 'ا' + K + 'ن' + S + '1' + F + '2' + F + '3',
@@ -191,7 +202,6 @@ export const STEMS = {
     mudari_malum: 'ن' + S + '1' + F + '2' + K + '3',
     mudari_majhul: null,
     amr: 'ا' + K + 'ن' + S + '1' + F + '2' + K + '3',
-    mudariPrefixHaraka: F,
   },
   VIII: {
     madi_malum: 'ا' + K + '1' + S + 'ت' + F + '2' + F + '3',
@@ -199,7 +209,6 @@ export const STEMS = {
     mudari_malum: '1' + S + 'ت' + F + '2' + K + '3',
     mudari_majhul: '1' + S + 'ت' + F + '2' + F + '3',
     amr: 'ا' + K + '1' + S + 'ت' + F + '2' + K + '3',
-    mudariPrefixHaraka: F,
   },
   IX: {
     // recognition-only (shadda unfolding not implemented) — display stems for
@@ -209,7 +218,6 @@ export const STEMS = {
     mudari_malum: '1' + S + '2' + F + '3' + SH,
     mudari_majhul: null,
     amr: null,
-    mudariPrefixHaraka: F,
   },
   X: {
     madi_malum: 'ا' + K + 'س' + S + 'ت' + F + '1' + S + '2' + F + '3',
@@ -217,7 +225,6 @@ export const STEMS = {
     mudari_malum: 'س' + S + 'ت' + F + '1' + S + '2' + K + '3',
     mudari_majhul: 'س' + S + 'ت' + F + '1' + S + '2' + F + '3',
     amr: 'ا' + K + 'س' + S + 'ت' + F + '1' + S + '2' + K + '3',
-    mudariPrefixHaraka: F,
   },
 };
 
@@ -226,7 +233,7 @@ export const STEMS = {
 // own set; the form-level facts they share (conjugable, hasMajhul, meanings)
 // live in forms.js.
 // ---------------------------------------------------------------------------
-export const DERIVED = {
+export const DERIVED_NOUN_STEMS = {
   I: {
     ismFail: '1' + F + 'ا' + '2' + K + '3',
     ismMaful: 'م' + F + '1' + S + '2' + D + 'و' + '3',
@@ -287,24 +294,43 @@ export { FORM_META } from './forms.js';
 // ---------------------------------------------------------------------------
 
 /**
+ * The stem for (form, stemKey, bāb).
+ *
+ * Whether a bāb is consulted is an explicit decision about the FORM, not a
+ * shape test on whatever the table returned. Only Form I has abwāb — the bāb is
+ * its ʿayn vowel pair — and only its maʿlūm and amr charts expose that vowel
+ * (FORM_I_PER_BAB). Every mazīd form fixes the vowel in its own pattern, so
+ * asking it for a bāb is meaningless and we never do.
+ */
+export function stemFor(formId, stemKey, bab) {
+  const stems = VERB_FORM_STEMS[formId];
+  if (!stems) return null;
+
+  if (formId === 'I' && FORM_I_PER_BAB.has(stemKey)) {
+    if (!bab) return null;        // Form I without a bāb is incomplete content
+    return stems[stemKey][bab] ?? null;
+  }
+  return stems[stemKey] ?? null;
+}
+
+/**
  * The complete conjugation chart for (form, chartId, bāb), or null when the
  * combination doesn't exist in the grammar (Form IX, Form VII majhūl, …).
  * Returns { stem, endings, prefixHaraka } — prefixHaraka non-null only for
- * muḍāriʿ charts (majhūl charts always carry ḍamma).
+ * muḍāriʿ charts.
  */
-export function chartTemplate(formId, chartId, bab = 1) {
+export function chartTemplate(formId, chartId, bab = DEFAULT_BAB) {
   const meta = FORMS[formId];
   const chartInfo = CHARTS[chartId];
   if (!meta?.conjugable || !chartInfo) return null;
   if (chartInfo.voice === 'majhul' && !meta.hasMajhul) return null;
 
   const stemKey = chartInfo.tense === 'amr' ? 'amr' : `${chartInfo.tense}_${chartInfo.voice}`;
-  let stem = STEMS[formId][stemKey];
-  if (stem && typeof stem === 'object') stem = stem[bab];
+  const stem = stemFor(formId, stemKey, bab);
   if (!stem) return null;
 
   const prefixHaraka = chartInfo.tense === 'mudari'
-    ? (chartInfo.voice === 'majhul' ? D : STEMS[formId].mudariPrefixHaraka)
+    ? mudariPrefixHaraka(formId, chartInfo.voice)
     : null;
 
   return { stem, endings: ENDINGS[chartId], prefixHaraka };

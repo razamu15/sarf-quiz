@@ -7,8 +7,8 @@
 // shape and encode their own stem/letter-change quirks; ConjugationService
 // routes to them by root.type.
 
-import { CHARTS } from '../vocabulary.js';
-import { chartTemplate, DERIVED, PREFIX_LETTERS } from '../grammar/salim-grammar.js';
+import { CHARTS, DEFAULT_BAB } from '../vocabulary.js';
+import { chartTemplate, DERIVED_NOUN_STEMS, PREFIX_LETTERS } from '../grammar/salim-grammar.js';
 
 // NFC puts ḥaraka/shadda combining marks in canonical order, so words compare
 // equal regardless of how they were typed or templated.
@@ -34,7 +34,7 @@ export const SalimConjugator = {
     const chartInfo = CHARTS[chartId];
     if (chartInfo.voice === 'majhul' && !usage.trans) return null;
 
-    const chart = chartTemplate(formId, chartId, usage.bab ?? 1);
+    const chart = chartTemplate(formId, chartId, usage.bab ?? DEFAULT_BAB);
     if (!chart) return null;
     const affix = chart.endings[slot];
     if (!affix) return null;
@@ -52,7 +52,7 @@ export const SalimConjugator = {
     if (!usage) return null;
     if (kind === 'ismMaful' && !usage.trans) return null;
     if (kind === 'masdar' && formId === 'I') return norm(usage.masdar ?? null);
-    const template = DERIVED[formId][kind];
+    const template = DERIVED_NOUN_STEMS[formId][kind];
     return template ? norm(fill(template, root.root)) : null;
   },
 };

@@ -8,7 +8,8 @@
 //                 Temporary by design: when the verb type's engine lands, these
 //                 become its parity fixtures and the fallback path is deleted.
 //
-// forms.I.bab   → which of the six abwāb (1..6)
+// forms.I.bab   → which of the six abwāb, by vowel pair: au ai aa ia uu ii
+//                 (māḍī ʿayn vowel, then muḍāriʿ ʿayn vowel — vocabulary.js)
 // forms.*.trans → transitive? (majhūl questions only make sense when true)
 // forms.*.en    → English conjugation bits for meaning display:
 //                 { past: 'wrote', pp: 'written', pres3: 'writes', ing: 'writing' }
@@ -20,21 +21,21 @@ export const ROOTS = [
   {
     root: ['ك', 'ت', 'ب'], type: 'salim',
     forms: {
-      I: { bab: 1, gloss: 'to write', masdar: 'كِتَابَة', trans: true,
+      I: { bab: 'au', gloss: 'to write', masdar: 'كِتَابَة', trans: true,
            en: { past: 'wrote', pp: 'written', pres3: 'writes', ing: 'writing' } },
     },
   },
   {
     root: ['ن', 'ص', 'ر'], type: 'salim',
     forms: {
-      I: { bab: 1, gloss: 'to help', masdar: 'نَصْر', trans: true,
+      I: { bab: 'au', gloss: 'to help', masdar: 'نَصْر', trans: true,
            en: { past: 'helped', pp: 'helped', pres3: 'helps', ing: 'helping' } },
     },
   },
   {
     root: ['خ', 'ر', 'ج'], type: 'salim',
     forms: {
-      I: { bab: 1, gloss: 'to go out', masdar: 'خُرُوج', trans: false,
+      I: { bab: 'au', gloss: 'to go out', masdar: 'خُرُوج', trans: false,
            en: { past: 'went out', pres3: 'goes out', ing: 'going out' } },
       IV: { gloss: 'to expel / bring out', trans: true,
             en: { past: 'expelled', pp: 'expelled', pres3: 'expels', ing: 'expelling' } },
@@ -45,7 +46,7 @@ export const ROOTS = [
   {
     root: ['ن', 'ظ', 'ر'], type: 'salim',
     forms: {
-      I: { bab: 1, gloss: 'to look', masdar: 'نَظَر', trans: true,
+      I: { bab: 'au', gloss: 'to look', masdar: 'نَظَر', trans: true,
            en: { past: 'looked', pp: 'looked at', pres3: 'looks', ing: 'looking' } },
       VIII: { gloss: 'to wait for', trans: true,
               en: { past: 'waited for', pp: 'waited for', pres3: 'waits for', ing: 'waiting for' } },
@@ -54,7 +55,7 @@ export const ROOTS = [
   {
     root: ['ق', 'ت', 'ل'], type: 'salim',
     forms: {
-      I: { bab: 1, gloss: 'to kill', masdar: 'قَتْل', trans: true,
+      I: { bab: 'au', gloss: 'to kill', masdar: 'قَتْل', trans: true,
            en: { past: 'killed', pp: 'killed', pres3: 'kills', ing: 'killing' } },
       III: { gloss: 'to fight', trans: true,
              en: { past: 'fought', pp: 'fought', pres3: 'fights', ing: 'fighting' } },
@@ -63,21 +64,21 @@ export const ROOTS = [
   {
     root: ['ض', 'ر', 'ب'], type: 'salim',
     forms: {
-      I: { bab: 2, gloss: 'to hit', masdar: 'ضَرْب', trans: true,
+      I: { bab: 'ai', gloss: 'to hit', masdar: 'ضَرْب', trans: true,
            en: { past: 'hit', pp: 'hit', pres3: 'hits', ing: 'hitting' } },
     },
   },
   {
     root: ['ج', 'ل', 'س'], type: 'salim',
     forms: {
-      I: { bab: 2, gloss: 'to sit', masdar: 'جُلُوس', trans: false,
+      I: { bab: 'ai', gloss: 'to sit', masdar: 'جُلُوس', trans: false,
            en: { past: 'sat', pres3: 'sits', ing: 'sitting' } },
     },
   },
   {
     root: ['ك', 'س', 'ر'], type: 'salim',
     forms: {
-      I: { bab: 2, gloss: 'to break', masdar: 'كَسْر', trans: true,
+      I: { bab: 'ai', gloss: 'to break', masdar: 'كَسْر', trans: true,
            en: { past: 'broke', pp: 'broken', pres3: 'breaks', ing: 'breaking' } },
       II: { gloss: 'to smash to pieces', trans: true,
             en: { past: 'smashed', pp: 'smashed', pres3: 'smashes', ing: 'smashing' } },
@@ -88,7 +89,7 @@ export const ROOTS = [
   {
     root: ['غ', 'ف', 'ر'], type: 'salim',
     forms: {
-      I: { bab: 2, gloss: 'to forgive', masdar: 'مَغْفِرَة', trans: true,
+      I: { bab: 'ai', gloss: 'to forgive', masdar: 'مَغْفِرَة', trans: true,
            en: { past: 'forgave', pp: 'forgiven', pres3: 'forgives', ing: 'forgiving' } },
       X: { gloss: 'to seek forgiveness', trans: true,
            en: { past: 'sought forgiveness', pp: 'asked for forgiveness', pres3: 'seeks forgiveness', ing: 'seeking forgiveness' } },
@@ -97,14 +98,14 @@ export const ROOTS = [
   {
     root: ['ف', 'ت', 'ح'], type: 'salim',
     forms: {
-      I: { bab: 3, gloss: 'to open', masdar: 'فَتْح', trans: true,
+      I: { bab: 'aa', gloss: 'to open', masdar: 'فَتْح', trans: true,
            en: { past: 'opened', pp: 'opened', pres3: 'opens', ing: 'opening' } },
     },
   },
   {
     root: ['ج', 'م', 'ع'], type: 'salim',
     forms: {
-      I: { bab: 3, gloss: 'to gather', masdar: 'جَمْع', trans: true,
+      I: { bab: 'aa', gloss: 'to gather', masdar: 'جَمْع', trans: true,
            en: { past: 'gathered', pp: 'gathered', pres3: 'gathers', ing: 'gathering' } },
       VIII: { gloss: 'to assemble / meet', trans: false,
               en: { past: 'assembled', pres3: 'assembles', ing: 'assembling' } },
@@ -113,7 +114,7 @@ export const ROOTS = [
   {
     root: ['ظ', 'ه', 'ر'], type: 'salim',
     forms: {
-      I: { bab: 3, gloss: 'to appear', masdar: 'ظُهُور', trans: false,
+      I: { bab: 'aa', gloss: 'to appear', masdar: 'ظُهُور', trans: false,
            en: { past: 'appeared', pres3: 'appears', ing: 'appearing' } },
       IV: { gloss: 'to reveal', trans: true,
             en: { past: 'revealed', pp: 'revealed', pres3: 'reveals', ing: 'revealing' } },
@@ -124,7 +125,7 @@ export const ROOTS = [
   {
     root: ['س', 'م', 'ع'], type: 'salim',
     forms: {
-      I: { bab: 4, gloss: 'to hear', masdar: 'سَمْع', trans: true,
+      I: { bab: 'ia', gloss: 'to hear', masdar: 'سَمْع', trans: true,
            en: { past: 'heard', pp: 'heard', pres3: 'hears', ing: 'hearing' } },
       VIII: { gloss: 'to listen', trans: false,
               en: { past: 'listened', pres3: 'listens', ing: 'listening' } },
@@ -133,14 +134,14 @@ export const ROOTS = [
   {
     root: ['ش', 'ر', 'ب'], type: 'salim',
     forms: {
-      I: { bab: 4, gloss: 'to drink', masdar: 'شُرْب', trans: true,
+      I: { bab: 'ia', gloss: 'to drink', masdar: 'شُرْب', trans: true,
            en: { past: 'drank', pp: 'drunk', pres3: 'drinks', ing: 'drinking' } },
     },
   },
   {
     root: ['ع', 'ل', 'م'], type: 'salim',
     forms: {
-      I: { bab: 4, gloss: 'to know', masdar: 'عِلْم', trans: true,
+      I: { bab: 'ia', gloss: 'to know', masdar: 'عِلْم', trans: true,
            en: { past: 'knew', pp: 'known', pres3: 'knows', ing: 'knowing' } },
       II: { gloss: 'to teach', trans: true,
             en: { past: 'taught', pp: 'taught', pres3: 'teaches', ing: 'teaching' } },
@@ -153,7 +154,7 @@ export const ROOTS = [
   {
     root: ['س', 'ل', 'م'], type: 'salim',
     forms: {
-      I: { bab: 4, gloss: 'to be safe', masdar: 'سَلَامَة', trans: false },
+      I: { bab: 'ia', gloss: 'to be safe', masdar: 'سَلَامَة', trans: false },
       II: { gloss: 'to greet / hand over', trans: true,
             en: { past: 'greeted', pp: 'greeted', pres3: 'greets', ing: 'greeting' } },
       IV: { gloss: 'to submit (Islam)', trans: false,
@@ -165,7 +166,7 @@ export const ROOTS = [
   {
     root: ['ك', 'ر', 'م'], type: 'salim',
     forms: {
-      I: { bab: 5, gloss: 'to be noble', masdar: 'كَرَم', trans: false },
+      I: { bab: 'uu', gloss: 'to be noble', masdar: 'كَرَم', trans: false },
       IV: { gloss: 'to honor', trans: true,
             en: { past: 'honored', pp: 'honored', pres3: 'honors', ing: 'honoring' } },
     },
@@ -173,7 +174,7 @@ export const ROOTS = [
   {
     root: ['ق', 'د', 'م'], type: 'salim',
     forms: {
-      I: { bab: 5, gloss: 'to be old / ancient', masdar: 'قِدَم', trans: false },
+      I: { bab: 'uu', gloss: 'to be old / ancient', masdar: 'قِدَم', trans: false },
       II: { gloss: 'to present / offer', trans: true,
             en: { past: 'presented', pp: 'presented', pres3: 'presents', ing: 'presenting' } },
       V: { gloss: 'to advance', trans: false,
@@ -183,7 +184,7 @@ export const ROOTS = [
   {
     root: ['ح', 'س', 'ب'], type: 'salim',
     forms: {
-      I: { bab: 6, gloss: 'to deem / suppose', masdar: 'حُسْبَان', trans: true,
+      I: { bab: 'ii', gloss: 'to deem / suppose', masdar: 'حُسْبَان', trans: true,
            en: { past: 'deemed', pp: 'deemed', pres3: 'deems', ing: 'deeming' } },
     },
   },
@@ -219,7 +220,7 @@ export const ROOTS = [
   {
     root: ['م', 'د', 'د'], type: 'mudaaf',
     forms: {
-      I: { bab: 1, gloss: 'to stretch out / extend', masdar: 'مَدّ', trans: true,
+      I: { bab: 'au', gloss: 'to stretch out / extend', masdar: 'مَدّ', trans: true,
            en: { past: 'stretched out', pp: 'stretched out', pres3: 'stretches out', ing: 'stretching out' } },
       VIII: { gloss: 'to extend / stretch', trans: false,
               en: { past: 'extended', pres3: 'extends', ing: 'extending' } },
@@ -230,7 +231,7 @@ export const ROOTS = [
   {
     root: ['ر', 'د', 'د'], type: 'mudaaf',
     forms: {
-      I: { bab: 1, gloss: 'to return / send back', masdar: 'رَدّ', trans: true,
+      I: { bab: 'au', gloss: 'to return / send back', masdar: 'رَدّ', trans: true,
            en: { past: 'returned', pp: 'returned', pres3: 'returns', ing: 'returning' } },
       VIII: { gloss: 'to turn back', trans: false,
               en: { past: 'turned back', pres3: 'turns back', ing: 'turning back' } },
@@ -248,7 +249,7 @@ export const ROOTS = [
     forms: {
       // bāb 4 (samiʿa) — the muḍāriʿ keeps the ʿayn's fatḥa: يَظَلُّ، and the
       // unfolded past shows the kasra the merge hid: ظَلِلْتُ
-      I: { bab: 4, gloss: 'to remain / keep doing', masdar: 'ظُلُول', trans: false,
+      I: { bab: 'ia', gloss: 'to remain / keep doing', masdar: 'ظُلُول', trans: false,
            en: { past: 'remained', pres3: 'remains', ing: 'remaining' } },
     },
   },
@@ -261,7 +262,7 @@ export const ROOTS = [
     root: ['ق', 'و', 'ل'], type: 'ajwaf',
     forms: {
       I: {
-        bab: 1, gloss: 'to say', masdar: 'قَوْل', trans: true,
+        bab: 'au', gloss: 'to say', masdar: 'قَوْل', trans: true,
         en: { past: 'said', pp: 'said', pres3: 'says', ing: 'saying' },
         manualTables: {
           madi_malum: {
@@ -318,7 +319,7 @@ export const ROOTS = [
     root: ['ر', 'م', 'ي'], type: 'naqis',
     forms: {
       I: {
-        bab: 2, gloss: 'to throw', masdar: 'رَمْي', trans: true,
+        bab: 'ai', gloss: 'to throw', masdar: 'رَمْي', trans: true,
         en: { past: 'threw', pp: 'thrown', pres3: 'throws', ing: 'throwing' },
         manualTables: {
           madi_malum: {

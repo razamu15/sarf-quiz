@@ -4,10 +4,10 @@
 // Same shape as every other engine:
 //   { handles, conjugate(root, formId, chartId, slot), derivedNoun(root, formId, kind) }
 
-import { CHARTS, SUKUN } from '../vocabulary.js';
-import { FORM_META } from '../grammar/forms.js';
+import { CHARTS, SUKUN, DEFAULT_BAB } from '../vocabulary.js';
+import { FORM_META, mudariPrefixHaraka } from '../grammar/forms.js';
 import { ENDINGS, PREFIX_LETTERS } from '../grammar/salim-grammar.js';
-import { IDGHAM_FORMS, DERIVED, mergedStem, prefixHaraka } from '../grammar/mudaaf-grammar.js';
+import { IDGHAM_FORMS, DERIVED_NOUN_STEMS, mergedStem } from '../grammar/mudaaf-grammar.js';
 import { SalimConjugator } from './salim-conjugator.js';
 
 const norm = (s) => (s == null ? null : s.normalize('NFC'));
@@ -42,11 +42,11 @@ export const MudaafConjugator = {
       return SalimConjugator.conjugate(root, formId, chartId, slot);
     }
 
-    const stem = mergedStem(formId, chartInfo, usage.bab ?? 1);
+    const stem = mergedStem(formId, chartInfo, usage.bab ?? DEFAULT_BAB);
     if (!stem) return null;
 
     let word = fill(stem, root.root) + affix.h + affix.s;
-    const ph = prefixHaraka(formId, chartInfo);
+    const ph = chartInfo.tense === 'mudari' ? mudariPrefixHaraka(formId, chartInfo.voice) : null;
     if (ph != null) word = PREFIX_LETTERS[slot] + ph + word;
     return norm(word);
   },
@@ -56,7 +56,7 @@ export const MudaafConjugator = {
     if (!usage) return null;
     if (kind === 'ismMaful' && !usage.trans) return null;
     if (kind === 'masdar' && formId === 'I') return norm(usage.masdar ?? null);
-    const template = DERIVED[formId]?.[kind];
+    const template = DERIVED_NOUN_STEMS[formId]?.[kind];
     return template ? norm(fill(template, root.root)) : null;
   },
 };

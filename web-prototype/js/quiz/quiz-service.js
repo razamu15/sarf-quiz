@@ -38,7 +38,7 @@
 
 import {
   CHARTS, CHART_IDS, chartId as chartIdFor, slotsFor,
-  MOOD_DISTINCT_SLOTS, FORM_IDS, MAZEED_IDS,
+  MOOD_DISTINCT_SLOTS, FORM_IDS, MAZEED_IDS, DEFAULT_BAB,
 } from '../vocabulary.js';
 import {
   PRONOUNS, TENSE_LABELS, VOICE_LABELS, MOOD_LABELS, NOUN_KIND_LABELS,
@@ -325,7 +325,7 @@ function makeVoiceQuestion(spec) {
   const voice = CHARTS[spec.chartId].voice;
   const correct = { ...VOICE_LABELS[voice], valueKey: voice };
   const other = voice === 'malum' ? 'majhul' : 'malum';
-  const bab = spec.root.forms[spec.formId].bab ?? 1;
+  const bab = spec.root.forms[spec.formId].bab ?? DEFAULT_BAB;
   const waznWord = spec.root.type === 'salim' ? waznOf(spec.formId, spec.chartId, spec.slot, bab) : null;
   return {
     ...specFields(spec, 'voice'),
@@ -376,8 +376,8 @@ function makeBabQuestion(rootFilter) {
   const c = rand(pool);
   if (!c) return null;
   const bab = c.root.forms.I.bab;
-  const correct = { ar: ABWAB_LABELS[bab].name, en: ABWAB_LABELS[bab].en, valueKey: String(bab) };
-  const others = shuffle(Object.keys(ABWAB_LABELS).filter((b) => Number(b) !== bab))
+  const correct = { ar: ABWAB_LABELS[bab].name, en: ABWAB_LABELS[bab].en, valueKey: bab };
+  const others = shuffle(Object.keys(ABWAB_LABELS).filter((b) => b !== bab))
     .slice(0, 3).map((b) => ({ ar: ABWAB_LABELS[b].name, en: ABWAB_LABELS[b].en, valueKey: b }));
   const cite = citation(c.root, 'I');
   return {
@@ -614,7 +614,7 @@ function makeDerivativeFormQuestion(root, formId) {
   const probe = {
     ...root,
     forms: Object.fromEntries(FORM_IDS.map(
-      (f) => [f, root.forms[f] ?? { trans: true, bab: root.forms[formId]?.bab ?? 1 }],
+      (f) => [f, root.forms[f] ?? { trans: true, bab: root.forms[formId]?.bab ?? DEFAULT_BAB }],
     )),
   };
   const otherForms = shuffle(FORM_IDS.filter((f) => f !== formId && FORM_META[f].conjugable))

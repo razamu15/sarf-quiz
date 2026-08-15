@@ -7,8 +7,9 @@
 //
 // The full-table API powers the Tables browser and the parity tests.
 
-import { CHARTS, FATHA, DAMMA, slotsFor } from '../vocabulary.js';
-import { FORM_META, STEMS } from '../grammar/salim-grammar.js';
+import { CHARTS, FATHA, DAMMA, slotsFor, DEFAULT_BAB } from '../vocabulary.js';
+import { FORM_META, stemFor } from '../grammar/salim-grammar.js';
+import { mudariPrefixHaraka } from '../grammar/forms.js';
 import { SalimConjugator, fillTemplate } from './salim-conjugator.js';
 import { MudaafConjugator } from './mudaaf-conjugator.js';
 
@@ -50,16 +51,16 @@ export function derivedNoun(root, formId, kind) {
 // engine — a wazn is a sound pattern by definition).
 // ---------------------------------------------------------------------------
 const WAZN_ROOT = ['ف', 'ع', 'ل'];
-const waznRoot = (formId, bab = 1) => ({
+const waznRoot = (formId, bab = DEFAULT_BAB) => ({
   type: 'salim', root: WAZN_ROOT,
   forms: { [formId]: { bab, trans: true, masdar: null } },
 });
 
-export function waznOf(formId, chartId, slot, bab = 1) {
+export function waznOf(formId, chartId, slot, bab = DEFAULT_BAB) {
   return SalimConjugator.conjugate(waznRoot(formId, bab), formId, chartId, slot);
 }
 
-export function waznOfDerived(formId, kind, bab = 1) {
+export function waznOfDerived(formId, kind, bab = DEFAULT_BAB) {
   return SalimConjugator.derivedNoun(waznRoot(formId, bab), formId, kind);
 }
 
@@ -72,9 +73,16 @@ export function citation(root, formId) {
   const present = conjugate(root, formId, 'mudari_malum_raf', '3ms');
   if (past && present) return `${past} ${present}`;
   if (!past && !FORM_META[formId]?.conjugable && root.type === 'salim') {
-    const stems = STEMS[formId];
-    const madi = fillTemplate(stems.madi_malum + FATHA, root.root);
-    const mudari = fillTemplate('ي' + FATHA + stems.mudari_malum + DAMMA, root.root);
+    // Form IX has no charts, so the citation is built from its display stems
+    // directly. Both are plain templates — a non-conjugable form has no abwāb,
+    // so stemFor returns them without consulting a bāb.
+    const madiStem = stemFor(formId, 'madi_malum', null);
+    const mudariStem = stemFor(formId, 'mudari_malum', null);
+    if (!madiStem || !mudariStem) return '';
+    const madi = fillTemplate(madiStem + FATHA, root.root);
+    const mudari = fillTemplate(
+      'ي' + mudariPrefixHaraka(formId, 'malum') + mudariStem + DAMMA, root.root,
+    );
     return `${madi} ${mudari}`;
   }
   return past ?? '';

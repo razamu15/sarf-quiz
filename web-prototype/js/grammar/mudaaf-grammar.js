@@ -33,7 +33,7 @@
 // Templates use 1/2 as radical placeholders; there is no 3 in a merged stem —
 // the doubled letter is written once and the shadda carries the second.
 
-import { FATHA as F, DAMMA as D, KASRA as K, SUKUN as S, SHADDA as SH } from '../vocabulary.js';
+import { FATHA as F, DAMMA as D, KASRA as K, SUKUN as S, SHADDA as SH, DEFAULT_BAB } from '../vocabulary.js';
 
 // ---------------------------------------------------------------------------
 // Which forms undergo idghām at all.
@@ -47,37 +47,48 @@ export const IDGHAM_FORMS = new Set(['I', 'III', 'IV', 'VI', 'VII', 'VIII', 'X']
 // ---------------------------------------------------------------------------
 // Merged stems, per form. Form I is per bāb.
 // ---------------------------------------------------------------------------
+/**
+ * Which Form I stem keys vary by bāb — and note this set is SHORTER than the
+ * sālim one. Idghām is exactly the loss of the ʿayn's vowel, and the māḍī bāb
+ * distinction lived in that vowel, so all six abwāb collapse to مَدَّ in the
+ * past. Only the muḍāriʿ and amr, where the vowel survives by moving onto the
+ * fāʾ, still tell the abwāb apart.
+ *
+ * That difference is the reason this set belongs to each verb type's grammar
+ * rather than being shared.
+ */
+export const FORM_I_PER_BAB = new Set(['mudari_malum', 'amr']);
+
 export const MERGED_STEMS = {
   I: {
     // Every bāb collapses to the same māḍī shape: the ʿayn's vowel is what
     // distinguished them, and idghām is exactly the loss of that vowel.
-    //   nasara مَدَّ · ḍaraba فَرَّ · samiʿa ظَلَّ · karuma لَذَّ
+    //   au مَدَّ · ai فَرَّ · ia ظَلَّ · uu لَذَّ
     madi_malum: '1' + F + '2' + SH,
     madi_majhul: '1' + D + '2' + SH,          // مُدَّ
 
     // In the muḍāriʿ the fāʾ had sukūn, so it takes the ʿayn's vowel and the
     // abwāb stay distinct: يَمُدُّ · يَفِرُّ · يَظَلُّ
     mudari_malum: {
-      1: '1' + D + '2' + SH, 
-      2: '1' + K + '2' + SH, 
-      3: '1' + F + '2' + SH,
-      4: '1' + F + '2' + SH, 
-      5: '1' + D + '2' + SH, 
-      6: '1' + K + '2' + SH,
+      au: '1' + D + '2' + SH,
+      ai: '1' + K + '2' + SH,
+      aa: '1' + F + '2' + SH,
+      ia: '1' + F + '2' + SH,
+      uu: '1' + D + '2' + SH,
+      ii: '1' + K + '2' + SH,
     },
     mudari_majhul: '1' + F + '2' + SH,        // يُمَدُّ
 
     // No prosthetic alif: the fāʾ now carries a vowel, so nothing needs
     // supporting. مُدَّا · مُدُّوا · مُدِّي
     amr: {
-      1: '1' + D + '2' + SH, 
-      2: '1' + K + '2' + SH, 
-      3: '1' + F + '2' + SH,
-      4: '1' + F + '2' + SH, 
-      5: '1' + D + '2' + SH, 
-      6: '1' + K + '2' + SH,
+      au: '1' + D + '2' + SH,
+      ai: '1' + K + '2' + SH,
+      aa: '1' + F + '2' + SH,
+      ia: '1' + F + '2' + SH,
+      uu: '1' + D + '2' + SH,
+      ii: '1' + K + '2' + SH,
     },
-    mudariPrefixHaraka: F,
   },
 
   III: {
@@ -86,7 +97,6 @@ export const MERGED_STEMS = {
     mudari_malum: '1' + F + 'ا' + '2' + SH,               // يُمَادُّ
     mudari_majhul: '1' + F + 'ا' + '2' + SH,              // يُمَادُّ
     amr: '1' + F + 'ا' + '2' + SH,                        // مَادَّ
-    mudariPrefixHaraka: D,
   },
 
   IV: {
@@ -95,7 +105,6 @@ export const MERGED_STEMS = {
     mudari_malum: '1' + K + '2' + SH,                     // يُمِدُّ
     mudari_majhul: '1' + F + '2' + SH,                    // يُمَدُّ
     amr: 'أ' + F + '1' + K + '2' + SH,                    // أَمِدَّ
-    mudariPrefixHaraka: D,
   },
 
   VI: {
@@ -104,7 +113,6 @@ export const MERGED_STEMS = {
     mudari_malum: 'ت' + F + '1' + F + 'ا' + '2' + SH,     // يَتَمَادُّ
     mudari_majhul: 'ت' + F + '1' + F + 'ا' + '2' + SH,
     amr: 'ت' + F + '1' + F + 'ا' + '2' + SH,              // تَمَادَّ
-    mudariPrefixHaraka: F,
   },
 
   VII: {
@@ -113,7 +121,6 @@ export const MERGED_STEMS = {
     mudari_malum: 'ن' + S + '1' + F + '2' + SH,           // يَنْمَدُّ
     mudari_majhul: null,
     amr: 'ا' + K + 'ن' + S + '1' + F + '2' + SH,          // اِنْمَدَّ
-    mudariPrefixHaraka: F,
   },
 
   VIII: {
@@ -122,7 +129,6 @@ export const MERGED_STEMS = {
     mudari_malum: '1' + S + 'ت' + F + '2' + SH,           // يَمْتَدُّ
     mudari_majhul: '1' + S + 'ت' + F + '2' + SH,          // يُمْتَدُّ
     amr: 'ا' + K + '1' + S + 'ت' + F + '2' + SH,          // اِمْتَدَّ
-    mudariPrefixHaraka: F,
   },
 
   X: {
@@ -131,7 +137,6 @@ export const MERGED_STEMS = {
     mudari_malum: 'س' + S + 'ت' + F + '1' + K + '2' + SH,           // يَسْتَمِدُّ
     mudari_majhul: 'س' + S + 'ت' + F + '1' + F + '2' + SH,          // يُسْتَمَدُّ
     amr: 'ا' + K + 'س' + S + 'ت' + F + '1' + K + '2' + SH,          // اِسْتَمِدَّ
-    mudariPrefixHaraka: F,
   },
 };
 
@@ -140,7 +145,7 @@ export const MERGED_STEMS = {
 // adjacent — and conspicuously does NOT where the pattern separates them:
 // مَمْدُود keeps both dāls because a wāw sits between them.
 // ---------------------------------------------------------------------------
-export const DERIVED = {
+export const DERIVED_NOUN_STEMS = {
   I: {
     ismFail: '1' + F + 'ا' + '2' + SH,                    // مَادّ
     ismMaful: 'م' + F + '1' + S + '2' + D + 'و' + '3',    // مَمْدُود — no idghām
@@ -192,18 +197,19 @@ export const DERIVED = {
 /**
  * The merged stem for (form, chart, bāb), or null when this form/chart has no
  * merged shape (Form VII majhūl, or a form that never merges at all).
+ *
+ * Consulting a bāb is an explicit decision about the form, exactly as in the
+ * sālim grammar: only Form I has abwāb, and only the keys in FORM_I_PER_BAB
+ * still distinguish them after idghām.
  */
-export function mergedStem(formId, chartInfo, bab = 1) {
+export function mergedStem(formId, chartInfo, bab = DEFAULT_BAB) {
   const stems = MERGED_STEMS[formId];
   if (!stems) return null;
-  const key = chartInfo.tense === 'amr' ? 'amr' : `${chartInfo.tense}_${chartInfo.voice}`;
-  const stem = stems[key];
-  if (stem && typeof stem === 'object') return stem[bab] ?? null;
-  return stem ?? null;
-}
 
-/** The muḍāriʿ prefix ḥaraka: ḍamma on every majhūl chart, else per form. */
-export function prefixHaraka(formId, chartInfo) {
-  if (chartInfo.tense !== 'mudari') return null;
-  return chartInfo.voice === 'majhul' ? D : MERGED_STEMS[formId]?.mudariPrefixHaraka ?? F;
+  const key = chartInfo.tense === 'amr' ? 'amr' : `${chartInfo.tense}_${chartInfo.voice}`;
+  if (formId === 'I' && FORM_I_PER_BAB.has(key)) {
+    if (!bab) return null;
+    return stems[key][bab] ?? null;
+  }
+  return stems[key] ?? null;
 }
