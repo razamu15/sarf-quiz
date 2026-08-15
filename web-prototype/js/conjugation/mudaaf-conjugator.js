@@ -3,11 +3,13 @@
 //
 // Same shape as every other engine:
 //   { handles, conjugate(root, formId, chartId, slot), derivedNoun(root, formId, kind) }
+//
+// And like every other engine it assumes valid input — ConjugationService has
+// already established that this (root, form, chart, slot) can exist at all.
 
-import { CHARTS, SUKUN, DEFAULT_BAB } from '../vocabulary.js';
-import { FORM_META, mudariPrefixHaraka } from '../grammar/forms.js';
-import { ENDINGS, PREFIX_LETTERS } from '../grammar/salim-grammar.js';
-import { IDGHAM_FORMS, DERIVED_NOUN_STEMS, mergedStem } from '../grammar/mudaaf-grammar.js';
+import { CHARTS, SUKUN } from '../vocabulary.js';
+import { ENDINGS, PREFIX_LETTERS, MUDARI_PREFIX_HARAKA } from '../grammar/shared-grammar.js';
+import { IDGHAM_FORMS, MERGED_STEMS, DERIVED_NOUN_STEMS } from '../grammar/mudaaf-grammar.js';
 import { SalimConjugator } from './salim-conjugator.js';
 
 const norm = (s) => (s == null ? null : s.normalize('NFC'));
@@ -20,20 +22,33 @@ function fill(template, radicals) {
     .replaceAll('3', radicals[2]);
 }
 
+/** Which stem family a chart draws on — moods share a stem, so mood is dropped. */
+const stemKeyFor = (chart) =>
+  (chart.tense === 'amr' ? 'amr' : `${chart.tense}_${chart.voice}`);
+
+/**
+ * The merged stem for (form, stemKey, bāb), or null when this form has no
+ * merged shape (Form VII majhūl, or a form that never merges at all).
+ *
+ * The bāb is resolved exactly as in the sālim engine, and for the same reason:
+ * the table's own shape says whether this chart still distinguishes abwāb — a
+ * table keyed by bāb does, a plain template doesn't. That is what lets the
+ * muḍāʿaf māḍī collapse all six abwāb into مَدَّ without a second declaration
+ * anywhere saying it collapsed.
+ */
+function mergedStem(formId, stemKey, bab) {
+  const stem = MERGED_STEMS[formId]?.[stemKey];
+  if (!stem) return null;
+  if (typeof stem === 'string') return stem;
+  return bab ? stem[bab] ?? null : null;
+}
+
 export const MudaafConjugator = {
   handles: 'mudaaf',
 
   conjugate(root, formId, chartId, slot) {
-    const usage = root.forms[formId];
-    if (!usage) return null;
-    const chartInfo = CHARTS[chartId];
-    if (!chartInfo) return null;
-    const meta = FORM_META[formId];
-    if (!meta?.conjugable) return null;
-    if (chartInfo.voice === 'majhul' && (!meta.hasMajhul || !usage.trans)) return null;
-
-    const affix = ENDINGS[chartId]?.[slot];
-    if (!affix) return null;
+    const chart = CHARTS[chartId];
+    const affix = ENDINGS[chartId][slot];
 
     // Forms II and V never merge (their own shadda separates ʿayn from lām),
     // and a sukūn ending unfolds the rest — both are written exactly like a
@@ -42,20 +57,17 @@ export const MudaafConjugator = {
       return SalimConjugator.conjugate(root, formId, chartId, slot);
     }
 
-    const stem = mergedStem(formId, chartInfo, usage.bab ?? DEFAULT_BAB);
+    const stem = mergedStem(formId, stemKeyFor(chart), root.forms[formId].bab);
     if (!stem) return null;
 
     let word = fill(stem, root.root) + affix.h + affix.s;
-    const ph = chartInfo.tense === 'mudari' ? mudariPrefixHaraka(formId, chartInfo.voice) : null;
-    if (ph != null) word = PREFIX_LETTERS[slot] + ph + word;
+    if (chart.tense === 'mudari') {
+      word = PREFIX_LETTERS[slot] + MUDARI_PREFIX_HARAKA[formId][chart.voice] + word;
+    }
     return norm(word);
   },
 
   derivedNoun(root, formId, kind) {
-    const usage = root.forms[formId];
-    if (!usage) return null;
-    if (kind === 'ismMaful' && !usage.trans) return null;
-    if (kind === 'masdar' && formId === 'I') return norm(usage.masdar ?? null);
     const template = DERIVED_NOUN_STEMS[formId]?.[kind];
     return template ? norm(fill(template, root.root)) : null;
   },

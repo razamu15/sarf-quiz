@@ -1,135 +1,37 @@
-// The sālim grammar — every chart written out explicitly, exactly like the
-// paper tables students memorize. This file is data, not logic; the logic
-// that uses it is SalimConjugator.
+// The sālim stems — every pattern written out explicitly, exactly like the
+// paper tables students memorize. This file is data, not logic; the logic that
+// uses it is SalimConjugator (js/conjugation/salim-conjugator.js), and the
+// affixes these stems get wrapped in live in shared-grammar.js because every
+// verb type shares them.
 //
 // Layout per the v2 model (docs/TECHNICAL_PLAN.md §A.3):
-//   ENDINGS   one table per ChartID, all rows explicit. Duplication between
-//             charts is DELIBERATE — each chart must be auditable against
-//             the madrasa handout on its own, without chasing shared
-//             constants. (madi_malum and madi_majhul really do share
-//             endings in the language; they are still written twice.)
-//   VERB_FORM_STEMS   per form: one stem per chart family (mood never changes
+//   VERB_FORM_STEMS     per form: one stem per chart family (mood never changes
 //             the stem). Form I stems are per-bāb, written out for all six.
 //   DERIVED_NOUN_STEMS  ism fāʿil / ism mafʿūl / maṣdar templates per form.
-//   FORM_META conjugability, majhūl availability, rhetorical meanings — and
-//             the muḍāriʿ prefix ḥaraka, which is shared by every verb type.
 //
-// Every ending row is (final-radical ḥaraka, suffix): stem + h + s = word.
+// Form-level facts (conjugability, majhūl availability, rhetorical meanings)
+// are in forms.js; they are true of a form no matter which verb type fills it.
 
 import {
   FATHA as F, DAMMA as D, KASRA as K, SUKUN as S, SHADDA as SH,
-  CHARTS, DEFAULT_BAB,
 } from '../vocabulary.js';
-import { FORM_META as FORMS, mudariPrefixHaraka } from './forms.js';
-
-const A = (h, s) => ({ h, s });
 
 // ---------------------------------------------------------------------------
-// Muḍāriʿ prefix letters (universal — every verb type shares them). The
-// prefix ḥARAKA is per chart: on majhūl charts it is always ḍamma; on maʿlūm
-// charts it comes from the form (ḍamma for II–IV, fatḥa otherwise).
-// ---------------------------------------------------------------------------
-export const PREFIX_LETTERS = {
-  '3ms': 'ي', '3md': 'ي', '3mp': 'ي',
-  '3fs': 'ت', '3fd': 'ت', '3fp': 'ي',
-  '2ms': 'ت', '2md': 'ت', '2mp': 'ت', '2fs': 'ت', '2fd': 'ت', '2fp': 'ت',
-  '1s': 'أ', '1p': 'ن',
-};
-
-// ---------------------------------------------------------------------------
-// The nine ending charts
-// ---------------------------------------------------------------------------
-export const ENDINGS = {
-
-  madi_malum: {
-    '3ms': A(F, ''),            '3md': A(F, 'ا'),                '3mp': A(D, 'وا'),
-    '3fs': A(F, 'ت' + S),       '3fd': A(F, 'ت' + F + 'ا'),      '3fp': A(S, 'ن' + F),
-    '2ms': A(S, 'ت' + F),       '2md': A(S, 'ت' + D + 'م' + F + 'ا'), '2mp': A(S, 'ت' + D + 'م' + S),
-    '2fs': A(S, 'ت' + K),       '2fd': A(S, 'ت' + D + 'م' + F + 'ا'), '2fp': A(S, 'ت' + D + 'ن' + SH + F),
-    '1s':  A(S, 'ت' + D),       '1p':  A(S, 'ن' + F + 'ا'),
-  },
-
-  madi_majhul: {
-    '3ms': A(F, ''),            '3md': A(F, 'ا'),                '3mp': A(D, 'وا'),
-    '3fs': A(F, 'ت' + S),       '3fd': A(F, 'ت' + F + 'ا'),      '3fp': A(S, 'ن' + F),
-    '2ms': A(S, 'ت' + F),       '2md': A(S, 'ت' + D + 'م' + F + 'ا'), '2mp': A(S, 'ت' + D + 'م' + S),
-    '2fs': A(S, 'ت' + K),       '2fd': A(S, 'ت' + D + 'م' + F + 'ا'), '2fp': A(S, 'ت' + D + 'ن' + SH + F),
-    '1s':  A(S, 'ت' + D),       '1p':  A(S, 'ن' + F + 'ا'),
-  },
-
-  mudari_malum_raf: {
-    '3ms': A(D, ''),            '3md': A(F, 'ا' + 'ن' + K),      '3mp': A(D, 'و' + 'ن' + F),
-    '3fs': A(D, ''),            '3fd': A(F, 'ا' + 'ن' + K),      '3fp': A(S, 'ن' + F),
-    '2ms': A(D, ''),            '2md': A(F, 'ا' + 'ن' + K),      '2mp': A(D, 'و' + 'ن' + F),
-    '2fs': A(K, 'ي' + 'ن' + F), '2fd': A(F, 'ا' + 'ن' + K),      '2fp': A(S, 'ن' + F),
-    '1s':  A(D, ''),            '1p':  A(D, ''),
-  },
-
-  // The "five verbs" drop their ن in naṣb and jazm; nūn al-niswa (3fp/2fp)
-  // never changes — visible below as plain table rows, not special cases.
-  mudari_malum_nasb: {
-    '3ms': A(F, ''),            '3md': A(F, 'ا'),                '3mp': A(D, 'وا'),
-    '3fs': A(F, ''),            '3fd': A(F, 'ا'),                '3fp': A(S, 'ن' + F),
-    '2ms': A(F, ''),            '2md': A(F, 'ا'),                '2mp': A(D, 'وا'),
-    '2fs': A(K, 'ي'),           '2fd': A(F, 'ا'),                '2fp': A(S, 'ن' + F),
-    '1s':  A(F, ''),            '1p':  A(F, ''),
-  },
-
-  mudari_malum_jazm: {
-    '3ms': A(S, ''),            '3md': A(F, 'ا'),                '3mp': A(D, 'وا'),
-    '3fs': A(S, ''),            '3fd': A(F, 'ا'),                '3fp': A(S, 'ن' + F),
-    '2ms': A(S, ''),            '2md': A(F, 'ا'),                '2mp': A(D, 'وا'),
-    '2fs': A(K, 'ي'),           '2fd': A(F, 'ا'),                '2fp': A(S, 'ن' + F),
-    '1s':  A(S, ''),            '1p':  A(S, ''),
-  },
-
-  mudari_majhul_raf: {
-    '3ms': A(D, ''),            '3md': A(F, 'ا' + 'ن' + K),      '3mp': A(D, 'و' + 'ن' + F),
-    '3fs': A(D, ''),            '3fd': A(F, 'ا' + 'ن' + K),      '3fp': A(S, 'ن' + F),
-    '2ms': A(D, ''),            '2md': A(F, 'ا' + 'ن' + K),      '2mp': A(D, 'و' + 'ن' + F),
-    '2fs': A(K, 'ي' + 'ن' + F), '2fd': A(F, 'ا' + 'ن' + K),      '2fp': A(S, 'ن' + F),
-    '1s':  A(D, ''),            '1p':  A(D, ''),
-  },
-
-  mudari_majhul_nasb: {
-    '3ms': A(F, ''),            '3md': A(F, 'ا'),                '3mp': A(D, 'وا'),
-    '3fs': A(F, ''),            '3fd': A(F, 'ا'),                '3fp': A(S, 'ن' + F),
-    '2ms': A(F, ''),            '2md': A(F, 'ا'),                '2mp': A(D, 'وا'),
-    '2fs': A(K, 'ي'),           '2fd': A(F, 'ا'),                '2fp': A(S, 'ن' + F),
-    '1s':  A(F, ''),            '1p':  A(F, ''),
-  },
-
-  mudari_majhul_jazm: {
-    '3ms': A(S, ''),            '3md': A(F, 'ا'),                '3mp': A(D, 'وا'),
-    '3fs': A(S, ''),            '3fd': A(F, 'ا'),                '3fp': A(S, 'ن' + F),
-    '2ms': A(S, ''),            '2md': A(F, 'ا'),                '2mp': A(D, 'وا'),
-    '2fs': A(K, 'ي'),           '2fd': A(F, 'ا'),                '2fp': A(S, 'ن' + F),
-    '1s':  A(S, ''),            '1p':  A(S, ''),
-  },
-
-  amr_malum: {
-    '2ms': A(S, ''),            '2md': A(F, 'ا'),                '2mp': A(D, 'وا'),
-    '2fs': A(K, 'ي'),           '2fd': A(F, 'ا'),                '2fp': A(S, 'ن' + F),
-  },
-};
-
-// ---------------------------------------------------------------------------
-// Stems. One per chart family (moods share the stem). Form I varies by bāb —
-// all six written out. Templates use 1/2/3 as radical placeholders and omit
-// the final radical's ḥaraka (the ending row supplies it).
+// Stems. One per chart family (moods share the stem). Templates use 1/2/3 as
+// radical placeholders and omit the final radical's ḥaraka (the ending row
+// supplies it).
 //
-// The muḍāriʿ prefix ḥaraka is NOT here: it is a form-level fact shared by
-// every verb type, so it lives once in forms.js.
+// Form I varies by bāb — the bāb IS the ʿayn's vowel pair — so its per-bāb
+// charts are written as a table keyed by bāb, all six spelled out. The keys
+// that are NOT per-bāb say so by being a plain template: the majhūl neutralises
+// the ʿayn vowel (فُعِلَ / يُفْعَلُ regardless of bāb), and every mazīd form
+// fixes that vowel in its own pattern. That shape difference is the whole
+// declaration — stemFor() in salim-conjugator.js reads it directly, so there is
+// no second list of "which keys are per-bāb" here to drift out of agreement.
+//
+// The muḍāriʿ prefix ḥaraka is NOT here either: it is a form-level fact shared
+// by every verb type, so it lives once in shared-grammar.js.
 // ---------------------------------------------------------------------------
-
-/**
- * The Form I stem keys that vary by bāb. The bāb IS the ʿayn's vowel pair, so
- * only the charts that expose that vowel are per-bāb — the majhūl neutralises
- * it (فُعِلَ / يُفْعَلُ regardless of bāb), which is why it is absent here.
- * Mazīd forms fix the ʿayn vowel in their pattern and never consult a bāb.
- */
-export const FORM_I_PER_BAB = new Set(['madi_malum', 'mudari_malum', 'amr']);
-
 export const VERB_FORM_STEMS = {
   I: {
     // Read each bāb key against its stem: `ia` must show kasra on the ʿayn in
@@ -285,53 +187,3 @@ export const DERIVED_NOUN_STEMS = {
     masdar: 'ا' + K + 'س' + S + 'ت' + K + '1' + S + '2' + F + 'ا' + '3',
   },
 };
-
-// Re-exported so existing callers keep one import site for form facts.
-export { FORM_META } from './forms.js';
-
-// ---------------------------------------------------------------------------
-// Chart assembly: everything SalimConjugator needs to conjugate one chart.
-// ---------------------------------------------------------------------------
-
-/**
- * The stem for (form, stemKey, bāb).
- *
- * Whether a bāb is consulted is an explicit decision about the FORM, not a
- * shape test on whatever the table returned. Only Form I has abwāb — the bāb is
- * its ʿayn vowel pair — and only its maʿlūm and amr charts expose that vowel
- * (FORM_I_PER_BAB). Every mazīd form fixes the vowel in its own pattern, so
- * asking it for a bāb is meaningless and we never do.
- */
-export function stemFor(formId, stemKey, bab) {
-  const stems = VERB_FORM_STEMS[formId];
-  if (!stems) return null;
-
-  if (formId === 'I' && FORM_I_PER_BAB.has(stemKey)) {
-    if (!bab) return null;        // Form I without a bāb is incomplete content
-    return stems[stemKey][bab] ?? null;
-  }
-  return stems[stemKey] ?? null;
-}
-
-/**
- * The complete conjugation chart for (form, chartId, bāb), or null when the
- * combination doesn't exist in the grammar (Form IX, Form VII majhūl, …).
- * Returns { stem, endings, prefixHaraka } — prefixHaraka non-null only for
- * muḍāriʿ charts.
- */
-export function chartTemplate(formId, chartId, bab = DEFAULT_BAB) {
-  const meta = FORMS[formId];
-  const chartInfo = CHARTS[chartId];
-  if (!meta?.conjugable || !chartInfo) return null;
-  if (chartInfo.voice === 'majhul' && !meta.hasMajhul) return null;
-
-  const stemKey = chartInfo.tense === 'amr' ? 'amr' : `${chartInfo.tense}_${chartInfo.voice}`;
-  const stem = stemFor(formId, stemKey, bab);
-  if (!stem) return null;
-
-  const prefixHaraka = chartInfo.tense === 'mudari'
-    ? mudariPrefixHaraka(formId, chartInfo.voice)
-    : null;
-
-  return { stem, endings: ENDINGS[chartId], prefixHaraka };
-}

@@ -2,10 +2,13 @@
 // Whether Form VII has a passive, whether Form IX can be conjugated, what a
 // bāb signifies: none of that changes between sālim, muḍāʿaf or ajwaf.
 //
-// Everything that DOES change per verb type (stems, endings, derived-noun
-// templates) lives in that type's own grammar file.
-
-import { FATHA, DAMMA } from '../vocabulary.js';
+// Everything that DOES change per verb type (stems, derived-noun templates)
+// lives in that type's own grammar file. The affixes that change with neither
+// — the endings and the muḍāriʿ prefix, including its per-form ḥaraka — live
+// in shared-grammar.js.
+//
+// This file is data, not logic: ConjugationService reads FORM_META once, in
+// its precondition guard, so that no engine has to re-check it.
 
 export const FORM_META = {
   I:    { conjugable: true,  hasMajhul: true,  meanings: [] },
@@ -19,25 +22,3 @@ export const FORM_META = {
   IX:   { conjugable: false, hasMajhul: false, meanings: ['alwan_uyub'] }, // recognition-only
   X:    { conjugable: true,  hasMajhul: true,  meanings: ['talab', 'itiqad'] },
 };
-
-// ---------------------------------------------------------------------------
-// The muḍāriʿ prefix ḥaraka
-//
-// This lives here, shared, because it is a fact about the FORM and not about
-// the verb type: يُعَلِّمُ and يُمَادُّ take the same ḍamma for the same reason,
-// and a hollow or defective verb will take it too. Every verb type's grammar
-// file used to restate it per form, which is six more chances to disagree with
-// the sālim file for no benefit.
-//
-// Two rules, and there are no exceptions to either:
-//   · the majhūl always takes ḍamma, in every form
-//   · the maʿlūm takes ḍamma in Forms II, III and IV, fatḥa everywhere else
-// ---------------------------------------------------------------------------
-
-const DAMMA_PREFIX_FORMS = new Set(['II', 'III', 'IV']);
-
-/** The ḥaraka on the muḍāriʿ prefix letter for (form, voice). */
-export function mudariPrefixHaraka(formId, voice) {
-  if (voice === 'majhul') return DAMMA;
-  return DAMMA_PREFIX_FORMS.has(formId) ? DAMMA : FATHA;
-}

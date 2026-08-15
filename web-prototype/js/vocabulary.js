@@ -73,16 +73,17 @@ export const MAZEED_IDS = FORM_IDS.slice(1);
 // above the engine — Practice shows one "Ajwaf" chip, and it selects both.
 // glossary.js keys its labels by GROUP for exactly this reason.
 //
-// Lafīf is NOT split here: its two weak letters divide it into mafrūq
-// (و…ي, وَقَى) and maqrūn (adjacent, طَوَى), which is a different axis from
-// waw/ya. Left whole until its engine is written.
+// Lafīf splits on its own axis rather than waw/ya, because it has two weak
+// letters and what matters is where they sit: mafrūq ("separated" — fāʾ and lām
+// weak with a sound ʿayn between, وَقَى) versus maqrūn ("joined" — the two weak
+// letters adjacent, طَوَى). Same principle, different discriminator.
 // ---------------------------------------------------------------------------
 export const VERB_TYPE_IDS = [
   'salim', 'mahmuz', 'mudaaf',
   'mithal_waw', 'mithal_ya',
   'ajwaf_waw', 'ajwaf_ya',
   'naqis_waw', 'naqis_ya',
-  'lafif',
+  'lafif_mafruq', 'lafif_maqrun',
 ];
 
 /** What the user picks from — one per traditional type name. */
@@ -91,10 +92,11 @@ export const VERB_TYPE_GROUP_IDS = [
 ];
 
 const VERB_TYPE_GROUP = {
-  salim: 'salim', mahmuz: 'mahmuz', mudaaf: 'mudaaf', lafif: 'lafif',
+  salim: 'salim', mahmuz: 'mahmuz', mudaaf: 'mudaaf',
   mithal_waw: 'mithal', mithal_ya: 'mithal',
   ajwaf_waw: 'ajwaf', ajwaf_ya: 'ajwaf',
   naqis_waw: 'naqis', naqis_ya: 'naqis',
+  lafif_mafruq: 'lafif', lafif_maqrun: 'lafif',
 };
 
 /** Engine type → the name the user sees. */
@@ -118,7 +120,14 @@ export const verbTypesInGroup = (group) =>
 // ---------------------------------------------------------------------------
 export const BAB_IDS = ['au', 'ai', 'aa', 'ia', 'uu', 'ii'];
 
-/** Form I's citation bāb — what the wazn renderer and probes assume. */
+/**
+ * Form I's citation bāb — نَصَرَ, the one every handout opens with.
+ *
+ * A UI-layer fallback only, for a caller that must show SOMETHING for a form
+ * whose bāb is irrelevant or unrecorded (a mazīd form's wazn, a probe root).
+ * The conjugation engine never defaults to it: there, a missing bāb yields no
+ * word, so incomplete content shows up as a gap instead of as نَصَرَ.
+ */
 export const DEFAULT_BAB = 'au';
 
 // One per quiz type. Single-select in Practice: one type per session, so the

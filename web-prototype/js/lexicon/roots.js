@@ -464,8 +464,8 @@ export const ROOTS = [
   {
     root: ['و', 'ص', 'ل'], type: 'mithal_waw',
     forms: {
-      I: { bab: 'ai', gloss: 'to arrive / reach', masdar: 'وُصُول', trans: false,
-           en: { past: 'arrived', pres3: 'arrives', ing: 'arriving' } },
+      I: { bab: 'ai', gloss: 'to reach / connect', masdar: 'وُصُول', trans: true,
+           en: { past: 'reached', pp: 'reached', pres3: 'reaches', ing: 'reaching' } },
       II: { gloss: 'to connect / deliver', trans: true,
             en: { past: 'connected', pp: 'connected', pres3: 'connects', ing: 'connecting' } },
       III: { gloss: 'to keep in touch with', trans: true,

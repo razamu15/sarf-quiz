@@ -33,7 +33,7 @@
 // Templates use 1/2 as radical placeholders; there is no 3 in a merged stem —
 // the doubled letter is written once and the shadda carries the second.
 
-import { FATHA as F, DAMMA as D, KASRA as K, SUKUN as S, SHADDA as SH, DEFAULT_BAB } from '../vocabulary.js';
+import { FATHA as F, DAMMA as D, KASRA as K, SUKUN as S, SHADDA as SH } from '../vocabulary.js';
 
 // ---------------------------------------------------------------------------
 // Which forms undergo idghām at all.
@@ -45,20 +45,18 @@ import { FATHA as F, DAMMA as D, KASRA as K, SUKUN as S, SHADDA as SH, DEFAULT_B
 export const IDGHAM_FORMS = new Set(['I', 'III', 'IV', 'VI', 'VII', 'VIII', 'X']);
 
 // ---------------------------------------------------------------------------
-// Merged stems, per form. Form I is per bāb.
+// Merged stems, per form.
+//
+// Form I is per bāb — but in FEWER charts than the sālim verb, and the tables
+// below say which by their shape: a per-bāb chart is a table keyed by bāb, a
+// chart that has stopped distinguishing abwāb is a plain template. Idghām is
+// exactly the loss of the ʿayn's vowel, and the māḍī bāb distinction lived in
+// that vowel, so all six abwāb collapse to مَدَّ in the past; only the muḍāriʿ
+// and amr, where the vowel survives by moving onto the fāʾ, still tell them
+// apart. mergedStem() in mudaaf-conjugator.js reads that shape at conjugation
+// time, so this difference from the sālim tables needs no declaration of its
+// own.
 // ---------------------------------------------------------------------------
-/**
- * Which Form I stem keys vary by bāb — and note this set is SHORTER than the
- * sālim one. Idghām is exactly the loss of the ʿayn's vowel, and the māḍī bāb
- * distinction lived in that vowel, so all six abwāb collapse to مَدَّ in the
- * past. Only the muḍāriʿ and amr, where the vowel survives by moving onto the
- * fāʾ, still tell the abwāb apart.
- *
- * That difference is the reason this set belongs to each verb type's grammar
- * rather than being shared.
- */
-export const FORM_I_PER_BAB = new Set(['mudari_malum', 'amr']);
-
 export const MERGED_STEMS = {
   I: {
     // Every bāb collapses to the same māḍī shape: the ʿayn's vowel is what
@@ -193,23 +191,3 @@ export const DERIVED_NOUN_STEMS = {
     masdar: 'ا' + K + 'س' + S + 'ت' + K + '1' + S + '2' + F + 'ا' + '3', // اِسْتِمْدَاد
   },
 };
-
-/**
- * The merged stem for (form, chart, bāb), or null when this form/chart has no
- * merged shape (Form VII majhūl, or a form that never merges at all).
- *
- * Consulting a bāb is an explicit decision about the form, exactly as in the
- * sālim grammar: only Form I has abwāb, and only the keys in FORM_I_PER_BAB
- * still distinguish them after idghām.
- */
-export function mergedStem(formId, chartInfo, bab = DEFAULT_BAB) {
-  const stems = MERGED_STEMS[formId];
-  if (!stems) return null;
-
-  const key = chartInfo.tense === 'amr' ? 'amr' : `${chartInfo.tense}_${chartInfo.voice}`;
-  if (formId === 'I' && FORM_I_PER_BAB.has(key)) {
-    if (!bab) return null;
-    return stems[key][bab] ?? null;
-  }
-  return stems[key] ?? null;
-}

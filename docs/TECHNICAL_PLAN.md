@@ -218,36 +218,36 @@ protocol VerbTypeConjugator {
   func derivedNoun(_ root: Root, form: FormID, kind: DerivedNounKind) -> String?
 }
 
-struct SalimConjugator:      VerbTypeConjugator { … }  // pure template fill
-struct MahmuzConjugator:     VerbTypeConjugator { … }  // P2
-struct MudaafConjugator:     VerbTypeConjugator { … }  // P2
-struct MithalWawConjugator:  VerbTypeConjugator { … }  // P3
-struct MithalYaConjugator:   VerbTypeConjugator { … }  // P3
-struct AjwafWawConjugator:   VerbTypeConjugator { … }  // P3
-struct AjwafYaConjugator:    VerbTypeConjugator { … }  // P3
-struct NaqisWawConjugator:   VerbTypeConjugator { … }  // P4
-struct NaqisYaConjugator:    VerbTypeConjugator { … }  // P4
-struct LafifConjugator:      VerbTypeConjugator { … }  // P4
+struct SalimConjugator: VerbTypeConjugator { … }   // pure template fill
+struct MahmuzConjugator: VerbTypeConjugator { … }  // P2
+struct MudaafConjugator: VerbTypeConjugator { … }  // P2
+struct MithalConjugator: VerbTypeConjugator { … }  // P3 — both wāw and yāʾ
+struct AjwafConjugator: VerbTypeConjugator { … }   // P3 — both wāw and yāʾ
+struct NaqisConjugator: VerbTypeConjugator { … }   // P4 — both wāw and yāʾ
+struct LafifConjugator: VerbTypeConjugator { … }   // P4
 ```
 
-**Ten engine types, not seven.** The three weak types split by *which* letter is
-weak, because و and ي do not behave alike in the same slot: يَقُولُ keeps its
-wāw as a long ū where يَبِيعُ keeps its yāʾ as a long ī, and نَامَ / بَاعَ share
-an alif in the māḍī but unfold to نُمْتُ vs بِعْتُ. Splitting keeps each engine
-table-driven instead of growing an internal `if radical == و` branch — the same
-reason there is one engine per type at all.
+Seven types, seven engines — the enum is closed, so the router's dictionary is
+exhaustive once P4 lands and the fallback path below becomes dead code.
 
-**The split is invisible above the engine.** Students learn six type names, so
-`VERB_TYPE_GROUP_IDS` folds the ten back to seven for display and Practice shows
-one "Ajwaf" chip that selects both. History stores the granular type, which is
-strictly better: stats can later reveal that a user is fine on hollow-wāw verbs
-and lost on hollow-yāʾ, a distinction the rolled-up name cannot express.
+**Eleven data types, seven engines.** `VerbType` distinguishes the weak types by
+*which* letter is weak — `ajwafWaw` / `ajwafYa`, and likewise for mithāl and
+nāqiṣ — because a root's weak letter decides its iʿlāl and the lexicon has to
+record it. Lafīf splits on its own axis, since it has two weak letters and what
+matters is where they sit: `lafifMafruq` (fāʾ and lām weak, sound ʿayn between —
+وَقَى) versus `lafifMaqrun` (the two adjacent — طَوَى).
 
-Lafīf is deliberately *not* split this way — its two weak letters divide it into
-mafrūq (و…ي) and maqrūn (adjacent), a different axis. Left whole until P4.
+All of that is a fact about **content and classification, not about control
+flow**: `handles` is a *group*, so one `AjwafConjugator` serves both variants and
+reads the weak letter off the radicals it was handed. Routing is
+`ENGINES[group(root.type)]`.
 
-The enum is closed, so the router's dictionary is exhaustive once P4 lands and
-the fallback path below becomes dead code.
+The split earns its place in three ways: the load-time validator checks a root's
+declared type against its radicals precisely; a grammar file can key stems by
+weak letter where they differ; and history stores the granular type, so stats
+can later show that a user is fine on hollow-wāw and lost on hollow-yāʾ. Above
+the engine it is invisible — `VerbTypeGroup` folds the eleven back to seven and
+Practice shows one "Ajwaf" chip that selects both.
 
 `ConjugationService` is the single entry point the rest of the system sees:
 

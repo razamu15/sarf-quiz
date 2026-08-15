@@ -23,7 +23,13 @@ const HAMZA = new Set(['ء', 'أ', 'إ', 'ؤ', 'ئ']);
 export function classify(radicals) {
   const [r1, r2, r3] = radicals;
   const weakCount = radicals.filter((r) => WEAK.has(r)).length;
-  if (weakCount >= 2) return 'lafif';
+  if (weakCount >= 2) {
+    // Mafrūq — "separated": the fāʾ and the lām are weak with a sound ʿayn
+    // between them (وَقَى). Maqrūn — "joined": the two weak letters sit next to
+    // each other (طَوَى). Anything else with two weak letters is adjacent by
+    // elimination, so it falls to maqrūn.
+    return WEAK.has(r1) && WEAK.has(r3) && !WEAK.has(r2) ? 'lafif_mafruq' : 'lafif_maqrun';
+  }
   if (WEAK.has(r2)) return r2 === 'و' ? 'ajwaf_waw' : 'ajwaf_ya';
   if (WEAK.has(r3)) return r3 === 'و' ? 'naqis_waw' : 'naqis_ya';
   if (WEAK.has(r1)) return r1 === 'و' ? 'mithal_waw' : 'mithal_ya';

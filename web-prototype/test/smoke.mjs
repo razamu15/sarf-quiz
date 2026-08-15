@@ -12,13 +12,13 @@ import {
   FORM_IDS, BAB_IDS, DEFAULT_BAB, FATHA as FATHA_C, DAMMA as DAMMA_C,
   VERB_TYPE_IDS, VERB_TYPE_GROUP_IDS, groupOfVerbType, verbTypesInGroup,
 } from '../js/vocabulary.js';
-import { mudariPrefixHaraka } from '../js/grammar/forms.js';
-import { stemFor } from '../js/grammar/salim-grammar.js';
+import { MUDARI_PREFIX_HARAKA } from '../js/grammar/shared-grammar.js';
+import { stemFor } from '../js/conjugation/salim-conjugator.js';
 import { ABWAB_LABELS, VERB_TYPE_INFO } from '../js/glossary.js';
 import { LEXICON, classify, availableTypes, stockedTypes } from '../js/lexicon/lexicon-service.js';
 import {
   conjugate as conjugateChart, derivedNoun, waznOf as waznOfChart,
-  fullTable as fullTableChart, availableCharts,
+  fullTable as fullTableChart, availableCharts, enginedGroups,
 } from '../js/conjugation/conjugation-service.js';
 import {
   verbMeaning as verbMeaningChart2, derivedMeaning,
@@ -229,20 +229,21 @@ const check = (ok, label) => {
 // ---------------------------------------------------------------------------
 
 // 1. The muḍāriʿ prefix ḥaraka is a FORM fact, shared by every verb type.
-check(mudariPrefixHaraka('I', 'malum') === FATHA_C, 'Form I maʿlūm prefix is fatḥa');
-check(mudariPrefixHaraka('V', 'malum') === FATHA_C, 'Form V maʿlūm prefix is fatḥa');
-check(mudariPrefixHaraka('X', 'malum') === FATHA_C, 'Form X maʿlūm prefix is fatḥa');
-check(['II', 'III', 'IV'].every((f) => mudariPrefixHaraka(f, 'malum') === DAMMA_C),
+check(MUDARI_PREFIX_HARAKA.I.malum === FATHA_C, 'Form I maʿlūm prefix is fatḥa');
+check(MUDARI_PREFIX_HARAKA.V.malum === FATHA_C, 'Form V maʿlūm prefix is fatḥa');
+check(MUDARI_PREFIX_HARAKA.X.malum === FATHA_C, 'Form X maʿlūm prefix is fatḥa');
+check(['II', 'III', 'IV'].every((f) => MUDARI_PREFIX_HARAKA[f].malum === DAMMA_C),
   'Forms II–IV take ḍamma on the maʿlūm prefix');
-check(FORM_IDS.every((f) => mudariPrefixHaraka(f, 'majhul') === DAMMA_C),
+check(FORM_IDS.every((f) => MUDARI_PREFIX_HARAKA[f].majhul === DAMMA_C),
   'the majhūl prefix is ḍamma in every form, without exception');
 // The rule it replaces: both engines used to carry their own copy per form.
 check(FORM_IDS.every((f) => {
-  const viaFn = mudariPrefixHaraka(f, 'malum');
-  return viaFn === FATHA_C || viaFn === DAMMA_C;
+  const viaTable = MUDARI_PREFIX_HARAKA[f]?.malum;
+  return viaTable === FATHA_C || viaTable === DAMMA_C;
 }), 'every form resolves to a real ḥaraka');
 
-// 2. Consulting a bāb is an explicit decision about the form, not a shape test.
+// 2. Whether a bāb is consulted is read off the stem table's own shape: a
+//    per-bāb chart is keyed by bāb, anything else is a plain template.
 check(stemFor('I', 'madi_malum', 'ia') === stemFor('I', 'madi_malum', 'ii'),
   'ia and ii share a māḍī stem — both kasra on the ʿayn');
 check(stemFor('I', 'madi_malum', 'uu') !== stemFor('I', 'madi_malum', 'au'),
@@ -284,6 +285,16 @@ check(classify(['ي', 'ق', 'ن']) === 'mithal_ya', 'classify mithāl yāʾ');
 // A root that is both weak and hamzated is typed by its weakness — the harder
 // rule, and the one that decides which engine runs.
 check(classify(['ي', 'ء', 'س']) === 'mithal_ya', 'weak beats hamza in classification');
+
+// Lafīf splits on where the two weak letters sit, not on which letter they are.
+check(classify(['و', 'ق', 'ي']) === 'lafif_mafruq', 'classify lafīf mafrūq — و…ي, sound ʿayn between');
+check(classify(['و', 'ف', 'ي']) === 'lafif_mafruq', 'وفى is mafrūq');
+check(classify(['ط', 'و', 'ي']) === 'lafif_maqrun', 'classify lafīf maqrūn — the weak letters adjacent');
+check(classify(['ر', 'و', 'ي']) === 'lafif_maqrun', 'روى is maqrūn');
+check(groupOfVerbType('lafif_mafruq') === 'lafif' && groupOfVerbType('lafif_maqrun') === 'lafif',
+  'both lafīf variants present as one name to the user');
+check(verbTypesInGroup('lafif').join() === 'lafif_mafruq,lafif_maqrun',
+  'lafīf covers both placements');
 
 // The split is an ENGINE fact. Every split type folds back to the one name the
 // user sees, and every group covers at least one engine type.
@@ -826,6 +837,37 @@ check(chartsFor({ tenses: ['madi'], voices: ['majhul'], moods: [] }).join() === 
   check(narrow > 0 && wide > narrow, 'possibleQuestions grows with the selection');
   check(possibleQuestions({ quizType: 'identify', tenses: ['amr'], voices: [], moods: [], forms: ['IX'], types: ['salim'] }) === 0,
     'possibleQuestions is 0 for a selection that can produce nothing');
+}
+
+
+
+// ---------------------------------------------------------------------------
+// One engine per GROUP, not per data type.
+//
+// The waw/ya split exists in the lexicon and the enum so classification and
+// history can be precise. It must NOT propagate into the engine layer: a single
+// AjwafConjugator will serve both variants, reading the weak letter off the
+// radicals. These assertions pin that boundary.
+// ---------------------------------------------------------------------------
+{
+  check(enginedGroups().every((g) => VERB_TYPE_GROUP_IDS.includes(g)),
+    'every registered engine handles a GROUP, never a granular type');
+  check(!enginedGroups().some((g) => g.includes('_')),
+    'no engine is registered under a waw/ya-split name');
+
+  // Both قول (ajwaf_waw) and رمي (naqis_ya) resolve without an engine of their
+  // own — through manual tables today, through one group engine tomorrow.
+  const qala = byRoot('قول');
+  check(conjugateChart(qala, 'I', 'madi_malum', '3ms') === 'قَالَ',
+    'a granular type still routes correctly');
+
+  // A muḍāʿaf root routes to the single MudaafConjugator via its group.
+  check(conjugateChart(byRoot('مدد'), 'I', 'madi_malum', '3ms') === 'مَدَّ',
+    'an unsplit type routes through the same group lookup');
+
+  // Adding weak content did not make it playable — no engine, no manual tables.
+  check(conjugateChart(byRoot('نوم'), 'I', 'madi_malum', '3ms') === null,
+    'weak content without an engine conjugates to nothing');
 }
 
 console.log(`\nTOTAL: ${pass} passed, ${fail} failed`);

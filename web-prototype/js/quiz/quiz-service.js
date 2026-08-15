@@ -44,7 +44,7 @@ import {
   PRONOUNS, TENSE_LABELS, VOICE_LABELS, MOOD_LABELS, NOUN_KIND_LABELS,
   FORM_NAMES, ABWAB_LABELS,
 } from '../glossary.js';
-import { FORM_META } from '../grammar/salim-grammar.js';
+import { FORM_META } from '../grammar/forms.js';
 import { LEXICON, availableTypes, candidates } from '../lexicon/lexicon-service.js';
 import {
   conjugate, derivedNoun, waznOf, citation, isConjugatable,
