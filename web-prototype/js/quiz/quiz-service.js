@@ -38,18 +38,18 @@
 
 import {
   CHARTS, CHART_IDS, chartId as chartIdFor, slotsFor,
-  MOOD_DISTINCT_SLOTS, FORM_IDS, MAZEED_IDS, DEFAULT_BAB,
+  MOOD_DISTINCT_SLOTS, FORM_IDS, MAZEED_IDS, DEFAULT_BAB, DERIVED_NOUN_TYPE_IDS,
 } from '../vocabulary.js';
 import {
   PRONOUNS, TENSE_LABELS, VOICE_LABELS, MOOD_LABELS, NOUN_KIND_LABELS,
   FORM_NAMES, ABWAB_LABELS,
 } from '../glossary.js';
-import { FORM_META } from '../grammar/forms.js';
+import { FORM_META } from '../grammar/shared-grammar.js';
 import { LEXICON, availableTypes, candidates } from '../lexicon/lexicon-service.js';
 import {
   conjugate, derivedNoun, waznOf, citation, isConjugatable,
 } from '../conjugation/conjugation-service.js';
-import { verbMeaning, derivedMeaning, particleFor } from '../meaning-service.js';
+import { verbMeaning, derivedNounMeaning, particleFor } from '../meaning-service.js';
 
 const rand = (arr) => arr[Math.floor(Math.random() * arr.length)];
 
@@ -528,14 +528,12 @@ function makeFromMeaningQuestion(spec, charts) {
 //   3b  given a derived noun → which derivative is it, and from which form
 // ---------------------------------------------------------------------------
 
-const DERIVED_KINDS = ['ismFail', 'ismMaful', 'masdar'];
-
-/** Every (kind → word) this root/form actually produces. */
+/** Every (derived-noun type → word) this root/form actually produces. */
 function derivativesOf(root, formId) {
   const out = {};
-  for (const kind of DERIVED_KINDS) {
-    const word = derivedNoun(root, formId, kind);
-    if (word) out[kind] = word;
+  for (const nounType of DERIVED_NOUN_TYPE_IDS) {
+    const word = derivedNoun(root, formId, nounType);
+    if (word) out[nounType] = word;
   }
   return out;
 }
@@ -551,7 +549,7 @@ const derivedFields = (root, formId, kind, word) => ({
   derivedKind: kind,
   word,
   gloss: glossOf(root, formId),
-  fullMeaning: derivedMeaning(root, formId, kind),
+  fullMeaning: derivedNounMeaning(root, formId, kind),
 });
 
 /**
@@ -599,7 +597,7 @@ function makeDerivativeKindQuestion(root, formId) {
     prompt: 'Which derivative is this?',
     ...singleCorrect(
       { ...NOUN_KIND_LABELS[kind], valueKey: kind },
-      DERIVED_KINDS.filter((k) => k !== kind).map((k) => ({ ...NOUN_KIND_LABELS[k], valueKey: k })),
+      DERIVED_NOUN_TYPE_IDS.filter((k) => k !== kind).map((k) => ({ ...NOUN_KIND_LABELS[k], valueKey: k })),
     ),
     explanation: `${word} is the ${NOUN_KIND_LABELS[kind].ar} of ${citation(root, formId)}.`,
   };

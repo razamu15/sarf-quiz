@@ -2,7 +2,7 @@
 // translation like "he hit" / "she was taught" / "throw! (you (f))".
 // Chart-aware v2 port of the v1 renderer, plus iʿrāb-aware muḍāriʿ meanings.
 
-import { CHARTS } from './vocabulary.js';
+import { CHARTS, DERIVED_NOUN_TYPES } from './vocabulary.js';
 import { PRONOUNS } from './glossary.js';
 
 const SING3 = new Set(['3ms', '3fs']);
@@ -123,18 +123,30 @@ export function verbMeaning(root, formId, chartId, slot, particleId = null) {
   return '';
 }
 
-/** "one who teaches", "that which is written", "teaching (the act)" */
-export function derivedMeaning(root, formId, kind) {
+/**
+ * "one who teaches", "that which is written", "teaching (the act itself)" —
+ * the English for a derived noun. `nounType` is one of DERIVED_NOUN_TYPES.
+ *
+ * The counterpart of ConjugationService.derivedNoun(), which builds the Arabic
+ * word this renders; QuizService pairs them to state a derived-noun question
+ * and its answer.
+ *
+ * Returns '' where there is no sensible English rather than an awkward one: a
+ * stative verb ("be safe") reads its ism fāʿil as a quality-holder and its
+ * maṣdar as the quality, but has no ism mafʿūl at all — nothing is being done
+ * to anything.
+ */
+export function derivedNounMeaning(root, formId, nounType) {
   const usage = root.forms[formId];
   if (!usage) return '';
   const e = enForms(usage);
   if (e.be) {
-    if (kind === 'ismFail') return `one who is ${e.be}`;
-    if (kind === 'masdar') return `being ${e.be} (the quality itself)`;
+    if (nounType === DERIVED_NOUN_TYPES.ismFail) return `one who is ${e.be}`;
+    if (nounType === DERIVED_NOUN_TYPES.masdar) return `being ${e.be} (the quality itself)`;
     return '';
   }
-  if (kind === 'ismFail') return `one who ${e.pres3}`;
-  if (kind === 'ismMaful') return `that which is ${e.pp}`;
-  if (kind === 'masdar') return `${e.ing} (the act itself)`;
+  if (nounType === DERIVED_NOUN_TYPES.ismFail) return `one who ${e.pres3}`;
+  if (nounType === DERIVED_NOUN_TYPES.ismMaful) return `that which is ${e.pp}`;
+  if (nounType === DERIVED_NOUN_TYPES.masdar) return `${e.ing} (the act itself)`;
   return '';
 }

@@ -2,7 +2,8 @@
 // can't. See mudaaf-grammar.js for why that single rule is the whole verb type.
 //
 // Same shape as every other engine:
-//   { handles, conjugate(root, formId, chartId, slot), derivedNoun(root, formId, kind) }
+//   { handles, conjugate(root, formId, chartId, slot),
+//              derivedNoun(root, formId, nounType) }
 //
 // And like every other engine it assumes valid input — ConjugationService has
 // already established that this (root, form, chart, slot) can exist at all.
@@ -11,30 +12,24 @@ import { CHARTS, SUKUN } from '../vocabulary.js';
 import { ENDINGS, PREFIX_LETTERS, MUDARI_PREFIX_HARAKA } from '../grammar/shared-grammar.js';
 import { IDGHAM_FORMS, MERGED_STEMS, DERIVED_NOUN_STEMS } from '../grammar/mudaaf-grammar.js';
 import { SalimConjugator } from './salim-conjugator.js';
-
-const norm = (s) => (s == null ? null : s.normalize('NFC'));
-
-// A merged stem has no lām placeholder — the shadda carries the doubled letter.
-function fill(template, radicals) {
-  return template
-    .replaceAll('1', radicals[0])
-    .replaceAll('2', radicals[1])
-    .replaceAll('3', radicals[2]);
-}
+import { fill, norm } from './templates.js';
 
 /** Which stem family a chart draws on — moods share a stem, so mood is dropped. */
 const stemKeyFor = (chart) =>
   (chart.tense === 'amr' ? 'amr' : `${chart.tense}_${chart.voice}`);
 
 /**
- * The merged stem for (form, stemKey, bāb), or null when this form has no
+ * The merged stem for (form, stem family, bāb), or null when this form has no
  * merged shape (Form VII majhūl, or a form that never merges at all).
  *
- * The bāb is resolved exactly as in the sālim engine, and for the same reason:
- * the table's own shape says whether this chart still distinguishes abwāb — a
- * table keyed by bāb does, a plain template doesn't. That is what lets the
- * muḍāʿaf māḍī collapse all six abwāb into مَدَّ without a second declaration
- * anywhere saying it collapsed.
+ * The bāb is resolved exactly as in SalimConjugator.stemFor(), and for the same
+ * reason: the table's own shape says whether this chart still distinguishes
+ * abwāb — a table keyed by bāb does, a plain template doesn't. Here that pays
+ * off twice over, because the muḍāʿaf māḍī collapses all six abwāb into مَدَّ
+ * (idghām is exactly the loss of the vowel that told them apart) while its
+ * muḍāriʿ still keeps them distinct: يَمُدُّ vs يَفِرُّ. Both facts are written
+ * in MERGED_STEMS as one string versus one table, and nothing else has to say
+ * that the muḍāʿaf differs from the sālim here.
  */
 function mergedStem(formId, stemKey, bab) {
   const stem = MERGED_STEMS[formId]?.[stemKey];
@@ -67,8 +62,9 @@ export const MudaafConjugator = {
     return norm(word);
   },
 
-  derivedNoun(root, formId, kind) {
-    const template = DERIVED_NOUN_STEMS[formId]?.[kind];
+  /** One of DERIVED_NOUN_TYPES. Null when this form has no such noun. */
+  derivedNoun(root, formId, nounType) {
+    const template = DERIVED_NOUN_STEMS[formId]?.[nounType];
     return template ? norm(fill(template, root.root)) : null;
   },
 };

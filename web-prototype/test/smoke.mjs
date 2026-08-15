@@ -21,7 +21,7 @@ import {
   fullTable as fullTableChart, availableCharts, enginedGroups,
 } from '../js/conjugation/conjugation-service.js';
 import {
-  verbMeaning as verbMeaningChart2, derivedMeaning,
+  verbMeaning as verbMeaningChart2, derivedNounMeaning,
   MUDARI_PARTICLES, particlesFor, particleFor,
 } from '../js/meaning-service.js';
 const verbMeaningChart = (root, formId, chartId, slot) => verbMeaningChart2(root, formId, chartId, slot);
@@ -192,9 +192,9 @@ const cases = [
   [verbMeaning(byRoot('سلم'), 'I', 'madi', 'malum', '3mp'), 'they (m, 3+) were safe'],
   [verbMeaning(byRoot('سلم'), 'I', 'mudari', 'malum', '3ms'), 'he is safe / will be safe'],
   [verbMeaning(qala, 'I', 'madi', 'majhul', '3ms'), 'he was said'],
-  [derivedMeaning(alima, 'II', 'ismFail'), 'one who teaches'],
-  [derivedMeaning(kataba, 'I', 'ismMaful'), 'that which is written'],
-  [derivedMeaning(kataba, 'I', 'masdar'), 'writing (the act itself)'],
+  [derivedNounMeaning(alima, 'II', 'ismFail'), 'one who teaches'],
+  [derivedNounMeaning(kataba, 'I', 'ismMaful'), 'that which is written'],
+  [derivedNounMeaning(kataba, 'I', 'masdar'), 'writing (the act itself)'],
 ];
 
 let pass = 0, fail = 0;

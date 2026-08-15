@@ -130,6 +130,29 @@ export const BAB_IDS = ['au', 'ai', 'aa', 'ia', 'uu', 'ii'];
  */
 export const DEFAULT_BAB = 'au';
 
+// ---------------------------------------------------------------------------
+// The three derived nouns (al-mushtaqqāt) — the nouns a verb throws off:
+//
+//   ismFail   اسْم فَاعِل   the doer          كَاتِب    "writer"
+//   ismMaful  اسْم مَفْعُول  the done-to      مَكْتُوب  "written"
+//   masdar    مَصْدَر       the act itself    كِتَابَة  "writing"
+//
+// Named, not typed as bare strings, because these ids are load-bearing in four
+// places at once: they key the DERIVED_NOUN_STEMS tables in every grammar file,
+// they key the display labels in glossary.js, they are what ConjugationService
+// branches on (an intransitive verb has no ism mafʿūl; a Form I maṣdar is
+// samāʿī), and they are written into stored history records. A typo in any one
+// of those is silent — `DERIVED_NOUN_TYPES.ismFayl` is not.
+// ---------------------------------------------------------------------------
+export const DERIVED_NOUN_TYPES = Object.freeze({
+  ismFail: 'ismFail',
+  ismMaful: 'ismMaful',
+  masdar: 'masdar',
+});
+
+/** The three, in teaching order — doer, done-to, then the act itself. */
+export const DERIVED_NOUN_TYPE_IDS = Object.values(DERIVED_NOUN_TYPES);
+
 // One per quiz type. Single-select in Practice: one type per session, so the
 // results screen never averages two incomparable skills into one number.
 export const QUIZ_TYPE_IDS = ['identify', 'produce', 'derived', 'fromMeaning'];

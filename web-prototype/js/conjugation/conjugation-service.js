@@ -25,17 +25,19 @@
 //
 // The full-table API powers the Tables browser and the parity tests.
 
-import { CHARTS, FATHA, DAMMA, slotsFor, groupOfVerbType } from '../vocabulary.js';
-import { FORM_META } from '../grammar/forms.js';
-import { ENDINGS, MUDARI_PREFIX_HARAKA } from '../grammar/shared-grammar.js';
-import { SalimConjugator, fillTemplate, stemFor } from './salim-conjugator.js';
+import {
+  CHARTS, DERIVED_NOUN_TYPES, slotsFor, groupOfVerbType,
+} from '../vocabulary.js';
+import {
+  FORM_META, ENDINGS, PREFIX_LETTERS, MUDARI_PREFIX_HARAKA,
+} from '../grammar/shared-grammar.js';
+import { SalimConjugator, stemFor } from './salim-conjugator.js';
 import { MudaafConjugator } from './mudaaf-conjugator.js';
+import { fill, norm } from './templates.js';
 
 const ENGINES = Object.fromEntries(
   [SalimConjugator, MudaafConjugator].map((engine) => [engine.handles, engine]),
 );
-
-const norm = (s) => (s == null ? null : s.normalize('NFC'));
 
 /** The engine for a root, resolved through its display group. */
 const engineFor = (root) => ENGINES[groupOfVerbType(root.type)];
@@ -46,6 +48,7 @@ const engineFor = (root) => ENGINES[groupOfVerbType(root.type)];
  * Called by: the smoke test, to assert that every registered engine `handles`
  * a real display group rather than a granular lexicon type (one engine per
  * traditional type is the invariant the routing above depends on).
+ * ---PROTOTYPE ONLY---
  */
 export const enginedGroups = () => Object.keys(ENGINES);
 
@@ -86,6 +89,8 @@ function cellExists(root, formId, chartId, slot) {
  * Called by: LexiconService.availableTypes() to decide which verb-type chips
  * Practice may offer, and QuizService's candidate filter so a question is never
  * built on a root that can't produce a word.
+ * 
+ * ---PROTOTYPE ONLY---
  */
 export function isConjugatable(root, formId) {
   if (engineFor(root)) return true;
@@ -137,15 +142,16 @@ export function fullTable(root, formId, chartId) {
  * Called by: the smoke test, which asserts the counts per root. No UI caller
  * yet — the Tables browser drives its chart from the tense/voice/mood chips
  * and asks fullTable() whether that one particular chart exists.
+ * ---PROTOTYPE ONLY---
  */
 export function availableCharts(root, formId) {
   return Object.keys(CHARTS).filter((chartId) => fullTable(root, formId, chartId));
 }
 
 /**
- * A derived noun (al-mushtaqqāt): ism fāʿil, ism mafʿūl or maṣdar. Null when
- * this verb has no such noun — an intransitive verb has no ism mafʿūl, and a
- * Form I maṣdar is samāʿī (heard, not derived), so it exists only if the
+ * A derived noun (al-mushtaqqāt) — `nounType` is one of DERIVED_NOUN_TYPES.
+ * Null when this verb has no such noun: an intransitive verb has no ism mafʿūl,
+ * and a Form I maṣdar is samāʿī (heard, not derived), so it exists only if the
  * lexicon recorded one for this root.
  *
  * Those three facts are lexicon facts, not verb-type facts, so they are
@@ -160,28 +166,23 @@ export function availableCharts(root, formId) {
  * Called by: QuizService's derived-noun questions (the answer word, its
  * distractors from other forms, and the wazn probe), and the smoke test.
  */
-export function derivedNoun(root, formId, kind) {
+export function derivedNoun(root, formId, nounType) {
   const engine = engineFor(root);
   const usage = root.forms[formId];
   if (!engine || !usage) return null;
-  if (kind === 'ismMaful' && !usage.trans) return null;
-  if (kind === 'masdar' && formId === 'I') return norm(usage.masdar ?? null);
-  return engine.derivedNoun(root, formId, kind);
+  if (nounType === DERIVED_NOUN_TYPES.ismMaful && !usage.trans) return null;
+  if (nounType === DERIVED_NOUN_TYPES.masdar && formId === 'I') {
+    return norm(usage.masdar ?? null);
+  }
+  return engine.derivedNoun(root, formId, nounType);
 }
 
 // ---------------------------------------------------------------------------
 // Wazn: the same pipeline run on the reference root ف-ع-ل (always the sālim
 // engine — a wazn is a sound pattern by definition).
-//
-// The bāb is a parameter with no default, all the way down: Form I's wazn
-// genuinely differs per bāb (فَعَلَ / فَعِلَ / فَعُلَ), so the caller that knows
-// which verb it is showing a pattern for is the one that must say.
-// ---------------------------------------------------------------------------
-const WAZN_ROOT = ['ف', 'ع', 'ل'];
-
 /** The reference root, dressed as a lexicon entry so engines can conjugate it. */
 const waznRoot = (formId, bab) => ({
-  type: 'salim', root: WAZN_ROOT,
+  type: 'salim', root: ['ف', 'ع', 'ل'],
   forms: { [formId]: { bab, trans: true, masdar: null } },
 });
 
@@ -198,14 +199,15 @@ export function waznOf(formId, chartId, slot, bab) {
 }
 
 /**
- * The derived-noun mirror of waznOf — مُسْتَفْعِل for X ism fāʿil.
+ * The derived-noun mirror of waznOf — مُسْتَفْعِل for X ism fāʿil. `nounType` is
+ * one of DERIVED_NOUN_TYPES.
  *
  * Called by: the iOS QuizGenerator, for the wazn note on derived-noun
  * questions. The web prototype's derived-noun questions don't show a wazn note
  * yet; this is the function they will use when they do.
  */
-export function waznOfDerived(formId, kind, bab) {
-  return derivedNoun(waznRoot(formId, bab), formId, kind);
+export function waznOfDerived(formId, nounType, bab) {
+  return derivedNoun(waznRoot(formId, bab), formId, nounType);
 }
 
 // ---------------------------------------------------------------------------
@@ -238,23 +240,65 @@ export function waznOfDerived(formId, kind, bab) {
  *     (the māḍī) as the verb's display name.
  */
 export function citation(root, formId) {
-  const past = conjugate(root, formId, 'madi_malum', '3ms');
-  const present = conjugate(root, formId, 'mudari_malum_raf', '3ms');
-  if (past && present) return `${past} ${present}`;
-  if (!past && !FORM_META[formId]?.conjugable && root.type === 'salim') {
-    // Form IX has no charts, so the citation is built from its display stems
-    // directly. Both are plain templates — a non-conjugable form has no abwāb,
-    // so stemFor returns them without consulting a bāb.
-    const madiStem = stemFor(formId, 'madi_malum', null);
-    const mudariStem = stemFor(formId, 'mudari_malum', null);
-    if (!madiStem || !mudariStem) return '';
-    const madi = fillTemplate(madiStem + FATHA, root.root);
-    const mudari = fillTemplate(
-      'ي' + MUDARI_PREFIX_HARAKA[formId].malum + mudariStem + DAMMA, root.root,
-    );
-    return `${madi} ${mudari}`;
-  }
-  return past ?? '';
+  const madi = conjugate(root, formId, 'madi_malum', '3ms');
+  const mudari = conjugate(root, formId, 'mudari_malum_raf', '3ms');
+  if (madi && mudari) return `${madi} ${mudari}`;
+
+  // Half a citation still names the verb. This is the partial-content case: a
+  // root served by a hand-authored fixture table that covers the māḍī but not
+  // the muḍāriʿ. Quote what exists rather than nothing.
+  if (madi) return madi;
+
+  return citationFromStems(root, formId);
+}
+
+/**
+ * The citation of a form that has no chart to read one off — '' when there
+ * isn't one.
+ *
+ * Getting here means conjugate() produced NEITHER cell, and that happens for
+ * two unrelated reasons. Only one of them still has a name to quote, which is
+ * what each condition below is separating:
+ *
+ *   · THE FORM DOESN'T CONJUGATE — today that is Form IX and only Form IX,
+ *     which FORM_META marks `conjugable: false`. Its shadda unfolding
+ *     (اِحْمَرَّ but اِحْمَرَرْتُ) isn't implemented, so the app teaches it by
+ *     recognition and cellExists() refuses every one of its cells. The form is
+ *     still NAMED the ordinary way — اِحْمَرَّ يَحْمَرُّ, "to turn red" — and quiz
+ *     explanations still want to say it, so those two words are assembled here
+ *     from the stem tables instead of from charts that don't exist.
+ *   · THE ROOT HAS NO CONTENT for this form — a mithāl verb waiting on its
+ *     engine, or a form this root simply isn't used in. The form conjugates
+ *     fine in general; this verb just has nothing. Nothing to quote: ''.
+ *
+ * The sound-root condition is the third: the stems read below are the SĀLIM
+ * ones, so this may only run on a root whose letters don't change. ح-م-ر gives
+ * اِحْمَرَّ correctly; a hollow or doubled root would need its own Form IX
+ * table, and until one exists it gets '' rather than a confidently wrong word.
+ */
+function citationFromStems(root, formId) {
+  const meta = FORM_META[formId];
+  if (!meta || meta.conjugable) return '';
+  if (root.type !== 'salim') return '';
+
+  // A form that doesn't conjugate has no abwāb, so both entries are plain
+  // templates and stemFor never looks at the bāb — passing null is the honest
+  // argument here, not a shortcut.
+  const madiStem = stemFor(formId, 'madi_malum', null);
+  const mudariStem = stemFor(formId, 'mudari_malum', null);
+  if (!madiStem || !mudariStem) return '';
+
+  // Assemble the 3ms cell exactly as SalimConjugator would have: stem plus that
+  // slot's ending, plus the prefix for the muḍāriʿ. Reading the endings out of
+  // the shared tables rather than writing fatḥa and ḍamma as literals is what
+  // keeps this path honest — it is the same 3ms row every other word uses.
+  const madiEnding = ENDINGS.madi_malum['3ms'];
+  const mudariEnding = ENDINGS.mudari_malum_raf['3ms'];
+  const madi = madiStem + madiEnding.h + madiEnding.s;
+  const mudari = PREFIX_LETTERS['3ms'] + MUDARI_PREFIX_HARAKA[formId].malum
+    + mudariStem + mudariEnding.h + mudariEnding.s;
+
+  return `${norm(fill(madi, root.root))} ${norm(fill(mudari, root.root))}`;
 }
 
 /**

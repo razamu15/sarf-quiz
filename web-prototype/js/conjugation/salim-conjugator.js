@@ -1,7 +1,8 @@
 // The sālim engine: pure template fill, no letter changes — the reference
 // implementation of the VerbTypeConjugator shape every future engine follows:
 //
-//   { handles, conjugate(root, formId, chartId, slot), derivedNoun(root, formId, kind) }
+//   { handles, conjugate(root, formId, chartId, slot),
+//              derivedNoun(root, formId, nounType) }
 //
 // `handles` is a verb-type GROUP, not a granular lexicon type. One AjwafConjugator
 // will serve both ajwaf_waw and ajwaf_ya — the weak letter is right there in
@@ -22,37 +23,39 @@
 import { CHARTS } from '../vocabulary.js';
 import { VERB_FORM_STEMS, DERIVED_NOUN_STEMS } from '../grammar/salim-grammar.js';
 import { ENDINGS, PREFIX_LETTERS, MUDARI_PREFIX_HARAKA } from '../grammar/shared-grammar.js';
-
-// NFC puts ḥaraka/shadda combining marks in canonical order, so words compare
-// equal regardless of how they were typed or templated.
-const norm = (s) => (s == null ? null : s.normalize('NFC'));
-
-function fill(template, radicals) {
-  return template
-    .replaceAll('1', radicals[0])
-    .replaceAll('2', radicals[1])
-    .replaceAll('3', radicals[2]);
-}
+import { fill, norm } from './templates.js';
 
 /** Which stem family a chart draws on — moods share a stem, so mood is dropped. */
 const stemKeyFor = (chart) =>
   (chart.tense === 'amr' ? 'amr' : `${chart.tense}_${chart.voice}`);
 
 /**
- * The stem for (form, stemKey, bāb), or null when this form has no such stem.
+ * Read one template out of VERB_FORM_STEMS: the stem for (form, stem family),
+ * with the bāb applied if this particular table is keyed by one.
  *
- * The bāb is resolved here, at conjugation time, by looking at what the table
- * actually holds: a per-bāb chart is a table keyed by bāb, anything else is a
- * plain template string. Only Form I has abwāb — the bāb IS its ʿayn vowel
- * pair — and only the charts that expose that vowel are keyed by it, so the
- * tables already carry the distinction and nothing needs to declare it twice.
+ * The point of the function is that second clause. A stem table entry holds one
+ * of two shapes, and every read of the table has to interpret both:
  *
- * A per-bāb table asked for a stem WITHOUT a bāb yields null rather than a
- * default: a Form I root whose bāb the lexicon never recorded is incomplete
- * content, and inventing نَصَرَ for it would hide that.
+ *   stemFor('X', 'mudari_malum', anything) → 'سْتَفْعِ'-shaped template. Plain
+ *       string: Form X fixes its ʿayn vowel in its own pattern, so the bāb is
+ *       not consulted and passing one changes nothing.
+ *   stemFor('I', 'madi_malum', 'au')  → نَصَرَ's row of a six-row table
+ *   stemFor('I', 'madi_malum', 'ia')  → سَمِعَ's row of that same table — a
+ *       different word, because the bāb IS the ʿayn's vowel pair and the māḍī
+ *       maʿlūm is where you see it
+ *   stemFor('I', 'madi_majhul', null) → plain string again: the majhūl
+ *       neutralises that vowel (فُعِلَ whatever the bāb), so no bāb is needed
+ *   stemFor('I', 'madi_malum', null)  → null, NOT a defaulted نَصَرَ. A Form I
+ *       root whose bāb the lexicon never recorded is incomplete content, and
+ *       inventing a vowel for it would turn that into a plausible wrong answer
+ *       in a quiz instead of a visible gap.
  *
- * Exported for the citation path, which needs Form IX's display-only stems
- * without going through a chart (Form IX doesn't conjugate).
+ * Because it is the single reader, no separate list of "which stem keys are
+ * per-bāb" has to be maintained anywhere — the tables' own shape says it.
+ *
+ * Two callers: conjugate() below, for every cell of every chart, and
+ * ConjugationService.citation(), which needs Form IX's display stems without
+ * going through a chart (Form IX has no charts to go through).
  */
 export function stemFor(formId, stemKey, bab) {
   const stem = VERB_FORM_STEMS[formId]?.[stemKey];
@@ -82,14 +85,9 @@ export const SalimConjugator = {
     return norm(word);
   },
 
-  /** kind: 'ismFail' | 'ismMaful' | 'masdar'. Null when this form has no such noun. */
-  derivedNoun(root, formId, kind) {
-    const template = DERIVED_NOUN_STEMS[formId]?.[kind];
+  /** One of DERIVED_NOUN_TYPES. Null when this form has no such noun. */
+  derivedNoun(root, formId, nounType) {
+    const template = DERIVED_NOUN_STEMS[formId]?.[nounType];
     return template ? norm(fill(template, root.root)) : null;
   },
 };
-
-/** Exported for the citation path (Form IX display-only stems). */
-export function fillTemplate(template, radicals) {
-  return norm(fill(template, radicals));
-}
