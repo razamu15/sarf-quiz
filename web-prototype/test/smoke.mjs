@@ -10,11 +10,12 @@
 import {
   chartId, CHART_IDS, SLOTS, AMR_SLOTS, slotsFor,
   FORM_IDS, BAB_IDS, DEFAULT_BAB, FATHA as FATHA_C, DAMMA as DAMMA_C,
+  VERB_TYPE_IDS, VERB_TYPE_GROUP_IDS, groupOfVerbType, verbTypesInGroup,
 } from '../js/vocabulary.js';
 import { mudariPrefixHaraka } from '../js/grammar/forms.js';
 import { stemFor } from '../js/grammar/salim-grammar.js';
-import { ABWAB_LABELS } from '../js/glossary.js';
-import { LEXICON, classify } from '../js/lexicon/lexicon-service.js';
+import { ABWAB_LABELS, VERB_TYPE_INFO } from '../js/glossary.js';
+import { LEXICON, classify, availableTypes, stockedTypes } from '../js/lexicon/lexicon-service.js';
 import {
   conjugate as conjugateChart, derivedNoun, waznOf as waznOfChart,
   fullTable as fullTableChart, availableCharts,
@@ -272,11 +273,40 @@ check(BAB_IDS.includes(DEFAULT_BAB), 'the default bāb is one of the six');
 // Verb-type classification agrees with every declared type (load validated it;
 // assert classify directly too)
 check(classify(['ك', 'ت', 'ب']) === 'salim', 'classify salim');
-check(classify(['ق', 'و', 'ل']) === 'ajwaf', 'classify ajwaf');
-check(classify(['ر', 'م', 'ي']) === 'naqis', 'classify naqis');
+check(classify(['ق', 'و', 'ل']) === 'ajwaf_waw', 'classify ajwaf wāw');
+check(classify(['ب', 'ي', 'ع']) === 'ajwaf_ya', 'classify ajwaf yāʾ');
+check(classify(['ر', 'م', 'ي']) === 'naqis_ya', 'classify nāqiṣ yāʾ');
+check(classify(['د', 'ع', 'و']) === 'naqis_waw', 'classify nāqiṣ wāw');
 check(classify(['م', 'د', 'د']) === 'mudaaf', 'classify mudaaf');
 check(classify(['أ', 'خ', 'ذ']) === 'mahmuz', 'classify mahmuz');
-check(classify(['و', 'ع', 'د']) === 'mithal', 'classify mithal');
+check(classify(['و', 'ع', 'د']) === 'mithal_waw', 'classify mithāl wāw');
+check(classify(['ي', 'ق', 'ن']) === 'mithal_ya', 'classify mithāl yāʾ');
+// A root that is both weak and hamzated is typed by its weakness — the harder
+// rule, and the one that decides which engine runs.
+check(classify(['ي', 'ء', 'س']) === 'mithal_ya', 'weak beats hamza in classification');
+
+// The split is an ENGINE fact. Every split type folds back to the one name the
+// user sees, and every group covers at least one engine type.
+check(groupOfVerbType('ajwaf_waw') === 'ajwaf' && groupOfVerbType('ajwaf_ya') === 'ajwaf',
+  'both ajwaf engine types present as "ajwaf" to the user');
+check(groupOfVerbType('salim') === 'salim', 'unsplit types are their own group');
+check(VERB_TYPE_GROUP_IDS.length === 7, 'the user still chooses between seven type names');
+check(VERB_TYPE_IDS.every((t) => VERB_TYPE_GROUP_IDS.includes(groupOfVerbType(t))),
+  'every engine type maps to a real display group');
+check(VERB_TYPE_GROUP_IDS.every((g) => verbTypesInGroup(g).length >= 1),
+  'every display group covers at least one engine type');
+check(VERB_TYPE_GROUP_IDS.every((g) => VERB_TYPE_INFO[g]),
+  'every display group has a label');
+check(verbTypesInGroup('naqis').join() === 'naqis_waw,naqis_ya', 'nāqiṣ covers both weak letters');
+
+// Lexicon content is typed granularly, but only engine-backed types are playable.
+check(stockedTypes().includes('mithal_waw'), 'mithāl content is in the lexicon');
+check(!availableTypes().includes('mithal_waw'),
+  'mithāl is NOT playable — its engine does not exist yet');
+check(availableTypes().includes('ajwaf_waw'),
+  'ajwaf wāw is playable through قول\'s manual tables');
+check(!availableTypes().includes('ajwaf_ya'),
+  'ajwaf yāʾ has content but no engine and no manual tables, so it stays out');
 
 // Tables browser feed: full charts, correct row counts
 check(Object.keys(fullTableChart(kataba, 'I', 'madi_malum')).length === 14, 'full madi table has 14 rows');

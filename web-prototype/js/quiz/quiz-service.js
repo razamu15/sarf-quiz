@@ -46,7 +46,9 @@ import {
 } from '../glossary.js';
 import { FORM_META } from '../grammar/salim-grammar.js';
 import { LEXICON, availableTypes, candidates } from '../lexicon/lexicon-service.js';
-import { conjugate, derivedNoun, waznOf, citation } from '../conjugation/conjugation-service.js';
+import {
+  conjugate, derivedNoun, waznOf, citation, isConjugatable,
+} from '../conjugation/conjugation-service.js';
 import { verbMeaning, derivedMeaning, particleFor } from '../meaning-service.js';
 
 const rand = (arr) => arr[Math.floor(Math.random() * arr.length)];
@@ -263,8 +265,11 @@ export const activeRules = (plan, profile) => relevance(plan, profile).live;
 const DEFAULT_CHARTS = ['madi_malum', 'madi_majhul', 'mudari_malum_raf', 'mudari_majhul_raf', 'amr_malum'];
 
 function conjugatable(rootFilter) {
+  // Two gates, and both matter: the FORM must be conjugable (Form IX is not),
+  // and the root's verb type must actually have an engine (or its own manual
+  // tables). Roots whose engine is not written yet sit in the lexicon inert.
   return candidates(rootFilter).filter(
-    (c) => FORM_META[c.formId].conjugable || c.root.forms[c.formId].manualTables,
+    (c) => FORM_META[c.formId].conjugable && isConjugatable(c.root, c.formId),
   );
 }
 

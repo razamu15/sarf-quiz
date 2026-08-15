@@ -10,11 +10,14 @@
 // Quiz screens render from question.response: 'choice' → option buttons,
 // 'input' → an Arabic answer field graded strictly (spec §5.2).
 
-import { FORM_IDS, MAZEED_IDS, CHARTS, slotsFor, chartId as chartIdFor } from './vocabulary.js';
+import {
+  FORM_IDS, MAZEED_IDS, CHARTS, slotsFor, chartId as chartIdFor,
+  VERB_TYPE_GROUP_IDS, verbTypesInGroup, groupOfVerbType,
+} from './vocabulary.js';
 import {
   PRONOUNS, FORM_NAMES, VERB_TYPE_INFO, CATEGORIES, TENSE_LABELS, VOICE_LABELS, MOOD_LABELS,
 } from './glossary.js';
-import { LEXICON } from './lexicon/lexicon-service.js';
+import { LEXICON, availableTypes } from './lexicon/lexicon-service.js';
 import { fullTable, citation } from './conjugation/conjugation-service.js';
 import { particleFor } from './meaning-service.js';
 import {
@@ -28,7 +31,7 @@ import {
 
 const app = document.getElementById('app');
 
-const AVAILABLE_TYPES = new Set(LEXICON.map((r) => r.type));
+const AVAILABLE_TYPES = new Set(availableTypes());
 
 const state = {
   tab: 'home', // 'home' | 'practice' | 'tables' | 'more'
@@ -225,14 +228,30 @@ function renderPractice() {
     (v) => toggle(p.forms, v),
   ));
 
+  // One chip per traditional type name. The engine splits the weak types by
+  // waw/ya (نَامَ and بَاعَ need different rules), but that is an implementation
+  // fact — a student picks "Ajwaf" and gets both.
   app.append(el(`<div class="section-label">Verb types</div>`));
   app.append(chipRow(
-    Object.entries(VERB_TYPE_INFO).map(([value, t]) => ({
-      value, label: t.en.split(' (')[0], ar: t.ar,
-      sub: AVAILABLE_TYPES.has(value) ? null : 'content coming',
-    })),
-    (v) => p.types.includes(v),
-    (v) => { if (AVAILABLE_TYPES.has(v)) toggle(p.types, v); },
+    VERB_TYPE_GROUP_IDS.map((group) => {
+      const t = VERB_TYPE_INFO[group];
+      const members = verbTypesInGroup(group);
+      return {
+        value: group, label: t.en.split(' (')[0], ar: t.ar,
+        sub: members.some((m) => AVAILABLE_TYPES.has(m)) ? null : 'content coming',
+      };
+    }),
+    (group) => verbTypesInGroup(group).some((m) => p.types.includes(m)),
+    (group) => {
+      const playable = verbTypesInGroup(group).filter((m) => AVAILABLE_TYPES.has(m));
+      if (!playable.length) return;
+      const on = playable.some((m) => p.types.includes(m));
+      for (const m of playable) {
+        const i = p.types.indexOf(m);
+        if (on && i >= 0) p.types.splice(i, 1);
+        else if (!on && i < 0) p.types.push(m);
+      }
+    },
   ));
 
   app.append(el(`<div class="section-label">Questions</div>`));
@@ -546,7 +565,8 @@ function renderDetailedStats() {
 
   bars('By question type', accuracyBy('category'), (k) => CATEGORIES[k]?.label ?? k);
   bars('By form', accuracyBy('form'), (k) => `Form ${k}`);
-  bars('By verb type', accuracyBy('verbType'), (k) => VERB_TYPE_INFO[k]?.en.split(' (')[0] ?? k);
+  bars('By verb type', accuracyBy('verbType'),
+    (k) => VERB_TYPE_INFO[groupOfVerbType(k)]?.en.split(' (')[0] ?? k);
 
   const pairs = confusions();
   if (pairs.length) {

@@ -222,6 +222,8 @@ export const ROOTS = [
     forms: {
       I: { bab: 'au', gloss: 'to stretch out / extend', masdar: 'مَدّ', trans: true,
            en: { past: 'stretched out', pp: 'stretched out', pres3: 'stretches out', ing: 'stretching out' } },
+      IV: { gloss: 'to supply / reinforce', trans: true,
+            en: { past: 'supplied', pp: 'supplied', pres3: 'supplies', ing: 'supplying' } },
       VIII: { gloss: 'to extend / stretch', trans: false,
               en: { past: 'extended', pres3: 'extends', ing: 'extending' } },
       X: { gloss: 'to seek help / draw from', trans: true,
@@ -233,24 +235,85 @@ export const ROOTS = [
     forms: {
       I: { bab: 'au', gloss: 'to return / send back', masdar: 'رَدّ', trans: true,
            en: { past: 'returned', pp: 'returned', pres3: 'returns', ing: 'returning' } },
+      V: { gloss: 'to hesitate / frequent', trans: false,
+           en: { past: 'hesitated', pres3: 'hesitates', ing: 'hesitating' } },
       VIII: { gloss: 'to turn back', trans: false,
               en: { past: 'turned back', pres3: 'turns back', ing: 'turning back' } },
+      X: { gloss: 'to reclaim / get back', trans: true,
+           en: { past: 'reclaimed', pp: 'reclaimed', pres3: 'reclaims', ing: 'reclaiming' } },
     },
   },
   {
     root: ['ح', 'ب', 'ب'], type: 'mudaaf',
     forms: {
+      I: { bab: 'ai', gloss: 'to love', masdar: 'حُبّ', trans: true,
+           en: { past: 'loved', pp: 'loved', pres3: 'loves', ing: 'loving' } },
       IV: { gloss: 'to love', trans: true,
             en: { past: 'loved', pp: 'loved', pres3: 'loves', ing: 'loving' } },
+      V: { gloss: 'to endear oneself', trans: false,
+           en: { past: 'endeared himself', pres3: 'endears himself', ing: 'endearing himself' } },
+      VI: { gloss: 'to love one another', trans: false,
+            en: { past: 'loved one another', pres3: 'love one another', ing: 'loving one another' } },
+      X: { gloss: 'to consider desirable', trans: true,
+           en: { past: 'considered desirable', pp: 'considered desirable', pres3: 'considers desirable', ing: 'considering desirable' } },
     },
   },
   {
     root: ['ظ', 'ل', 'ل'], type: 'mudaaf',
     forms: {
-      // bāb 4 (samiʿa) — the muḍāriʿ keeps the ʿayn's fatḥa: يَظَلُّ، and the
+      // bāb ia — the muḍāriʿ keeps the ʿayn's fatḥa: يَظَلُّ، and the
       // unfolded past shows the kasra the merge hid: ظَلِلْتُ
       I: { bab: 'ia', gloss: 'to remain / keep doing', masdar: 'ظُلُول', trans: false,
            en: { past: 'remained', pres3: 'remains', ing: 'remaining' } },
+      II: { gloss: 'to shade / overshadow', trans: true,
+            en: { past: 'shaded', pp: 'shaded', pres3: 'shades', ing: 'shading' } },
+      IV: { gloss: 'to shade / loom over', trans: true,
+            en: { past: 'loomed over', pp: 'loomed over', pres3: 'looms over', ing: 'looming over' } },
+      X: { gloss: 'to seek shade', trans: false,
+           en: { past: 'sought shade', pres3: 'seeks shade', ing: 'seeking shade' } },
+    },
+  },
+  {
+    root: ['م', 'ر', 'ر'], type: 'mudaaf',
+    forms: {
+      I: { bab: 'au', gloss: 'to pass by', masdar: 'مُرُور', trans: false,
+           en: { past: 'passed by', pres3: 'passes by', ing: 'passing by' } },
+      II: { gloss: 'to let pass / pass through', trans: true,
+            en: { past: 'passed through', pp: 'passed through', pres3: 'passes through', ing: 'passing through' } },
+      IV: { gloss: 'to make bitter', trans: true,
+            en: { past: 'embittered', pp: 'embittered', pres3: 'embitters', ing: 'embittering' } },
+      X: { gloss: 'to continue / persist', trans: false,
+           en: { past: 'continued', pres3: 'continues', ing: 'continuing' } },
+    },
+  },
+  {
+    root: ['ع', 'ف', 'ف'], type: 'mudaaf',
+    forms: {
+      I: { bab: 'ai', gloss: 'to be chaste', masdar: 'عِفَّة', trans: false },
+      V: { gloss: 'to restrain oneself', trans: false,
+           en: { past: 'restrained himself', pres3: 'restrains himself', ing: 'restraining himself' } },
+      X: { gloss: 'to ask to be excused', trans: false,
+           en: { past: 'asked to be excused', pres3: 'asks to be excused', ing: 'asking to be excused' } },
+    },
+  },
+  {
+    root: ['ق', 'د', 'د'], type: 'mudaaf',
+    forms: {
+      I: { bab: 'ai', gloss: 'to cut lengthwise', masdar: 'قَدّ', trans: true,
+           en: { past: 'cut', pp: 'cut', pres3: 'cuts', ing: 'cutting' } },
+      VII: { gloss: 'to be split apart', trans: false,
+             en: { past: 'was split apart', pres3: 'gets split apart', ing: 'getting split apart' } },
+    },
+  },
+  {
+    root: ['م', 'س', 'س'], type: 'mudaaf',
+    forms: {
+      I: { bab: 'aa', gloss: 'to touch', masdar: 'مَسّ', trans: true,
+           en: { past: 'touched', pp: 'touched', pres3: 'touches', ing: 'touching' } },
+      III: { gloss: 'to be in contact with', trans: true,
+             en: { past: 'adjoined', pp: 'adjoined', pres3: 'adjoins', ing: 'adjoining' } },
+      VI: { gloss: 'to touch each other', trans: false,
+            en: { past: 'touched each other', pres3: 'touch each other', ing: 'touching each other' } },
     },
   },
 
@@ -259,7 +322,7 @@ export const ROOTS = [
   // don't cover simply aren't quizzed.
   // -------------------------------------------------------------------------
   {
-    root: ['ق', 'و', 'ل'], type: 'ajwaf',
+    root: ['ق', 'و', 'ل'], type: 'ajwaf_waw',
     forms: {
       I: {
         bab: 'au', gloss: 'to say', masdar: 'قَوْل', trans: true,
@@ -316,7 +379,7 @@ export const ROOTS = [
     },
   },
   {
-    root: ['ر', 'م', 'ي'], type: 'naqis',
+    root: ['ر', 'م', 'ي'], type: 'naqis_ya',
     forms: {
       I: {
         bab: 'ai', gloss: 'to throw', masdar: 'رَمْي', trans: true,
@@ -370,6 +433,348 @@ export const ROOTS = [
           },
         },
       },
+    },
+  },
+
+  // ===========================================================================
+  // Weak-verb content, awaiting engines (P3–P4)
+  //
+  // These roots carry no manualTables, so isConjugatable() reports false and
+  // they stay out of every quiz and every count until their conjugator lands.
+  // They are here now because content authoring is parallel-track: the day
+  // MithalConjugator ships, مِثَال becomes playable with eleven roots behind it
+  // rather than one.
+  //
+  // Each is typed by which letter is weak (mithal_waw vs mithal_ya, …) because
+  // that decides the iʿlāl. The user still sees one chip per traditional name.
+  // ===========================================================================
+
+  // --- Mithāl wāw · و as first radical ---------------------------------------
+  {
+    root: ['و', 'ج', 'ب'], type: 'mithal_waw',
+    forms: {
+      I: { bab: 'ai', gloss: 'to be obligatory', masdar: 'وُجُوب', trans: false,
+           en: { past: 'became obligatory', pres3: 'becomes obligatory', ing: 'becoming obligatory' } },
+      IV: { gloss: 'to make obligatory', trans: true,
+            en: { past: 'obligated', pp: 'obligated', pres3: 'obligates', ing: 'obligating' } },
+      X: { gloss: 'to deserve / merit', trans: true,
+           en: { past: 'deserved', pp: 'deserved', pres3: 'deserves', ing: 'deserving' } },
+    },
+  },
+  {
+    root: ['و', 'ص', 'ل'], type: 'mithal_waw',
+    forms: {
+      I: { bab: 'ai', gloss: 'to arrive / reach', masdar: 'وُصُول', trans: false,
+           en: { past: 'arrived', pres3: 'arrives', ing: 'arriving' } },
+      II: { gloss: 'to connect / deliver', trans: true,
+            en: { past: 'connected', pp: 'connected', pres3: 'connects', ing: 'connecting' } },
+      III: { gloss: 'to keep in touch with', trans: true,
+             en: { past: 'kept in touch with', pp: 'kept in touch with', pres3: 'keeps in touch with', ing: 'keeping in touch with' } },
+      IV: { gloss: 'to deliver / bring to', trans: true,
+            en: { past: 'delivered', pp: 'delivered', pres3: 'delivers', ing: 'delivering' } },
+      V: { gloss: 'to arrive at a result', trans: false,
+           en: { past: 'arrived at', pres3: 'arrives at', ing: 'arriving at' } },
+      VI: { gloss: 'to stay in touch', trans: false,
+            en: { past: 'stayed in touch', pres3: 'stays in touch', ing: 'staying in touch' } },
+      VIII: { gloss: 'to contact / call', trans: true,
+              en: { past: 'contacted', pp: 'contacted', pres3: 'contacts', ing: 'contacting' } },
+    },
+  },
+  {
+    root: ['و', 'ج', 'د'], type: 'mithal_waw',
+    forms: {
+      I: { bab: 'ai', gloss: 'to find', masdar: 'وُجُود', trans: true,
+           en: { past: 'found', pp: 'found', pres3: 'finds', ing: 'finding' } },
+      IV: { gloss: 'to bring into existence', trans: true,
+            en: { past: 'created', pp: 'created', pres3: 'creates', ing: 'creating' } },
+    },
+  },
+  {
+    root: ['و', 'ق', 'ع'], type: 'mithal_waw',
+    forms: {
+      I: { bab: 'aa', gloss: 'to fall / happen', masdar: 'وُقُوع', trans: false,
+           en: { past: 'happened', pres3: 'happens', ing: 'happening' } },
+      II: { gloss: 'to sign', trans: true,
+            en: { past: 'signed', pp: 'signed', pres3: 'signs', ing: 'signing' } },
+      III: { gloss: 'to confront / engage with', trans: true,
+             en: { past: 'confronted', pp: 'confronted', pres3: 'confronts', ing: 'confronting' } },
+      IV: { gloss: 'to inflict / cause to fall', trans: true,
+            en: { past: 'inflicted', pp: 'inflicted', pres3: 'inflicts', ing: 'inflicting' } },
+      VI: { gloss: 'to clash with one another', trans: false,
+            en: { past: 'clashed', pres3: 'clash', ing: 'clashing' } },
+    },
+  },
+  {
+    root: ['و', 'ض', 'ع'], type: 'mithal_waw',
+    forms: {
+      I: { bab: 'aa', gloss: 'to put / place', masdar: 'وَضْع', trans: true,
+           en: { past: 'put', pp: 'put', pres3: 'puts', ing: 'putting' } },
+      III: { gloss: 'to compose together', trans: true,
+             en: { past: 'drafted together', pp: 'drafted together', pres3: 'drafts together', ing: 'drafting together' } },
+      VI: { gloss: 'to be humble', trans: false,
+            en: { past: 'was humble', pres3: 'is humble', ing: 'being humble' } },
+      VIII: { gloss: 'to be lowered / humbled', trans: false,
+              en: { past: 'was humbled', pres3: 'gets humbled', ing: 'getting humbled' } },
+    },
+  },
+  {
+    root: ['و', 'ه', 'ب'], type: 'mithal_waw',
+    forms: {
+      I: { bab: 'aa', gloss: 'to grant / bestow', masdar: 'هِبَة', trans: true,
+           en: { past: 'granted', pp: 'granted', pres3: 'grants', ing: 'granting' } },
+      X: { gloss: 'to ask for a gift', trans: true,
+           en: { past: 'asked for a gift', pp: 'asked of', pres3: 'asks for a gift', ing: 'asking for a gift' } },
+    },
+  },
+  {
+    root: ['و', 'ج', 'ل'], type: 'mithal_waw',
+    forms: {
+      I: { bab: 'ia', gloss: 'to fear / be afraid', masdar: 'وَجَل', trans: false,
+           en: { past: 'feared', pres3: 'fears', ing: 'fearing' } },
+      IV: { gloss: 'to frighten', trans: true,
+            en: { past: 'frightened', pp: 'frightened', pres3: 'frightens', ing: 'frightening' } },
+    },
+  },
+  {
+    root: ['و', 'ج', 'ع'], type: 'mithal_waw',
+    forms: {
+      I: { bab: 'ia', gloss: 'to hurt / feel pain', masdar: 'وَجَع', trans: false,
+           en: { past: 'hurt', pres3: 'hurts', ing: 'hurting' } },
+      IV: { gloss: 'to cause pain to', trans: true,
+            en: { past: 'caused pain to', pp: 'pained', pres3: 'causes pain to', ing: 'causing pain to' } },
+    },
+  },
+  {
+    root: ['و', 'ث', 'ق'], type: 'mithal_waw',
+    forms: {
+      I: { bab: 'ai', gloss: 'to trust', masdar: 'ثِقَة', trans: false,
+           en: { past: 'trusted', pres3: 'trusts', ing: 'trusting' } },
+      II: { gloss: 'to document / verify', trans: true,
+            en: { past: 'documented', pp: 'documented', pres3: 'documents', ing: 'documenting' } },
+      III: { gloss: 'to make a covenant with', trans: true,
+             en: { past: 'made a pact with', pp: 'covenanted with', pres3: 'makes a pact with', ing: 'making a pact with' } },
+      IV: { gloss: 'to bind firmly', trans: true,
+            en: { past: 'bound firmly', pp: 'bound firmly', pres3: 'binds firmly', ing: 'binding firmly' } },
+      V: { gloss: 'to make sure / verify', trans: false,
+           en: { past: 'made sure', pres3: 'makes sure', ing: 'making sure' } },
+      VI: { gloss: 'to make a mutual pact', trans: false,
+            en: { past: 'made a mutual pact', pres3: 'make a mutual pact', ing: 'making a mutual pact' } },
+    },
+  },
+  {
+    root: ['و', 'ج', 'ه'], type: 'mithal_waw',
+    forms: {
+      I: { bab: 'uu', gloss: 'to be distinguished', masdar: 'وَجَاهَة', trans: false },
+      II: { gloss: 'to direct / orient', trans: true,
+            en: { past: 'directed', pp: 'directed', pres3: 'directs', ing: 'directing' } },
+      III: { gloss: 'to face / confront', trans: true,
+             en: { past: 'faced', pp: 'faced', pres3: 'faces', ing: 'facing' } },
+      V: { gloss: 'to head towards', trans: false,
+           en: { past: 'headed towards', pres3: 'heads towards', ing: 'heading towards' } },
+      VI: { gloss: 'to face one another', trans: false,
+            en: { past: 'faced one another', pres3: 'face one another', ing: 'facing one another' } },
+    },
+  },
+  {
+    root: ['و', 'ر', 'ث'], type: 'mithal_waw',
+    forms: {
+      // Source notes read "abb" for the vowel pair, which is not one of the six
+      // — وَرِثَ يَرِثُ is kasra/kasra, so `ii`. Flagged for your check.
+      I: { bab: 'ii', gloss: 'to inherit', masdar: 'إِرْث', trans: true,
+           en: { past: 'inherited', pp: 'inherited', pres3: 'inherits', ing: 'inheriting' } },
+      II: { gloss: 'to bequeath / pass down', trans: true,
+            en: { past: 'bequeathed', pp: 'bequeathed', pres3: 'bequeaths', ing: 'bequeathing' } },
+      IV: { gloss: 'to cause to inherit', trans: true,
+            en: { past: 'passed on', pp: 'passed on', pres3: 'passes on', ing: 'passing on' } },
+      V: { gloss: 'to be inherited', trans: false,
+           en: { past: 'was inherited', pres3: 'gets inherited', ing: 'getting inherited' } },
+      VI: { gloss: 'to inherit from one another', trans: false,
+            en: { past: 'inherited from one another', pres3: 'inherit from one another', ing: 'inheriting from one another' } },
+    },
+  },
+
+  // --- Mithāl yāʾ · ي as first radical ---------------------------------------
+  // Both are also hamzated (يَئِسَ) or near it; classify() types them by their
+  // weakness, which is the harder rule and the one that decides the engine.
+  {
+    root: ['ي', 'ء', 'س'], type: 'mithal_ya',
+    forms: {
+      I: { bab: 'ia', gloss: 'to despair', masdar: 'يَأْس', trans: false,
+           en: { past: 'despaired', pres3: 'despairs', ing: 'despairing' } },
+      IV: { gloss: 'to cause to despair', trans: true,
+            en: { past: 'drove to despair', pp: 'driven to despair', pres3: 'drives to despair', ing: 'driving to despair' } },
+      X: { gloss: 'to give up all hope', trans: false,
+           en: { past: 'gave up hope', pres3: 'gives up hope', ing: 'giving up hope' } },
+    },
+  },
+  {
+    root: ['ي', 'ق', 'ن'], type: 'mithal_ya',
+    forms: {
+      I: { bab: 'ia', gloss: 'to be certain', masdar: 'يَقِين', trans: false,
+           en: { past: 'was certain', pres3: 'is certain', ing: 'being certain' } },
+      IV: { gloss: 'to ascertain', trans: true,
+            en: { past: 'ascertained', pp: 'ascertained', pres3: 'ascertains', ing: 'ascertaining' } },
+      V: { gloss: 'to make sure', trans: false,
+           en: { past: 'made sure', pres3: 'makes sure', ing: 'making sure' } },
+      X: { gloss: 'to be fully certain of', trans: true,
+           en: { past: 'was fully certain of', pp: 'ascertained', pres3: 'is fully certain of', ing: 'being fully certain of' } },
+    },
+  },
+
+  // --- Ajwaf wāw · و as middle radical ---------------------------------------
+  {
+    root: ['ن', 'و', 'م'], type: 'ajwaf_waw',
+    forms: {
+      I: { bab: 'aa', gloss: 'to sleep', masdar: 'نَوْم', trans: false,
+           en: { past: 'slept', pres3: 'sleeps', ing: 'sleeping' } },
+      II: { gloss: 'to put to sleep', trans: true,
+            en: { past: 'put to sleep', pp: 'put to sleep', pres3: 'puts to sleep', ing: 'putting to sleep' } },
+      IV: { gloss: 'to lay down / put to sleep', trans: true,
+            en: { past: 'laid down', pp: 'laid down', pres3: 'lays down', ing: 'laying down' } },
+      X: { gloss: 'to feel at ease', trans: false,
+           en: { past: 'felt at ease', pres3: 'feels at ease', ing: 'feeling at ease' } },
+    },
+  },
+  {
+    root: ['خ', 'و', 'ف'], type: 'ajwaf_waw',
+    forms: {
+      I: { bab: 'aa', gloss: 'to fear', masdar: 'خَوْف', trans: true,
+           en: { past: 'feared', pp: 'feared', pres3: 'fears', ing: 'fearing' } },
+      II: { gloss: 'to frighten / intimidate', trans: true,
+            en: { past: 'frightened', pp: 'frightened', pres3: 'frightens', ing: 'frightening' } },
+      IV: { gloss: 'to scare', trans: true,
+            en: { past: 'scared', pp: 'scared', pres3: 'scares', ing: 'scaring' } },
+      V: { gloss: 'to be apprehensive', trans: false,
+           en: { past: 'was apprehensive', pres3: 'is apprehensive', ing: 'being apprehensive' } },
+    },
+  },
+  {
+    root: ['م', 'و', 'ت'], type: 'ajwaf_waw',
+    forms: {
+      I: { bab: 'au', gloss: 'to die', masdar: 'مَوْت', trans: false,
+           en: { past: 'died', pres3: 'dies', ing: 'dying' } },
+      IV: { gloss: 'to cause to die', trans: true,
+            en: { past: 'put to death', pp: 'put to death', pres3: 'puts to death', ing: 'putting to death' } },
+      V: { gloss: 'to feign death', trans: false,
+           en: { past: 'feigned death', pres3: 'feigns death', ing: 'feigning death' } },
+      X: { gloss: 'to fight to the death', trans: false,
+           en: { past: 'fought to the death', pres3: 'fights to the death', ing: 'fighting to the death' } },
+    },
+  },
+  {
+    root: ['ز', 'و', 'ر'], type: 'ajwaf_waw',
+    forms: {
+      I: { bab: 'au', gloss: 'to visit', masdar: 'زِيَارَة', trans: true,
+           en: { past: 'visited', pp: 'visited', pres3: 'visits', ing: 'visiting' } },
+      II: { gloss: 'to forge / falsify', trans: true,
+            en: { past: 'forged', pp: 'forged', pres3: 'forges', ing: 'forging' } },
+      VI: { gloss: 'to visit one another', trans: false,
+            en: { past: 'visited one another', pres3: 'visit one another', ing: 'visiting one another' } },
+    },
+  },
+
+  // --- Ajwaf yāʾ · ي as middle radical ---------------------------------------
+  {
+    root: ['س', 'ي', 'ر'], type: 'ajwaf_ya',
+    forms: {
+      I: { bab: 'ai', gloss: 'to travel / journey', masdar: 'سَيْر', trans: false,
+           en: { past: 'travelled', pres3: 'travels', ing: 'travelling' } },
+      II: { gloss: 'to set in motion', trans: true,
+            en: { past: 'set in motion', pp: 'set in motion', pres3: 'sets in motion', ing: 'setting in motion' } },
+      III: { gloss: 'to keep pace with', trans: true,
+             en: { past: 'kept pace with', pp: 'kept pace with', pres3: 'keeps pace with', ing: 'keeping pace with' } },
+    },
+  },
+  {
+    root: ['ب', 'ي', 'ع'], type: 'ajwaf_ya',
+    forms: {
+      I: { bab: 'ai', gloss: 'to sell', masdar: 'بَيْع', trans: true,
+           en: { past: 'sold', pp: 'sold', pres3: 'sells', ing: 'selling' } },
+      III: { gloss: 'to pledge allegiance to', trans: true,
+             en: { past: 'pledged allegiance to', pp: 'pledged allegiance to', pres3: 'pledges allegiance to', ing: 'pledging allegiance to' } },
+      VI: { gloss: 'to trade with each other', trans: false,
+            en: { past: 'traded with each other', pres3: 'trade with each other', ing: 'trading with each other' } },
+      VIII: { gloss: 'to buy / purchase', trans: true,
+              en: { past: 'bought', pp: 'bought', pres3: 'buys', ing: 'buying' } },
+    },
+  },
+  {
+    root: ['ن', 'ي', 'ل'], type: 'ajwaf_ya',
+    forms: {
+      I: { bab: 'aa', gloss: 'to obtain / attain', masdar: 'نَيْل', trans: true,
+           en: { past: 'obtained', pp: 'obtained', pres3: 'obtains', ing: 'obtaining' } },
+      IV: { gloss: 'to grant', trans: true,
+            en: { past: 'granted', pp: 'granted', pres3: 'grants', ing: 'granting' } },
+    },
+  },
+  {
+    root: ['ه', 'ي', 'ب'], type: 'ajwaf_ya',
+    forms: {
+      I: { bab: 'aa', gloss: 'to hold in awe', masdar: 'هَيْبَة', trans: true,
+           en: { past: 'held in awe', pp: 'held in awe', pres3: 'holds in awe', ing: 'holding in awe' } },
+      V: { gloss: 'to dread', trans: true,
+           en: { past: 'dreaded', pp: 'dreaded', pres3: 'dreads', ing: 'dreading' } },
+    },
+  },
+
+  // --- Nāqiṣ wāw · و as final radical ----------------------------------------
+  {
+    root: ['د', 'ع', 'و'], type: 'naqis_waw',
+    forms: {
+      I: { bab: 'au', gloss: 'to call / invite', masdar: 'دَعْوَة', trans: true,
+           en: { past: 'called', pp: 'called', pres3: 'calls', ing: 'calling' } },
+      VI: { gloss: 'to call on one another', trans: false,
+            en: { past: 'called on one another', pres3: 'call on one another', ing: 'calling on one another' } },
+      VIII: { gloss: 'to claim / allege', trans: true,
+              en: { past: 'claimed', pp: 'claimed', pres3: 'claims', ing: 'claiming' } },
+    },
+  },
+  {
+    root: ['ن', 'ع', 'و'], type: 'naqis_waw',
+    forms: {
+      I: { bab: 'au', gloss: 'to announce a death', masdar: 'نَعْي', trans: true,
+           en: { past: 'announced the death of', pp: 'mourned', pres3: 'announces the death of', ing: 'announcing the death of' } },
+    },
+  },
+
+  // --- Nāqiṣ yāʾ · ي as final radical ----------------------------------------
+  {
+    root: ['ق', 'ض', 'ي'], type: 'naqis_ya',
+    forms: {
+      I: { bab: 'ai', gloss: 'to decide / judge', masdar: 'قَضَاء', trans: true,
+           en: { past: 'judged', pp: 'judged', pres3: 'judges', ing: 'judging' } },
+      III: { gloss: 'to take to court', trans: true,
+             en: { past: 'sued', pp: 'sued', pres3: 'sues', ing: 'suing' } },
+      VI: { gloss: 'to sue each other', trans: false,
+            en: { past: 'sued each other', pres3: 'sue each other', ing: 'suing each other' } },
+      VII: { gloss: 'to elapse / come to an end', trans: false,
+             en: { past: 'elapsed', pres3: 'elapses', ing: 'elapsing' } },
+      VIII: { gloss: 'to require / necessitate', trans: true,
+              en: { past: 'required', pp: 'required', pres3: 'requires', ing: 'requiring' } },
+    },
+  },
+  {
+    root: ['س', 'ع', 'ي'], type: 'naqis_ya',
+    forms: {
+      I: { bab: 'aa', gloss: 'to strive / endeavour', masdar: 'سَعْي', trans: false,
+           en: { past: 'strove', pres3: 'strives', ing: 'striving' } },
+      X: { gloss: 'to ask someone to make an effort', trans: true,
+           en: { past: 'asked to make an effort', pp: 'called upon', pres3: 'asks to make an effort', ing: 'asking to make an effort' } },
+    },
+  },
+  {
+    root: ['ر', 'ض', 'ي'], type: 'naqis_ya',
+    forms: {
+      I: { bab: 'ia', gloss: 'to be pleased / content', masdar: 'رِضًا', trans: false,
+           en: { past: 'was pleased', pres3: 'is pleased', ing: 'being pleased' } },
+      III: { gloss: 'to appease', trans: true,
+             en: { past: 'appeased', pp: 'appeased', pres3: 'appeases', ing: 'appeasing' } },
+      IV: { gloss: 'to satisfy / please', trans: true,
+            en: { past: 'satisfied', pp: 'satisfied', pres3: 'satisfies', ing: 'satisfying' } },
+      VI: { gloss: 'to reach mutual agreement', trans: false,
+            en: { past: 'reached mutual agreement', pres3: 'reach mutual agreement', ing: 'reaching mutual agreement' } },
+      VIII: { gloss: 'to approve of', trans: true,
+              en: { past: 'approved of', pp: 'approved of', pres3: 'approves of', ing: 'approving of' } },
     },
   },
 ];

@@ -60,7 +60,49 @@ export const MOOD_DISTINCT_SLOTS = ['3ms', '3fs', '2ms', '1s', '1p'];
 export const FORM_IDS = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X'];
 export const MAZEED_IDS = FORM_IDS.slice(1);
 
-export const VERB_TYPE_IDS = ['salim', 'mahmuz', 'mudaaf', 'mithal', 'ajwaf', 'naqis', 'lafif'];
+// ---------------------------------------------------------------------------
+// Verb types — two layers, deliberately
+//
+// ENGINE layer: the weak types are split by WHICH letter is weak, because و and
+// ي do not behave alike in the same slot. يَقُولُ keeps its wāw as a long ū
+// while يَبِيعُ keeps its yāʾ as a long ī; نَامَ and بَاعَ both show alif in the
+// māḍī but unfold to نُمْتُ vs بِعْتُ. One conjugator per split type is the only
+// way those stay table-driven instead of becoming if-branches.
+//
+// USER layer: students learn six type names, not nine. The split is invisible
+// above the engine — Practice shows one "Ajwaf" chip, and it selects both.
+// glossary.js keys its labels by GROUP for exactly this reason.
+//
+// Lafīf is NOT split here: its two weak letters divide it into mafrūq
+// (و…ي, وَقَى) and maqrūn (adjacent, طَوَى), which is a different axis from
+// waw/ya. Left whole until its engine is written.
+// ---------------------------------------------------------------------------
+export const VERB_TYPE_IDS = [
+  'salim', 'mahmuz', 'mudaaf',
+  'mithal_waw', 'mithal_ya',
+  'ajwaf_waw', 'ajwaf_ya',
+  'naqis_waw', 'naqis_ya',
+  'lafif',
+];
+
+/** What the user picks from — one per traditional type name. */
+export const VERB_TYPE_GROUP_IDS = [
+  'salim', 'mahmuz', 'mudaaf', 'mithal', 'ajwaf', 'naqis', 'lafif',
+];
+
+const VERB_TYPE_GROUP = {
+  salim: 'salim', mahmuz: 'mahmuz', mudaaf: 'mudaaf', lafif: 'lafif',
+  mithal_waw: 'mithal', mithal_ya: 'mithal',
+  ajwaf_waw: 'ajwaf', ajwaf_ya: 'ajwaf',
+  naqis_waw: 'naqis', naqis_ya: 'naqis',
+};
+
+/** Engine type → the name the user sees. */
+export const groupOfVerbType = (type) => VERB_TYPE_GROUP[type] ?? type;
+
+/** Display group → the engine types it covers. */
+export const verbTypesInGroup = (group) =>
+  VERB_TYPE_IDS.filter((type) => groupOfVerbType(type) === group);
 
 // ---------------------------------------------------------------------------
 // The six abwāb of the thulāthī mujarrad, named by the vowel pair that IS the

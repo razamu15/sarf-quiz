@@ -19,6 +19,19 @@ const ENGINES = Object.fromEntries(
 
 const norm = (s) => (s == null ? null : s.normalize('NFC'));
 
+/** Verb types with a working engine. Everything else needs manualTables. */
+export const enginedTypes = () => Object.keys(ENGINES);
+
+/**
+ * Can this (root, form) actually produce words? Being present in the lexicon is
+ * not enough — a root whose engine hasn't been written yet and which carries no
+ * manualTables conjugates to nothing, and quizzes must not offer it.
+ */
+export function isConjugatable(root, formId) {
+  if (ENGINES[root.type]) return true;
+  return !!root.forms[formId]?.manualTables;
+}
+
 /** One cell: (root, form, chart, slot) → word or null. */
 export function conjugate(root, formId, chartId, slot) {
   const engine = ENGINES[root.type];
