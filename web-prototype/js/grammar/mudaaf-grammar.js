@@ -53,9 +53,9 @@ export const IDGHAM_FORMS = new Set(['I', 'III', 'IV', 'VI', 'VII', 'VIII', 'X']
 // exactly the loss of the ʿayn's vowel, and the māḍī bāb distinction lived in
 // that vowel, so all six abwāb collapse to مَدَّ in the past; only the muḍāriʿ
 // and amr, where the vowel survives by moving onto the fāʾ, still tell them
-// apart. mergedStem() in mudaaf-conjugator.js reads that shape at conjugation
-// time, so this difference from the sālim tables needs no declaration of its
-// own.
+// apart. stemFor() in conjugation/templates.js reads that shape at conjugation
+// time — the same reader the sālim table goes through — so this difference from
+// the sālim tables needs no declaration of its own.
 // ---------------------------------------------------------------------------
 export const MERGED_STEMS = {
   I: {

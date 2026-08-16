@@ -23,46 +23,7 @@
 import { CHARTS } from '../vocabulary.js';
 import { VERB_FORM_STEMS, DERIVED_NOUN_STEMS } from '../grammar/salim-grammar.js';
 import { ENDINGS, PREFIX_LETTERS, MUDARI_PREFIX_HARAKA } from '../grammar/shared-grammar.js';
-import { fill, norm } from './templates.js';
-
-/** Which stem family a chart draws on — moods share a stem, so mood is dropped. */
-const stemKeyFor = (chart) =>
-  (chart.tense === 'amr' ? 'amr' : `${chart.tense}_${chart.voice}`);
-
-/**
- * Read one template out of VERB_FORM_STEMS: the stem for (form, stem family),
- * with the bāb applied if this particular table is keyed by one.
- *
- * The point of the function is that second clause. A stem table entry holds one
- * of two shapes, and every read of the table has to interpret both:
- *
- *   stemFor('X', 'mudari_malum', anything) → 'سْتَفْعِ'-shaped template. Plain
- *       string: Form X fixes its ʿayn vowel in its own pattern, so the bāb is
- *       not consulted and passing one changes nothing.
- *   stemFor('I', 'madi_malum', 'au')  → نَصَرَ's row of a six-row table
- *   stemFor('I', 'madi_malum', 'ia')  → سَمِعَ's row of that same table — a
- *       different word, because the bāb IS the ʿayn's vowel pair and the māḍī
- *       maʿlūm is where you see it
- *   stemFor('I', 'madi_majhul', null) → plain string again: the majhūl
- *       neutralises that vowel (فُعِلَ whatever the bāb), so no bāb is needed
- *   stemFor('I', 'madi_malum', null)  → null, NOT a defaulted نَصَرَ. A Form I
- *       root whose bāb the lexicon never recorded is incomplete content, and
- *       inventing a vowel for it would turn that into a plausible wrong answer
- *       in a quiz instead of a visible gap.
- *
- * Because it is the single reader, no separate list of "which stem keys are
- * per-bāb" has to be maintained anywhere — the tables' own shape says it.
- *
- * Two callers: conjugate() below, for every cell of every chart, and
- * ConjugationService.citation(), which needs Form IX's display stems without
- * going through a chart (Form IX has no charts to go through).
- */
-export function stemFor(formId, stemKey, bab) {
-  const stem = VERB_FORM_STEMS[formId]?.[stemKey];
-  if (!stem) return null;
-  if (typeof stem === 'string') return stem;
-  return bab ? stem[bab] ?? null : null;
-}
+import { fill, norm, stemFor, stemKeyFor } from './templates.js';
 
 export const SalimConjugator = {
   handles: 'salim',
@@ -74,7 +35,7 @@ export const SalimConjugator = {
    */
   conjugate(root, formId, chartId, slot) {
     const chart = CHARTS[chartId];
-    const stem = stemFor(formId, stemKeyFor(chart), root.forms[formId].bab);
+    const stem = stemFor(VERB_FORM_STEMS, formId, stemKeyFor(chart), root.forms[formId].bab);
     if (!stem) return null;
 
     const affix = ENDINGS[chartId][slot];

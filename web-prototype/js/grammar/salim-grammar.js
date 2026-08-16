@@ -26,8 +26,11 @@ import {
 // that are NOT per-bāb say so by being a plain template: the majhūl neutralises
 // the ʿayn vowel (فُعِلَ / يُفْعَلُ regardless of bāb), and every mazīd form
 // fixes that vowel in its own pattern. That shape difference is the whole
-// declaration — stemFor() in salim-conjugator.js reads it directly, so there is
-// no second list of "which keys are per-bāb" here to drift out of agreement.
+// declaration — stemFor() in conjugation/templates.js reads it directly, so
+// there is no second list of "which keys are per-bāb" here to drift out of
+// agreement. That reader serves every verb type's stem table, which is how this
+// file and mudaaf-grammar.js can disagree about which charts are per-bāb
+// without either one saying so.
 //
 // The muḍāriʿ prefix ḥaraka is NOT here either: it is a form-level fact shared
 // by every verb type, so it lives once in shared-grammar.js.

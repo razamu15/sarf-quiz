@@ -31,9 +31,10 @@ import {
 import {
   FORM_META, ENDINGS, PREFIX_LETTERS, MUDARI_PREFIX_HARAKA,
 } from '../grammar/shared-grammar.js';
-import { SalimConjugator, stemFor } from './salim-conjugator.js';
+import { VERB_FORM_STEMS } from '../grammar/salim-grammar.js';
+import { SalimConjugator } from './salim-conjugator.js';
 import { MudaafConjugator } from './mudaaf-conjugator.js';
-import { fill, norm } from './templates.js';
+import { fill, norm, stemFor } from './templates.js';
 
 const ENGINES = Object.fromEntries(
   [SalimConjugator, MudaafConjugator].map((engine) => [engine.handles, engine]),
@@ -281,11 +282,12 @@ function citationFromStems(root, formId) {
   if (!meta || meta.conjugable) return '';
   if (root.type !== 'salim') return '';
 
-  // A form that doesn't conjugate has no abwāb, so both entries are plain
-  // templates and stemFor never looks at the bāb — passing null is the honest
-  // argument here, not a shortcut.
-  const madiStem = stemFor(formId, 'madi_malum', null);
-  const mudariStem = stemFor(formId, 'mudari_malum', null);
+  // The sound table by name, because the guard above has just established that
+  // this is a sound root. A form that doesn't conjugate has no abwāb either, so
+  // both entries are plain templates and stemFor never looks at the bāb —
+  // passing null is the honest argument here, not a shortcut.
+  const madiStem = stemFor(VERB_FORM_STEMS, formId, 'madi_malum', null);
+  const mudariStem = stemFor(VERB_FORM_STEMS, formId, 'mudari_malum', null);
   if (!madiStem || !mudariStem) return '';
 
   // Assemble the 3ms cell exactly as SalimConjugator would have: stem plus that
