@@ -43,7 +43,7 @@ export function getConjugationData(spec) {
   // exactly like a sound one — وَعَدَ is on the pattern of نَصَرَ — while in the
   // mudari the waw drops in some abwab and the ya never drops, so mithal_waw
   // and mithal_ya each need a table of their own.
-  const stemSet = (spec.formId === 'I' && spec.tense !== 'madi')
+  const stemSetByBaab = (spec.formId === 'I' && spec.tense !== 'madi')
     ? stemSetByForm[spec.root.type]?.[tableName]
     : stemSetByForm[tableName];
 
@@ -51,13 +51,13 @@ export function getConjugationData(spec) {
   if (spec.formId === 'I' && spec.voice === 'malum') {
     const bab = babOf(spec);
     return {
-      stem: stemSet?.[bab] ?? null,
+      stem: stemSetByBaab?.[bab] ?? null,
       endingSet,
     };
   }
   // below is all the other forms beside form 1 and form 1 majhools
   return {
-    stem: stemSet ?? null,
+    stem: stemSetByBaab ?? null,
     endingSet,
   };
 }
