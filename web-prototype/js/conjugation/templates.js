@@ -1,55 +1,50 @@
-// The mechanics every engine shares: pick the stem template for a chart, fill
-// the radicals into it, normalise the result. What differs between engines is
-// WHICH stem table they read and what they do to the letters afterwards — not
-// these three steps, which is why they live here rather than once per engine.
+// The mechanics every engine shares: find the template a word is built on,
+// fill the radicals into it, normalise the result.
+//
+// What differs between engines is WHICH table they read and which axes that
+// table varies on — the sālim stems vary by bāb alone, the muḍāʿaf's also vary
+// by ṣīghah category, and the weak types will bring their own. That variation
+// is the engine's business; these three steps are not, so they live here.
 //
 // A template is a stem or derived-noun pattern with the three radicals written
 // as 1/2/3: '1َ2َ3' filled with ن-ص-ر is نَصَر. A merged muḍāʿaf stem uses only
 // 1 and 2 (the shadda carries the doubled letter), which needs no special
 // handling here — there is simply no 3 to replace.
 
-/** Which stem family a chart draws on — moods share a stem, so mood is dropped. */
-export const stemKeyFor = (chart) =>
-  (chart.tense === 'amr' ? 'amr' : `${chart.tense}_${chart.voice}`);
+/** Which stem family a spec draws on — moods share a stem, so mood is dropped. */
+export const stemKeyFor = ({ tense, voice }) =>
+  (tense === 'amr' ? 'amr' : `${tense}_${voice}`);
 
 /**
- * Read one template out of a verb type's stem table: the stem for (form, stem
- * family), with the bāb applied if that particular entry is keyed by one.
+ * Walk a stem entry down to the template string, taking one step per axis.
  *
- * `stems` is the whole table — VERB_FORM_STEMS for the sound verb, MERGED_STEMS
- * for the muḍāʿaf, and whatever the ajwaf and nāqiṣ engines bring. The reading
- * rule is the same for all of them, and it is the point of this function: an
- * entry holds one of two shapes, and every read has to interpret both.
+ * A stem table entry is either the template itself or a table of variants, and
+ * different entries in the SAME table nest differently — that is the point.
+ * The sālim Form I māḍī is keyed by bāb while its majhūl is a plain string;
+ * the muḍāʿaf Form I māḍī is keyed by ṣīghah category while its muḍāriʿ is
+ * keyed by bāb AND category. Rather than declare each entry's shape somewhere
+ * (a list that drifts), the caller hands over the keys its axes resolve to and
+ * this walks whichever of them the data actually uses, in whatever order:
  *
- *   stemFor(VERB_FORM_STEMS, 'X', 'mudari_malum', anything) → 'سْتَفْعِ'-shaped
- *       template. Plain string: Form X fixes its ʿayn vowel in its own pattern,
- *       so no bāb is consulted and passing one changes nothing.
- *   stemFor(VERB_FORM_STEMS, 'I', 'madi_malum', 'au') → نَصَرَ's row of a
- *       six-row table
- *   stemFor(VERB_FORM_STEMS, 'I', 'madi_malum', 'ia') → سَمِعَ's row of that
- *       same table — a different word, because the bāb IS the ʿayn's vowel pair
- *       and the māḍī maʿlūm is where you see it
- *   stemFor(VERB_FORM_STEMS, 'I', 'madi_majhul', null) → plain string again:
- *       the majhūl neutralises that vowel (فُعِلَ whatever the bāb)
- *   stemFor(VERB_FORM_STEMS, 'I', 'madi_malum', null) → null, NOT a defaulted
- *       نَصَرَ. A Form I root whose bāb the lexicon never recorded is incomplete
- *       content, and inventing a vowel for it would turn that into a plausible
- *       wrong answer in a quiz instead of a visible gap.
- *   stemFor(MERGED_STEMS, 'I', 'madi_malum', null) → مَدَّ's template, and note
- *       this one does NOT need a bāb where the sound table did: idghām is
- *       exactly the loss of the vowel that told the abwāb apart, so the
- *       muḍāʿaf māḍī collapses to a single string while its muḍāriʿ stays a
- *       six-row table (يَمُدُّ vs يَفِرُّ).
+ *   resolveStem('1َ2َ3', ['au'])                    → '1َ2َ3'   (no axis used)
+ *   resolveStem({au: X, ia: Y}, ['ia'])             → Y
+ *   resolveStem({sakin: X, mutaharrik: Y}, ['sakin', 'au']) → X
+ *   resolveStem({au: {murab: X}}, ['murab', 'au'])  → X        (both, either order)
  *
- * That last pair is why the shape decides rather than a declaration: the two
- * tables disagree about which charts are per-bāb, and neither has to say so.
- * Being the single reader is also what lets each grammar file stay pure data.
+ * Returns null when an axis the data uses has no key to resolve it — a Form I
+ * table asked without a bāb, say. That is a deliberate refusal, not a default:
+ * a root whose bāb the lexicon never recorded is incomplete content, and
+ * inventing نَصَرَ for it would turn that into a plausible wrong quiz answer
+ * instead of a visible gap.
  */
-export function stemFor(stems, formId, stemKey, bab) {
-  const stem = stems[formId]?.[stemKey];
-  if (!stem) return null;
-  if (typeof stem === 'string') return stem;
-  return bab ? stem[bab] ?? null : null;
+export function resolveStem(entry, keys) {
+  let node = entry;
+  while (node && typeof node === 'object') {
+    const key = keys.find((k) => k != null && k in node);
+    if (key === undefined) return null;
+    node = node[key];
+  }
+  return node ?? null;
 }
 
 /**

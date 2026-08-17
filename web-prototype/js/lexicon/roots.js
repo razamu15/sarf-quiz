@@ -263,7 +263,7 @@ export const ROOTS = [
     forms: {
       // bāb ia — the muḍāriʿ keeps the ʿayn's fatḥa: يَظَلُّ، and the
       // unfolded past shows the kasra the merge hid: ظَلِلْتُ
-      I: { bab: 'ia', gloss: 'to remain / keep doing', masdar: 'ظُلُول', trans: false,
+      I: { bab: 'ai', gloss: 'to remain / keep doing', masdar: 'ظُلُول', trans: false,
            en: { past: 'remained', pres3: 'remains', ing: 'remaining' } },
       II: { gloss: 'to shade / overshadow', trans: true,
             en: { past: 'shaded', pp: 'shaded', pres3: 'shades', ing: 'shading' } },

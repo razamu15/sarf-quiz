@@ -2,7 +2,7 @@
 // translation like "he hit" / "she was taught" / "throw! (you (f))".
 // Chart-aware v2 port of the v1 renderer, plus iʿrāb-aware muḍāriʿ meanings.
 
-import { CHARTS, DERIVED_NOUN_TYPES } from './vocabulary.js';
+import { DERIVED_NOUN_TYPES } from './vocabulary.js';
 import { PRONOUNS } from './glossary.js';
 
 const SING3 = new Set(['3ms', '3fs']);
@@ -80,14 +80,18 @@ function enForms(usage) {
  * "he hit", "it was said", "they write / will write", "throw! (you (f))" — and
  * for a governed muḍāriʿ, "he will not help" / "he did not help".
  *
+ * Takes the same WordSpec ConjugationService.conjugate() does, so the Arabic
+ * word and its English are always read off one object rather than two argument
+ * lists that could drift apart.
+ *
  * `particleId` picks which governing particle to voice for a manṣūb or majzūm
  * muḍāriʿ; omitted, the mood's canonical particle is used. Marfūʿ, māḍī and amr
  * ignore it, so every existing call site keeps its exact output.
  */
-export function verbMeaning(root, formId, chartId, slot, particleId = null) {
-  const usage = root.forms[formId];
+export function verbMeaning(spec, particleId = null) {
+  const usage = spec.root.forms[spec.formId];
   if (!usage) return '';
-  const { tense, voice, mood } = CHARTS[chartId];
+  const { tense, voice, mood, slot } = spec;
   const subj = PRONOUNS[slot]?.en ?? '';
   const e = enForms(usage);
 

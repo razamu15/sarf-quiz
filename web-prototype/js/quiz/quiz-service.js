@@ -23,23 +23,25 @@
  * carried as a KEY (rootKey string), never as a Root object reference, so a
  * stored record still says what it asked after the lexicon is edited.
  *
- * Today it is a plain object built by randomWordSpec() and flattened onto
- * questions by specFields(); history.js writes the same fields again by hand.
- * Making those three sites share one definition is the open item.
+ * The spec itself is js/word-spec.js — root, form, tense, voice, mood, slot.
+ * What this module adds is the generated `word` and, for drills, whether the
+ * opposite voice exists. Questions flatten the spec onto themselves through
+ * specFields(), which is also where the stored chart KEY is stamped: history
+ * records key by chart string so old records stay readable.
  *
- * @typedef  {object}      WordSpec
- * @property {object}      root          the Root it came from
- * @property {string}      formId        FormID — 'I' … 'X'
- * @property {string}      chartId       ChartID — null for derived nouns
- * @property {string}      slot          PronounSlot — null for derived nouns
+ * @typedef  {object}      GeneratedWord
+ * @property {object}      spec          the WordSpec it was built from
  * @property {string}      word          the generated result, NFC-normalised
  * @property {boolean}    [hasVoicePair] drills only: the majhūl also exists
  */
 
 import {
-  CHARTS, CHART_IDS, chartId as chartIdFor, slotsFor,
-  MOOD_DISTINCT_SLOTS, FORM_IDS, MAZEED_IDS, DEFAULT_BAB, DERIVED_NOUN_TYPE_IDS,
+  slotsFor, MOOD_DISTINCT_SLOTS, FORM_IDS, MAZEED_IDS, DEFAULT_BAB,
+  DERIVED_NOUN_TYPE_IDS,
 } from '../vocabulary.js';
+import {
+  wordSpec, atSlot, inVoice, chartKey, CHART_SHAPES, isValidShape,
+} from '../word-spec.js';
 import {
   PRONOUNS, TENSE_LABELS, VOICE_LABELS, MOOD_LABELS, NOUN_KIND_LABELS,
   FORM_NAMES, ABWAB_LABELS,
@@ -80,17 +82,22 @@ function singleCorrect(correct, others) {
 // configuration serve all three types (docs/TECHNICAL_PLAN.md §A.7).
 // ---------------------------------------------------------------------------
 
-/** tense × voice × iʿrāb → the chart ids a plan admits. */
+/**
+ * tense × voice × iʿrāb → the charts a plan admits, as {tense, voice, mood}.
+ *
+ * Charts are shapes now, not ids: the plan's own axes travel straight through
+ * to the engine instead of being crushed into a string and looked back up.
+ */
 export function chartsFor({ tenses = ['madi', 'mudari'], voices = ['malum'], moods = ['raf'] } = {}) {
   const out = [];
   for (const tense of tenses) {
-    if (tense === 'amr') { out.push('amr_malum'); continue; }   // no voice, no mood
+    if (tense === 'amr') { out.push({ tense, voice: 'malum', mood: null }); continue; }
     for (const voice of voices) {
-      if (tense === 'madi') out.push(`madi_${voice}`);
-      else for (const mood of moods) out.push(`mudari_${voice}_${mood}`);
+      if (tense === 'madi') out.push({ tense, voice, mood: null });
+      else for (const mood of moods) out.push({ tense, voice, mood });
     }
   }
-  return [...new Set(out)].filter((id) => CHART_IDS.includes(id));
+  return out.filter(isValidShape);
 }
 
 /** Identify's repertoire. Which of these a given plan actually asks is decided
@@ -145,11 +152,11 @@ export function poolProfile(plan) {
   }
 
   for (const c of pool) {
-    for (const chartId of charts) {
-      for (const slot of slotsFor(chartId)) {
-        if (!conjugate(c.root, c.formId, chartId, slot)) continue;
+    for (const chart of charts) {
+      const { tense, voice, mood } = chart;
+      for (const slot of slotsFor(tense)) {
+        if (!conjugate(wordSpec({ root: c.root, formId: c.formId, ...chart, slot }))) continue;
         a.cells++;
-        const { tense, voice, mood } = CHARTS[chartId];
         a.tenses.add(tense);
         a.voices.add(voice);
         if (mood) a.moods.add(mood);
@@ -262,7 +269,16 @@ export const activeRules = (plan, profile) => relevance(plan, profile).live;
 
 // Default chart pool mirrors v1's default tense/voice mix (rafʿ only; mood
 // questions build their own charts).
-const DEFAULT_CHARTS = ['madi_malum', 'madi_majhul', 'mudari_malum_raf', 'mudari_majhul_raf', 'amr_malum'];
+const DEFAULT_CHARTS = CHART_SHAPES.filter(
+  ({ tense, mood }) => tense !== 'mudari' || mood === 'raf',
+);
+
+// Drills draw maʿlūm and flip to the majhūl themselves, so they start from the
+// two charts that always have a voice pair to flip to.
+const DRILL_CHARTS = [
+  { tense: 'madi', voice: 'malum', mood: null },
+  { tense: 'mudari', voice: 'malum', mood: 'raf' },
+];
 
 function conjugatable(rootFilter) {
   // Two gates, and both matter: the FORM must be conjugable (Form IX is not),
@@ -273,16 +289,22 @@ function conjugatable(rootFilter) {
   );
 }
 
-/** Random conjugated word within the filter; retries because random cells may not exist. */
+/**
+ * Random conjugated word within the filter; retries because random cells may
+ * not exist. Returns the WordSpec's fields plus the `word` it produced — the
+ * spec is spread rather than nested so every downstream reader can say
+ * spec.tense instead of unpacking a chart id.
+ */
 function randomWordSpec(rootFilter, charts = DEFAULT_CHARTS) {
   const pool = conjugatable(rootFilter);
   if (!pool.length) return null;
   for (let i = 0; i < 80; i++) {
     const c = rand(pool);
-    const chartId = rand(charts);
-    const slot = rand(slotsFor(chartId));
-    const word = conjugate(c.root, c.formId, chartId, slot);
-    if (word) return { root: c.root, formId: c.formId, chartId, slot, word };
+    const chart = rand(charts);
+    const slot = rand(slotsFor(chart.tense));
+    const spec = wordSpec({ root: c.root, formId: c.formId, ...chart, slot });
+    const word = conjugate(spec);
+    if (word) return { ...spec, word };
   }
   return null;
 }
@@ -301,19 +323,19 @@ function specFields(spec, category, quizType = 'identify') {
     quizType,
     formId: spec.formId,
     verbType: spec.root.type,
-    chartId: spec.chartId,
+    chartId: chartKey(spec),          // stored identity — history keys by string
     rootKey: rootKeyOf(spec.root),
     slot: spec.slot,
     word: spec.word,
     gloss: glossOf(spec.root, spec.formId),
-    fullMeaning: verbMeaning(spec.root, spec.formId, spec.chartId, spec.slot),
+    fullMeaning: verbMeaning(spec),
   };
 }
 
 // --- shared question makers ---------------------------------------------------
 
 function makeTenseQuestion(spec) {
-  const tense = CHARTS[spec.chartId].tense;
+  const { tense } = spec;
   const correct = { ...TENSE_LABELS[tense], valueKey: tense };
   const others = Object.entries(TENSE_LABELS)
     .filter(([id]) => id !== tense)
@@ -327,11 +349,11 @@ function makeTenseQuestion(spec) {
 }
 
 function makeVoiceQuestion(spec) {
-  const voice = CHARTS[spec.chartId].voice;
+  const { voice } = spec;
   const correct = { ...VOICE_LABELS[voice], valueKey: voice };
   const other = voice === 'malum' ? 'majhul' : 'malum';
   const bab = spec.root.forms[spec.formId].bab ?? DEFAULT_BAB;
-  const waznWord = spec.root.type === 'salim' ? waznOf(spec.formId, spec.chartId, spec.slot, bab) : null;
+  const waznWord = spec.root.type === 'salim' ? waznOf(spec, bab) : null;
   return {
     ...specFields(spec, 'voice'),
     prompt: 'Is the doer known or unknown?',
@@ -345,8 +367,8 @@ function makeVoiceQuestion(spec) {
  * shown word is correct; distractors render differently.
  */
 function makeDoerQuestion(spec) {
-  const slots = slotsFor(spec.chartId);
-  const rendered = new Map(slots.map((s) => [s, conjugate(spec.root, spec.formId, spec.chartId, s)]));
+  const slots = slotsFor(spec.tense);
+  const rendered = new Map(slots.map((s) => [s, conjugate(atSlot(spec, s))]));
   const correctSlots = slots.filter((s) => rendered.get(s) === spec.word);
   const wrongSlots = shuffle(slots.filter((s) => rendered.get(s) && rendered.get(s) !== spec.word));
   const distractors = wrongSlots.slice(0, Math.max(1, 4 - correctSlots.length));
@@ -357,7 +379,7 @@ function makeDoerQuestion(spec) {
   const correctIndices = optionSlots
     .map((s, i) => (correctSlots.includes(s) ? i : -1))
     .filter((i) => i >= 0);
-  const { tense, voice } = CHARTS[spec.chartId];
+  const { tense, voice } = spec;
   const correctList = correctSlots.map((s) => `${PRONOUNS[s].ar} (${PRONOUNS[s].en})`).join('، ');
   return {
     ...specFields(spec, 'doer'),
@@ -390,7 +412,9 @@ function makeBabQuestion(rootFilter) {
     chartId: null, rootKey: rootKeyOf(c.root), slot: null,
     word: cite,
     gloss: glossOf(c.root, 'I'),
-    fullMeaning: verbMeaning(c.root, 'I', 'madi_malum', '3ms'),
+    fullMeaning: verbMeaning(wordSpec({
+      root: c.root, formId: 'I', tense: 'madi', slot: '3ms',
+    })),
     prompt: 'Which bāb of the thulāthī mujarrad is this verb from?',
     ...singleCorrect(correct, others),
     explanation: `${cite} (${glossOf(c.root, 'I')}) follows ${ABWAB_LABELS[bab].name} (${ABWAB_LABELS[bab].en}).`,
@@ -411,7 +435,7 @@ function makeBabQuestion(rootFilter) {
 const shortEn = (s) => s.split(' (')[0].split(' —')[0];
 
 function targetChips(spec) {
-  const { tense, voice, mood } = CHARTS[spec.chartId];
+  const { tense, voice, mood } = spec;
   const chips = [
     { en: `Form ${spec.formId}`, ar: '' },
     { en: shortEn(TENSE_LABELS[tense].en), ar: TENSE_LABELS[tense].ar.replace('فِعْل ', '') },
@@ -483,7 +507,7 @@ const MEANING_OPTION_COUNT = 4;
  * them is exactly the grammar the drill is teaching.
  */
 function makeFromMeaningQuestion(spec, charts) {
-  const answerMeaning = verbMeaning(spec.root, spec.formId, spec.chartId, spec.slot);
+  const answerMeaning = verbMeaning(spec);
   if (!answerMeaning) return null;
 
   const forms = Object.keys(spec.root.forms);
@@ -493,11 +517,12 @@ function makeFromMeaningQuestion(spec, charts) {
 
   for (let i = 0; i < 240 && others.length < MEANING_OPTION_COUNT - 1; i++) {
     const formId = rand(forms);
-    const chartId = rand(charts);
-    const slot = rand(slotsFor(chartId));
-    const word = conjugate(spec.root, formId, chartId, slot);
+    const chart = rand(charts);
+    const slot = rand(slotsFor(chart.tense));
+    const other = wordSpec({ root: spec.root, formId, ...chart, slot });
+    const word = conjugate(other);
     if (!word || seenWords.has(word)) continue;
-    const meaning = verbMeaning(spec.root, formId, chartId, slot);
+    const meaning = verbMeaning(other);
     if (!meaning || seenMeanings.has(meaning)) continue;
     seenWords.add(word);
     seenMeanings.add(meaning);
@@ -505,7 +530,7 @@ function makeFromMeaningQuestion(spec, charts) {
   }
   if (others.length < 2) return null;
 
-  const { tense, voice, mood } = CHARTS[spec.chartId];
+  const { tense, voice, mood } = spec;
   // A governed muḍāriʿ is named through the particle that governs it, so the
   // feedback shows WHY the ending is what it is rather than just asserting it.
   const particle = mood && mood !== 'raf' ? particleFor(mood) : null;
@@ -652,14 +677,13 @@ function buildDerived(ctx, make) {
 
 /** Only words whose opposite voice also exists — both answers must be live. */
 function buildVoice(ctx) {
-  const voiced = ctx.charts.filter((c) => CHARTS[c].tense !== 'amr');
+  const voiced = ctx.charts.filter((c) => c.tense !== 'amr');
   if (!voiced.length) return null;
   for (let i = 0; i < 60; i++) {
     const spec = randomWordSpec(ctx.rootFilter, voiced);
     if (!spec) return null;
-    const { tense, voice, mood } = CHARTS[spec.chartId];
-    const opposite = chartIdFor(tense, voice === 'malum' ? 'majhul' : 'malum', mood ?? 'raf');
-    if (!conjugate(spec.root, spec.formId, opposite, spec.slot)) continue;
+    const opposite = inVoice(spec, spec.voice === 'malum' ? 'majhul' : 'malum');
+    if (!conjugate(opposite)) continue;
     return makeVoiceQuestion(spec);
   }
   return null;
@@ -674,14 +698,13 @@ function buildMood(ctx) {
   const planMoods = [...ctx.profile.moods];
   if (planMoods.length < 2) return null;
   for (let i = 0; i < 60; i++) {
-    const chart = rand(ctx.charts.filter((c) => CHARTS[c].mood));
+    const chart = rand(ctx.charts.filter((c) => c.mood));
     if (!chart) return null;
-    const { voice, mood } = CHARTS[chart];
+    const { mood } = chart;
     const spec = randomWordSpec(ctx.rootFilter, [chart]);
     if (!spec) return null;
     if (!MOOD_DISTINCT_SLOTS.includes(spec.slot)) continue;
-    const siblings = planMoods.map((m) => `mudari_${voice}_${m}`);
-    const rendered = siblings.map((c) => conjugate(spec.root, spec.formId, c, spec.slot));
+    const rendered = planMoods.map((m) => conjugate(wordSpec({ ...spec, mood: m })));
     if (rendered.some((w) => !w)) continue;
     if (new Set(rendered).size !== rendered.length) continue; // ambiguous — two states look alike
     const correct = { ...MOOD_LABELS[mood], valueKey: mood };
@@ -834,18 +857,15 @@ export function buildDrill(preset, wordCount = WORDS_PER_DRILL) {
   let guard = 0;
 
   while (bundles.length < wordCount && guard++ < 400) {
-    const spec = randomWordSpec(profile.rootFilter, ['madi_malum', 'mudari_malum_raf']);
-    if (!spec) break;
-    const { tense, mood } = CHARTS[spec.chartId];
-    const majhulChart = chartIdFor(tense, 'majhul', mood ?? 'raf');
-    const majhulWord = conjugate(spec.root, spec.formId, majhulChart, spec.slot);
-    spec.hasVoicePair = !!majhulWord;
+    const drawn = randomWordSpec(profile.rootFilter, DRILL_CHARTS);
+    if (!drawn) break;
+    const majhul = inVoice(drawn, 'majhul');
+    const majhulWord = conjugate(majhul);
     // Show the majhūl sometimes — but only when both voices exist, so the
     // choice of chart never gives the voice question away.
-    if (majhulWord && Math.random() < 0.5) {
-      spec.chartId = majhulChart;
-      spec.word = majhulWord;
-    }
+    const spec = (majhulWord && Math.random() < 0.5)
+      ? { ...majhul, word: majhulWord, hasVoicePair: true }
+      : { ...drawn, hasVoicePair: !!majhulWord };
     if (seen.has(spec.word)) continue;
 
     const bundle = kinds.map((k) => k.forWord(spec)).filter(Boolean);

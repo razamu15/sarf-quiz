@@ -4,7 +4,12 @@
 //                         passive, what does it mean rhetorically
 //   PREFIX_LETTERS        the muḍāriʿ prefix letter, per pronoun slot
 //   MUDARI_PREFIX_HARAKA  its ḥaraka, per form and voice
-//   ENDINGS               one ending table per ChartID, all rows explicit
+//   A                     the row notation every ending table is written in
+//
+// The ending TABLES are not here. They start from the sālim set and each verb
+// type keeps its own (see SALIM_ENDINGS, MUDAAF_ENDINGS), because a verb type
+// that changes its endings — the muḍāʿaf majzūm takes the manṣūb row rather
+// than a sukūn — has to be able to say so in its own file.
 //
 // Two different kinds of "shared" sit here for the same reason. Form facts are
 // true of a form no matter which verb type fills it: whether Form VII has a
@@ -18,9 +23,7 @@
 // conjugators (js/conjugation/); the stem tables it gets combined with live in
 // each verb type's own grammar file (salim-grammar.js, mudaaf-grammar.js, …).
 
-import {
-  FATHA as F, DAMMA as D, KASRA as K, SUKUN as S, SHADDA as SH,
-} from '../vocabulary.js';
+import { FATHA as F, DAMMA as D } from '../vocabulary.js';
 
 // ---------------------------------------------------------------------------
 // The ten forms
@@ -41,10 +44,13 @@ export const FORM_META = {
   X:    { conjugable: true,  hasMajhul: true,  meanings: ['talab', 'itiqad'] },
 };
 
-// Row notation for the ending tables: (final-radical ḥaraka, suffix), so that
-// stem + h + s = word. Not exported — it is how the tables below are written,
-// not behaviour any caller invokes.
-const A = (h, s) => ({ h, s });
+/**
+ * Row notation for every verb type's ending table: (final-radical ḥaraka,
+ * suffix), so that stem + h + s = word. It is how those tables are WRITTEN, not
+ * behaviour a caller invokes — it lives here only so that the sālim and muḍāʿaf
+ * tables are written in the same notation and can be read against each other.
+ */
+export const A = (h, s) => ({ h, s });
 
 // ---------------------------------------------------------------------------
 // The muḍāriʿ prefix

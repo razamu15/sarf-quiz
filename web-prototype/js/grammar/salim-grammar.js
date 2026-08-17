@@ -1,6 +1,7 @@
 import {
   FATHA as F, DAMMA as D, KASRA as K, SUKUN as S, SHADDA as SH,
 } from '../vocabulary.js';
+import { A } from './shared-grammar.js';
 
 // ---------------------------------------------------------------------------
 // Stems which are the templates of what endings each letter of a verb takes. 

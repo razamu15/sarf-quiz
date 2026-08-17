@@ -11,9 +11,10 @@
 // 'input' → an Arabic answer field graded strictly (spec §5.2).
 
 import {
-  FORM_IDS, MAZEED_IDS, CHARTS, slotsFor, chartId as chartIdFor,
+  FORM_IDS, MAZEED_IDS, slotsFor,
   VERB_TYPE_GROUP_IDS, verbTypesInGroup, groupOfVerbType,
 } from './vocabulary.js';
+import { wordSpec, chartShape } from './word-spec.js';
 import {
   PRONOUNS, FORM_NAMES, VERB_TYPE_INFO, CATEGORIES, TENSE_LABELS, VOICE_LABELS, MOOD_LABELS,
 } from './glossary.js';
@@ -404,14 +405,14 @@ function renderTables() {
     { disabled: !mooded },
   ));
 
-  const chart = chartIdFor(t.tense, t.voice, t.mood);
-  const table = fullTable(root, t.formId, chart);
+  const chart = chartSpecOf(root, t);
+  const table = fullTable(chart);
   const view = el(`<button class="btn primary">View table</button>`);
   view.disabled = !table;
   view.onclick = () => { t.viewing = true; render(); };
   app.append(view);
   if (!table) {
-    app.append(el(`<p class="subtitle count-line empty">This verb has no ${chart.includes('majhul') ? 'passive' : ''} chart for that selection.</p>`));
+    app.append(el(`<p class="subtitle count-line empty">This verb has no ${chart.voice === 'majhul' ? 'passive' : ''} chart for that selection.</p>`));
   }
 }
 
@@ -439,8 +440,8 @@ function resultList() {
 function renderTableView() {
   const t = state.tables;
   const root = currentTableRoot();
-  const chart = chartIdFor(t.tense, t.voice, t.mood);
-  const table = fullTable(root, t.formId, chart) ?? {};
+  const chart = chartSpecOf(root, t);
+  const table = fullTable(chart) ?? {};
 
   const bar = el(`<div class="topbar">
     <button class="quit">‹</button>
@@ -450,7 +451,7 @@ function renderTableView() {
   bar.querySelector('.quit').onclick = () => { t.viewing = false; t.highlight = null; render(); };
   app.append(bar);
 
-  const rows = slotsFor(chart).filter((slot) => table[slot]).map((slot) => `
+  const rows = slotsFor(chart.tense).filter((slot) => table[slot]).map((slot) => `
     <tr class="${t.highlight === slot ? 'hit' : ''}">
       <td class="pron"><span class="ar">${PRONOUNS[slot].ar}</span><small>${PRONOUNS[slot].en}</small></td>
       <td class="word-cell"><span class="ar">${table[slot]}</span></td>
@@ -473,8 +474,12 @@ function renderTableView() {
   }
 }
 
-const chartLabel = (chart) => {
-  const { tense, voice, mood } = CHARTS[chart];
+/** The chart the Tables chips currently select, as a WordSpec with no slot. */
+const chartSpecOf = (root, t) => wordSpec({
+  root, formId: t.formId, tense: t.tense, voice: t.voice, mood: t.mood,
+});
+
+const chartLabel = ({ tense, voice, mood }) => {
   return [TENSE_LABELS[tense].en.split(' (')[0],
     tense === 'amr' ? null : (voice === 'malum' ? 'maʿrūf' : 'majhūl'),
     mood ? MOOD_LABELS[mood].en.split(' —')[0] : null].filter(Boolean).join(' · ');
@@ -805,7 +810,7 @@ function finishAnswer(q, correct, { picked, body }) {
   if (q.chartId) {
     const link = el(`<a class="seetable">▤ See the full table →</a>`);
     link.onclick = () => {
-      const { tense, voice, mood } = CHARTS[q.chartId];
+      const { tense, voice, mood } = chartShape(q.chartId);
       state.tables = {
         rootKey: q.rootKey, formId: q.formId,
         tense, voice, mood: mood ?? 'raf',

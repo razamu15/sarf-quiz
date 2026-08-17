@@ -8,25 +8,25 @@
 // assertions (charts, tables, multi-select, stream) follow at the bottom.
 
 import {
-  chartId, CHART_IDS, SLOTS, AMR_SLOTS, slotsFor,
+  SLOTS, AMR_SLOTS, slotsFor as slotsForTense,
   FORM_IDS, BAB_IDS, DEFAULT_BAB, FATHA as FATHA_C, DAMMA as DAMMA_C,
   VERB_TYPE_IDS, VERB_TYPE_GROUP_IDS, groupOfVerbType, verbTypesInGroup,
 } from '../js/vocabulary.js';
+import { wordSpec, chartShape, chartKey, CHART_SHAPES } from '../js/word-spec.js';
 import { MUDARI_PREFIX_HARAKA } from '../js/grammar/shared-grammar.js';
-import { VERB_FORM_STEMS } from '../js/grammar/salim-grammar.js';
-import { MERGED_STEMS } from '../js/grammar/mudaaf-grammar.js';
-import { stemFor } from '../js/conjugation/templates.js';
+import { SALIM_VERB_STEMS } from '../js/grammar/salim-grammar.js';
+import { MUDAAF_STEMS } from '../js/grammar/mudaaf-grammar.js';
+import { resolveStem } from '../js/conjugation/templates.js';
 import { ABWAB_LABELS, VERB_TYPE_INFO } from '../js/glossary.js';
 import { LEXICON, classify, availableTypes, stockedTypes } from '../js/lexicon/lexicon-service.js';
 import {
-  conjugate as conjugateChart, derivedNoun, waznOf as waznOfChart,
-  fullTable as fullTableChart, availableCharts, enginedGroups,
+  conjugate as conjugateSpec, derivedNoun, waznOf as waznOfSpec,
+  fullTable as fullTableSpec, availableCharts, enginedGroups,
 } from '../js/conjugation/conjugation-service.js';
 import {
-  verbMeaning as verbMeaningChart2, derivedNounMeaning,
+  verbMeaning as verbMeaningSpec, derivedNounMeaning,
   MUDARI_PARTICLES, particlesFor, particleFor,
 } from '../js/meaning-service.js';
-const verbMeaningChart = (root, formId, chartId, slot) => verbMeaningChart2(root, formId, chartId, slot);
 import {
   buildDrill, buildQuiz, questionStream, DRILL_PRESETS, mazeedPreset, mazeedPresetAvailable,
   presetAvailable, chartsFor, gradeInput, possibleQuestions, IDENTIFY_CATEGORIES,
@@ -34,15 +34,31 @@ import {
 } from '../js/quiz/quiz-service.js';
 import { MAZEED_IDS } from '../js/vocabulary.js';
 
+// --- chart-id shim ---------------------------------------------------------
+// The engine speaks WordSpec now. This file's hand-typed expectations are keyed
+// by chart id (that IS the notation of a paper table), so the ids stay as the
+// test's vocabulary and get turned into specs right here — one place, so the
+// ~290 assertions below are unchanged and still compare the same words.
+const specOf = (root, formId, chart, slot = null) =>
+  wordSpec({ root, formId, ...chartShape(chart), slot });
+const CHART_IDS = CHART_SHAPES.map(chartKey);
+const slotsFor = (chart) => slotsForTense(chartShape(chart).tense);
+const conjugateChart = (root, formId, chart, slot) => conjugateSpec(specOf(root, formId, chart, slot));
+const fullTableChart = (root, formId, chart) => fullTableSpec(specOf(root, formId, chart));
+const waznOfChart = (formId, chart, slot, bab) => waznOfSpec(specOf(null, formId, chart, slot), bab);
+const verbMeaningChart = (root, formId, chart, slot) => verbMeaningSpec(specOf(root, formId, chart, slot));
+const verbMeaningChart2 = (root, formId, chart, slot, particleId) =>
+  verbMeaningSpec(specOf(root, formId, chart, slot), particleId);
+
 // --- v1-compat shims: same call shapes as the old engine API ---------------
 const conjugate = (root, formId, tense, voice, slot, mood = 'raf') =>
-  conjugateChart(root, formId, chartId(tense, voice, mood), slot);
+  conjugateSpec(wordSpec({ root, formId, tense, voice, mood, slot }));
 const waznOf = (formId, tense, voice, slot, bab = 'au', mood = 'raf') =>
-  waznOfChart(formId, chartId(tense, voice, mood), slot, bab);
+  waznOfSpec(wordSpec({ root: null, formId, tense, voice, mood, slot }), bab);
 const verbMeaning = (root, formId, tense, voice, slot) =>
-  verbMeaningChart(root, formId, chartId(tense, voice), slot);
+  verbMeaningSpec(wordSpec({ root, formId, tense, voice, slot }));
 const fullTable = (root, formId, tense, voice) =>
-  fullTableChart(root, formId, chartId(tense, voice));
+  fullTableSpec(wordSpec({ root, formId, tense, voice }));
 
 const byRoot = (letters) => LEXICON.find((r) => r.root.join('') === letters);
 
@@ -247,8 +263,9 @@ check(FORM_IDS.every((f) => {
 // 2. Whether a bāb is consulted is read off the stem table's own shape: a
 //    per-bāb chart is keyed by bāb, anything else is a plain template. ONE
 //    reader serves every verb type's table — the table is the argument.
-const salimStem = (formId, key, bab) => stemFor(VERB_FORM_STEMS, formId, key, bab);
-const mergedStem = (formId, key, bab) => stemFor(MERGED_STEMS, formId, key, bab);
+const salimStem = (formId, key, bab) => resolveStem(SALIM_VERB_STEMS[formId]?.[key], [bab]);
+const mergedStem = (formId, key, bab, seegah) =>
+  resolveStem(MUDAAF_STEMS[formId]?.[key], [seegah, bab]);
 
 check(salimStem('I', 'madi_malum', 'ia') === salimStem('I', 'madi_malum', 'ii'),
   'ia and ii share a māḍī stem — both kasra on the ʿayn');
@@ -270,11 +287,15 @@ check(salimStem('nonsense', 'madi_malum', 'au') === null, 'an unknown form yield
 // instead of consulting a list. Idghām costs the māḍī the vowel that told the
 // abwāb apart, so all six collapse to مَدَّ; the muḍāriʿ keeps them (يَمُدُّ,
 // يَفِرُّ) because the vowel survives by moving onto the fāʾ.
-check(mergedStem('I', 'madi_malum', null) !== null,
-  'the muḍāʿaf māḍī needs no bāb — idghām collapsed all six');
-check(mergedStem('I', 'mudari_malum', null) === null
-  && mergedStem('I', 'mudari_malum', 'au') !== mergedStem('I', 'mudari_malum', 'ai'),
+check(mergedStem('I', 'madi_malum', null, 'sakin') !== null,
+  'the muḍāʿaf māḍī needs no bāb when merged — idghām collapsed all six');
+check(mergedStem('I', 'mudari_malum', null, 'murab') === null
+  && mergedStem('I', 'mudari_malum', 'au', 'murab') !== mergedStem('I', 'mudari_malum', 'ai', 'murab'),
   'the muḍāʿaf muḍāriʿ still distinguishes abwāb, so it still demands one');
+// Unfolded, the māḍī needs the bāb back: مَدَدْتُ but ظَلِلْتُ.
+check(mergedStem('I', 'madi_malum', null, 'mutaharrik') === null
+  && mergedStem('I', 'madi_malum', 'ia', 'mutaharrik') !== mergedStem('I', 'madi_malum', 'au', 'mutaharrik'),
+  'the unfolded muḍāʿaf māḍī is per-bāb again — the vowel that merged came back');
 
 // 3. The bāb vocabulary agrees with itself across the three places it appears.
 check(BAB_IDS.length === 6 && BAB_IDS.every((b) => /^[aiu][aiu]$/.test(b)),
@@ -462,16 +483,17 @@ parity(madd, 'I', 'mudari_malum_nasb', {
   '1s': 'أَمُدَّ',    '1p': 'نَمُدَّ',
 }, 'مدّ I muḍāriʿ maʿlūm naṣb');
 
-// Jazm takes the fakk (unfolded) form wherever the ending is sukūn — لَمْ
-// يَمْدُدْ. The merged alternative لَمْ يَمُدَّ is equally classical; the engine
-// commits to one, consistently.
+// The muḍāʿaf does not put a sukūn on its lām in the majzūm: MUDAAF_ENDINGS
+// gives the jazm the manṣūb row, so لَمْ يَمُدَّ rather than لَمْ يَمْدُدْ. Both
+// are classical; this is the reading the engine commits to, which makes the
+// majzūm table identical to the manṣūb one except for what governs it.
 parity(madd, 'I', 'mudari_malum_jazm', {
-  '3ms': 'يَمْدُدْ',  '3md': 'يَمُدَّا',    '3mp': 'يَمُدُّوا',
-  '3fs': 'تَمْدُدْ',  '3fd': 'تَمُدَّا',    '3fp': 'يَمْدُدْنَ',
-  '2ms': 'تَمْدُدْ',  '2md': 'تَمُدَّا',    '2mp': 'تَمُدُّوا',
+  '3ms': 'يَمُدَّ',   '3md': 'يَمُدَّا',    '3mp': 'يَمُدُّوا',
+  '3fs': 'تَمُدَّ',   '3fd': 'تَمُدَّا',    '3fp': 'يَمْدُدْنَ',
+  '2ms': 'تَمُدَّ',   '2md': 'تَمُدَّا',    '2mp': 'تَمُدُّوا',
   '2fs': 'تَمُدِّي',  '2fd': 'تَمُدَّا',    '2fp': 'تَمْدُدْنَ',
-  '1s': 'أَمْدُدْ',   '1p': 'نَمْدُدْ',
-}, 'مدّ I muḍāriʿ maʿlūm jazm');
+  '1s': 'أَمُدَّ',    '1p': 'نَمُدَّ',
+}, 'مدّ I muḍāriʿ maʿlūm jazm — manṣūb row, no fakk');
 
 parity(madd, 'I', 'mudari_majhul_raf', {
   '3ms': 'يُمَدُّ',   '3md': 'يُمَدَّانِ',  '3mp': 'يُمَدُّونَ',
@@ -585,12 +607,14 @@ check(!madd.forms.I.manualTables && !radd.forms.I.manualTables,
 // ---------------------------------------------------------------------------
 
 // tense × voice × iʿrāb → charts. Amr carries neither voice nor mood, so it
-// contributes exactly one chart however many are ticked.
-check(chartsFor({ tenses: ['mudari'], voices: ['malum'], moods: ['raf', 'nasb'] }).join() ===
+// contributes exactly one chart however many are ticked. chartsFor returns
+// shapes now, so the expectations are read through chartKey — same charts.
+const chartKeysFor = (plan) => chartsFor(plan).map(chartKey).join();
+check(chartKeysFor({ tenses: ['mudari'], voices: ['malum'], moods: ['raf', 'nasb'] }) ===
   'mudari_malum_raf,mudari_malum_nasb', 'charts: muḍāriʿ × maʿlūm × (rafʿ, naṣb)');
-check(chartsFor({ tenses: ['madi', 'amr'], voices: ['malum', 'majhul'], moods: ['raf'] }).join() ===
+check(chartKeysFor({ tenses: ['madi', 'amr'], voices: ['malum', 'majhul'], moods: ['raf'] }) ===
   'madi_malum,madi_majhul,amr_malum', 'charts: amr ignores voice and mood');
-check(chartsFor({ tenses: ['madi'], voices: ['majhul'], moods: [] }).join() === 'madi_majhul',
+check(chartKeysFor({ tenses: ['madi'], voices: ['majhul'], moods: [] }) === 'madi_majhul',
   'charts: iʿrāb is irrelevant to the past');
 
 // A plan's charts really do constrain every quiz type drawn from it.

@@ -1,6 +1,11 @@
-// The closed vocabulary of the domain — chart ids, pronoun slots, form ids,
-// verb types, ḥaraka constants. Nothing here grows with content.
-// (v2: the chart is the first-class key — see docs/TECHNICAL_PLAN.md §A.2)
+// The closed vocabulary of the domain — the axes a word varies on, pronoun
+// slots, form ids, verb types, ḥaraka constants. Nothing here grows with
+// content.
+//
+// (v3: the chart is no longer an entity. A word is specified by its axes —
+// tense, voice, mood, slot — carried together in a WordSpec; see word-spec.js.
+// "The nine charts" are still a real thing on paper, but they are a VIEW over
+// those axes, not a key the engine thinks in.)
 
 export const FATHA = 'َ';
 export const DAMMA = 'ُ';
@@ -9,29 +14,15 @@ export const SUKUN = 'ْ';
 export const SHADDA = 'ّ';
 
 // ---------------------------------------------------------------------------
-// The nine charts. One ChartID = one classic paper table. This replaces every
-// (tense, voice, mood) tuple and every string key in the old model; the ids
-// double as fixture-table keys in the lexicon.
+// The axes a conjugated word varies on. These are what the old ChartID packed
+// into one string; they are now first-class and travel in a WordSpec.
+//
+// Mood belongs to the muḍāriʿ alone: the māḍī is mabnī on the fatḥa and the amr
+// on the sukūn, so neither is iʿrāb-bearing and both carry mood: null.
 // ---------------------------------------------------------------------------
-export const CHARTS = {
-  madi_malum:         { tense: 'madi',   voice: 'malum',  mood: null },
-  madi_majhul:        { tense: 'madi',   voice: 'majhul', mood: null },
-  mudari_malum_raf:   { tense: 'mudari', voice: 'malum',  mood: 'raf' },
-  mudari_malum_nasb:  { tense: 'mudari', voice: 'malum',  mood: 'nasb' },
-  mudari_malum_jazm:  { tense: 'mudari', voice: 'malum',  mood: 'jazm' },
-  mudari_majhul_raf:  { tense: 'mudari', voice: 'majhul', mood: 'raf' },
-  mudari_majhul_nasb: { tense: 'mudari', voice: 'majhul', mood: 'nasb' },
-  mudari_majhul_jazm: { tense: 'mudari', voice: 'majhul', mood: 'jazm' },
-  amr_malum:          { tense: 'amr',    voice: 'malum',  mood: null },
-};
-export const CHART_IDS = Object.keys(CHARTS);
-
-/** The chart id for a (tense, voice, mood) combination. */
-export function chartId(tense, voice, mood = 'raf') {
-  if (tense === 'amr') return 'amr_malum';
-  if (tense === 'mudari') return `mudari_${voice}_${mood}`;
-  return `madi_${voice}`;
-}
+export const TENSES = ['madi', 'mudari', 'amr'];
+export const VOICES = ['malum', 'majhul'];
+export const MOODS = ['raf', 'nasb', 'jazm'];
 
 // ---------------------------------------------------------------------------
 // The 14 pronoun slots, in classic sarf-table order (3rd → 2nd → 1st person)
@@ -42,30 +33,58 @@ export const SLOTS = [
   '1s', '1p',
 ];
 
-export const SEEGAH_TYPES = {
-  '3ms': 'sakin',
-  '3md': 'sakin',
-  '3mp': 'sakin',
-  '3fs': 'sakin',
-  '3fd': 'sakin',
-  '3fp': 'mutaharrik',
-  '2ms': 'mutaharrik',
-  '2md': 'mutaharrik',
-  '2mp': 'mutaharrik',
-  '2fs': 'mutaharrik',
-  '2fd': 'mutaharrik',
-  '2fp': 'mutaharrik',
-  '1s': 'mutaharrik',
-  '1p': 'mutaharrik',
-};
-
 // amr exists only for the 2nd person
 export const AMR_SLOTS = ['2ms', '2md', '2mp', '2fs', '2fd', '2fp'];
 
-/** Slots a chart conjugates: the 14, or the 6 second-person slots for amr. */
-export function slotsFor(chart) {
-  return CHARTS[chart].tense === 'amr' ? AMR_SLOTS : SLOTS;
+/** Slots a tense conjugates: the 14, or the 6 second-person slots for amr. */
+export function slotsFor(tense) {
+  return tense === 'amr' ? AMR_SLOTS : SLOTS;
 }
+
+// ---------------------------------------------------------------------------
+// Ṣīghah categories — which grammatical class a slot falls into, PER TENSE.
+//
+// This is the classification a verb type consults when its letters behave
+// differently across the table. The muḍāʿaf is the first to need it: مَدَّ
+// merges, مَدَدْتُ unfolds, and the line between them is drawn by these
+// categories, not by any property of the root.
+//
+// Each tense gets its own row because each tense draws that line for a
+// different grammatical reason, and the traditional name differs accordingly:
+//
+//   madi    sakin | mutaharrik — is the attached ḍamīr rafʿ mutaḥarrik?
+//           تُ، تَ، نَا، نَ are; ا، وا، تْ are not. مَدَدْتُ vs مَدَّا.
+//   mudari  murab | mabni — nūn al-niswa makes the muḍāriʿ mabnī; everything
+//           else is muʿrab. يَمْدُدْنَ vs يَمُدُّ.
+//   amr     sukun | hadhfNun — the amr is always mabnī, but on the sukūn for
+//           2ms/2fp and on ḥadhf al-nūn for the rest. اُمْدُدْ vs مُدُّوا.
+//
+// A verb type's stem tables key their variants by these names, so the table
+// and this classification are read against each other directly.
+// ---------------------------------------------------------------------------
+export const SEEGAH_TYPES = {
+  madi: {
+    '3ms': 'sakin',       '3md': 'sakin',       '3mp': 'sakin',
+    '3fs': 'sakin',       '3fd': 'sakin',       '3fp': 'mutaharrik',
+    '2ms': 'mutaharrik',  '2md': 'mutaharrik',  '2mp': 'mutaharrik',
+    '2fs': 'mutaharrik',  '2fd': 'mutaharrik',  '2fp': 'mutaharrik',
+    '1s': 'mutaharrik',   '1p': 'mutaharrik',
+  },
+  mudari: {
+    '3ms': 'murab',       '3md': 'murab',       '3mp': 'murab',
+    '3fs': 'murab',       '3fd': 'murab',       '3fp': 'mabni',
+    '2ms': 'murab',       '2md': 'murab',       '2mp': 'murab',
+    '2fs': 'murab',       '2fd': 'murab',       '2fp': 'mabni',
+    '1s': 'murab',        '1p': 'murab',
+  },
+  amr: {
+    '2ms': 'sukun',       '2md': 'hadhfNun',    '2mp': 'hadhfNun',
+    '2fs': 'hadhfNun',    '2fd': 'hadhfNun',    '2fp': 'sukun',
+  },
+};
+
+/** The ṣīghah category of a slot in a tense — the key a stem table varies on. */
+export const seegahType = (tense, slot) => SEEGAH_TYPES[tense]?.[slot] ?? null;
 
 // slots where the three muḍāriʿ moods are visually distinct on the word
 // (duals/plurals conflate naṣb and jazm; nūn al-niswa never changes)

@@ -1,13 +1,6 @@
 import { FATHA as F, DAMMA as D, KASRA as K, SUKUN as S, SHADDA as SH } from '../vocabulary.js';
-
-// ---------------------------------------------------------------------------
-// Which forms undergo idghām at all.
-//
-// Forms II and V put their own shadda on the ʿayn (مَدَّدَ، تَمَدَّدَ), which
-// separates ʿayn from lām — nothing is adjacent, so nothing merges and the
-// verb is written like a sound verb throughout. Form IX is recognition-only.
-// ---------------------------------------------------------------------------
-export const IDGHAM_FORMS = new Set(['I', 'III', 'IV', 'VI', 'VII', 'VIII', 'X']);
+import { A } from './shared-grammar.js';
+import { SALIM_VERB_STEMS, SALIM_ENDINGS } from './salim-grammar.js';
 
 // ---------------------------------------------------------------------------
 // now the mudaaf stems object looks completely different to the salim stems object, this is by design
@@ -58,66 +51,174 @@ export const MUDAAF_STEMS = {
         mabni: '1' + S + '2' + K + '3'
       },
     },
-    mudari_majhul: '1' + F + '2' + SH,        // يُمَدُّ
+    mudari_majhul: {
+      murab: '1' + F + '2' + SH,                  // يُمَدُّ
+      mabni: '1' + S + '2' + F + '3',    // يُمْدَدْنَ
+    },
 
-    // No prosthetic alif: the fāʾ now carries a vowel, so nothing needs
-    // supporting. مُدَّا · مُدُّوا · مُدِّي
+    // The amr splits on its own axis. It is mabnī throughout, but on the sukūn
+    // for 2ms/2fp and on ḥadhf al-nūn for the other four — and only the sukūn
+    // pair forces the lām open. So مُدَّا · مُدُّوا · مُدِّي keep the merge and
+    // need no prosthetic alif (the fāʾ carries a vowel), while اُمْدُدْ ·
+    // اُمْدُدْنَ unfold and the alif comes back to support the opening sukūn.
+    // That is the sound amr exactly, per bāb.
     amr: {
-      au: '1' + D + '2' + SH,
-      ai: '1' + K + '2' + SH,
-      aa: '1' + F + '2' + SH,
-      ia: '1' + F + '2' + SH,
-      uu: '1' + D + '2' + SH,
-      ii: '1' + K + '2' + SH,
+      hadhfNun: {
+        au: '1' + D + '2' + SH,
+        ai: '1' + K + '2' + SH,
+        aa: '1' + F + '2' + SH,
+        ia: '1' + F + '2' + SH,
+        uu: '1' + D + '2' + SH,
+        ii: '1' + K + '2' + SH,
+      },
+      sukun: SALIM_VERB_STEMS.I.amr,
     },
   },
 
+  // Forms II and V put their own shadda on the ʿayn (مَدَّدَ، تَمَدَّدَ), which
+  // separates ʿayn from lām — nothing is adjacent, so nothing merges and the
+  // verb is written exactly like a sound one in every ṣīghah. No split, no
+  // muḍāʿaf-specific template: the sound tables ARE the answer, named here so
+  // that this file still shows the whole verb type without sending you
+  // elsewhere to find out what happens in Form II.
+  II: SALIM_VERB_STEMS.II,
+  V: SALIM_VERB_STEMS.V,
+
+  // The mazīd forms that DO merge. Each carries the merged template it is known
+  // by, plus the unfolded one for the ṣīghahs that force the lām open — which
+  // is always that form's sound stem (اِمْتَدَّ but اِمْتَدَدْتُ, أَحَبَّ but
+  // أَحْبَبْتُ). Naming the sound table beats re-typing fifty literals that
+  // could drift away from it silently.
   III: {
-    madi_malum: '1' + F + 'ا' + '2' + SH,                 // مَادَّ
-    madi_majhul: '1' + D + 'و' + '2' + SH,                // مُودَّ
-    mudari_malum: '1' + F + 'ا' + '2' + SH,               // يُمَادُّ
-    mudari_majhul: '1' + F + 'ا' + '2' + SH,              // يُمَادُّ
-    amr: '1' + F + 'ا' + '2' + SH,                        // مَادَّ
+    madi_malum: {
+      sakin: '1' + F + 'ا' + '2' + SH,                    // مَادَّ
+      mutaharrik: SALIM_VERB_STEMS.III.madi_malum,        // مَادَدْتُ
+    },
+    madi_majhul: {
+      sakin: '1' + D + 'و' + '2' + SH,                    // مُودَّ
+      mutaharrik: SALIM_VERB_STEMS.III.madi_majhul,
+    },
+    mudari_malum: {
+      murab: '1' + F + 'ا' + '2' + SH,                    // يُمَادُّ
+      mabni: SALIM_VERB_STEMS.III.mudari_malum,
+    },
+    mudari_majhul: {
+      murab: '1' + F + 'ا' + '2' + SH,
+      mabni: SALIM_VERB_STEMS.III.mudari_majhul,
+    },
+    amr: {
+      hadhfNun: '1' + F + 'ا' + '2' + SH,                 // مَادَّا
+      sukun: SALIM_VERB_STEMS.III.amr,                    // مَادِدْ
+    },
   },
 
   IV: {
-    madi_malum: 'أ' + F + '1' + F + '2' + SH,             // أَمَدَّ
-    madi_majhul: 'أ' + D + '1' + K + '2' + SH,            // أُمِدَّ
-    mudari_malum: '1' + K + '2' + SH,                     // يُمِدُّ
-    mudari_majhul: '1' + F + '2' + SH,                    // يُمَدُّ
-    amr: 'أ' + F + '1' + K + '2' + SH,                    // أَمِدَّ
+    madi_malum: {
+      sakin: 'أ' + F + '1' + F + '2' + SH,                // أَمَدَّ
+      mutaharrik: SALIM_VERB_STEMS.IV.madi_malum,         // أَحْبَبْتُ
+    },
+    madi_majhul: {
+      sakin: 'أ' + D + '1' + K + '2' + SH,                // أُمِدَّ
+      mutaharrik: SALIM_VERB_STEMS.IV.madi_majhul,
+    },
+    mudari_malum: {
+      murab: '1' + K + '2' + SH,                          // يُمِدُّ
+      mabni: SALIM_VERB_STEMS.IV.mudari_malum,            // يُحْبِبْنَ
+    },
+    mudari_majhul: {
+      murab: '1' + F + '2' + SH,                          // يُمَدُّ
+      mabni: SALIM_VERB_STEMS.IV.mudari_majhul,
+    },
+    amr: {
+      hadhfNun: 'أ' + F + '1' + K + '2' + SH,             // أَحِبُّوا
+      sukun: SALIM_VERB_STEMS.IV.amr,                     // أَحْبِبْ
+    },
   },
 
   VI: {
-    madi_malum: 'ت' + F + '1' + F + 'ا' + '2' + SH,       // تَمَادَّ
-    madi_majhul: 'ت' + D + '1' + D + 'و' + '2' + SH,      // تُمُودَّ
-    mudari_malum: 'ت' + F + '1' + F + 'ا' + '2' + SH,     // يَتَمَادُّ
-    mudari_majhul: 'ت' + F + '1' + F + 'ا' + '2' + SH,
-    amr: 'ت' + F + '1' + F + 'ا' + '2' + SH,              // تَمَادَّ
+    madi_malum: {
+      sakin: 'ت' + F + '1' + F + 'ا' + '2' + SH,          // تَمَادَّ
+      mutaharrik: SALIM_VERB_STEMS.VI.madi_malum,
+    },
+    madi_majhul: {
+      sakin: 'ت' + D + '1' + D + 'و' + '2' + SH,          // تُمُودَّ
+      mutaharrik: SALIM_VERB_STEMS.VI.madi_majhul,
+    },
+    mudari_malum: {
+      murab: 'ت' + F + '1' + F + 'ا' + '2' + SH,          // يَتَمَادُّ
+      mabni: SALIM_VERB_STEMS.VI.mudari_malum,
+    },
+    mudari_majhul: {
+      murab: 'ت' + F + '1' + F + 'ا' + '2' + SH,
+      mabni: SALIM_VERB_STEMS.VI.mudari_majhul,
+    },
+    amr: {
+      hadhfNun: 'ت' + F + '1' + F + 'ا' + '2' + SH,       // تَمَادَّا
+      sukun: SALIM_VERB_STEMS.VI.amr,                     // تَمَادَدْ
+    },
   },
 
   VII: {
-    madi_malum: 'ا' + K + 'ن' + S + '1' + F + '2' + SH,   // اِنْمَدَّ
+    madi_malum: {
+      sakin: 'ا' + K + 'ن' + S + '1' + F + '2' + SH,      // اِنْمَدَّ
+      mutaharrik: SALIM_VERB_STEMS.VII.madi_malum,
+    },
     madi_majhul: null,                                     // lāzim
-    mudari_malum: 'ن' + S + '1' + F + '2' + SH,           // يَنْمَدُّ
+    mudari_malum: {
+      murab: 'ن' + S + '1' + F + '2' + SH,                // يَنْمَدُّ
+      mabni: SALIM_VERB_STEMS.VII.mudari_malum,
+    },
     mudari_majhul: null,
-    amr: 'ا' + K + 'ن' + S + '1' + F + '2' + SH,          // اِنْمَدَّ
+    amr: {
+      hadhfNun: 'ا' + K + 'ن' + S + '1' + F + '2' + SH,   // اِنْمَدَّا
+      sukun: SALIM_VERB_STEMS.VII.amr,                    // اِنْمَدِدْ
+    },
   },
 
   VIII: {
-    madi_malum: 'ا' + K + '1' + S + 'ت' + F + '2' + SH,   // اِمْتَدَّ
-    madi_majhul: 'ا' + D + '1' + S + 'ت' + D + '2' + SH,  // اُمْتُدَّ
-    mudari_malum: '1' + S + 'ت' + F + '2' + SH,           // يَمْتَدُّ
-    mudari_majhul: '1' + S + 'ت' + F + '2' + SH,          // يُمْتَدُّ
-    amr: 'ا' + K + '1' + S + 'ت' + F + '2' + SH,          // اِمْتَدَّ
+    madi_malum: {
+      sakin: 'ا' + K + '1' + S + 'ت' + F + '2' + SH,      // اِمْتَدَّ
+      mutaharrik: SALIM_VERB_STEMS.VIII.madi_malum,       // اِمْتَدَدْتُ
+    },
+    madi_majhul: {
+      sakin: 'ا' + D + '1' + S + 'ت' + D + '2' + SH,      // اُمْتُدَّ
+      mutaharrik: SALIM_VERB_STEMS.VIII.madi_majhul,
+    },
+    mudari_malum: {
+      murab: '1' + S + 'ت' + F + '2' + SH,                // يَمْتَدُّ
+      mabni: SALIM_VERB_STEMS.VIII.mudari_malum,          // يَمْتَدِدْنَ
+    },
+    mudari_majhul: {
+      murab: '1' + S + 'ت' + F + '2' + SH,                // يُمْتَدُّ
+      mabni: SALIM_VERB_STEMS.VIII.mudari_majhul,
+    },
+    amr: {
+      hadhfNun: 'ا' + K + '1' + S + 'ت' + F + '2' + SH,   // اِمْتَدَّا
+      sukun: SALIM_VERB_STEMS.VIII.amr,                   // اِمْتَدِدْ
+    },
   },
 
   X: {
-    madi_malum: 'ا' + K + 'س' + S + 'ت' + F + '1' + F + '2' + SH,   // اِسْتَمَدَّ
-    madi_majhul: 'ا' + D + 'س' + S + 'ت' + D + '1' + K + '2' + SH,  // اُسْتُمِدَّ
-    mudari_malum: 'س' + S + 'ت' + F + '1' + K + '2' + SH,           // يَسْتَمِدُّ
-    mudari_majhul: 'س' + S + 'ت' + F + '1' + F + '2' + SH,          // يُسْتَمَدُّ
-    amr: 'ا' + K + 'س' + S + 'ت' + F + '1' + K + '2' + SH,          // اِسْتَمِدَّ
+    madi_malum: {
+      sakin: 'ا' + K + 'س' + S + 'ت' + F + '1' + F + '2' + SH,   // اِسْتَمَدَّ
+      mutaharrik: SALIM_VERB_STEMS.X.madi_malum,                 // اِسْتَمْدَدْتَ
+    },
+    madi_majhul: {
+      sakin: 'ا' + D + 'س' + S + 'ت' + D + '1' + K + '2' + SH,   // اُسْتُمِدَّ
+      mutaharrik: SALIM_VERB_STEMS.X.madi_majhul,
+    },
+    mudari_malum: {
+      murab: 'س' + S + 'ت' + F + '1' + K + '2' + SH,             // يَسْتَمِدُّ
+      mabni: SALIM_VERB_STEMS.X.mudari_malum,
+    },
+    mudari_majhul: {
+      murab: 'س' + S + 'ت' + F + '1' + F + '2' + SH,             // يُسْتَمَدُّ
+      mabni: SALIM_VERB_STEMS.X.mudari_majhul,
+    },
+    amr: {
+      hadhfNun: 'ا' + K + 'س' + S + 'ت' + F + '1' + K + '2' + SH, // اِسْتَمِدَّا
+      sukun: SALIM_VERB_STEMS.X.amr,                              // اِسْتَمْدِدْ
+    },
   },
 };
 
