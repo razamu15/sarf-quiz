@@ -31,13 +31,13 @@ import {
 import {
   FORM_META, PREFIX_LETTERS, MUDARI_PREFIX_HARAKA,
 } from '../grammar/shared-grammar.js';
-import { SALIM_VERB_STEMS, SALIM_ENDINGS } from '../grammar/salim-grammar.js';
+import { SALIM_ENDINGS } from '../grammar/salim-grammar.js';
 import {
   wordSpec, chartKey, slotSpecsOf, CHART_SHAPES, isValidShape,
 } from '../word-spec.js';
-import { SalimConjugator } from './salim-conjugator.js';
+import { SalimConjugator, salimStem } from './salim-conjugator.js';
 import { MudaafConjugator } from './mudaaf-conjugator.js';
-import { fill, norm, resolveStem } from './templates.js';
+import { fill, norm } from './templates.js';
 
 const ENGINES = Object.fromEntries(
   [SalimConjugator, MudaafConjugator].map((engine) => [engine.handles, engine]),
@@ -300,12 +300,12 @@ function citationFromStems(root, formId) {
   if (!meta || meta.conjugable) return '';
   if (root.type !== 'salim') return '';
 
-  // The sound tables by name, because the guard above has just established that
-  // this is a sound root. A form that doesn't conjugate has no abwāb either, so
-  // both entries are plain templates and no bāb key is offered — that is the
-  // honest argument here, not a shortcut.
-  const madiStem = resolveStem(SALIM_VERB_STEMS[formId]?.madi_malum, []);
-  const mudariStem = resolveStem(SALIM_VERB_STEMS[formId]?.mudari_malum, []);
+  // The sound engine's own stem reader, because the guard above has just
+  // established that this is a sound root. A form that doesn't conjugate has no
+  // abwāb either, so both entries are plain templates and no bāb is passed —
+  // that is the honest argument here, not a shortcut.
+  const madiStem = salimStem(formId, 'madi_malum', null);
+  const mudariStem = salimStem(formId, 'mudari_malum', null);
   if (!madiStem || !mudariStem) return '';
 
   // Assemble the 3ms word exactly as SalimConjugator would have: stem plus that

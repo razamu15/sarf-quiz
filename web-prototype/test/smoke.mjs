@@ -14,9 +14,8 @@ import {
 } from '../js/vocabulary.js';
 import { wordSpec, chartShape, chartKey, CHART_SHAPES } from '../js/word-spec.js';
 import { MUDARI_PREFIX_HARAKA } from '../js/grammar/shared-grammar.js';
-import { SALIM_VERB_STEMS } from '../js/grammar/salim-grammar.js';
-import { MUDAAF_STEMS } from '../js/grammar/mudaaf-grammar.js';
-import { resolveStem } from '../js/conjugation/templates.js';
+import { salimStem } from '../js/conjugation/salim-conjugator.js';
+import { mudaafStem } from '../js/conjugation/mudaaf-conjugator.js';
 import { ABWAB_LABELS, VERB_TYPE_INFO } from '../js/glossary.js';
 import { LEXICON, classify, availableTypes, stockedTypes } from '../js/lexicon/lexicon-service.js';
 import {
@@ -263,9 +262,14 @@ check(FORM_IDS.every((f) => {
 // 2. Whether a bāb is consulted is read off the stem table's own shape: a
 //    per-bāb chart is keyed by bāb, anything else is a plain template. ONE
 //    reader serves every verb type's table — the table is the argument.
-const salimStem = (formId, key, bab) => resolveStem(SALIM_VERB_STEMS[formId]?.[key], [bab]);
-const mergedStem = (formId, key, bab, seegah) =>
-  resolveStem(MUDAAF_STEMS[formId]?.[key], [seegah, bab]);
+// A muḍāʿaf root carrying whatever bāb the case under test needs — the engine
+// reads the bāb off the root, so varying it means varying the root.
+const maddWith = (bab) => ({
+  type: 'mudaaf', root: ['م', 'د', 'د'],
+  forms: { I: { bab, trans: true, masdar: null } },
+});
+const mudaafStemOf = (bab, tense, voice, slot) =>
+  mudaafStem(wordSpec({ root: maddWith(bab), formId: 'I', tense, voice, slot }));
 
 check(salimStem('I', 'madi_malum', 'ia') === salimStem('I', 'madi_malum', 'ii'),
   'ia and ii share a māḍī stem — both kasra on the ʿayn');
@@ -287,15 +291,15 @@ check(salimStem('nonsense', 'madi_malum', 'au') === null, 'an unknown form yield
 // instead of consulting a list. Idghām costs the māḍī the vowel that told the
 // abwāb apart, so all six collapse to مَدَّ; the muḍāriʿ keeps them (يَمُدُّ,
 // يَفِرُّ) because the vowel survives by moving onto the fāʾ.
-check(mergedStem('I', 'madi_malum', null, 'sakin') !== null,
-  'the muḍāʿaf māḍī needs no bāb when merged — idghām collapsed all six');
-check(mergedStem('I', 'mudari_malum', null, 'murab') === null
-  && mergedStem('I', 'mudari_malum', 'au', 'murab') !== mergedStem('I', 'mudari_malum', 'ai', 'murab'),
+check(mudaafStemOf(null, 'madi', 'malum', '3ms') !== null,
+  'the muḍāʿaf māḍī needs no bāb — idghām collapsed all six');
+check(mudaafStemOf(null, 'mudari', 'malum', '3ms') === null
+  && mudaafStemOf('au', 'mudari', 'malum', '3ms') !== mudaafStemOf('ai', 'mudari', 'malum', '3ms'),
   'the muḍāʿaf muḍāriʿ still distinguishes abwāb, so it still demands one');
-// Unfolded, the māḍī needs the bāb back: مَدَدْتُ but ظَلِلْتُ.
-check(mergedStem('I', 'madi_malum', null, 'mutaharrik') === null
-  && mergedStem('I', 'madi_malum', 'ia', 'mutaharrik') !== mergedStem('I', 'madi_malum', 'au', 'mutaharrik'),
-  'the unfolded muḍāʿaf māḍī is per-bāb again — the vowel that merged came back');
+check(mudaafStemOf(null, 'mudari', 'majhul', '3ms') !== null,
+  'the muḍāʿaf muḍāriʿ majhūl neutralises the bāb, so it needs none');
+check(mudaafStemOf('au', 'mudari', 'malum', '3fp') !== mudaafStemOf('au', 'mudari', 'malum', '3ms'),
+  'nūn al-niswa makes the muḍāriʿ mabnī and opens the lām — a different stem');
 
 // 3. The bāb vocabulary agrees with itself across the three places it appears.
 check(BAB_IDS.length === 6 && BAB_IDS.every((b) => /^[aiu][aiu]$/.test(b)),

@@ -13,47 +13,51 @@ export const MUDAAF_STEMS = {
     // Every mudaaf bāb collapses to the same māḍī shape
     //   au مَدَّ · ai فَرَّ · ia ظَلَّ · uu لَذَّ
     // remember that the endings dont live here, they live in the endings object
-    madi_malum: {
-      // the reason we are splitting the object this way is because the mudaaf verb separates the combined
-      // letters of the root based on what seegahs is being conjugated. so we need a separate pattern for each type.
-      sakin: '1' + F + '2' + SH,
-      mutaharrik: '1' + F + '2' + F + '3'
-    },
-    madi_majhul: {
-      sakin: '1' + D + '2' + SH,
-      mutaharrik: '1' + D + '2' + K + '3'
+    madi: {
+      malum: {
+        // the reason we are splitting the object this way is because the mudaaf verb separates the combined
+        // letters of the root based on what seegahs is being conjugated. so we need a separate pattern for each type.
+        sakin: '1' + F + '2' + SH,
+        mutaharrik: '1' + F + '2' + F + '3'
+      },
+      majhul: {
+        sakin: '1' + D + '2' + SH,
+        mutaharrik: '1' + D + '2' + K + '3'
+      }
     },
     // In the muḍāri, the mudaaf verbs go back to following the abwāb patterns, so that why
     // we need to bring back the per baab distinction.
-    mudari_malum: {
-      au: {
-        murab: '1' + D + '2' + SH,
-        mabni: '1' + S + '2' + D + '3'
+    mudari: {
+      malum: {
+        au: {
+          murab: '1' + D + '2' + SH,
+          mabni: '1' + S + '2' + D + '3'
+        },
+        ai: {
+          murab: '1' + K + '2' + SH,
+          mabni: '1' + S + '2' + K + '3'
+        },
+        aa: {
+          murab: '1' + F + '2' + SH,
+          mabni: '1' + S + '2' + F + '3'
+        },
+        ia: {
+          murab: '1' + F + '2' + SH,
+          mabni: '1' + S + '2' + F + '3'
+        },
+        uu: {
+          murab: '1' + D + '2' + SH,
+          mabni: '1' + S + '2' + D + '3'
+        },
+        ii: {
+          murab: '1' + K + '2' + SH,
+          mabni: '1' + S + '2' + K + '3'
+        },
       },
-      ai: {
-        murab: '1' + K + '2' + SH,
-        mabni: '1' + S + '2' + K + '3'
-      },
-      aa: {
-        murab: '1' + F + '2' + SH,
-        mabni: '1' + S + '2' + F + '3'
-      },
-      ia: {
-        murab: '1' + F + '2' + SH,
-        mabni: '1' + S + '2' + F + '3'
-      },
-      uu: {
-        murab: '1' + D + '2' + SH,
-        mabni: '1' + S + '2' + D + '3'
-      },
-      ii: {
-        murab: '1' + K + '2' + SH,
-        mabni: '1' + S + '2' + K + '3'
-      },
-    },
-    mudari_majhul: {
-      murab: '1' + F + '2' + SH,                  // يُمَدُّ
-      mabni: '1' + S + '2' + F + '3',    // يُمْدَدْنَ
+      majhul: {
+        murab: '1' + F + '2' + SH,                  // يُمَدُّ
+        mabni: '1' + S + '2' + F + '3',    // يُمْدَدْنَ
+      }
     },
 
     // The amr splits on its own axis. It is mabnī throughout, but on the sukūn
@@ -233,8 +237,8 @@ export const MUDAAF_ENDINGS = {
   mudari_jazm: SALIM_ENDINGS.mudari_nasb, // mudaaf verbs do not take sukun on the 4 seegahs that usually take a jazm which makes the majzum table identical to the mansub table
 
   amr: {
-    '2ms': A(S, ''),            '2md': A(F, 'ا'),                '2mp': A(D, 'وا'),
-    '2fs': A(K, 'ي'),           '2fd': A(F, 'ا'),                '2fp': A(S, 'ن' + F),
+    '2ms': A(S, ''), '2md': A(F, 'ا'), '2mp': A(D, 'وا'),
+    '2fs': A(K, 'ي'), '2fd': A(F, 'ا'), '2fp': A(S, 'ن' + F),
   },
 };
 
