@@ -71,11 +71,10 @@ export const enginedGroups = () => Object.keys(ENGINES);
  * or muḍāʿaf tables happen to hold a pattern for this combination is the
  * engine's own business, and it answers null.
  */
-function wordExists(spec) {
+function chartExists(spec) {
   const usage = spec.root.forms[spec.formId];
   if (!usage) return false;
   if (!isValidShape(spec)) return false;
-  if (!slotsFor(spec.tense).includes(spec.slot)) return false;
 
   const meta = FORM_META[spec.formId];
   if (!meta?.conjugable) return false;
@@ -83,6 +82,10 @@ function wordExists(spec) {
 
   return true;
 }
+
+/** The same, for one word: everything above, plus a slot that tense conjugates. */
+const wordExists = (spec) =>
+  chartExists(spec) && slotsFor(spec.tense).includes(spec.slot);
 
 /**
  * Can this (root, form) actually produce words? Being present in the lexicon is
@@ -139,10 +142,21 @@ export function conjugate(spec) {
  * checks (14 rows for a full chart, 6 for the amr).
  */
 export function fullTable(spec) {
+  if (!chartExists(spec)) return null;
+
+  const engine = engineFor(spec.root);
+  if (engine) {
+    // One call, not one per row: an engine builds a chart in its own shape,
+    // resolving each stem once rather than fourteen times.
+    const table = engine.conjugateTable(spec);
+    return table && Object.keys(table).length ? table : null;
+  }
+
+  const fixture = spec.root.forms[spec.formId].manualTables?.[chartKey(spec)];
+  if (!fixture) return null;
   const out = {};
-  for (const slotSpec of slotSpecsOf(spec)) {
-    const word = conjugate(slotSpec);
-    if (word) out[slotSpec.slot] = word;
+  for (const { slot } of slotSpecsOf(spec)) {
+    if (fixture[slot]) out[slot] = norm(fixture[slot]);
   }
   return Object.keys(out).length ? out : null;
 }

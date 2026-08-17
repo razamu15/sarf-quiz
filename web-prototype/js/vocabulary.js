@@ -56,8 +56,11 @@ export function slotsFor(tense) {
 //           تُ، تَ، نَا، نَ are; ا، وا، تْ are not. مَدَدْتُ vs مَدَّا.
 //   mudari  murab | mabni — nūn al-niswa makes the muḍāriʿ mabnī; everything
 //           else is muʿrab. يَمْدُدْنَ vs يَمُدُّ.
-//   amr     sukun | hadhfNun — the amr is always mabnī, but on the sukūn for
-//           2ms/2fp and on ḥadhf al-nūn for the rest. اُمْدُدْ vs مُدُّوا.
+//
+// There is no amr row, and there should never be one: the amr IS the majzūm
+// muḍāriʿ with its prefix removed, so it is classified as a muḍāriʿ like any
+// other majzūm word. اُمْدُدْنَ unfolds for the same reason تَمْدُدْنَ does — nūn
+// al-niswa — not for a reason of its own.
 //
 // A verb type's stem tables key their variants by these names, so the table
 // and this classification are read against each other directly.
@@ -77,14 +80,23 @@ export const SEEGAH_TYPES = {
     '2fs': 'murab',       '2fd': 'murab',       '2fp': 'mabni',
     '1s': 'murab',        '1p': 'murab',
   },
-  amr: {
-    '2ms': 'sukun',       '2md': 'hadhfNun',    '2mp': 'hadhfNun',
-    '2fs': 'hadhfNun',    '2fd': 'hadhfNun',    '2fp': 'sukun',
-  },
 };
 
+/**
+ * The tense whose GRAMMAR a word is built from — the amr's is the muḍāriʿ.
+ *
+ * لَام الأَمْر is a ḥarf jazm: لِيَكْتُبْ is a majzūm muḍāriʿ, and the 2nd-person
+ * amr اُكْتُبْ is that same word with the lām and the prefix dropped. So every
+ * table an engine consults for the amr — stems, endings, ṣīghah categories —
+ * is a muḍāriʿ table. The amr stays a separate TENSE everywhere else in the
+ * app (its own chart, its own six slots, its own label); it just has no
+ * grammar of its own to look up.
+ */
+export const grammarTense = (tense) => (tense === 'amr' ? 'mudari' : tense);
+
 /** The ṣīghah category of a slot in a tense — the key a stem table varies on. */
-export const seegahType = (tense, slot) => SEEGAH_TYPES[tense]?.[slot] ?? null;
+export const seegahType = (tense, slot) =>
+  SEEGAH_TYPES[grammarTense(tense)]?.[slot] ?? null;
 
 // slots where the three muḍāriʿ moods are visually distinct on the word
 // (duals/plurals conflate naṣb and jazm; nūn al-niswa never changes)

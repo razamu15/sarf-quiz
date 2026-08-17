@@ -59,24 +59,6 @@ export const MUDAAF_STEMS = {
         mabni: '1' + S + '2' + F + '3',    // يُمْدَدْنَ
       }
     },
-
-    // The amr splits on its own axis. It is mabnī throughout, but on the sukūn
-    // for 2ms/2fp and on ḥadhf al-nūn for the other four — and only the sukūn
-    // pair forces the lām open. So مُدَّا · مُدُّوا · مُدِّي keep the merge and
-    // need no prosthetic alif (the fāʾ carries a vowel), while اُمْدُدْ ·
-    // اُمْدُدْنَ unfold and the alif comes back to support the opening sukūn.
-    // That is the sound amr exactly, per bāb.
-    amr: {
-      hadhfNun: {
-        au: '1' + D + '2' + SH,
-        ai: '1' + K + '2' + SH,
-        aa: '1' + F + '2' + SH,
-        ia: '1' + F + '2' + SH,
-        uu: '1' + D + '2' + SH,
-        ii: '1' + K + '2' + SH,
-      },
-      sukun: SALIM_VERB_STEMS.I.amr,
-    },
   },
 
   // Forms II and V put their own shadda on the ʿayn (مَدَّدَ، تَمَدَّدَ), which
@@ -110,10 +92,6 @@ export const MUDAAF_STEMS = {
       murab: '1' + F + 'ا' + '2' + SH,
       mabni: SALIM_VERB_STEMS.III.mudari_majhul,
     },
-    amr: {
-      hadhfNun: '1' + F + 'ا' + '2' + SH,                 // مَادَّا
-      sukun: SALIM_VERB_STEMS.III.amr,                    // مَادِدْ
-    },
   },
 
   IV: {
@@ -132,10 +110,6 @@ export const MUDAAF_STEMS = {
     mudari_majhul: {
       murab: '1' + F + '2' + SH,                          // يُمَدُّ
       mabni: SALIM_VERB_STEMS.IV.mudari_majhul,
-    },
-    amr: {
-      hadhfNun: 'أ' + F + '1' + K + '2' + SH,             // أَحِبُّوا
-      sukun: SALIM_VERB_STEMS.IV.amr,                     // أَحْبِبْ
     },
   },
 
@@ -156,10 +130,6 @@ export const MUDAAF_STEMS = {
       murab: 'ت' + F + '1' + F + 'ا' + '2' + SH,
       mabni: SALIM_VERB_STEMS.VI.mudari_majhul,
     },
-    amr: {
-      hadhfNun: 'ت' + F + '1' + F + 'ا' + '2' + SH,       // تَمَادَّا
-      sukun: SALIM_VERB_STEMS.VI.amr,                     // تَمَادَدْ
-    },
   },
 
   VII: {
@@ -173,10 +143,6 @@ export const MUDAAF_STEMS = {
       mabni: SALIM_VERB_STEMS.VII.mudari_malum,
     },
     mudari_majhul: null,
-    amr: {
-      hadhfNun: 'ا' + K + 'ن' + S + '1' + F + '2' + SH,   // اِنْمَدَّا
-      sukun: SALIM_VERB_STEMS.VII.amr,                    // اِنْمَدِدْ
-    },
   },
 
   VIII: {
@@ -195,10 +161,6 @@ export const MUDAAF_STEMS = {
     mudari_majhul: {
       murab: '1' + S + 'ت' + F + '2' + SH,                // يُمْتَدُّ
       mabni: SALIM_VERB_STEMS.VIII.mudari_majhul,
-    },
-    amr: {
-      hadhfNun: 'ا' + K + '1' + S + 'ت' + F + '2' + SH,   // اِمْتَدَّا
-      sukun: SALIM_VERB_STEMS.VIII.amr,                   // اِمْتَدِدْ
     },
   },
 
@@ -219,10 +181,6 @@ export const MUDAAF_STEMS = {
       murab: 'س' + S + 'ت' + F + '1' + F + '2' + SH,             // يُسْتَمَدُّ
       mabni: SALIM_VERB_STEMS.X.mudari_majhul,
     },
-    amr: {
-      hadhfNun: 'ا' + K + 'س' + S + 'ت' + F + '1' + K + '2' + SH, // اِسْتَمِدَّا
-      sukun: SALIM_VERB_STEMS.X.amr,                              // اِسْتَمْدِدْ
-    },
   },
 };
 
@@ -235,11 +193,6 @@ export const MUDAAF_ENDINGS = {
   mudari_nasb: SALIM_ENDINGS.mudari_nasb,  // mudaaf mudari endings are the same as salim endings
 
   mudari_jazm: SALIM_ENDINGS.mudari_nasb, // mudaaf verbs do not take sukun on the 4 seegahs that usually take a jazm which makes the majzum table identical to the mansub table
-
-  amr: {
-    '2ms': A(S, ''), '2md': A(F, 'ا'), '2mp': A(D, 'وا'),
-    '2fs': A(K, 'ي'), '2fd': A(F, 'ا'), '2fp': A(S, 'ن' + F),
-  },
 };
 
 // ---------------------------------------------------------------------------

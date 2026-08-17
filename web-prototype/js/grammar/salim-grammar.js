@@ -8,7 +8,9 @@ import { A } from './shared-grammar.js';
 // Templates use 1/2/3 as radical placeholders and omit the final radical's ḥaraka,
 // the endings object supplies it.
 // There is one stem per chart family. because the word pattern (not the endings) only changes per the 
-// the chart keys in this object. ie madi_malum, madi_majhul, mudari_malum, mudari_majhul, amr. 
+// the chart keys in this object. ie madi_malum, madi_majhul, mudari_malum, mudari_majhul.
+// there is no amr stem: the amr IS the majzūm muḍāriʿ without its prefix, so it reads
+// mudari_malum like every other muḍāriʿ chart does. see the conjugators.
 // note that other things like marfu, mansuub, majzuum do not effect the verb's pattern, only endings,
 // so that why that is not here. 
 export const SALIM_VERB_STEMS = {
@@ -33,63 +35,48 @@ export const SALIM_VERB_STEMS = {
       ii: '1' + S + '2' + K + '3',
     },
     mudari_majhul: '1' + S + '2' + F + '3',
-    amr: {
-      au: 'ا' + D + '1' + S + '2' + D + '3',
-      ai: 'ا' + K + '1' + S + '2' + K + '3',
-      aa: 'ا' + K + '1' + S + '2' + F + '3',
-      ia: 'ا' + K + '1' + S + '2' + F + '3',
-      uu: 'ا' + D + '1' + S + '2' + D + '3',
-      ii: 'ا' + K + '1' + S + '2' + K + '3',
-    },
   },
   II: {
     madi_malum: '1' + F + '2' + SH + F + '3',
     madi_majhul: '1' + D + '2' + SH + K + '3',
     mudari_malum: '1' + F + '2' + SH + K + '3',
     mudari_majhul: '1' + F + '2' + SH + F + '3',
-    amr: '1' + F + '2' + SH + K + '3',
   },
   III: {
     madi_malum: '1' + F + 'ا' + '2' + F + '3',
     madi_majhul: '1' + D + 'و' + '2' + K + '3',
     mudari_malum: '1' + F + 'ا' + '2' + K + '3',
     mudari_majhul: '1' + F + 'ا' + '2' + F + '3',
-    amr: '1' + F + 'ا' + '2' + K + '3',
   },
   IV: {
     madi_malum: 'أ' + F + '1' + S + '2' + F + '3',
     madi_majhul: 'أ' + D + '1' + S + '2' + K + '3',
     mudari_malum: '1' + S + '2' + K + '3',
     mudari_majhul: '1' + S + '2' + F + '3',
-    amr: 'أ' + F + '1' + S + '2' + K + '3',
   },
   V: {
     madi_malum: 'ت' + F + '1' + F + '2' + SH + F + '3',
     madi_majhul: 'ت' + D + '1' + D + '2' + SH + K + '3',
     mudari_malum: 'ت' + F + '1' + F + '2' + SH + F + '3',
     mudari_majhul: 'ت' + F + '1' + F + '2' + SH + F + '3',
-    amr: 'ت' + F + '1' + F + '2' + SH + F + '3',
   },
   VI: {
     madi_malum: 'ت' + F + '1' + F + 'ا' + '2' + F + '3',
     madi_majhul: 'ت' + D + '1' + D + 'و' + '2' + K + '3',
     mudari_malum: 'ت' + F + '1' + F + 'ا' + '2' + F + '3',
     mudari_majhul: 'ت' + F + '1' + F + 'ا' + '2' + F + '3',
-    amr: 'ت' + F + '1' + F + 'ا' + '2' + F + '3',
   },
   VII: {
     madi_malum: 'ا' + K + 'ن' + S + '1' + F + '2' + F + '3',
     madi_majhul: null,                       // lāzim — no passive
     mudari_malum: 'ن' + S + '1' + F + '2' + K + '3',
     mudari_majhul: null,
-    amr: 'ا' + K + 'ن' + S + '1' + F + '2' + K + '3',
   },
   VIII: {
     madi_malum: 'ا' + K + '1' + S + 'ت' + F + '2' + F + '3',
     madi_majhul: 'ا' + D + '1' + S + 'ت' + D + '2' + K + '3',
     mudari_malum: '1' + S + 'ت' + F + '2' + K + '3',
     mudari_majhul: '1' + S + 'ت' + F + '2' + F + '3',
-    amr: 'ا' + K + '1' + S + 'ت' + F + '2' + K + '3',
   },
   IX: {
     // recognition-only (shadda unfolding not implemented) — display stems for
@@ -98,14 +85,12 @@ export const SALIM_VERB_STEMS = {
     madi_majhul: null,
     mudari_malum: '1' + S + '2' + F + '3' + SH,
     mudari_majhul: null,
-    amr: null,
   },
   X: {
     madi_malum: 'ا' + K + 'س' + S + 'ت' + F + '1' + S + '2' + F + '3',
     madi_majhul: 'ا' + D + 'س' + S + 'ت' + D + '1' + S + '2' + K + '3',
     mudari_malum: 'س' + S + 'ت' + F + '1' + S + '2' + K + '3',
     mudari_majhul: 'س' + S + 'ت' + F + '1' + S + '2' + F + '3',
-    amr: 'ا' + K + 'س' + S + 'ت' + F + '1' + S + '2' + K + '3',
   },
 };
 
@@ -148,11 +133,6 @@ export const SALIM_ENDINGS = {
     '2ms': A(S, ''),            '2md': A(F, 'ا'),                '2mp': A(D, 'وا'),
     '2fs': A(K, 'ي'),           '2fd': A(F, 'ا'),                '2fp': A(S, 'ن' + F),
     '1s':  A(S, ''),            '1p':  A(S, ''),
-  },
-
-  amr: {
-    '2ms': A(S, ''),            '2md': A(F, 'ا'),                '2mp': A(D, 'وا'),
-    '2fs': A(K, 'ي'),           '2fd': A(F, 'ا'),                '2fp': A(S, 'ن' + F),
   },
 };
 

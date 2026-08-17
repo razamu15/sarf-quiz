@@ -38,6 +38,11 @@ export const AjwafConjugator = {
     return null;
   },
 
+  /** @returns {null} — scaffold. A whole chart as {slot: word}. */
+  conjugateTable(_spec) {
+    return null;
+  },
+
   /** @returns {null} — scaffold. */
   derivedNoun(_root, _formId, _nounType) {
     return null;

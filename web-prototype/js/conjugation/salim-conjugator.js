@@ -23,28 +23,44 @@
 
 import { SALIM_VERB_STEMS, SALIM_ENDINGS, DERIVED_NOUN_STEMS } from '../grammar/salim-grammar.js';
 import { PREFIX_LETTERS, MUDARI_PREFIX_HARAKA } from '../grammar/shared-grammar.js';
+import { slotsFor, grammarTense } from '../vocabulary.js';
 import { babOf } from '../word-spec.js';
-import { fill, norm } from './templates.js';
+import { fill, norm, amrOpening } from './templates.js';
+
+/**
+ * Which stem and which ending table a word is built from.
+ *
+ * The amr has neither of its own: it is the majzūm muḍāriʿ maʿlūm with the
+ * prefix dropped, so it reads the muḍāriʿ stem and the majzūm endings, and
+ * differs only in what goes on the front (see amrOpening).
+ */
+const tablesFor = ({ tense, voice, mood }) => ({
+  family: grammarTense(tense) === 'madi' ? `madi_${voice}` : `mudari_${voice}`,
+  endings: SALIM_ENDINGS[
+    tense === 'madi' ? 'madi' : `mudari_${tense === 'amr' ? 'jazm' : mood}`
+  ],
+});
 
 /**
  * The sound stem for (form, chart family, bāb), or null when the table has
  * none. Exported because ConjugationService.citation() needs Form IX's
  * display stems without going through a chart — Form IX has no charts.
  *
- * `family` is one of the five keys SALIM_VERB_STEMS uses: madi_malum,
- * madi_majhul, mudari_malum, mudari_majhul, amr. Mood is absent from that list
- * on purpose — the three muḍāriʿ moods share a stem and differ only in ending.
+ * `family` is one of the four keys SALIM_VERB_STEMS uses: madi_malum,
+ * madi_majhul, mudari_malum, mudari_majhul. Mood is absent from that list on
+ * purpose — the three muḍāriʿ moods share a stem and differ only in ending —
+ * and so is the amr, which is the majzūm muḍāriʿ and reads mudari_malum.
  */
 export function salimStem(formId, family, bab) {
   const stems = SALIM_VERB_STEMS[formId];
   if (!stems) return null;
 
-  // Only Form I has abwāb, and only these three families expose the ʿayn vowel
-  // that IS the bāb: نَصَرَ vs سَمِعَ, يَنْصُرُ vs يَسْمَعُ, اُنْصُرْ vs اِسْمَعْ.
-  // Those three entries are tables keyed by bāb; every other entry in the file
-  // is already the template.
+  // Only Form I has abwāb, and only these two families expose the ʿayn vowel
+  // that IS the bāb: نَصَرَ vs سَمِعَ, يَنْصُرُ vs يَسْمَعُ. Both are tables keyed
+  // by bāb; every other entry in the file is already the template. (The amr
+  // inherits the distinction through mudari_malum — اُنْصُرْ vs اِسْمَعْ.)
   const perBab = formId === 'I'
-    && (family === 'madi_malum' || family === 'mudari_malum' || family === 'amr');
+    && (family === 'madi_malum' || family === 'mudari_malum');
 
   if (!perBab) return stems[family] ?? null;
 
@@ -66,25 +82,57 @@ export const SalimConjugator = {
    * type the sound one and why this function has no ṣīghah branch at all.
    */
   conjugate(spec) {
-    const { formId, tense, voice, mood, slot } = spec;
+    const { formId, tense, voice, slot } = spec;
+    const bab = babOf(spec);
 
-    const family = tense === 'amr' ? 'amr' : `${tense}_${voice}`;
-    const stem = salimStem(formId, family, babOf(spec));
-    if (!stem) return null;
+    const { family, endings } = tablesFor(spec);
+    const stem = salimStem(formId, family, bab);
+    const affix = endings?.[slot];
+    if (!stem || !affix) return null;
 
-    // The endings ignore voice entirely — كَتَبَ and كُتِبَ take the same row —
-    // so only tense and mood pick one.
-    const affix = SALIM_ENDINGS[tense === 'mudari' ? `mudari_${mood}` : tense]?.[slot];
-    if (!affix) return null;
-
-    let word = fill(stem, spec.root.root) + affix.h + affix.s;
+    const body = fill(stem, spec.root.root) + affix.h + affix.s;
 
     // The muḍāriʿ prefixes: the letter is a fact about the pronoun, the ḥaraka
-    // a fact about the form and voice.
+    // a fact about the form and voice. The amr drops that prefix and props a
+    // hamza in its place when the stem is left opening on a sukūn.
     if (tense === 'mudari') {
-      word = PREFIX_LETTERS[slot] + MUDARI_PREFIX_HARAKA[formId][voice] + word;
+      return norm(PREFIX_LETTERS[slot] + MUDARI_PREFIX_HARAKA[formId][voice] + body);
     }
-    return norm(word);
+    if (tense === 'amr') return norm(amrOpening(formId, stem, bab) + body);
+    return norm(body);
+  },
+
+  /**
+   * A whole chart at once: every slot of the (form, tense, voice, mood) this
+   * spec names, as {slot: word}. The spec's own slot is ignored.
+   *
+   * Built directly rather than by calling conjugate() fourteen times, and the
+   * sound verb makes that worth doing: its stem is the SAME in every ṣīghah,
+   * so the radicals go into the template once and the whole table is that one
+   * body wearing fourteen different endings. Nothing inside the loop depends
+   * on anything but the slot.
+   */
+  conjugateTable(spec) {
+    const { formId, tense, voice } = spec;
+    const bab = babOf(spec);
+
+    const { family, endings } = tablesFor(spec);
+    const stem = salimStem(formId, family, bab);
+    if (!stem || !endings) return null;
+
+    const body = fill(stem, spec.root.root);
+    const opening = tense === 'amr' ? amrOpening(formId, stem, bab) : '';
+
+    const table = {};
+    for (const slot of slotsFor(tense)) {
+      const affix = endings[slot];
+      if (!affix) continue;
+      const front = tense === 'mudari'
+        ? PREFIX_LETTERS[slot] + MUDARI_PREFIX_HARAKA[formId][voice]
+        : opening;
+      table[slot] = norm(front + body + affix.h + affix.s);
+    }
+    return table;
   },
 
   /** One of DERIVED_NOUN_TYPES. Null when this form has no such noun. */

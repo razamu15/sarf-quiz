@@ -507,9 +507,13 @@ parity(madd, 'I', 'mudari_majhul_raf', {
   '1s': 'أُمَدُّ',    '1p': 'نُمَدُّ',
 }, 'مدّ I muḍāriʿ majhūl rafʿ');
 
-// The amr loses its prosthetic alif wherever the fāʾ picks up a vowel.
+// The amr IS the majzūm muḍāriʿ minus its prefix, so the muḍāʿaf amr follows
+// the muḍāʿaf majzūm: merged with a fatḥa (مُدَّ) rather than unfolded on a
+// sukūn (اُمْدُدْ). Both are classical; this is the reading MUDAAF_ENDINGS
+// commits to. 2fp still unfolds — nūn al-niswa, exactly as in تَمْدُدْنَ — and
+// takes back the hamzat al-waṣl its sākin opening needs.
 parity(madd, 'I', 'amr_malum', {
-  '2ms': 'اُمْدُدْ',  '2md': 'مُدَّا',      '2mp': 'مُدُّوا',
+  '2ms': 'مُدَّ',     '2md': 'مُدَّا',      '2mp': 'مُدُّوا',
   '2fs': 'مُدِّي',    '2fd': 'مُدَّا',      '2fp': 'اُمْدُدْنَ',
 }, 'مدّ I amr');
 
@@ -552,7 +556,7 @@ const mazeedCases = [
   [byRoot('حبب'), 'IV', 'mudari_malum_raf', '3ms', 'يُحِبُّ'],
   [byRoot('حبب'), 'IV', 'mudari_malum_raf', '3fp', 'يُحْبِبْنَ'],
   [byRoot('حبب'), 'IV', 'mudari_majhul_raf', '3ms', 'يُحَبُّ'],
-  [byRoot('حبب'), 'IV', 'amr_malum', '2ms', 'أَحْبِبْ'],
+  [byRoot('حبب'), 'IV', 'amr_malum', '2ms', 'أَحِبَّ'],   // merged, and Form IV keeps its hamzat al-qaṭʿ
   [byRoot('حبب'), 'IV', 'amr_malum', '2mp', 'أَحِبُّوا'],
 ];
 for (const [root, formId, chart, slot, want] of mazeedCases) {
