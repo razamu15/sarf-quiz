@@ -42,6 +42,23 @@ export const SLOTS = [
   '1s', '1p',
 ];
 
+export const SEEGAH_TYPES = {
+  '3ms': 'sakin',
+  '3md': 'sakin',
+  '3mp': 'sakin',
+  '3fs': 'sakin',
+  '3fd': 'sakin',
+  '3fp': 'mutaharrik',
+  '2ms': 'mutaharrik',
+  '2md': 'mutaharrik',
+  '2mp': 'mutaharrik',
+  '2fs': 'mutaharrik',
+  '2fd': 'mutaharrik',
+  '2fp': 'mutaharrik',
+  '1s': 'mutaharrik',
+  '1p': 'mutaharrik',
+};
+
 // amr exists only for the 2nd person
 export const AMR_SLOTS = ['2ms', '2md', '2mp', '2fs', '2fd', '2fp'];
 

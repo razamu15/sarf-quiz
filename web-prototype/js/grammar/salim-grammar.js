@@ -1,41 +1,16 @@
-// The sālim stems — every pattern written out explicitly, exactly like the
-// paper tables students memorize. This file is data, not logic; the logic that
-// uses it is SalimConjugator (js/conjugation/salim-conjugator.js), and the
-// affixes these stems get wrapped in live in shared-grammar.js because every
-// verb type shares them.
-//
-// Layout per the v2 model (docs/TECHNICAL_PLAN.md §A.3):
-//   VERB_FORM_STEMS     per form: one stem per chart family (mood never changes
-//             the stem). Form I stems are per-bāb, written out for all six.
-//   DERIVED_NOUN_STEMS  ism fāʿil / ism mafʿūl / maṣdar templates per form.
-//
-// Form-level facts (conjugability, majhūl availability, rhetorical meanings)
-// are in forms.js; they are true of a form no matter which verb type fills it.
-
 import {
   FATHA as F, DAMMA as D, KASRA as K, SUKUN as S, SHADDA as SH,
 } from '../vocabulary.js';
 
 // ---------------------------------------------------------------------------
-// Stems. One per chart family (moods share the stem). Templates use 1/2/3 as
-// radical placeholders and omit the final radical's ḥaraka (the ending row
-// supplies it).
-//
-// Form I varies by bāb — the bāb IS the ʿayn's vowel pair — so its per-bāb
-// charts are written as a table keyed by bāb, all six spelled out. The keys
-// that are NOT per-bāb say so by being a plain template: the majhūl neutralises
-// the ʿayn vowel (فُعِلَ / يُفْعَلُ regardless of bāb), and every mazīd form
-// fixes that vowel in its own pattern. That shape difference is the whole
-// declaration — stemFor() in conjugation/templates.js reads it directly, so
-// there is no second list of "which keys are per-bāb" here to drift out of
-// agreement. That reader serves every verb type's stem table, which is how this
-// file and mudaaf-grammar.js can disagree about which charts are per-bāb
-// without either one saying so.
-//
-// The muḍāriʿ prefix ḥaraka is NOT here either: it is a form-level fact shared
-// by every verb type, so it lives once in shared-grammar.js.
-// ---------------------------------------------------------------------------
-export const VERB_FORM_STEMS = {
+// Stems which are the templates of what endings each letter of a verb takes. 
+// Templates use 1/2/3 as radical placeholders and omit the final radical's ḥaraka,
+// the endings object supplies it.
+// There is one stem per chart family. because the word pattern (not the endings) only changes per the 
+// the chart keys in this object. ie madi_malum, madi_majhul, mudari_malum, mudari_majhul, amr. 
+// note that other things like marfu, mansuub, majzuum do not effect the verb's pattern, only endings,
+// so that why that is not here. 
+export const SALIM_VERB_STEMS = {
   I: {
     // Read each bāb key against its stem: `ia` must show kasra on the ʿayn in
     // the māḍī and fatḥa in the muḍāriʿ, and it does.
@@ -132,6 +107,56 @@ export const VERB_FORM_STEMS = {
     amr: 'ا' + K + 'س' + S + 'ت' + F + '1' + S + '2' + K + '3',
   },
 };
+
+// these are the endings for the verb charts, which are used to fill in the final radical's ḥaraka and any suffixes.
+// this is the base forms of the endings that exist in the salim file. but because we relate all of our sarf learning
+// to how the endings change in comparision to the salim endings, we will be importing these endings into the
+// conjugators of other verb types so we can reuse them when we need to and the other verb types will have their 
+// own endings that are different when they need them.
+export const SALIM_ENDINGS = {
+
+  madi: {
+    '3ms': A(F, ''),            '3md': A(F, 'ا'),                '3mp': A(D, 'وا'),
+    '3fs': A(F, 'ت' + S),       '3fd': A(F, 'ت' + F + 'ا'),      '3fp': A(S, 'ن' + F),
+    '2ms': A(S, 'ت' + F),       '2md': A(S, 'ت' + D + 'م' + F + 'ا'), '2mp': A(S, 'ت' + D + 'م' + S),
+    '2fs': A(S, 'ت' + K),       '2fd': A(S, 'ت' + D + 'م' + F + 'ا'), '2fp': A(S, 'ت' + D + 'ن' + SH + F),
+    '1s':  A(S, 'ت' + D),       '1p':  A(S, 'ن' + F + 'ا'),
+  },
+
+  mudari_raf: {
+    '3ms': A(D, ''),            '3md': A(F, 'ا' + 'ن' + K),      '3mp': A(D, 'و' + 'ن' + F),
+    '3fs': A(D, ''),            '3fd': A(F, 'ا' + 'ن' + K),      '3fp': A(S, 'ن' + F),
+    '2ms': A(D, ''),            '2md': A(F, 'ا' + 'ن' + K),      '2mp': A(D, 'و' + 'ن' + F),
+    '2fs': A(K, 'ي' + 'ن' + F), '2fd': A(F, 'ا' + 'ن' + K),      '2fp': A(S, 'ن' + F),
+    '1s':  A(D, ''),            '1p':  A(D, ''),
+  },
+
+  // you will notice that the endings for the mudari_nasb and mudari_jazm are the same, for all the dual and plural 
+  // seegahs because that is how endings are. only the 4 forms (he, she, I, we) change between nasb and jazm,
+  mudari_nasb: {
+    '3ms': A(F, ''),            '3md': A(F, 'ا'),                '3mp': A(D, 'وا'),
+    '3fs': A(F, ''),            '3fd': A(F, 'ا'),                '3fp': A(S, 'ن' + F),
+    '2ms': A(F, ''),            '2md': A(F, 'ا'),                '2mp': A(D, 'وا'),
+    '2fs': A(K, 'ي'),           '2fd': A(F, 'ا'),                '2fp': A(S, 'ن' + F),
+    '1s':  A(F, ''),            '1p':  A(F, ''),
+  },
+
+  mudari_jazm: {
+    '3ms': A(S, ''),            '3md': A(F, 'ا'),                '3mp': A(D, 'وا'),
+    '3fs': A(S, ''),            '3fd': A(F, 'ا'),                '3fp': A(S, 'ن' + F),
+    '2ms': A(S, ''),            '2md': A(F, 'ا'),                '2mp': A(D, 'وا'),
+    '2fs': A(K, 'ي'),           '2fd': A(F, 'ا'),                '2fp': A(S, 'ن' + F),
+    '1s':  A(S, ''),            '1p':  A(S, ''),
+  },
+
+  amr: {
+    '2ms': A(S, ''),            '2md': A(F, 'ا'),                '2mp': A(D, 'وا'),
+    '2fs': A(K, 'ي'),           '2fd': A(F, 'ا'),                '2fp': A(S, 'ن' + F),
+  },
+};
+
+
+
 
 // ---------------------------------------------------------------------------
 // Derived-noun templates (al-mushtaqqāt), sālim. Each verb type carries its

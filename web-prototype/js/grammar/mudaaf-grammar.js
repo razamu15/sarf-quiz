@@ -1,38 +1,3 @@
-// The muḍāʿaf (doubled-radical) grammar — مَدَّ / مَدَدْتُ، يَمُدُّ / يَمْدُدْنَ.
-//
-// ONE rule governs the whole verb type:
-//
-//   idghām (merged, shadda)  when the lām can carry a ḥaraka
-//   fakk   (unfolded)        when the ending forces a sukūn on the lām
-//
-// And "the ending forces a sukūn on the lām" is not a special case we detect —
-// it is literally the ḥaraka column of the shared ending tables. Every slot
-// whose affix ḥaraka is sukūn unfolds; every other slot merges. That is why
-// this file has no per-slot data: the endings already said it.
-//
-//   3ms  مَدَّ      (affix ḥaraka = fatḥa) → merged
-//   1s   مَدَدْتُ    (affix ḥaraka = sukūn) → unfolded, i.e. exactly sound
-//
-// **The unfolded form of a muḍāʿaf verb is written exactly like a sound
-// verb.** MudaafConjugator therefore delegates those slots to SalimConjugator
-// rather than restating the sound stems here — restating them would be 50
-// literals that could silently drift out of agreement with the sālim file
-// they are meant to equal.
-//
-// What this file does hold: the MERGED stems, written out per form (and per
-// bāb for Form I) so each one is checkable against a printed chart on its own.
-//
-// Merged stems follow from the sound stem by two moves, both visible below:
-//   1. the ʿayn's ḥaraka disappears and ʿayn+lām become one letter + shadda
-//      (مَدَدَ → مَدَّ)
-//   2. if the fāʾ carried sukūn, it takes over the ʿayn's ḥaraka — naql
-//      al-ḥaraka (يَمْدُدُ → يَمُدُّ). When that happens in the amr, the
-//      prosthetic alif that only existed to support the initial sukūn goes
-//      with it (اُمْدُدْ → مُدَّا).
-//
-// Templates use 1/2 as radical placeholders; there is no 3 in a merged stem —
-// the doubled letter is written once and the shadda carries the second.
-
 import { FATHA as F, DAMMA as D, KASRA as K, SUKUN as S, SHADDA as SH } from '../vocabulary.js';
 
 // ---------------------------------------------------------------------------
@@ -45,35 +10,53 @@ import { FATHA as F, DAMMA as D, KASRA as K, SUKUN as S, SHADDA as SH } from '..
 export const IDGHAM_FORMS = new Set(['I', 'III', 'IV', 'VI', 'VII', 'VIII', 'X']);
 
 // ---------------------------------------------------------------------------
-// Merged stems, per form.
-//
-// Form I is per bāb — but in FEWER charts than the sālim verb, and the tables
-// below say which by their shape: a per-bāb chart is a table keyed by bāb, a
-// chart that has stopped distinguishing abwāb is a plain template. Idghām is
-// exactly the loss of the ʿayn's vowel, and the māḍī bāb distinction lived in
-// that vowel, so all six abwāb collapse to مَدَّ in the past; only the muḍāriʿ
-// and amr, where the vowel survives by moving onto the fāʾ, still tell them
-// apart. stemFor() in conjugation/templates.js reads that shape at conjugation
-// time — the same reader the sālim table goes through — so this difference from
-// the sālim tables needs no declaration of its own.
-// ---------------------------------------------------------------------------
-export const MERGED_STEMS = {
+// now the mudaaf stems object looks completely different to the salim stems object, this is by design
+// because the mudaaf verbs have their own arabic rules and logic and so it doesnt make sense to micmic
+// the same structure if if doesnt apply. You can think of this as each conjugator is its own isolated engine
+// that has its own rules and logic, and so the stems are written in a way that makes sense for that verb type.
+// and the conjugation service is the one that connects all of the engines together. see WHY at the bottom of the file.
+export const MUDAAF_STEMS = {
   I: {
-    // Every bāb collapses to the same māḍī shape: the ʿayn's vowel is what
-    // distinguished them, and idghām is exactly the loss of that vowel.
+    // Every mudaaf bāb collapses to the same māḍī shape
     //   au مَدَّ · ai فَرَّ · ia ظَلَّ · uu لَذَّ
-    madi_malum: '1' + F + '2' + SH,
-    madi_majhul: '1' + D + '2' + SH,          // مُدَّ
-
-    // In the muḍāriʿ the fāʾ had sukūn, so it takes the ʿayn's vowel and the
-    // abwāb stay distinct: يَمُدُّ · يَفِرُّ · يَظَلُّ
+    // remember that the endings dont live here, they live in the endings object
+    madi_malum: {
+      // the reason we are splitting the object this way is because the mudaaf verb separates the combined
+      // letters of the root based on what seegahs is being conjugated. so we need a separate pattern for each type.
+      sakin: '1' + F + '2' + SH,
+      mutaharrik: '1' + F + '2' + F + '3'
+    },
+    madi_majhul: {
+      sakin: '1' + D + '2' + SH,
+      mutaharrik: '1' + D + '2' + K + '3'
+    },
+    // In the muḍāri, the mudaaf verbs go back to following the abwāb patterns, so that why
+    // we need to bring back the per baab distinction.
     mudari_malum: {
-      au: '1' + D + '2' + SH,
-      ai: '1' + K + '2' + SH,
-      aa: '1' + F + '2' + SH,
-      ia: '1' + F + '2' + SH,
-      uu: '1' + D + '2' + SH,
-      ii: '1' + K + '2' + SH,
+      au: {
+        murab: '1' + D + '2' + SH,
+        mabni: '1' + S + '2' + D + '3'
+      },
+      ai: {
+        murab: '1' + K + '2' + SH,
+        mabni: '1' + S + '2' + K + '3'
+      },
+      aa: {
+        murab: '1' + F + '2' + SH,
+        mabni: '1' + S + '2' + F + '3'
+      },
+      ia: {
+        murab: '1' + F + '2' + SH,
+        mabni: '1' + S + '2' + F + '3'
+      },
+      uu: {
+        murab: '1' + D + '2' + SH,
+        mabni: '1' + S + '2' + D + '3'
+      },
+      ii: {
+        murab: '1' + K + '2' + SH,
+        mabni: '1' + S + '2' + K + '3'
+      },
     },
     mudari_majhul: '1' + F + '2' + SH,        // يُمَدُّ
 
@@ -138,6 +121,22 @@ export const MERGED_STEMS = {
   },
 };
 
+export const MUDAAF_ENDINGS = {
+
+  madi: SALIM_ENDINGS.madi,  // mudaaf madi endings are the same as salim endings
+
+  mudari_raf: SALIM_ENDINGS.mudari_raf, // mudaaf mudari endings are the same as salim endings  
+
+  mudari_nasb: SALIM_ENDINGS.mudari_nasb,  // mudaaf mudari endings are the same as salim endings
+
+  mudari_jazm: SALIM_ENDINGS.mudari_nasb, // mudaaf verbs do not take sukun on the 4 seegahs that usually take a jazm which makes the majzum table identical to the mansub table
+
+  amr: {
+    '2ms': A(S, ''),            '2md': A(F, 'ا'),                '2mp': A(D, 'وا'),
+    '2fs': A(K, 'ي'),           '2fd': A(F, 'ا'),                '2fp': A(S, 'ن' + F),
+  },
+};
+
 // ---------------------------------------------------------------------------
 // Derived nouns. The same merge applies wherever ʿayn and lām end up
 // adjacent — and conspicuously does NOT where the pattern separates them:
@@ -191,3 +190,25 @@ export const DERIVED_NOUN_STEMS = {
     masdar: 'ا' + K + 'س' + S + 'ت' + K + '1' + S + '2' + F + 'ا' + '3', // اِسْتِمْدَاد
   },
 };
+
+
+/**
+ * WHY
+ * // THERE is ONE rule governs the whole verb type:
+//   idghām (merged, shadda)  when the lām can carry a ḥaraka
+//   fakk   (unfolded)        when the ending forces a sukūn on the lām
+// And "the ending forces a sukūn on the lām" 
+// 
+// the underlying rule for all the gymnastics below is if 
+// the ending haraka is a sukun, then we split out the shadda into separate letters. 
+// now we could have made that as a condition in the conjugation code and not have to deal with defining
+// separate templates but the problem was that we still need to store the templates (stems) for the 
+// mudaaf stuff here, but the template {'1' + F + '2' + SH} does not encode any information about the 3rd radical because 
+// it doesnt have a 3. before the code was calling salim conjugator for those forms if affix.ending == sukun then salimConjugator.conjugate, but the thing is that 
+// 1. the code for that is imperative and contains branching logic in the mudaaf conjugator vs declarative here
+// 2. we can clearly see how the mudaaf is conjugated directly in this file. less jumping around to understand whats going on. 
+// 3. later on we have other types like ajwaf, mithal & naqis that have even more complicated rules for which specific
+//    letter gets dropped based on the BAAB of the verb. in order to encode that very specific complex logic we cannot
+//    create a system that is able to share only verb specific pieces of data like that, so i made the decision to just
+//    treat conjugator as a separate engine and have them all their own complex objects to define patterns and data.
+ */

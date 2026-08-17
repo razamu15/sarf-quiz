@@ -21,8 +21,8 @@
 // routes to them by root.type.
 
 import { CHARTS } from '../vocabulary.js';
-import { VERB_FORM_STEMS, DERIVED_NOUN_STEMS } from '../grammar/salim-grammar.js';
-import { ENDINGS, PREFIX_LETTERS, MUDARI_PREFIX_HARAKA } from '../grammar/shared-grammar.js';
+import { SALIM_VERB_STEMS, SALIM_ENDINGS, DERIVED_NOUN_STEMS } from '../grammar/salim-grammar.js';
+import { PREFIX_LETTERS, MUDARI_PREFIX_HARAKA } from '../grammar/shared-grammar.js';
 import { fill, norm, stemFor, stemKeyFor } from './templates.js';
 
 export const SalimConjugator = {
@@ -35,10 +35,10 @@ export const SalimConjugator = {
    */
   conjugate(root, formId, chartId, slot) {
     const chart = CHARTS[chartId];
-    const stem = stemFor(VERB_FORM_STEMS, formId, stemKeyFor(chart), root.forms[formId].bab);
+    const stem = stemFor(SALIM_VERB_STEMS, formId, stemKeyFor(chart), root.forms[formId].bab);
     if (!stem) return null;
 
-    const affix = ENDINGS[chartId][slot];
+    const affix = SALIM_ENDINGS[chartId][slot];
     let word = fill(stem, root.root) + affix.h + affix.s;
     if (chart.tense === 'mudari') {
       word = PREFIX_LETTERS[slot] + MUDARI_PREFIX_HARAKA[formId][chart.voice] + word;
