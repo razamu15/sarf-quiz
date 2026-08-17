@@ -261,8 +261,8 @@ export const ROOTS = [
   {
     root: ['ظ', 'ل', 'ل'], type: 'mudaaf',
     forms: {
-      // bāb ia — the muḍāriʿ keeps the ʿayn's fatḥa: يَظَلُّ، and the
-      // unfolded past shows the kasra the merge hid: ظَلِلْتُ
+      // bāb ai — the muḍāriʿ keeps the ʿayn's kasra: يَظِلُّ، and the
+      // unfolded past shows the fatḥa the merge hid: ظَلَلْتُ
       I: { bab: 'ai', gloss: 'to remain / keep doing', masdar: 'ظُلُول', trans: false,
            en: { past: 'remained', pres3: 'remains', ing: 'remaining' } },
       II: { gloss: 'to shade / overshadow', trans: true,

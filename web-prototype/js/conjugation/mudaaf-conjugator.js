@@ -1,6 +1,6 @@
 import { MUDAAF_STEMS, MUDAAF_ENDINGS, DERIVED_NOUN_STEMS } from '../grammar/mudaaf-grammar.js';
 import { PREFIX_LETTERS, MUDARI_PREFIX_HARAKA } from '../grammar/shared-grammar.js';
-import { slotsFor, seegahType, grammarTense } from '../vocabulary.js';
+import { slotsFor, SEEGAH_TYPES } from '../vocabulary.js';
 import { babOf } from '../word-spec.js';
 import { fill, norm, amrOpening } from './templates.js';
 
@@ -21,10 +21,15 @@ export function getConjugationData(spec, slot) {
   if (!stemSetByForm) return null;
 
   // amr conjugation is the same as mudari malum — it is the majzum with its
-  // prefix dropped — so it reads the mudari stems AND the mudari seegah split
-  const tense = grammarTense(spec.tense);
-  const tableName = `${tense}_${spec.voice}`;
-  const seegah = seegahType(tense, slot);
+  // prefix dropped — so every table it reads below is a mudari table
+  const tense = spec.tense === "amr" ? "mudari" : spec.tense
+
+  // this is the which we use stem templates within each form
+  let tableName = `${tense}_${spec.voice}`
+
+  // which seegah group this slot falls in, which is what decides whether the
+  // lam merges or unfolds.
+  const seegahType = SEEGAH_TYPES[tense][slot]
 
   let endingSet;
   switch(spec.tense) {
@@ -48,25 +53,21 @@ export function getConjugationData(spec, slot) {
     };
   }
 
-  // form 1 nests the voice one level deeper than the mazeed forms do
-  const stemSet = spec.formId === 'I'
-    ? stemSetByForm[tense]?.[spec.voice]
-    : stemSetByForm[tableName];
-
-  // this is for form 1 mudari maroof, the one place the baab still matters:
-  // idghaam took the ayn's vowel, but in the mudari it survives by moving onto
-  // the faa, so يَمُدُّ and يَفِرُّ and يَظَلُّ stay apart. the madi collapsed all
-  // six into مَدَّ and the majhool neutralises them, so neither asks for a baab.
-  if (spec.formId === 'I' && tense === 'mudari' && spec.voice === 'malum') {
+  // this is for form 1 mudari maroof — and the amr, which reads that same table
+  // — the one place the baab still matters. idghaam took the ayn's vowel, but in
+  // the mudari it survives by moving onto the faa, so يَمُدُّ and يَفِرُّ and
+  // يَظَلُّ stay apart. the madi collapsed all six into مَدَّ and the majhool
+  // neutralises them, so neither of those asks for a baab.
+  if (spec.formId === 'I' && tableName === 'mudari_malum') {
     const bab = babOf(spec);
     return {
-      stem: stemSet?.[bab]?.[seegah] ?? null,
+      stem: stemSetByForm[tableName]?.[bab]?.[seegahType] ?? null,
       endingSet,
     };
   }
   // below is everything else — every one of them keyed by seegah alone
   return {
-    stem: stemSet?.[seegah] ?? null,
+    stem: stemSetByForm[tableName]?.[seegahType] ?? null,
     endingSet,
   };
 }

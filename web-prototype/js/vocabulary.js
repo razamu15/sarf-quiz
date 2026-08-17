@@ -82,21 +82,12 @@ export const SEEGAH_TYPES = {
   },
 };
 
-/**
- * The tense whose GRAMMAR a word is built from — the amr's is the muḍāriʿ.
- *
- * لَام الأَمْر is a ḥarf jazm: لِيَكْتُبْ is a majzūm muḍāriʿ, and the 2nd-person
- * amr اُكْتُبْ is that same word with the lām and the prefix dropped. So every
- * table an engine consults for the amr — stems, endings, ṣīghah categories —
- * is a muḍāriʿ table. The amr stays a separate TENSE everywhere else in the
- * app (its own chart, its own six slots, its own label); it just has no
- * grammar of its own to look up.
- */
-export const grammarTense = (tense) => (tense === 'amr' ? 'mudari' : tense);
-
-/** The ṣīghah category of a slot in a tense — the key a stem table varies on. */
-export const seegahType = (tense, slot) =>
-  SEEGAH_TYPES[grammarTense(tense)]?.[slot] ?? null;
+// There is no amr row above, and there should never be one. لَام الأَمْر is a
+// ḥarf jazm: لِيَكْتُبْ is a majzūm muḍāriʿ, and the 2nd-person amr اُكْتُبْ is
+// that same word with the lām and the prefix dropped. So an engine reading
+// tables for the amr — stems, endings, ṣīghah categories — reads muḍāriʿ ones,
+// and each does that mapping itself in one line. The amr stays a separate TENSE
+// everywhere else in the app: its own chart, its own six slots, its own label.
 
 // slots where the three muḍāriʿ moods are visually distinct on the word
 // (duals/plurals conflate naṣb and jazm; nūn al-niswa never changes)
