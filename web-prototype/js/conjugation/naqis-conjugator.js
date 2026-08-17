@@ -31,7 +31,7 @@ export const NaqisConjugator = {
   handles: 'naqis',
 
   /** @returns {null} — scaffold. */
-  conjugate(_spec) {
+  conjugate(_spec, _slot) {
     return null;
   },
 

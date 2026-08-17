@@ -35,7 +35,7 @@ import { SALIM_ENDINGS } from '../grammar/salim-grammar.js';
 import {
   wordSpec, chartKey, slotSpecsOf, CHART_SHAPES, isValidShape,
 } from '../word-spec.js';
-import { SalimConjugator, salimStem } from './salim-conjugator.js';
+import { SalimConjugator, getConjugationData as salimData } from './salim-conjugator.js';
 import { MudaafConjugator } from './mudaaf-conjugator.js';
 import { fill, norm } from './templates.js';
 
@@ -121,7 +121,7 @@ export function conjugate(spec) {
   if (!wordExists(spec)) return null;
 
   const engine = engineFor(spec.root);
-  if (engine) return engine.conjugate(spec);
+  if (engine) return engine.conjugate(spec, spec.slot);
 
   // No engine for this verb type yet — fall back to the root's hand-authored
   // table. This is the one place a chart still needs a string: the fixtures are
@@ -228,6 +228,7 @@ const waznRoot = (formId, bab) => ({
 export function waznOf(spec, bab) {
   return SalimConjugator.conjugate(
     wordSpec({ ...spec, root: waznRoot(spec.formId, bab) }),
+    spec.slot,
   );
 }
 
@@ -314,12 +315,13 @@ function citationFromStems(root, formId) {
   if (!meta || meta.conjugable) return '';
   if (root.type !== 'salim') return '';
 
-  // The sound engine's own stem reader, because the guard above has just
-  // established that this is a sound root. A form that doesn't conjugate has no
-  // abwāb either, so both entries are plain templates and no bāb is passed —
-  // that is the honest argument here, not a shortcut.
-  const madiStem = salimStem(formId, 'madi_malum', null);
-  const mudariStem = salimStem(formId, 'mudari_malum', null);
+  // The sound engine's own lookup, because the guard above has just established
+  // that this is a sound root. A form that doesn't conjugate has no abwāb
+  // either, so both entries are plain templates and the bāb never comes up.
+  const madi3ms = wordSpec({ root, formId, tense: 'madi', slot: '3ms' });
+  const mudari3ms = wordSpec({ root, formId, tense: 'mudari', slot: '3ms' });
+  const madiStem = salimData(madi3ms)?.stem;
+  const mudariStem = salimData(mudari3ms)?.stem;
   if (!madiStem || !mudariStem) return '';
 
   // Assemble the 3ms word exactly as SalimConjugator would have: stem plus that

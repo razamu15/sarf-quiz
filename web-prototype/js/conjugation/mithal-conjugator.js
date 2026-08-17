@@ -29,7 +29,7 @@ export const MithalConjugator = {
   handles: 'mithal',
 
   /** @returns {null} — scaffold. */
-  conjugate(_spec) {
+  conjugate(_spec, _slot) {
     return null;
   },
 

@@ -1,149 +1,112 @@
-// The muḍāʿaf engine — مَدَّ / مَدَدْتُ، يَمُدُّ / يَمْدُدْنَ.
-//
-// One rule governs the whole verb type: idghām where the lām can carry a
-// ḥaraka, fakk where the ṣīghah forces a sukūn on it. MUDAAF_STEMS holds both
-// templates for every affected form, and mudaafStem() below walks that table
-// branch for branch — read the two side by side and the code should say, in
-// order, exactly what the object says.
-//
-// Same interface as every engine: { handles, conjugate(spec),
-// conjugateTable(spec), derivedNoun(…) }, its own stems, its own endings, and
-// no calls into another engine. Where the muḍāʿaf really is written like a
-// sound verb (Forms II and V, and every unfolded ṣīghah), mudaaf-grammar.js
-// says so by NAMING the sound table — a fact stated in data, not a delegation
-// performed at runtime.
-
 import { MUDAAF_STEMS, MUDAAF_ENDINGS, DERIVED_NOUN_STEMS } from '../grammar/mudaaf-grammar.js';
 import { PREFIX_LETTERS, MUDARI_PREFIX_HARAKA } from '../grammar/shared-grammar.js';
 import { slotsFor, seegahType, grammarTense } from '../vocabulary.js';
-import { babOf, atSlot } from '../word-spec.js';
+import { babOf } from '../word-spec.js';
 import { fill, norm, amrOpening } from './templates.js';
 
-/** Forms whose own shadda sits between ʿayn and lām, so nothing ever merges. */
+/** forms whose own shadda sits between the ayn and the lam, so nothing merges */
 const NEVER_MERGES = new Set(['II', 'V']);
 
 /**
- * The ending table for a word. The amr takes the majzūm's — it IS a majzūm —
- * and the muḍāʿaf's majzūm is the manṣūb row rather than a sukūn, so مُدَّ and
- * لَمْ يَمُدَّ come out of the same line of the table.
+ * get the stem string template and the endings needed for this spec
+ *
+ * this one takes the slot as well as the spec, which the salim version does not
+ * need: the mudaaf stem changes with the seegah. the lam merges when it can
+ * carry a haraka (مَدَّ) and unfolds when the seegah forces a sukoon on it
+ * (مَدَدْتُ), so you cannot pick a stem without knowing which seegah is being
+ * conjugated.
  */
-const endingsFor = ({ tense, mood }) => MUDAAF_ENDINGS[
-  tense === 'madi' ? 'madi' : `mudari_${tense === 'amr' ? 'jazm' : mood}`
-];
+export function getConjugationData(spec, slot) {
+  const stemSetByForm = MUDAAF_STEMS[spec.formId];
+  if (!stemSetByForm) return null;
 
-/**
- * The muḍāʿaf stem for one word, or null when the table has none.
- *
- * The branches follow MUDAAF_STEMS exactly, in its own order, because the
- * table is not shaped like the sound one and is not meant to be: Form I nests
- * by voice and then by ṣīghah (and by bāb in the muḍāriʿ), the mazīd forms key
- * the tense and voice together, and Forms II and V are the sound table itself.
- *
- * The amr asks for muḍāriʿ stems — it is the majzūm muḍāriʿ minus its prefix,
- * so it has no stems of its own and no ṣīghah split of its own either.
- */
-export function mudaafStem(spec) {
-  const { formId, voice, slot } = spec;
+  // amr conjugation is the same as mudari malum — it is the majzum with its
+  // prefix dropped — so it reads the mudari stems AND the mudari seegah split
   const tense = grammarTense(spec.tense);
-  const stems = MUDAAF_STEMS[formId];
-  if (!stems) return null;
+  const tableName = `${tense}_${spec.voice}`;
+  const seegah = seegahType(tense, slot);
 
-  // Forms II and V — مَدَّدَ، تَمَدَّدَ. Their own shadda separates ʿayn from
-  // lām, so nothing is adjacent and nothing merges: the table is the sound one,
-  // flat, with no ṣīghah split to make and no bāb (mazīd forms have none).
-  if (NEVER_MERGES.has(formId)) return stems[`${tense}_${voice}`] ?? null;
-
-  if (tense === 'madi') {
-    // مَدَّ but مَدَدْتُ: a ḍamīr rafʿ mutaḥarrik (تُ، تَ، نَا، نَ) forces the
-    // lām open, anything else keeps the merge. Form I nests the voice one level
-    // deeper than the mazīd forms do, which is the only difference here.
-    const byVoice = formId === 'I' ? stems.madi?.[voice] : stems[`madi_${voice}`];
-    return byVoice?.[seegahType('madi', slot)] ?? null;
+  let endingSet;
+  switch(spec.tense) {
+    case "madi":
+      endingSet = MUDAAF_ENDINGS["madi"];
+      break;
+    case "mudari":
+      endingSet = MUDAAF_ENDINGS[`mudari_${spec.mood}`];
+      break;
+    case "amr":
+      endingSet = MUDAAF_ENDINGS[`mudari_jazm`];
+      break;
   }
 
-  // نون النسوة makes the muḍāriʿ mabnī, and only there does the lām take the
-  // sukūn that opens it: يَمْدُدْنَ against يَمُدُّ everywhere else. The amr
-  // splits on the very same line — اُمْدُدْنَ against مُدُّوا.
-  const bina = seegahType('mudari', slot);
+  // forms II and V never merge, so their table is the salim one: flat, with no
+  // seegah split to make and no baab
+  if (NEVER_MERGES.has(spec.formId)) {
+    return {
+      stem: stemSetByForm[tableName] ?? null,
+      endingSet,
+    };
+  }
 
-  if (formId !== 'I') return stems[`mudari_${voice}`]?.[bina] ?? null;
+  // form 1 nests the voice one level deeper than the mazeed forms do
+  const stemSet = spec.formId === 'I'
+    ? stemSetByForm[tense]?.[spec.voice]
+    : stemSetByForm[tableName];
 
-  if (voice === 'malum') {
-    // Form I maʿlūm only: idghām took the ʿayn's vowel, but in the muḍāriʿ it
-    // survives by moving onto the fāʾ — so the abwāb are told apart again,
-    // يَمُدُّ vs يَفِرُّ vs يَظَلُّ, and the table is keyed by bāb first.
+  // this is for form 1 mudari maroof, the one place the baab still matters:
+  // idghaam took the ayn's vowel, but in the mudari it survives by moving onto
+  // the faa, so يَمُدُّ and يَفِرُّ and يَظَلُّ stay apart. the madi collapsed all
+  // six into مَدَّ and the majhool neutralises them, so neither asks for a baab.
+  if (spec.formId === 'I' && tense === 'mudari' && spec.voice === 'malum') {
     const bab = babOf(spec);
-    if (!bab) return null;              // Form I with no recorded bāb: no word
-    return stems.mudari.malum[bab]?.[bina] ?? null;
+    return {
+      stem: stemSet?.[bab]?.[seegah] ?? null,
+      endingSet,
+    };
   }
-  // The majhūl neutralises that vowel — يُمَدُّ whatever the bāb — so the
-  // majhūl branch skips the bāb step entirely.
-  return stems.mudari.majhul?.[bina] ?? null;
-}
-
-/**
- * What goes in front of the stem: the muḍāriʿ prefix, or — the amr having
- * dropped that prefix — a hamza when the stem is left opening on a sukūn.
- * The māḍī takes nothing.
- */
-function frontFor(spec, slot, stem) {
-  const { formId, tense, voice } = spec;
-  if (tense === 'mudari') return PREFIX_LETTERS[slot] + MUDARI_PREFIX_HARAKA[formId][voice];
-  if (tense === 'amr') return amrOpening(formId, stem, babOf(spec));
-  return '';
+  // below is everything else — every one of them keyed by seegah alone
+  return {
+    stem: stemSet?.[seegah] ?? null,
+    endingSet,
+  };
 }
 
 export const MudaafConjugator = {
   handles: 'mudaaf',
 
-  conjugate(spec) {
-    const stem = mudaafStem(spec);
-    const affix = endingsFor(spec)?.[spec.slot];
+  /**
+   * One word. Null only when the muḍāʿaf tables have no pattern for it — every
+   * other reason a word can't exist was settled by ConjugationService.
+   */
+  conjugate(spec, slot) {
+    const { stem, endingSet } = getConjugationData(spec, slot) ?? {};
+
+    const affix = endingSet?.[slot];
     if (!stem || !affix) return null;
 
-    const body = fill(stem, spec.root.root);
-    return norm(frontFor(spec, spec.slot, stem) + body + affix.h + affix.s);
+    let result = fill(stem, spec.root.root) + affix.h + affix.s;
+
+    // The muḍāriʿ prefixes: the letter is a fact about the pronoun, the ḥaraka
+    // a fact about the form and voice. The amr drops that prefix and props a
+    // hamza in its place when the stem is left opening on a sukūn.
+    if (spec.tense === 'mudari') {
+      result = PREFIX_LETTERS[slot] + MUDARI_PREFIX_HARAKA[spec.formId][spec.voice] + result;
+    }
+    if (spec.tense === 'amr') {
+      result = amrOpening(spec.formId, stem, babOf(spec)) + result;
+    }
+    return norm(result);
   },
 
   /**
    * A whole chart at once: every slot of the (form, tense, voice, mood) this
    * spec names, as {slot: word}. The spec's own slot is ignored.
-   *
-   * Built directly rather than by calling conjugate() fourteen times, and the
-   * shape of the loop is the shape of the verb type. A muḍāʿaf chart is not
-   * fourteen unrelated rows — it is TWO blocks, merged and unfolded, and which
-   * block a row lands in is the only thing the ṣīghah decides. So the slots are
-   * grouped by ṣīghah first: each block resolves and fills its stem once, then
-   * every row in it is that body wearing its own ending.
    */
   conjugateTable(spec) {
-    const endings = endingsFor(spec);
-    if (!endings) return null;
-
-    const slots = slotsFor(spec.tense);
-
-    // A muḍāʿaf chart is not fourteen unrelated rows — it is TWO blocks, merged
-    // and unfolded, and the ṣīghah decides only which block a row lands in. So
-    // resolve and fill one stem per block, which is the whole reason this is
-    // not fourteen calls to conjugate().
-    const blocks = new Map();
-    for (const slot of slots) {
-      const seegah = seegahType(spec.tense, slot);
-      if (blocks.has(seegah)) continue;
-      const stem = mudaafStem(atSlot(spec, slot));
-      blocks.set(seegah, stem && { stem, body: fill(stem, spec.root.root) });
-    }
-
-    // Then lay the rows out in table order — 3rd person, 2nd, 1st — each one
-    // its block's body wearing its own ending.
     const table = {};
-    for (const slot of slots) {
-      const block = blocks.get(seegahType(spec.tense, slot));
-      const affix = endings[slot];
-      if (!block || !affix) continue;
-      table[slot] = norm(
-        frontFor(spec, slot, block.stem) + block.body + affix.h + affix.s,
-      );
+    for (const slot of slotsFor(spec.tense)) {
+      const word = MudaafConjugator.conjugate(spec, slot);
+      if (word) table[slot] = word;
     }
     return table;
   },

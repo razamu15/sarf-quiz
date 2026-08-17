@@ -14,8 +14,8 @@ import {
 } from '../js/vocabulary.js';
 import { wordSpec, chartShape, chartKey, CHART_SHAPES } from '../js/word-spec.js';
 import { MUDARI_PREFIX_HARAKA } from '../js/grammar/shared-grammar.js';
-import { salimStem } from '../js/conjugation/salim-conjugator.js';
-import { mudaafStem } from '../js/conjugation/mudaaf-conjugator.js';
+import { getConjugationData as salimData } from '../js/conjugation/salim-conjugator.js';
+import { getConjugationData as mudaafData } from '../js/conjugation/mudaaf-conjugator.js';
 import { ABWAB_LABELS, VERB_TYPE_INFO } from '../js/glossary.js';
 import { LEXICON, classify, availableTypes, stockedTypes } from '../js/lexicon/lexicon-service.js';
 import {
@@ -264,27 +264,36 @@ check(FORM_IDS.every((f) => {
 //    reader serves every verb type's table — the table is the argument.
 // A muḍāʿaf root carrying whatever bāb the case under test needs — the engine
 // reads the bāb off the root, so varying it means varying the root.
-const maddWith = (bab) => ({
-  type: 'mudaaf', root: ['م', 'د', 'د'],
-  forms: { I: { bab, trans: true, masdar: null } },
+// Both engines answer stem lookups through getConjugationData(spec), and the
+// bāb is read off the root, so varying the bāb means varying the root.
+const rootWith = (type, radicals, bab) => ({
+  type, root: radicals, forms: { I: { bab, trans: true, masdar: null } },
 });
-const mudaafStemOf = (bab, tense, voice, slot) =>
-  mudaafStem(wordSpec({ root: maddWith(bab), formId: 'I', tense, voice, slot }));
+const salimStem = (formId, tense, voice, bab, slot = '3ms') => salimData(
+  wordSpec({ root: rootWith('salim', ['ن', 'ص', 'ر'], bab), formId, tense, voice, slot }),
+)?.stem ?? null;
+const mudaafStemOf = (bab, tense, voice, slot) => mudaafData(
+  wordSpec({ root: rootWith('mudaaf', ['م', 'د', 'د'], bab), formId: 'I', tense, voice, slot }),
+  slot,
+)?.stem ?? null;
 
-check(salimStem('I', 'madi_malum', 'ia') === salimStem('I', 'madi_malum', 'ii'),
+check(salimStem('I', 'madi', 'malum', 'ia') === salimStem('I', 'madi', 'malum', 'ii'),
   'ia and ii share a māḍī stem — both kasra on the ʿayn');
-check(salimStem('I', 'madi_malum', 'uu') !== salimStem('I', 'madi_malum', 'au'),
+check(salimStem('I', 'madi', 'malum', 'uu') !== salimStem('I', 'madi', 'malum', 'au'),
   'uu and au differ in the māḍī — ḍamma vs fatḥa');
-check(salimStem('I', 'mudari_malum', 'au') !== salimStem('I', 'mudari_malum', 'ai'),
+check(salimStem('I', 'mudari', 'malum', 'au') !== salimStem('I', 'mudari', 'malum', 'ai'),
   'au and ai differ in the muḍāriʿ — ḍamma vs kasra');
-check(salimStem('I', 'madi_malum', null) === null,
+check(salimStem('I', 'madi', 'malum', null) === null,
   'Form I without a bāb is refused, not silently defaulted');
-check(salimStem('I', 'madi_majhul', null) !== null,
+check(salimStem('I', 'madi', 'majhul', null) !== null,
   'the Form I majhūl neutralises the bāb, so it needs none');
-check(salimStem('II', 'madi_malum', null) === salimStem('II', 'madi_malum', 'uu'),
+check(salimStem('II', 'madi', 'malum', null) === salimStem('II', 'madi', 'malum', 'uu'),
   'a mazīd form ignores the bāb entirely — passing one changes nothing');
-check(salimStem('IX', 'amr', null) === null, 'Form IX has no amr stem');
-check(salimStem('nonsense', 'madi_malum', 'au') === null, 'an unknown form yields null');
+// The amr has no stems of its own any more — it reads the muḍāriʿ maʿlūm ones,
+// so asking for one is asking for that.
+check(salimStem('X', 'amr', 'malum', null) === salimStem('X', 'mudari', 'malum', null),
+  'the amr reads the muḍāriʿ maʿlūm stem, having none of its own');
+check(salimStem('nonsense', 'madi', 'malum', 'au') === null, 'an unknown form yields null');
 
 // The same reader on the muḍāʿaf table answers DIFFERENTLY for the same
 // (form, chart) — and that disagreement is the reason it reads the shape
@@ -307,7 +316,7 @@ check(BAB_IDS.length === 6 && BAB_IDS.every((b) => /^[aiu][aiu]$/.test(b)),
 check(BAB_IDS.every((b) => ABWAB_LABELS[b]), 'every bāb id has a display label');
 check(Object.keys(ABWAB_LABELS).every((b) => BAB_IDS.includes(b)),
   'no display label names a bāb that does not exist');
-check(BAB_IDS.every((b) => salimStem('I', 'madi_malum', b) && salimStem('I', 'mudari_malum', b)),
+check(BAB_IDS.every((b) => salimStem('I', 'madi', 'malum', b) && salimStem('I', 'mudari', 'malum', b)),
   'every bāb has both a māḍī and a muḍāriʿ Form I stem');
 check(LEXICON.filter((r) => r.forms.I).every((r) => BAB_IDS.includes(r.forms.I.bab)),
   'every Form I root in the lexicon declares a real bāb');
