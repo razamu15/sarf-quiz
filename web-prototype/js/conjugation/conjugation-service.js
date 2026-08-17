@@ -38,10 +38,12 @@ import {
 import { SalimConjugator, getConjugationData as salimData } from './salim-conjugator.js';
 import { MudaafConjugator } from './mudaaf-conjugator.js';
 import { MithalConjugator } from './mithal-conjugator.js';
+import { AjwafConjugator } from './ajwaf-conjugator.js';
 import { fill, norm } from './templates.js';
 
 const ENGINES = Object.fromEntries(
-  [SalimConjugator, MudaafConjugator, MithalConjugator].map((engine) => [engine.handles, engine]),
+  [SalimConjugator, MudaafConjugator, MithalConjugator, AjwafConjugator]
+    .map((engine) => [engine.handles, engine]),
 );
 
 /** The engine for a root, resolved through its display group. */

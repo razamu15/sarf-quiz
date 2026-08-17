@@ -1,50 +1,124 @@
-// SCAFFOLD — not implemented, not registered.
+// The ajwaf engine: the ʿayn is و or ي — قَالَ يَقُولُ، سَارَ يَسِيرُ، خَافَ يَخَافُ.
 //
-// The ajwaf (hollow) engine: the ʿayn is و or ي — قَالَ يَقُولُ، بَاعَ يَبِيعُ،
-// نَامَ يَنَامُ. Nothing here conjugates yet; every method answers null, which is
-// the same answer the service already gives for a verb type with no engine.
-//
-// TO TURN IT ON: fill ajwaf-grammar.js, implement conjugate() below, then add
-// AjwafConjugator to the ENGINES list in conjugation-service.js. Registering it
-// BEFORE it produces words would be a regression, not a no-op: isConjugatable()
-// answers true for any root whose group has an engine, so hollow roots would be
-// offered in quizzes and their hand-authored manualTables (قول serves seven
-// charts today) would stop being consulted.
-//
-// WHAT THIS ENGINE HAS TO ENCODE, and why it cannot borrow the sound tables:
-//
-//   · The weak ʿayn surfaces as a long alif in the māḍī (قَالَ، بَاعَ، نَامَ) but
-//     collapses to a SHORT vowel whenever the ending puts a sukūn on the lām —
-//     and which short vowel depends on the verb: قُلْتُ (ḍamma) vs بِعْتُ
-//     (kasra) vs نِمْتُ. So the same ṣīghah split the muḍāʿaf needs appears
-//     here too, but the variant is not derivable from the sound stem.
-//   · In the muḍāriʿ the weak letter surfaces as its own long vowel — يَقُولُ
-//     keeps wāw as ū, يَبِيعُ keeps yāʾ as ī, يَنَامُ shows alif — which is why
-//     the lexicon splits ajwaf_waw from ajwaf_ya. ONE engine serves both: read
-//     root.root[1] rather than writing two near-identical files.
-//   · The majzūm and the amr shorten that long vowel again: لَمْ يَقُلْ، قُلْ.
-//   · The bāb interacts with all of the above, so the stem tables here will be
-//     keyed by more axes than the sound ones. Shape them for the ajwaf and
-//     branch through them in conjugate() the way MudaafConjugator does.
-//
-// Parity fixtures already exist: قول carries manualTables in the lexicon, which
-// become this engine's test data the day it lands.
+// Form I is authored; the mazīd forms are still empty tables in
+// ajwaf-grammar.js and conjugate to nothing until they are filled.
+
+import { AJWAF_STEMS, AJWAF_ENDINGS, DERIVED_NOUN_STEMS } from '../grammar/ajwaf-grammar.js';
+import { PREFIX_LETTERS, MUDARI_PREFIX_HARAKA } from '../grammar/shared-grammar.js';
+import { slotsFor, SEEGAH_TYPES, SUKUN } from '../vocabulary.js';
+import { babOf } from '../chart-spec.js';
+import { fill, norm, amrOpening } from './templates.js';
+
+/**
+ * get the stem string template and the endings needed for this spec
+ *
+ * this one takes the slot, like the mudaaf version and unlike the salim and
+ * mithal ones: the ajwaf's weak letter sits in the MIDDLE, so whether it
+ * survives depends on what the ending does to the letter after it.
+ */
+export function getConjugationData(spec, slot) {
+  const stemSetByForm = AJWAF_STEMS[spec.formId];
+  if (!stemSetByForm) return null;
+
+  // this is the which we use stem templates within each form
+  // amr conjugation is the same as mudari malum
+  // note the madi majhool table is called `majhul`, not `madi_majhul`
+  let tableName;
+  if (spec.tense === "amr") tableName = `mudari_malum`;
+  else if (spec.tense === "madi" && spec.voice === "majhul") tableName = `majhul`;
+  else tableName = `${spec.tense}_${spec.voice}`;
+
+  let endingSet;
+  switch(spec.tense) {
+    case "madi":
+      endingSet = AJWAF_ENDINGS["madi"];
+      break;
+    case "mudari":
+      endingSet = AJWAF_ENDINGS[`mudari_${spec.mood}`];
+      break;
+    case "amr":
+      endingSet = AJWAF_ENDINGS[`mudari_jazm`];
+      break;
+  }
+
+  // which of the two templates in each table this word takes. the two tenses
+  // draw that line differently:
+  //
+  //   madi    on the damir — قَالَ keeps the alif, قُلْتُ drops it. that is the
+  //           same sakin/mutaharrik split the mudaaf uses
+  //   mudari  on whether the ENDING puts a sukun on the lam, because that is
+  //           iltiqaa us sakinain: يَقُولُ keeps the waw, but يَقُلْنَ and
+  //           لَمْ يَقُلْ and قُلْ all drop it. no single grammatical category
+  //           covers both nun al-niswa and the four majzum seegahs, which is
+  //           why it is read straight off the ending — exactly what the table's
+  //           own key names (with_sukun / wo_sukun) say it is
+  const affix = endingSet?.[slot];
+  const variant = spec.tense === "madi"
+    ? SEEGAH_TYPES.madi[slot]
+    : (affix?.h === SUKUN ? 'with_sukun' : 'wo_sukun');
+
+  // this is for form 1, and maroof cases where things differ by baab
+  if (spec.formId === 'I' && spec.voice === 'malum') {
+    const bab = babOf(spec);
+    return {
+      stem: stemSetByForm[tableName]?.[bab]?.[variant] ?? null,
+      endingSet,
+    };
+  }
+  // below is all the other forms beside form 1 and form 1 majhools — a majhool
+  // is one pattern for every baab, so it has no baab layer to index
+  return {
+    stem: stemSetByForm[tableName]?.[variant] ?? null,
+    endingSet,
+  };
+}
 
 export const AjwafConjugator = {
   handles: 'ajwaf',
 
-  /** @returns {null} — scaffold. */
-  conjugate(_spec, _slot) {
-    return null;
+  /**
+   * One word. Null only when the ajwaf tables have no pattern for it — every
+   * other reason a word can't exist was settled by ConjugationService.
+   */
+  conjugate(spec, slot) {
+    const { stem, endingSet } = getConjugationData(spec, slot) ?? {};
+
+    const affix = endingSet?.[slot];
+    // a form nobody has authored yet sits in the grammar file as an empty {},
+    // so "not a template string" is how an unwritten form says it has no stem
+    if (typeof stem !== 'string' || !affix) return null;
+
+    let result = fill(stem, spec.root.root) + affix.h + affix.s;
+
+    // The muḍāriʿ prefixes: the letter is a fact about the pronoun, the ḥaraka
+    // a fact about the form and voice. The amr drops that prefix and needs no
+    // hamza after it — dropping the weak ʿayn leaves the fāʾ already carrying a
+    // vowel (قُلْ · سِرْ · خَفْ), so the stem never opens on a sukūn.
+    if (spec.tense === 'mudari') {
+      result = PREFIX_LETTERS[slot] + MUDARI_PREFIX_HARAKA[spec.formId][spec.voice] + result;
+    }
+    if (spec.tense === 'amr') {
+      result = amrOpening(spec.formId, stem, babOf(spec)) + result;
+    }
+    return norm(result);
   },
 
-  /** @returns {null} — scaffold. A whole chart as {slot: word}. */
-  conjugateTable(_spec) {
-    return null;
+  /**
+   * A whole chart at once: every slot of the (form, tense, voice, mood) this
+   * spec names, as {slot: word}. The spec's own slot is ignored.
+   */
+  conjugateTable(spec) {
+    const table = {};
+    for (const slot of slotsFor(spec.tense)) {
+      const word = AjwafConjugator.conjugate(spec, slot);
+      if (word) table[slot] = word;
+    }
+    return table;
   },
 
-  /** @returns {null} — scaffold. */
-  derivedNoun(_root, _formId, _nounType) {
-    return null;
+  /** One of DERIVED_NOUN_TYPES. Null when this form has no such noun. */
+  derivedNoun(root, formId, nounType) {
+    const template = DERIVED_NOUN_STEMS[formId]?.[nounType];
+    return template ? norm(fill(template, root.root)) : null;
   },
 };

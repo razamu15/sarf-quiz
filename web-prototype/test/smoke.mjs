@@ -196,7 +196,8 @@ const cases = [
   [conjugate(qala, 'I', 'mudari', 'malum', '3ms', 'jazm'), 'يَقُلْ'],
   [conjugate(byRoot('رمي'), 'I', 'mudari', 'malum', '3ms', 'nasb'), 'يَرْمِيَ'],
   [conjugate(byRoot('رمي'), 'I', 'mudari', 'malum', '3ms', 'jazm'), 'يَرْمِ'],
-  [conjugate(qala, 'I', 'mudari', 'majhul', '3ms', 'jazm'), null], // no table yet
+  [conjugate(qala, 'I', 'mudari', 'majhul', '3ms', 'jazm'), 'يُقَلْ'], // engine reaches
+                                                                      // past the 7 fixture charts
 
   // English meaning rendering
   [verbMeaning(kataba, 'I', 'madi', 'malum', '3ms'), 'he wrote'],
@@ -365,14 +366,12 @@ check(verbTypesInGroup('naqis').join() === 'naqis_waw,naqis_ya', 'nāqiṣ cover
 check(stockedTypes().includes('mithal_waw'), 'mithāl content is in the lexicon');
 check(availableTypes().includes('mithal_waw') && availableTypes().includes('mithal_ya'),
   'mithāl is playable — MithalConjugator landed (Form I; mazīd tables still empty)');
-// ajwaf_ya has neither an engine nor fixtures, so it is still content in waiting
-// — the state mithāl was in until its engine was registered.
-check(stockedTypes().includes('ajwaf_ya') && !availableTypes().includes('ajwaf_ya'),
+// naqis_waw has neither an engine nor fixtures, so it is still content in
+// waiting — the state ajwaf and mithāl were in until their engines landed.
+check(stockedTypes().includes('naqis_waw') && !availableTypes().includes('naqis_waw'),
   'a type with no engine and no fixtures stays out of every quiz');
-check(availableTypes().includes('ajwaf_waw'),
-  'ajwaf wāw is playable through قول\'s manual tables');
-check(!availableTypes().includes('ajwaf_ya'),
-  'ajwaf yāʾ has content but no engine and no manual tables, so it stays out');
+check(availableTypes().includes('ajwaf_waw') && availableTypes().includes('ajwaf_ya'),
+  'ajwaf is playable — AjwafConjugator landed, and it serves both weak letters');
 
 // Tables browser feed: full charts, correct row counts
 check(Object.keys(fullTableChart(kataba, 'I', 'madi_malum')).length === 14, 'full madi table has 14 rows');
@@ -380,7 +379,8 @@ check(Object.keys(fullTableChart(kataba, 'I', 'amr_malum')).length === 6, 'amr t
 check(Object.keys(fullTableChart(qala, 'I', 'mudari_malum_raf')).length === 14, 'fixture table serves all 14 rows');
 check(availableCharts(kataba, 'I').length === 9, 'kataba I has all nine charts');
 check(availableCharts(byRoot('جلس'), 'I').length === 5, 'lāzim root has no majhūl charts');
-check(availableCharts(qala, 'I').length === 7, 'qala serves exactly its 7 fixture charts');
+check(availableCharts(qala, 'I').length === 9,
+  'قول now serves all nine charts — the engine covers the two its fixtures never did');
 
 // Multi-select doer: تَكْتُبُ is both "she" (3fs) and "you m" (2ms)
 {
@@ -927,9 +927,13 @@ check(chartKeysFor({ tenses: ['madi'], voices: ['majhul'], moods: [] }) === 'mad
   check(conjugateChart(byRoot('مدد'), 'I', 'madi_malum', '3ms') === 'مَدَّ',
     'an unsplit type routes through the same group lookup');
 
-  // Adding weak content did not make it playable — no engine, no manual tables.
-  check(conjugateChart(byRoot('نوم'), 'I', 'madi_malum', '3ms') === null,
-    'weak content without an engine conjugates to nothing');
+  // نوم has no manual tables of its own; it is playable purely because the
+  // ajwaf engine landed and reads its bāb off the lexicon.
+  check(conjugateChart(byRoot('نوم'), 'I', 'madi_malum', '3ms') === 'نَامَ',
+    'an engine makes fixture-less weak content playable');
+  // نصر is sound, رمي is nāqiṣ with fixtures, دعو is nāqiṣ with neither.
+  check(conjugateChart(byRoot('دعو'), 'I', 'madi_malum', '3ms') === null,
+    'weak content without an engine still conjugates to nothing');
 }
 
 console.log(`\nTOTAL: ${pass} passed, ${fail} failed`);
