@@ -360,10 +360,15 @@ check(VERB_TYPE_GROUP_IDS.every((g) => VERB_TYPE_INFO[g]),
   'every display group has a label');
 check(verbTypesInGroup('naqis').join() === 'naqis_waw,naqis_ya', 'nāqiṣ covers both weak letters');
 
-// Lexicon content is typed granularly, but only engine-backed types are playable.
+// Lexicon content is typed granularly, and a type becomes playable the moment
+// either an engine or a fixture table can produce words for it.
 check(stockedTypes().includes('mithal_waw'), 'mithāl content is in the lexicon');
-check(!availableTypes().includes('mithal_waw'),
-  'mithāl is NOT playable — its engine does not exist yet');
+check(availableTypes().includes('mithal_waw') && availableTypes().includes('mithal_ya'),
+  'mithāl is playable — MithalConjugator landed (Form I; mazīd tables still empty)');
+// ajwaf_ya has neither an engine nor fixtures, so it is still content in waiting
+// — the state mithāl was in until its engine was registered.
+check(stockedTypes().includes('ajwaf_ya') && !availableTypes().includes('ajwaf_ya'),
+  'a type with no engine and no fixtures stays out of every quiz');
 check(availableTypes().includes('ajwaf_waw'),
   'ajwaf wāw is playable through قول\'s manual tables');
 check(!availableTypes().includes('ajwaf_ya'),
