@@ -53,49 +53,44 @@ export const MITHAL_STEMS = {
     }
   },
 
-  II: {},
-  V: {},
+  // In every mazeed form but VIII the weak faa is just a consonant again — the
+  // form's own prefix gives it something to lean on — so the sound tables ARE
+  // the answer, named here rather than re-typed.
+  II: SALIM_VERB_STEMS.II,     // وَعَّدَ · يُوَعِّدُ
+  III: SALIM_VERB_STEMS.III,   // وَاعَدَ · يُوَاعِدُ
+  V: SALIM_VERB_STEMS.V,       // تَوَعَّدَ
+  VI: SALIM_VERB_STEMS.VI,     // تَوَاعَدَ
+  VII: SALIM_VERB_STEMS.VII,   // اِنْوَعَدَ
 
-  III: {
-    madi_malum: {},
-    madi_majhul: {},
-    mudari_malum: {},
-    mudari_majhul: {},
-  },
-
+  // Form IV is the one place a HARAKA changes the letter rather than the other
+  // way round. Wherever the faa comes straight after a damma it is written as a
+  // waw whatever the root's own letter was — أَيْقَنَ but يُوقِنُ، أُوقِنَ — so
+  // those three templates hardcode the waw and serve mithal_waw and mithal_ya
+  // alike. Only the madi maroof, where the faa follows a fatha, keeps radical 1.
   IV: {
-    madi_malum: {},
-    madi_majhul: {},
-    mudari_malum: {},
-    mudari_majhul: {},
+    madi_malum: 'أ' + F + '1' + S + '2' + F + '3',      // أَوْعَدَ · أَيْقَنَ
+    madi_majhul: 'أ' + D + 'و' + S + '2' + K + '3',     // أُوعِدَ · أُوقِنَ
+    mudari_malum: 'و' + S + '2' + K + '3',              // يُوعِدُ · يُوقِنُ
+    mudari_majhul: 'و' + S + '2' + F + '3',             // يُوعَدُ · يُوقَنُ
   },
 
-  VI: {
-    madi_malum: {},
-    madi_majhul: {},
-    mudari_malum: {},
-    mudari_majhul: {},
-  },
-
-  VII: {
-    madi_malum: {},
-    madi_majhul: null,
-    mudari_malum: {},
-    mudari_majhul: null,
-  },
-
+  // Form VIII assimilates the faa into the taa outright — اِوْتَعَدَ becomes
+  // اِتَّعَدَ — so radical 1 does not appear in these templates at all. A yaa
+  // faa does the same thing: اِيتَسَرَ becomes اِتَّسَرَ.
   VIII: {
-    madi_malum: {},
-    madi_majhul: {},
-    mudari_malum: {},
-    mudari_majhul: {},
+    madi_malum: 'ا' + K + 'ت' + SH + F + '2' + F + '3',   // اِتَّعَدَ
+    madi_majhul: 'ا' + D + 'ت' + SH + D + '2' + K + '3',  // اُتُّعِدَ
+    mudari_malum: 'ت' + SH + F + '2' + K + '3',           // يَتَّعِدُ
+    mudari_majhul: 'ت' + SH + F + '2' + F + '3',          // يُتَّعَدُ
   },
 
+  // Form X keeps the faa as a consonant after سْتَ, but its madi majhool puts a
+  // damma in front of it and so takes the waw, same rule as form IV above.
   X: {
-    madi_malum: {},
-    madi_majhul: {},
-    mudari_malum: {},
-    mudari_majhul: {},
+    madi_malum: 'ا' + K + 'س' + S + 'ت' + F + '1' + S + '2' + F + '3',   // اِسْتَوْعَدَ
+    madi_majhul: 'ا' + D + 'س' + S + 'ت' + D + 'و' + S + '2' + K + '3',  // اُسْتُوعِدَ
+    mudari_malum: 'س' + S + 'ت' + F + '1' + S + '2' + K + '3',           // يَسْتَوْعِدُ
+    mudari_majhul: 'س' + S + 'ت' + F + '1' + S + '2' + F + '3',          // يُسْتَوْعَدُ
   },
 };
 

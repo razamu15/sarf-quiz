@@ -2,7 +2,7 @@ import { MUDAAF_STEMS, MUDAAF_ENDINGS, DERIVED_NOUN_STEMS } from '../grammar/mud
 import { PREFIX_LETTERS, MUDARI_PREFIX_HARAKA } from '../grammar/shared-grammar.js';
 import { slotsFor, SEEGAH_TYPES } from '../vocabulary.js';
 import { babOf } from '../chart-spec.js';
-import { fill, norm, amrOpening } from './templates.js';
+import { fill, norm, joinEnding, amrOpening } from './templates.js';
 
 /** forms whose own shadda sits between the ayn and the lam, so nothing merges */
 const NEVER_MERGES = new Set(['II', 'V']);
@@ -85,7 +85,7 @@ export const MudaafConjugator = {
     const affix = endingSet?.[slot];
     if (!stem || !affix) return null;
 
-    let result = fill(stem, spec.root.root) + affix.h + affix.s;
+    let result = joinEnding(fill(stem, spec.root.root), affix);
 
     // The muḍāriʿ prefixes: the letter is a fact about the pronoun, the ḥaraka
     // a fact about the form and voice. The amr drops that prefix and props a

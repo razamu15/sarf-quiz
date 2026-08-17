@@ -12,7 +12,41 @@
 // 1 and 2 (the shadda carries the doubled letter), which needs no special
 // handling here — there is simply no 3 to replace.
 
-import { FATHA, DAMMA, KASRA, SUKUN } from '../vocabulary.js';
+import { FATHA, DAMMA, KASRA, SUKUN, SHADDA } from '../vocabulary.js';
+
+/**
+ * Join a filled stem to its ending, merging the two letters where Arabic
+ * merges them.
+ *
+ * A stem whose last letter is sākin, followed by an ending that BEGINS with
+ * that same letter, does not write the letter twice. The pair becomes one
+ * letter carrying a shadda:
+ *
+ *   مُتْ  + تُ   →  مُتُّ    not مُتْتُ     (lām is ت, the ending starts with ت)
+ *   يَقِنْ + نَ   →  يَقِنَّ   not يَقِنْنَ    (lām is ن, nūn al-niswa starts with ن)
+ *
+ * This is idghām arriving from the other side: the muḍāʿaf merges two letters
+ * that are both in the root, and here it is the ENDING that supplies the second
+ * one. Which means it is not one verb type's business — any root whose last
+ * letter happens to match its suffix hits it, sound or weak.
+ *
+ * Everything else concatenates plainly: كَتَبْتُ keeps both its bāʾ and its tāʾ
+ * because they are different letters.
+ */
+export function joinEnding(stem, affix) {
+  // only a sākin lām can merge — a vowelled one keeps the letters apart
+  if (affix.h !== SUKUN) {
+    return stem + affix.h + affix.s;
+  }
+  // and only when the ending opens with the very letter the stem closed on
+  const lastLetter = stem[stem.length - 1];
+  if (lastLetter !== affix.s[0]) {
+    return stem + affix.h + affix.s;
+  }
+  // the sukūn and the repeated letter both go: a shadda stands for the pair,
+  // and the ending carries on from its second character
+  return stem + SHADDA + affix.s.slice(1);
+}
 
 /**
  * What an amr word opens with, given the stem it is built on. '' when it needs

@@ -7,7 +7,7 @@ import { MITHAL_STEMS, MITHAL_ENDINGS, DERIVED_NOUN_STEMS } from '../grammar/mit
 import { PREFIX_LETTERS, MUDARI_PREFIX_HARAKA } from '../grammar/shared-grammar.js';
 import { slotsFor } from '../vocabulary.js';
 import { babOf } from '../chart-spec.js';
-import { fill, norm, amrOpening } from './templates.js';
+import { fill, norm, joinEnding, amrOpening } from './templates.js';
 
 /**
  * get the stem string template and the endings needed for this spec
@@ -77,7 +77,7 @@ export const MithalConjugator = {
     // so "not a template string" is how an unwritten form says it has no stem
     if (typeof stem !== 'string' || !affix) return null;
 
-    let result = fill(stem, spec.root.root) + affix.h + affix.s;
+    let result = joinEnding(fill(stem, spec.root.root), affix);
 
     // The muḍāriʿ prefixes: the letter is a fact about the pronoun, the ḥaraka
     // a fact about the form and voice. The amr drops that prefix and props a

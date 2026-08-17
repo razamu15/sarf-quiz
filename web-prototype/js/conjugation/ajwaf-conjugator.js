@@ -7,7 +7,10 @@ import { AJWAF_STEMS, AJWAF_ENDINGS, DERIVED_NOUN_STEMS } from '../grammar/ajwaf
 import { PREFIX_LETTERS, MUDARI_PREFIX_HARAKA } from '../grammar/shared-grammar.js';
 import { slotsFor, SEEGAH_TYPES, SUKUN } from '../vocabulary.js';
 import { babOf } from '../chart-spec.js';
-import { fill, norm, amrOpening } from './templates.js';
+import { fill, norm, joinEnding, amrOpening } from './templates.js';
+
+/** forms where the ayn is doubled or propped by an alif, so nothing contracts */
+const SOUND_FORMS = new Set(['II', 'III', 'V', 'VI']);
 
 /**
  * get the stem string template and the endings needed for this spec
@@ -22,11 +25,7 @@ export function getConjugationData(spec, slot) {
 
   // this is the which we use stem templates within each form
   // amr conjugation is the same as mudari malum
-  // note the madi majhool table is called `majhul`, not `madi_majhul`
-  let tableName;
-  if (spec.tense === "amr") tableName = `mudari_malum`;
-  else if (spec.tense === "madi" && spec.voice === "majhul") tableName = `majhul`;
-  else tableName = `${spec.tense}_${spec.voice}`;
+  let tableName = spec.tense === "amr" ? `mudari_malum` : `${spec.tense}_${spec.voice}`
 
   let endingSet;
   switch(spec.tense) {
@@ -41,6 +40,15 @@ export function getConjugationData(spec, slot) {
       break;
   }
 
+  // forms II, III, V and VI never contract — the ayn is a real consonant there
+  // — so their table is the salim one: flat, with no variant to pick and no baab
+  if (SOUND_FORMS.has(spec.formId)) {
+    return {
+      stem: stemSetByForm[tableName] ?? null,
+      endingSet,
+    };
+  }
+
   // which of the two templates in each table this word takes. the two tenses
   // draw that line differently:
   //
@@ -53,9 +61,14 @@ export function getConjugationData(spec, slot) {
   //           why it is read straight off the ending — exactly what the table's
   //           own key names (with_sukun / wo_sukun) say it is
   const affix = endingSet?.[slot];
-  const variant = spec.tense === "madi"
-    ? SEEGAH_TYPES.madi[slot]
-    : (affix?.h === SUKUN ? 'with_sukun' : 'wo_sukun');
+  let variant;
+  if (spec.tense === "madi") {
+    variant = SEEGAH_TYPES.madi[slot];
+  } else if (affix?.h === SUKUN) {
+    variant = 'with_sukun';
+  } else {
+    variant = 'wo_sukun';
+  }
 
   // this is for form 1, and maroof cases where things differ by baab
   if (spec.formId === 'I' && spec.voice === 'malum') {
@@ -88,7 +101,7 @@ export const AjwafConjugator = {
     // so "not a template string" is how an unwritten form says it has no stem
     if (typeof stem !== 'string' || !affix) return null;
 
-    let result = fill(stem, spec.root.root) + affix.h + affix.s;
+    let result = joinEnding(fill(stem, spec.root.root), affix);
 
     // The muḍāriʿ prefixes: the letter is a fact about the pronoun, the ḥaraka
     // a fact about the form and voice. The amr drops that prefix and needs no

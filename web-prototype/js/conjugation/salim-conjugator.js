@@ -2,7 +2,7 @@ import { SALIM_VERB_STEMS, SALIM_ENDINGS, DERIVED_NOUN_STEMS } from '../grammar/
 import { PREFIX_LETTERS, MUDARI_PREFIX_HARAKA } from '../grammar/shared-grammar.js';
 import { slotsFor } from '../vocabulary.js';
 import { babOf } from '../chart-spec.js';
-import { fill, norm, amrOpening } from './templates.js';
+import { fill, norm, joinEnding, amrOpening } from './templates.js';
 
 /**
  * get the stem string template and the endings needed for this spec
@@ -56,7 +56,7 @@ export const SalimConjugator = {
     if (!stem || !affix) return null;
 
     // TODO we want to change the root objects.root to .radicals later
-    let result = fill(stem, spec.root.root) + affix.h + affix.s;
+    let result = joinEnding(fill(stem, spec.root.root), affix);
 
     // The muḍāriʿ prefixes: the letter is a fact about the pronoun, the ḥaraka
     // a fact about the form and voice. The amr drops that prefix and props a
