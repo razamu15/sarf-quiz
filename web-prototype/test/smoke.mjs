@@ -12,7 +12,7 @@ import {
   FORM_IDS, BAB_IDS, DEFAULT_BAB, FATHA as FATHA_C, DAMMA as DAMMA_C,
   VERB_TYPE_IDS, VERB_TYPE_GROUP_IDS, groupOfVerbType, verbTypesInGroup,
 } from '../js/vocabulary.js';
-import { wordSpec, chartShape, chartKey, CHART_SHAPES } from '../js/word-spec.js';
+import { chartSpec, chartShape, chartKey, CHART_SHAPES } from '../js/chart-spec.js';
 import { MUDARI_PREFIX_HARAKA } from '../js/grammar/shared-grammar.js';
 import { getConjugationData as salimData } from '../js/conjugation/salim-conjugator.js';
 import { getConjugationData as mudaafData } from '../js/conjugation/mudaaf-conjugator.js';
@@ -34,30 +34,29 @@ import {
 import { MAZEED_IDS } from '../js/vocabulary.js';
 
 // --- chart-id shim ---------------------------------------------------------
-// The engine speaks WordSpec now. This file's hand-typed expectations are keyed
+// The engine speaks ChartSpec + slot now. This file's hand-typed expectations are keyed
 // by chart id (that IS the notation of a paper table), so the ids stay as the
 // test's vocabulary and get turned into specs right here — one place, so the
 // ~290 assertions below are unchanged and still compare the same words.
-const specOf = (root, formId, chart, slot = null) =>
-  wordSpec({ root, formId, ...chartShape(chart), slot });
+const specOf = (root, formId, chart) => chartSpec({ root, formId, ...chartShape(chart) });
 const CHART_IDS = CHART_SHAPES.map(chartKey);
 const slotsFor = (chart) => slotsForTense(chartShape(chart).tense);
-const conjugateChart = (root, formId, chart, slot) => conjugateSpec(specOf(root, formId, chart, slot));
+const conjugateChart = (root, formId, chart, slot) => conjugateSpec(specOf(root, formId, chart), slot);
 const fullTableChart = (root, formId, chart) => fullTableSpec(specOf(root, formId, chart));
-const waznOfChart = (formId, chart, slot, bab) => waznOfSpec(specOf(null, formId, chart, slot), bab);
-const verbMeaningChart = (root, formId, chart, slot) => verbMeaningSpec(specOf(root, formId, chart, slot));
+const waznOfChart = (formId, chart, slot, bab) => waznOfSpec(specOf(null, formId, chart), slot, bab);
+const verbMeaningChart = (root, formId, chart, slot) => verbMeaningSpec(specOf(root, formId, chart), slot);
 const verbMeaningChart2 = (root, formId, chart, slot, particleId) =>
-  verbMeaningSpec(specOf(root, formId, chart, slot), particleId);
+  verbMeaningSpec(specOf(root, formId, chart), slot, particleId);
 
 // --- v1-compat shims: same call shapes as the old engine API ---------------
 const conjugate = (root, formId, tense, voice, slot, mood = 'raf') =>
-  conjugateSpec(wordSpec({ root, formId, tense, voice, mood, slot }));
+  conjugateSpec(chartSpec({ root, formId, tense, voice, mood }), slot);
 const waznOf = (formId, tense, voice, slot, bab = 'au', mood = 'raf') =>
-  waznOfSpec(wordSpec({ root: null, formId, tense, voice, mood, slot }), bab);
+  waznOfSpec(chartSpec({ root: null, formId, tense, voice, mood }), slot, bab);
 const verbMeaning = (root, formId, tense, voice, slot) =>
-  verbMeaningSpec(wordSpec({ root, formId, tense, voice, slot }));
+  verbMeaningSpec(chartSpec({ root, formId, tense, voice }), slot);
 const fullTable = (root, formId, tense, voice) =>
-  fullTableSpec(wordSpec({ root, formId, tense, voice }));
+  fullTableSpec(chartSpec({ root, formId, tense, voice }));
 
 const byRoot = (letters) => LEXICON.find((r) => r.root.join('') === letters);
 
@@ -269,11 +268,11 @@ check(FORM_IDS.every((f) => {
 const rootWith = (type, radicals, bab) => ({
   type, root: radicals, forms: { I: { bab, trans: true, masdar: null } },
 });
-const salimStem = (formId, tense, voice, bab, slot = '3ms') => salimData(
-  wordSpec({ root: rootWith('salim', ['ن', 'ص', 'ر'], bab), formId, tense, voice, slot }),
+const salimStem = (formId, tense, voice, bab) => salimData(
+  chartSpec({ root: rootWith('salim', ['ن', 'ص', 'ر'], bab), formId, tense, voice }),
 )?.stem ?? null;
 const mudaafStemOf = (bab, tense, voice, slot) => mudaafData(
-  wordSpec({ root: rootWith('mudaaf', ['م', 'د', 'د'], bab), formId: 'I', tense, voice, slot }),
+  chartSpec({ root: rootWith('mudaaf', ['م', 'د', 'د'], bab), formId: 'I', tense, voice }),
   slot,
 )?.stem ?? null;
 

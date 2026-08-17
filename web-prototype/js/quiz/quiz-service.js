@@ -9,6 +9,7 @@
 // Question shape (the flat identity fields ARE the WordSpec — they land in
 // history records verbatim; see docs/TECHNICAL_PLAN.md §A.7/B.3):
 // { category, formId, verbType, chartId, rootKey, slot,      ← WordSpec identity
+//                                        ^chart^      ^ṣīghah^
 //   word, gloss, fullMeaning, prompt, explanation, tag,
 //   options: [{ar, en, valueKey}],                            ← semantic, not positional
 //   correctIndices: [i, …], multiSelect }
@@ -23,14 +24,19 @@
  * carried as a KEY (rootKey string), never as a Root object reference, so a
  * stored record still says what it asked after the lexicon is edited.
  *
- * The spec itself is js/word-spec.js — root, form, tense, voice, mood, slot.
- * What this module adds is the generated `word` and, for drills, whether the
- * opposite voice exists. Questions flatten the spec onto themselves through
+ * A WordSpec is a ChartSpec PLUS a ṣīghah. The chart half — root, form, tense,
+ * voice, mood — is js/chart-spec.js and is the object the engines take; the
+ * slot is the row it picks out. This module is where the two are carried
+ * together, because a question is always about one word rather than a table.
+ *
+ * What it adds on top is the generated `word` and, for drills, whether the
+ * opposite voice exists. Questions flatten all of it onto themselves through
  * specFields(), which is also where the stored chart KEY is stamped: history
  * records key by chart string so old records stay readable.
  *
  * @typedef  {object}      GeneratedWord
- * @property {object}      spec          the WordSpec it was built from
+ * @property {object}      spec          the ChartSpec it was built from
+ * @property {string}      slot          the ṣīghah it names within that chart
  * @property {string}      word          the generated result, NFC-normalised
  * @property {boolean}    [hasVoicePair] drills only: the majhūl also exists
  */
@@ -40,8 +46,8 @@ import {
   DERIVED_NOUN_TYPE_IDS,
 } from '../vocabulary.js';
 import {
-  wordSpec, atSlot, inVoice, chartKey, CHART_SHAPES, isValidShape,
-} from '../word-spec.js';
+  chartSpec, inVoice, chartKey, CHART_SHAPES, isValidShape,
+} from '../chart-spec.js';
 import {
   PRONOUNS, TENSE_LABELS, VOICE_LABELS, MOOD_LABELS, NOUN_KIND_LABELS,
   FORM_NAMES, ABWAB_LABELS,
@@ -154,8 +160,9 @@ export function poolProfile(plan) {
   for (const c of pool) {
     for (const chart of charts) {
       const { tense, voice, mood } = chart;
+      const spec = chartSpec({ root: c.root, formId: c.formId, ...chart });
       for (const slot of slotsFor(tense)) {
-        if (!conjugate(wordSpec({ root: c.root, formId: c.formId, ...chart, slot }))) continue;
+        if (!conjugate(spec, slot)) continue;
         a.cells++;
         a.tenses.add(tense);
         a.voices.add(voice);
@@ -291,8 +298,8 @@ function conjugatable(rootFilter) {
 
 /**
  * Random conjugated word within the filter; retries because random cells may
- * not exist. Returns the WordSpec's fields plus the `word` it produced — the
- * spec is spread rather than nested so every downstream reader can say
+ * not exist. Returns the ChartSpec's fields plus the slot and the `word` it
+ * produced — spread rather than nested so every downstream reader can say
  * spec.tense instead of unpacking a chart id.
  */
 function randomWordSpec(rootFilter, charts = DEFAULT_CHARTS) {
@@ -302,9 +309,9 @@ function randomWordSpec(rootFilter, charts = DEFAULT_CHARTS) {
     const c = rand(pool);
     const chart = rand(charts);
     const slot = rand(slotsFor(chart.tense));
-    const spec = wordSpec({ root: c.root, formId: c.formId, ...chart, slot });
-    const word = conjugate(spec);
-    if (word) return { ...spec, word };
+    const spec = chartSpec({ root: c.root, formId: c.formId, ...chart });
+    const word = conjugate(spec, slot);
+    if (word) return { ...spec, slot, word };
   }
   return null;
 }
@@ -328,7 +335,7 @@ function specFields(spec, category, quizType = 'identify') {
     slot: spec.slot,
     word: spec.word,
     gloss: glossOf(spec.root, spec.formId),
-    fullMeaning: verbMeaning(spec),
+    fullMeaning: verbMeaning(spec, spec.slot),
   };
 }
 
@@ -353,7 +360,7 @@ function makeVoiceQuestion(spec) {
   const correct = { ...VOICE_LABELS[voice], valueKey: voice };
   const other = voice === 'malum' ? 'majhul' : 'malum';
   const bab = spec.root.forms[spec.formId].bab ?? DEFAULT_BAB;
-  const waznWord = spec.root.type === 'salim' ? waznOf(spec, bab) : null;
+  const waznWord = spec.root.type === 'salim' ? waznOf(spec, spec.slot, bab) : null;
   return {
     ...specFields(spec, 'voice'),
     prompt: 'Is the doer known or unknown?',
@@ -368,7 +375,7 @@ function makeVoiceQuestion(spec) {
  */
 function makeDoerQuestion(spec) {
   const slots = slotsFor(spec.tense);
-  const rendered = new Map(slots.map((s) => [s, conjugate(atSlot(spec, s))]));
+  const rendered = new Map(slots.map((s) => [s, conjugate(spec, s)]));
   const correctSlots = slots.filter((s) => rendered.get(s) === spec.word);
   const wrongSlots = shuffle(slots.filter((s) => rendered.get(s) && rendered.get(s) !== spec.word));
   const distractors = wrongSlots.slice(0, Math.max(1, 4 - correctSlots.length));
@@ -412,9 +419,7 @@ function makeBabQuestion(rootFilter) {
     chartId: null, rootKey: rootKeyOf(c.root), slot: null,
     word: cite,
     gloss: glossOf(c.root, 'I'),
-    fullMeaning: verbMeaning(wordSpec({
-      root: c.root, formId: 'I', tense: 'madi', slot: '3ms',
-    })),
+    fullMeaning: verbMeaning(chartSpec({ root: c.root, formId: 'I', tense: 'madi' }), '3ms'),
     prompt: 'Which bāb of the thulāthī mujarrad is this verb from?',
     ...singleCorrect(correct, others),
     explanation: `${cite} (${glossOf(c.root, 'I')}) follows ${ABWAB_LABELS[bab].name} (${ABWAB_LABELS[bab].en}).`,
@@ -507,7 +512,7 @@ const MEANING_OPTION_COUNT = 4;
  * them is exactly the grammar the drill is teaching.
  */
 function makeFromMeaningQuestion(spec, charts) {
-  const answerMeaning = verbMeaning(spec);
+  const answerMeaning = verbMeaning(spec, spec.slot);
   if (!answerMeaning) return null;
 
   const forms = Object.keys(spec.root.forms);
@@ -519,10 +524,10 @@ function makeFromMeaningQuestion(spec, charts) {
     const formId = rand(forms);
     const chart = rand(charts);
     const slot = rand(slotsFor(chart.tense));
-    const other = wordSpec({ root: spec.root, formId, ...chart, slot });
-    const word = conjugate(other);
+    const other = chartSpec({ root: spec.root, formId, ...chart });
+    const word = conjugate(other, slot);
     if (!word || seenWords.has(word)) continue;
-    const meaning = verbMeaning(other);
+    const meaning = verbMeaning(other, slot);
     if (!meaning || seenMeanings.has(meaning)) continue;
     seenWords.add(word);
     seenMeanings.add(meaning);
@@ -683,7 +688,7 @@ function buildVoice(ctx) {
     const spec = randomWordSpec(ctx.rootFilter, voiced);
     if (!spec) return null;
     const opposite = inVoice(spec, spec.voice === 'malum' ? 'majhul' : 'malum');
-    if (!conjugate(opposite)) continue;
+    if (!conjugate(opposite, spec.slot)) continue;
     return makeVoiceQuestion(spec);
   }
   return null;
@@ -704,7 +709,7 @@ function buildMood(ctx) {
     const spec = randomWordSpec(ctx.rootFilter, [chart]);
     if (!spec) return null;
     if (!MOOD_DISTINCT_SLOTS.includes(spec.slot)) continue;
-    const rendered = planMoods.map((m) => conjugate(wordSpec({ ...spec, mood: m })));
+    const rendered = planMoods.map((m) => conjugate(chartSpec({ ...spec, mood: m }), spec.slot));
     if (rendered.some((w) => !w)) continue;
     if (new Set(rendered).size !== rendered.length) continue; // ambiguous — two states look alike
     const correct = { ...MOOD_LABELS[mood], valueKey: mood };
@@ -860,11 +865,11 @@ export function buildDrill(preset, wordCount = WORDS_PER_DRILL) {
     const drawn = randomWordSpec(profile.rootFilter, DRILL_CHARTS);
     if (!drawn) break;
     const majhul = inVoice(drawn, 'majhul');
-    const majhulWord = conjugate(majhul);
+    const majhulWord = conjugate(majhul, drawn.slot);
     // Show the majhūl sometimes — but only when both voices exist, so the
     // choice of chart never gives the voice question away.
     const spec = (majhulWord && Math.random() < 0.5)
-      ? { ...majhul, word: majhulWord, hasVoicePair: true }
+      ? { ...majhul, slot: drawn.slot, word: majhulWord, hasVoicePair: true }
       : { ...drawn, hasVoicePair: !!majhulWord };
     if (seen.has(spec.word)) continue;
 

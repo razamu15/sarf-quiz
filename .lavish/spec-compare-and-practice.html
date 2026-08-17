@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sarf Quiz — the slot question, table comparison, and Practice</title>
+<link rel="stylesheet" href="sarf-app.css">
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+  :where(p, h1, h2, h3, h4, li, td, th) { overflow-wrap: anywhere; }
+
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font-family: var(--latin); line-height: 1.6; -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 40px 22px 120px; }
+
+  .masthead { border-bottom: 1px solid #2b3547; padding-bottom: 26px; margin-bottom: 34px; }
+  .eyebrow { font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--accent); font-weight: 700; }
+  .masthead h1 { font-size: clamp(27px, 4vw, 38px); line-height: 1.15; margin: 10px 0 12px; letter-spacing: -0.02em; }
+  .lede { color: var(--ink-dim); font-size: 16px; max-width: 72ch; }
+
+  h2.sec {
+    font-size: 13px; text-transform: uppercase; letter-spacing: .12em; color: var(--ink-dim);
+    margin: 56px 0 18px; padding-bottom: 10px; border-bottom: 1px solid #2b3547;
+  }
+  h2.sec b { color: var(--accent); font-weight: 700; margin-inline-end: 8px; }
+  h3.sub { font-size: 20px; margin: 30px 0 8px; letter-spacing: -0.01em; }
+  p.body { font-size: 15px; color: var(--ink-dim); max-width: 78ch; margin: 0 0 14px; }
+  p.body b, li b { color: var(--ink); }
+  p.body .ar, li .ar, td .ar { font-family: var(--arabic); font-size: 18px; }
+  ul.body { font-size: 15px; color: var(--ink-dim); max-width: 78ch; padding-inline-start: 20px; margin: 0 0 14px; }
+  ul.body li { margin-bottom: 8px; }
+
+  .callout {
+    border-inline-start: 3px solid var(--accent); background: var(--card2);
+    border-radius: 10px; padding: 14px 18px; font-size: 15px; margin: 18px 0;
+  }
+  .callout.bad { border-inline-start-color: var(--bad); }
+  .callout.good { border-inline-start-color: var(--good); }
+  .callout.warn { border-inline-start-color: #d8a13a; }
+  .callout b { color: var(--ink); }
+  .callout .hd { display: block; font-size: 12px; text-transform: uppercase; letter-spacing: .08em; margin-bottom: 6px; color: var(--ink-dim); }
+
+  .tbl-wrap { overflow-x: auto; border: 1px solid #303a4d; border-radius: var(--radius); margin: 16px 0; }
+  table.rev { width: 100%; border-collapse: collapse; background: var(--card); font-size: 14px; min-width: 640px; }
+  table.rev th {
+    text-align: start; padding: 11px 14px; font-size: 11px; text-transform: uppercase;
+    letter-spacing: .08em; color: var(--ink-dim); border-bottom: 1px solid #303a4d; background: var(--card2);
+  }
+  table.rev td { padding: 11px 14px; border-bottom: 1px solid #232c3c; vertical-align: top; }
+  table.rev tr:last-child td { border-bottom: 0; }
+  table.rev code { font-size: 12.5px; color: var(--accent); font-family: ui-monospace, Menlo, monospace; }
+  .dead { color: var(--bad); font-weight: 600; }
+  .live { color: var(--good); font-weight: 600; }
+
+  pre.code {
+    background: #0b0e14; border: 1px solid #2b3547; border-radius: var(--radius);
+    padding: 16px 18px; overflow-x: auto; font-size: 13px; line-height: 1.65;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace; color: #cdd8ea; margin: 16px 0;
+  }
+  pre.code .c { color: #6b7a91; }
+  pre.code .k { color: #c48ce0; }
+  pre.code .s { color: #8fd3a4; }
+  pre.code .f { color: #4ea8de; }
+  pre.code .r { color: #e0817d; }
+
+  .mermaid { background: var(--card); border: 1px solid #303a4d; border-radius: var(--radius); padding: 18px; overflow-x: auto; margin: 18px 0; }
+
+  .grid2 { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 18px; }
+  .grid3 { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 18px; }
+  @media (max-width: 860px) { .grid2, .grid3 { grid-template-columns: minmax(0,1fr); } }
+
+  .panel { background: var(--card); border: 1px solid #303a4d; border-radius: var(--radius); padding: 18px 20px; }
+  .panel h4 { font-size: 12px; text-transform: uppercase; letter-spacing: .1em; color: var(--ink-dim); margin: 0 0 10px; }
+  .panel p { font-size: 14.5px; color: var(--ink-dim); margin: 0 0 10px; }
+  .panel p:last-child { margin-bottom: 0; }
+  .panel.pick { border-color: rgba(63,185,111,.5); }
+  .panel .verdict { font-size: 12px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; }
+  .panel.pick .verdict { color: var(--good); }
+  .panel.nope .verdict { color: var(--ink-dim); }
+
+  .decision {
+    border: 1px solid #3a4761; border-radius: var(--radius); padding: 18px 20px; margin: 20px 0;
+    background: linear-gradient(160deg, var(--card2), var(--card));
+  }
+  .decision > .q { font-size: 15.5px; font-weight: 600; margin-bottom: 4px; }
+  .decision > .why { color: var(--ink-dim); font-size: 13.5px; margin-bottom: 14px; }
+  .decision label {
+    display: flex; gap: 10px; align-items: flex-start; padding: 10px 12px; border-radius: 12px;
+    border: 1px solid #303a4d; background: var(--card); margin-bottom: 8px; cursor: pointer; font-size: 14px;
+  }
+  .decision label:hover { border-color: var(--accent); }
+  .decision label input { margin-top: 4px; accent-color: var(--accent); }
+  .decision label .opt-b { display: block; font-weight: 600; }
+  .decision label .opt-d { display: block; color: var(--ink-dim); font-size: 13px; }
+  .decision label .opt-d .ar { font-family: var(--arabic); font-size: 16px; }
+  .decision .acts { display: flex; gap: 10px; align-items: center; margin-top: 6px; flex-wrap: wrap; }
+  .decision button {
+    border: 0; border-radius: 12px; padding: 9px 16px; font-size: 14px; font-weight: 600;
+    background: var(--accent); color: var(--accent-ink); cursor: pointer; font-family: var(--latin);
+  }
+  .decision .queued { font-size: 13px; color: var(--good); }
+
+  .device { border: 1px solid #37425a; border-radius: 24px; padding: 8px; background: #0a0d13; max-width: 330px; }
+  .device .phone { border-radius: 17px; overflow: hidden; }
+  .device-cap { text-align: center; font-size: 11.5px; color: var(--ink-dim); padding: 8px 4px 2px; }
+  .num { font-size: 34px; font-weight: 700; color: var(--accent); display: block; line-height: 1.1; }
+  .numlabel { font-size: 12.5px; color: var(--ink-dim); }
+  .stat3 { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 14px; margin: 18px 0; }
+  .stat3 > div { background: var(--card); border: 1px solid #303a4d; border-radius: 14px; padding: 14px 16px; }
+
+  /* side-by-side chart mock */
+  table.cmp { width: 100%; border-collapse: collapse; font-size: 15px; background: var(--card); }
+  table.cmp th { font-size: 11px; text-transform: uppercase; letter-spacing: .07em; color: var(--ink-dim);
+                 padding: 9px 10px; border-bottom: 1px solid #303a4d; background: var(--card2); text-align: center; }
+  table.cmp th:first-child { text-align: start; }
+  table.cmp td { padding: 9px 10px; border-bottom: 1px solid #232c3c; text-align: center; }
+  table.cmp td:first-child { text-align: start; font-size: 12px; color: var(--ink-dim); }
+  table.cmp .ar { font-family: var(--arabic); font-size: 21px; direction: rtl; unicode-bidi: isolate; }
+  table.cmp tr.same td { opacity: .45; }
+  table.cmp tr.diff { background: rgba(78,168,222,.07); }
+  table.cmp .hot { color: var(--accent); font-weight: 700; }
+  .cmp-note { font-size: 12.5px; color: var(--ink-dim); padding: 10px 12px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="masthead">
+  <div class="eyebrow">Design discussion · three open questions</div>
+  <h1>The slot that no longer belongs, two tables side by side, and a Practice tab that explains itself</h1>
+  <p class="lede">
+    Three things you raised, in the order I'd tackle them. The first is a type question you have
+    already half-answered in code without noticing. The second is nearly free because of the refactor
+    you just finished. The third is the one that decides whether a stranger can use this app.
+  </p>
+  <div class="callout good" style="margin-top:20px">
+    <span class="hd">Shipped alongside this doc — the motivation card</span>
+    Home now carries a Qurʾān āyah, ḥadīth or athar between your score and the drills, picked fresh
+    each time the tab is drawn. Content lives in <code>web-prototype/data/quotes.json</code> —
+    14 entries, edit freely, no code change. <b>Verify the references against a primary source before
+    release;</b> I have given chapter-and-number where I'm confident and named the speaker where the
+    attribution is the safer claim.
+  </div>
+</header>
+
+<!-- ==================================================================== -->
+<h2 class="sec"><b>01</b> Removing <code>slot</code> from WordSpec</h2>
+
+<p class="body">
+  <b>Yes — and it is a bigger, better change than you described.</b> You framed it as deleting a
+  field. What it actually does is split one overloaded type into the two things it has been standing
+  in for, and collapse each engine from two entry points to one.
+</p>
+
+<h3 class="sub">You already made this decision, halfway</h3>
+
+<p class="body">
+  When you restyled the conjugators, you changed the engine signature to
+  <code>conjugate(spec, slot)</code>. From that moment the engines stopped reading
+  <code>spec.slot</code> — they read the argument. So today there are <b>two sources of truth for
+  which ṣīghah is being built</b>, and nothing checks that they agree:
+</p>
+
+<pre class="code"><span class="c">// today — both of these are "valid" and they disagree</span>
+<span class="f">conjugate</span>(wordSpec({ root, formId: <span class="s">'I'</span>, tense: <span class="s">'madi'</span>, slot: <span class="s">'3ms'</span> }), <span class="s">'1p'</span>)
+<span class="c">//                                                    ^^^^^ ignored      ^^^^ wins</span></pre>
+
+<p class="body">
+  The service papers over it by passing <code>spec.slot</code> as the argument. That is not a design;
+  it is a seam left over from the change. Removing the field closes it.
+</p>
+
+<h3 class="sub">What the type actually is</h3>
+
+<p class="body">
+  A spec with no slot is a <b>paradigm</b>: <span class="ar">مدّ</span> · Form I · muḍāriʿ · maʿlūm ·
+  marfūʿ. A slot indexes into it. Those are two different things and the codebase already says so in
+  three places — <code>fullTable(spec)</code> ignores the slot, <code>chartOf()</code> exists purely
+  to null it out, and <code>slot: null</code> is the documented way to mean "this is a chart".
+</p>
+
+<div class="mermaid">
+graph LR
+  subgraph NOW["today — one type, two jobs"]
+    A["WordSpec<br/>root · form · tense · voice · mood · slot"]
+    A -->|"slot: null"| A1["a chart"]
+    A -->|"slot: '3ms'"| A2["a word"]
+  end
+  subgraph THEN["proposed — the split is named"]
+    B["ChartSpec<br/>root · form · tense · voice · mood"]
+    B --> B1["conjugateTable(spec) → 14 words"]
+    B1 -->|"[slot]"| B2["one word"]
+  end
+</div>
+
+<div class="callout">
+  <span class="hd">The naming consequence, which I'd not skip</span>
+  If the object no longer names a word, <b>it should not be called WordSpec</b>. Call it
+  <code>ChartSpec</code> (or <code>ParadigmSpec</code>). Then "WordSpec" is free to mean what
+  history and the quiz layer actually store: <code>ChartSpec + slot</code>. Keeping the old name on
+  the new meaning is how a codebase gets a type whose name lies — which is the exact problem
+  <code>ChartID</code> had before you dismantled it.
+</div>
+
+<h3 class="sub">The strongest argument: one method per engine</h3>
+
+<p class="body">
+  Every engine currently implements <code>conjugate</code> <i>and</i> <code>conjugateTable</code>, and
+  nothing but a test stops them from disagreeing. I had to write a 5,220-chart consistency sweep
+  precisely because they can — and it caught a real bug (my first muḍāʿaf table builder emitted rows
+  in ṣīghah-block order instead of sarf order). If tables are the only thing an engine builds, that
+  entire class of bug stops existing and the sweep can be deleted:
+</p>
+
+<pre class="code"><span class="c">// the service keeps a single-word convenience; the engines lose one method each</span>
+<span class="k">export function</span> <span class="f">conjugate</span>(spec, slot) {
+  <span class="k">return</span> <span class="f">fullTable</span>(spec)?.[slot] ?? <span class="k">null</span>;
+}</pre>
+
+<h3 class="sub">What it costs — measured, not guessed</h3>
+
+<p class="body">
+  I ran both shapes over the whole lexicon (58 roots · 5,220 charts · 68,440 cells). Table-first is
+  <b>faster</b> for anything that walks a paradigm, and the single-word penalty is real but far below
+  anything a phone would notice:
+</p>
+
+<div class="tbl-wrap">
+<table class="rev">
+  <tr><th>Work</th><th>Per-cell calls</th><th>Table-first</th><th>Verdict</th></tr>
+  <tr>
+    <td>Every cell in the lexicon (68,440 words)</td>
+    <td>6.3 ms</td><td>4.4 ms</td>
+    <td class="live">table-first 30% faster</td>
+  </tr>
+  <tr>
+    <td>1,000 single words (worst case: <code>makeFromMeaningQuestion</code> retries)</td>
+    <td>0.1 ms</td><td>1.2 ms</td>
+    <td>12× slower, still 1.2 ms</td>
+  </tr>
+  <tr>
+    <td><code>poolProfile()</code>, which already walks every slot of every chart</td>
+    <td colspan="2">strictly fewer calls, same words</td>
+    <td class="live">wins outright</td>
+  </tr>
+</table>
+</div>
+
+<p class="body">
+  So the "throw away 13 of 14 words" objection is real in principle and irrelevant in practice. If it
+  ever matters, a <code>Map</code> keyed by <code>rootKey|form|chartKey</code> makes the second call
+  free — but I would not build that until something is slow.
+</p>
+
+<h3 class="sub">What would have to change</h3>
+
+<ul class="body">
+  <li><b>Engines</b> — delete <code>conjugate</code>, keep <code>conjugateTable(spec)</code>. Both
+    implemented engines already have both, so this is a deletion.</li>
+  <li><b>Service</b> — <code>conjugate(spec, slot)</code> becomes the two-liner above.
+    <code>citation()</code> asks for the māḍī and muḍāriʿ tables and takes <code>['3ms']</code>.</li>
+  <li><b>word-spec.js → chart-spec.js</b> — <code>atSlot</code>, <code>chartOf</code>,
+    <code>slotSpecsOf</code> all go away and the factory is renamed
+    <code>chartSpec()</code>; that file gets noticeably smaller.
+    <b>Done — Aug 2026.</b></li>
+  <li><b>Quiz layer</b> — the one that pays. <code>randomWordSpec</code> returns
+    <code>{ ...chartSpec, slot, word }</code> today; it keeps doing that, but the flattened object is
+    now honestly "a chart plus a slot" rather than a spec with a mystery field. Roughly a dozen
+    call sites, all mechanical.</li>
+  <li><b>History</b> — unchanged. It stores <code>chartKey</code> + <code>slot</code> already.</li>
+</ul>
+
+<div class="callout warn">
+  <span class="hd">The one thing I'd watch</span>
+  <code>fullTable()</code> returns <b>null</b> for an impossible chart but an <b>object</b> otherwise,
+  so <code>fullTable(spec)?.[slot] ?? null</code> quietly handles both. Keep that; don't "simplify" it
+  into returning <code>{}</code>, or <code>availableCharts()</code> starts counting empty charts as
+  real ones — that exact bug already appeared once in <code>conjugateTable</code>.
+</div>
+
+<div class="decision" data-lavish-question="slot">
+  <div class="q">Drop <code>slot</code> from the spec and make tables the only thing engines build?</div>
+  <div class="why">My recommendation is the second option — the rename is most of the value.</div>
+  <label><input type="radio" name="slot" value="Keep WordSpec as is, with slot optional">
+    <span><span class="opt-b">Leave it alone</span>
+    <span class="opt-d">Accepts two sources of truth for the ṣīghah and two methods per engine.</span></span></label>
+  <label><input type="radio" name="slot" value="Drop slot from the spec, rename the type to ChartSpec, and make conjugateTable the only engine method; the service keeps conjugate(spec, slot) as a one-line convenience">
+    <span><span class="opt-b">Drop it, rename to ChartSpec, one method per engine</span>
+    <span class="opt-d">Recommended. Kills a bug class, is measurably faster on paradigm walks, and the name stops lying.</span></span></label>
+  <label><input type="radio" name="slot" value="Drop slot from the spec but keep the name WordSpec and keep both engine methods">
+    <span><span class="opt-b">Drop the field only</span>
+    <span class="opt-d">Half the benefit. The type still claims to name a word while naming a chart.</span></span></label>
+  <div class="acts">
+    <button type="button" data-lavish-action onclick="queueAnswer('slot','Slot in WordSpec')">Queue this answer</button>
+    <span class="queued" id="q-slot"></span>
+  </div>
+</div>
+
+<!-- ==================================================================== -->
+<h2 class="sec"><b>02</b> Two tables side by side</h2>
+
+<p class="body">
+  This is the cheapest of the three, because the refactor already paid for it. A chart is now a plain
+  object of axes and <code>fullTable(spec)</code> returns <code>{slot: word}</code>. A comparison is
+  therefore <b>two specs and a diff</b> — no engine work at all.
+</p>
+
+<h3 class="sub">The framing that makes the UI fall out</h3>
+
+<p class="body">
+  Every comparison you named is the same shape: take a chart, change <b>one or more axes</b>, show
+  both. The axes are exactly the spec's fields plus the root:
+  <code>root · form · tense · voice · mood</code>. "Manṣūb beside majzūm" varies <code>mood</code>.
+  "Form I muḍāriʿ majhūl beside Form II muḍāriʿ maʿlūm" varies <code>form</code> and
+  <code>voice</code>. <span class="ar">كتب</span> beside <span class="ar">مدّ</span> varies the root —
+  and for a ṣarf app that one is the most instructive of all, because it is sound against doubled.
+</p>
+
+<div class="grid3">
+  <div class="panel nope">
+    <h4>A · Two independent pickers</h4>
+    <p><span class="verdict">Most taps</span></p>
+    <p>Left and right each get the full Tables picker. Maximum freedom, and you can compare two
+      unrelated things.</p>
+    <p>But it makes the common case (change one thing) as expensive as the rare case, and nothing
+      teaches the user that a comparison is <i>about</i> an axis.</p>
+  </div>
+  <div class="panel nope">
+    <h4>B · "Vary by" chip</h4>
+    <p><span class="verdict">Fewest taps</span></p>
+    <p>Pick one chart, then tap an axis: <b>voice</b> shows maʿlūm beside majhūl, <b>iʿrāb</b> shows
+      the three moods.</p>
+    <p>Beautifully fast and self-explaining — but it can only ever vary one axis, so your Form I
+      majhūl vs Form II maʿlūm example is impossible.</p>
+  </div>
+  <div class="panel pick">
+    <h4>C · Base + delta</h4>
+    <p><span class="verdict">Recommended</span></p>
+    <p>Pick a base chart. The right column starts as a copy, and you tap only what differs — one tap
+      for the common case, two or three for a cross-comparison.</p>
+    <p>Model B rides on top of it for free: the "vary by" chips are just presets that write one
+      field of the delta.</p>
+  </div>
+</div>
+
+<h3 class="sub">The part that earns it: the diff</h3>
+
+<p class="body">
+  Showing two tables next to each other is worth little; showing <b>which letters moved</b> is the
+  whole feature. Three levels, and I'd build all of them because each is a few lines:
+</p>
+
+<ul class="body">
+  <li><b>Row level</b> — mark each row same or different, and dim the identical ones so the eye lands
+    on what changed.</li>
+  <li><b>Letter level</b> — trim the common prefix and suffix, colour the middle. Words come out of
+    the engine NFC-normalised, so compare <i>grapheme clusters</i> (a letter plus its ḥaraka is one
+    cluster) via <code>Intl.Segmenter</code>, not code units — otherwise you highlight half a
+    ḍamma.</li>
+  <li><b>Table level</b> — one summary line: <i>"9 of 14 rows differ"</i>, or
+    <i>"these two charts are identical"</i>.</li>
+</ul>
+
+<div class="tbl-wrap" style="max-width:520px">
+<table class="cmp">
+  <tr><th>ṣīghah</th><th>مدّ I muḍāriʿ manṣūb</th><th>… majzūm</th></tr>
+  <tr class="diff"><td>3ms</td><td class="ar">يَمُدَّ</td><td class="ar">يَمُدَّ</td></tr>
+  <tr class="same"><td>3md</td><td class="ar">يَمُدَّا</td><td class="ar">يَمُدَّا</td></tr>
+  <tr class="same"><td>3mp</td><td class="ar">يَمُدُّوا</td><td class="ar">يَمُدُّوا</td></tr>
+  <tr class="same"><td>3fp</td><td class="ar">يَمْدُدْنَ</td><td class="ar">يَمْدُدْنَ</td></tr>
+  <tr class="same"><td>1s</td><td class="ar">أَمُدَّ</td><td class="ar">أَمُدَّ</td></tr>
+  <tr><td colspan="3" class="cmp-note"><b>All 14 rows identical.</b> For a doubled verb that is the
+    intended reading — but the same view over <span class="ar">ظلل</span> Form II says the same
+    thing, and that one is a bug.</td></tr>
+</table>
+</div>
+
+<div class="callout bad">
+  <span class="hd">This feature is also a test — I found the bug again while writing this section</span>
+  Put <span class="ar">ظلل</span> Form II manṣūb beside majzūm and the app would say <b>"identical"</b>.
+  Form II never merges, so it must behave like a sound verb: <span class="ar">يُعَلِّمَ</span> vs
+  <span class="ar">يُعَلِّمْ</span> differ, and <span class="ar">يُظَلِّلَ</span> vs
+  <span class="ar">يُظَلِّلْ</span> should too. This is the <code>MUDAAF_ENDINGS.mudari_jazm</code>
+  issue still outstanding — <b>a comparison view surfaces it on sight</b>, which is an argument for
+  building this before the weak-verb engines land, not after.
+</div>
+
+<h3 class="sub">Where it lives, and what it costs</h3>
+
+<p class="body">
+  Inside the Tables tab, as a <b>Compare</b> button beside "View table" — you have already chosen a
+  chart by the time you want to compare it, so a separate tab would make you choose twice. Roughly:
+  one <code>state.compare</code> delta object, one render function, one diff helper, and about
+  40 lines of CSS. No engine, grammar or service changes.
+</p>
+
+<p class="body">
+  Two extensions worth designing for now even if built later: a third column for the
+  <b>wazn</b> (<span class="ar">فَعَلَ</span> pattern) alongside any real verb, and a
+  <b>deep link from quiz feedback</b> — "you wrote the manṣūb; here it is beside the majzūm you were
+  asked for", which turns a wrong answer into the exact comparison that explains it.
+</p>
+
+<div class="decision" data-lavish-question="compare">
+  <div class="q">Which comparison model should I build?</div>
+  <div class="why">All three render the same diff; they differ only in how you choose the second chart.</div>
+  <label><input type="radio" name="compare" value="Base plus delta: right column starts as a copy of the left, tap only the axes that differ, with one-tap vary-by presets on top">
+    <span><span class="opt-b">C · Base + delta, with vary-by presets (recommended)</span>
+    <span class="opt-d">One tap for "manṣūb vs majzūm", three for "Form I majhūl vs Form II maʿlūm".</span></span></label>
+  <label><input type="radio" name="compare" value="Vary-by only: pick a chart and an axis to vary, no arbitrary cross comparisons">
+    <span><span class="opt-b">B · Vary-by only</span>
+    <span class="opt-d">Simplest to build and to explain; gives up cross-axis comparisons.</span></span></label>
+  <label><input type="radio" name="compare" value="Two fully independent chart pickers side by side">
+    <span><span class="opt-b">A · Two independent pickers</span>
+    <span class="opt-d">Most flexible, most taps, teaches nothing about axes.</span></span></label>
+  <div class="acts">
+    <button type="button" data-lavish-action onclick="queueAnswer('compare','Comparison model')">Queue this answer</button>
+    <span class="queued" id="q-compare"></span>
+  </div>
+</div>
+
+<div class="decision" data-lavish-question="diff-depth">
+  <div class="q">How deep should the diff go?</div>
+  <label><input type="radio" name="diff-depth" value="All three: dim identical rows, highlight the differing letters within a row, and show a table-level summary line">
+    <span><span class="opt-b">All three levels (recommended)</span>
+    <span class="opt-d">Row dimming + letter highlighting + "9 of 14 rows differ". Each is small; together they are the feature.</span></span></label>
+  <label><input type="radio" name="diff-depth" value="Row level only: mark rows same or different without highlighting individual letters">
+    <span><span class="opt-b">Row level only</span>
+    <span class="opt-d">Safer with Arabic diacritics; less useful for spotting a single moved ḥaraka.</span></span></label>
+  <div class="acts">
+    <button type="button" data-lavish-action onclick="queueAnswer('diff-depth','Diff depth')">Queue this answer</button>
+    <span class="queued" id="q-diff-depth"></span>
+  </div>
+</div>
+
+<!-- ==================================================================== -->
+<h2 class="sec"><b>03</b> Practice — the names and the flow</h2>
+
+<p class="body">
+  The current tab shows <b>33 controls in 7 rows, all at once</b>, with dependencies that only reveal
+  themselves after you interact: pick amr and the voice row greys out; drop muḍāriʿ and iʿrāb greys
+  out; pick derived nouns and four rows vanish. Someone who knows the app reads it fine. Someone who
+  doesn't cannot tell what a session will feel like until they start one.
+</p>
+
+<div class="stat3">
+  <div><span class="num">33</span><span class="numlabel">controls on one screen</span></div>
+  <div><span class="num">4</span><span class="numlabel">quiz types, none of which say what they show you</span></div>
+  <div><span class="num">0</span><span class="numlabel">examples of an actual question before you start</span></div>
+</div>
+
+<h3 class="sub">Names — one rule fixes all four</h3>
+
+<p class="body">
+  Name each type by <b>what you are given → what you must supply</b>, phrased as something the user
+  does. Every current name breaks that rule differently: "Identify" doesn't say identify what,
+  "Meaning → verb" uses an arrow a beginner has to decode, and "Derived nouns" names a topic rather
+  than an action.
+</p>
+
+<div class="tbl-wrap">
+<table class="rev">
+  <tr><th>id</th><th>now</th><th>proposed</th><th>Arabic</th><th>subtitle on the card</th></tr>
+  <tr>
+    <td><code>identify</code></td><td>Identify <span class="ar">تَمْيِيز</span></td>
+    <td><b>Name the grammar</b></td><td class="ar">تَمْيِيز</td>
+    <td>You see a word — say its tense, voice, doer, iʿrāb or bāb.</td>
+  </tr>
+  <tr>
+    <td><code>produce</code></td><td>Write the word <span class="ar">كِتَابَة</span></td>
+    <td><b>Write the word</b></td><td class="ar">صِيَاغَة</td>
+    <td>You're given the grammar — type the Arabic.</td>
+  </tr>
+  <tr>
+    <td><code>derived</code></td><td>Derived nouns <span class="ar">المُشْتَقَّات</span></td>
+    <td><b>Derived nouns</b></td><td class="ar">المُشْتَقَّات</td>
+    <td>From a verb, pick its ism fāʿil, ism mafʿūl or maṣdar.</td>
+  </tr>
+  <tr>
+    <td><code>fromMeaning</code></td><td>Meaning → verb <span class="ar">مِنَ المَعْنَى</span></td>
+    <td><b>Match the meaning</b></td><td class="ar">مِنَ المَعْنَى</td>
+    <td>You read an English meaning — choose the Arabic word that says it.</td>
+  </tr>
+</table>
+</div>
+
+<p class="body">
+  Only two names change, but the <b>subtitles are the real fix</b>: they are the first place the app
+  says what a question looks like. Note <code>produce</code> also gets a better Arabic label —
+  <span class="ar">كِتَابَة</span> is "writing" the physical act, <span class="ar">صِيَاغَة</span> is
+  forming/derivation, which is what the user is doing.
+</p>
+
+<h3 class="sub">Flow — your wizard, and two alternatives</h3>
+
+<div class="grid3">
+  <div class="panel">
+    <h4>A · Step-by-step wizard <span style="color:var(--ink-dim)">(your idea)</span></h4>
+    <p>Type → scope → charts → count → summary. Each step explains itself, nothing greys out because
+      irrelevant steps are skipped entirely.</p>
+    <p><b>Cost:</b> five screens to change one chip. Repeat users will feel it by session three.</p>
+  </div>
+  <div class="panel">
+    <h4>B · One screen, collapsed sections</h4>
+    <p>Same single screen, but each section collapses to a summary line once set —
+      <i>Tense · māḍī, muḍāriʿ ›</i> — and expands on tap with its explanation.</p>
+    <p><b>Cost:</b> keeps the wall-of-chips feeling for a first-timer, just folded up.</p>
+  </div>
+  <div class="panel pick">
+    <h4>C · Presets first, wizard behind "Custom"</h4>
+    <p><span class="verdict">Recommended</span></p>
+    <p>Practice opens on 5–6 named setups with real subtitles. "Custom…" at the bottom runs your
+      wizard. Returning users get "Last setup" as the first card.</p>
+    <p><b>Why:</b> most sessions don't need 33 controls, and a preset list <i>is</i> documentation.</p>
+  </div>
+</div>
+
+<div class="grid2" style="margin-top:20px">
+  <div>
+    <div class="device"><div class="phone">
+      <div style="padding:16px">
+        <h1 style="font-size:24px;margin-bottom:14px">Practice</h1>
+        <div class="section-label">Pick up where you left off</div>
+        <div class="preset" style="margin:8px 0 14px">
+          <div class="preset-head"><div><b>Last setup</b><span class="ar">آخِر</span>
+            <div class="preset-desc">Name the grammar · māḍī + muḍāriʿ · Forms I, II, X · sound<br>≈ 1,240 questions</div></div>
+            <button class="btn primary small">Start</button></div>
+        </div>
+        <div class="section-label">Or choose a focus</div>
+        <div class="preset" style="margin:8px 0">
+          <div class="preset-head"><div><b>Doubled verbs, up close</b><span class="ar">مُضَاعَف</span>
+            <div class="preset-desc">Where the shadda opens and closes — <span class="ar-inline">مَدَّ</span> vs <span class="ar-inline">مَدَدْتُ</span></div></div>
+            <button class="btn primary small">Start</button></div>
+        </div>
+        <div class="preset" style="margin:8px 0">
+          <div class="preset-head"><div><b>The three muḍāriʿ states</b><span class="ar">إِعْرَاب</span>
+            <div class="preset-desc">rafʿ · naṣb · jazm, read through <span class="ar-inline">لَنْ</span> and <span class="ar-inline">لَمْ</span></div></div>
+            <button class="btn primary small">Start</button></div>
+        </div>
+        <div class="preset off" style="margin:8px 0">
+          <div class="preset-head"><div><b>Custom…</b>
+            <div class="preset-desc">Choose type, verbs, charts and length yourself</div></div>
+            <button class="btn ghost small">Build</button></div>
+        </div>
+      </div>
+    </div></div>
+    <div class="device-cap">C · Practice opens on intent, not on configuration</div>
+  </div>
+  <div>
+    <div class="device"><div class="phone">
+      <div style="padding:16px">
+        <div class="topbar" style="margin-bottom:14px">
+          <button class="quit">‹</button>
+          <div class="progress"><i style="width:80%"></i></div>
+          <span class="count">Step 4 / 5</span>
+        </div>
+        <h1 style="font-size:22px;margin-bottom:6px">Ready?</h1>
+        <p class="preset-desc" style="margin-bottom:14px">Here's one of the questions you'll get.</p>
+        <div class="word-card" style="padding:20px 14px 16px">
+          <div class="word" style="font-size:40px">تَمُدَّانِ</div>
+          <div class="word-tag">Who can the doer be?</div>
+        </div>
+        <div class="asks" style="margin-top:14px">
+          <b>This setup asks</b>
+          <span class="tick">✓ Doer</span>
+          <span class="tick">✓ Iʿrāb</span>
+          <span class="cross">Tense — only one tense selected</span>
+          <span class="cross">Voice — only maʿlūm selected</span>
+        </div>
+        <p class="subtitle count-line" style="margin:12px 0">≈ 612 possible questions</p>
+        <button class="btn primary" style="width:100%">Start · 10 questions</button>
+      </div>
+    </div></div>
+    <div class="device-cap">The summary step, whichever flow gets there</div>
+  </div>
+</div>
+
+<div class="callout good">
+  <span class="hd">The single highest-value addition, whatever flow you pick</span>
+  <b>Show a real generated question on the summary step.</b> You already have the machinery — build
+  the quiz, render question one as a non-interactive card. Nothing you can write in a subtitle
+  explains "Match the meaning" as well as one look at it, and it makes the abstract count
+  ("≈ 612 possible questions") concrete in the same glance.
+</div>
+
+<p class="body">
+  Two smaller fixes worth doing regardless: the <b>"This setup asks" panel should move up</b>, since
+  it currently sits below every control that determines it — you change a chip at the top and the
+  feedback is off-screen. And a narrowed row should say what would bring a question back
+  (<i>"Tense — add a second tense to ask this"</i>) rather than only why it died.
+</p>
+
+<div class="decision" data-lavish-question="practice-flow">
+  <div class="q">Which Practice flow should I build?</div>
+  <div class="why">All three end at the same summary step with a sample question and the live count.</div>
+  <label><input type="radio" name="practice-flow" value="Presets first with a Last setup card, and the step-by-step wizard behind a Custom entry">
+    <span><span class="opt-b">C · Presets first, wizard behind Custom (recommended)</span>
+    <span class="opt-d">Fast for repeat sessions, self-documenting for a stranger, and your wizard still exists where it helps most.</span></span></label>
+  <label><input type="radio" name="practice-flow" value="Step by step wizard as the only path into Practice">
+    <span><span class="opt-b">A · Wizard only, as you described</span>
+    <span class="opt-d">Best first-run experience; slowest for someone tweaking one chip on their fifth session.</span></span></label>
+  <label><input type="radio" name="practice-flow" value="Keep one screen but collapse each section to a summary line with explanations on expand">
+    <span><span class="opt-b">B · One screen with collapsed sections</span>
+    <span class="opt-d">Smallest change to what exists; keeps everything visible at once.</span></span></label>
+  <div class="acts">
+    <button type="button" data-lavish-action onclick="queueAnswer('practice-flow','Practice flow')">Queue this answer</button>
+    <span class="queued" id="q-practice-flow"></span>
+  </div>
+</div>
+
+<div class="decision" data-lavish-question="quiz-names">
+  <div class="q">Adopt the renamed quiz types?</div>
+  <label><input type="radio" name="quiz-names" value="Yes: Name the grammar, Write the word, Derived nouns, Match the meaning, each with the proposed subtitle, and change the produce Arabic label to siyagha">
+    <span><span class="opt-b">Yes — names and subtitles as proposed</span>
+    <span class="opt-d">Two names change, all four gain a subtitle saying what you're given and what you supply.</span></span></label>
+  <label><input type="radio" name="quiz-names" value="Keep the current names but add the subtitles">
+    <span><span class="opt-b">Subtitles only</span>
+    <span class="opt-d">Most of the clarity, none of the churn in history records or docs.</span></span></label>
+  <div class="acts">
+    <button type="button" data-lavish-action onclick="queueAnswer('quiz-names','Quiz type names')">Queue this answer</button>
+    <span class="queued" id="q-quiz-names"></span>
+  </div>
+</div>
+
+<!-- ==================================================================== -->
+<h2 class="sec"><b>04</b> What I'd do in what order</h2>
+
+<ul class="body">
+  <li><b>Fix the Forms II/V endings first.</b> It is one line, it is wrong Arabic in 40 cells, and
+    both other features would display it prominently.</li>
+  <li><b>Then the ChartSpec split (§01).</b> Do it before the comparison view and before the weak
+    engines, because both would otherwise be written against a type that is about to change.</li>
+  <li><b>Then the comparison view (§02).</b> Cheap, immediately useful to you as the author, and it
+    doubles as a correctness instrument for the ajwaf / nāqiṣ / mithāl engines while you write
+    them.</li>
+  <li><b>Then Practice (§03).</b> It is the biggest UI job and the only one with no engine risk, so
+    it can land last without blocking anything.</li>
+</ul>
+
+</div>
+
+<script>
+  function queueAnswer(name, title) {
+    const form = document.querySelector('[data-lavish-question="' + name + '"]');
+    const picked = form.querySelector('input:checked');
+    const out = document.getElementById('q-' + name);
+    if (!picked) { out.textContent = 'Pick an option first'; return; }
+    window.lavish?.queuePrompt(title + ': ' + picked.value, {
+      tag: 'decision', text: title + ' → ' + picked.value, element: form, queueKey: name,
+      data: { question: title, answer: picked.value }
+    });
+    out.textContent = '✓ queued — press Send to Agent when ready';
+  }
+</script>
+
+<script type="module">
+  import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.15.0/dist/mermaid.esm.min.mjs";
+  const darkQuery = window.matchMedia("(prefers-color-scheme: dark)");
+  const paint = document.createElement("canvas").getContext("2d");
+  function toRgba(color) {
+    paint.clearRect(0, 0, 1, 1); paint.fillStyle = "#000"; paint.fillStyle = color;
+    paint.fillRect(0, 0, 1, 1); return paint.getImageData(0, 0, 1, 1).data;
+  }
+  function compositeRgba(fg, bg) {
+    const fa = fg[3] / 255, ba = bg[3] / 255; const a = fa + ba * (1 - fa);
+    if (a === 0) return [0, 0, 0, 0];
+    return [(fg[0]*fa + bg[0]*ba*(1-fa))/a, (fg[1]*fa + bg[1]*ba*(1-fa))/a, (fg[2]*fa + bg[2]*ba*(1-fa))/a, a*255];
+  }
+  function pageIsDark() {
+    const root = document.documentElement;
+    const rb = toRgba(getComputedStyle(root).backgroundColor);
+    const bb = document.body ? toRgba(getComputedStyle(document.body).backgroundColor) : [0,0,0,0];
+    const [r, g, b, a] = compositeRgba(bb, rb);
+    if (a > 0) return (0.2126*r + 0.7152*g + 0.0722*b) / 255 < 0.5;
+    return darkQuery.matches;
+  }
+  const diagrams = [...document.querySelectorAll(".mermaid")].map((el) => ({ el, src: el.textContent }));
+  let applied, rendering = false, queued = false;
+  function queueRender() { queued = true; if (!rendering) void render(); }
+  async function render() {
+    rendering = true;
+    try {
+      while (queued) {
+        queued = false;
+        const theme = pageIsDark() ? "dark" : "default";
+        if (theme === applied) continue;
+        mermaid.initialize({ startOnLoad: false, theme, securityLevel: "strict" });
+        for (const { el, src } of diagrams) { el.removeAttribute("data-processed"); el.textContent = src; }
+        try { await mermaid.run({ nodes: diagrams.map((d) => d.el) }); }
+        catch (error) { console.error("Mermaid render failed:", error); return; }
+        applied = theme;
+      }
+    } finally { rendering = false; if (queued) queueRender(); }
+  }
+  if (document.readyState === "complete") queueRender();
+  else window.addEventListener("load", queueRender, { once: true });
+  const obs = new MutationObserver(queueRender);
+  for (const el of [document.documentElement, document.body]) {
+    if (el) obs.observe(el, { attributes: true, attributeFilter: ["data-theme", "class", "style"] });
+  }
+  darkQuery.addEventListener("change", queueRender);
+</script>
+</body>
+</html>

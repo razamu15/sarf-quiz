@@ -359,6 +359,15 @@ struct WordSpec: Codable, Hashable {
   let derived: DerivedNounKind?      // ism fāʿil / mafʿūl / maṣdar
 }
 
+> **Prototype naming (Aug 2026).** The web prototype splits this in two, and
+> the Swift port should follow. `ChartSpec` (`js/chart-spec.js`) is the chart
+> half — `{root, formId, tense, voice, mood}` — and it is what the conjugation
+> engines take; the ṣīghah is passed alongside it as a second argument. A
+> `WordSpec` is then exactly `ChartSpec + slot`, which is what this struct
+> already is and why it keeps the name. The split exists because a spec carrying
+> an optional slot was standing in for both a chart and a word, leaving two
+> sources of truth for the ṣīghah once the engines took it as an argument.
+
 struct QuizPlan {
   var quizType: QuizType             // .identify | .produce | .derivedNoun —
                                      // one per session; mixing types in a single
@@ -978,6 +987,193 @@ RTL/Arabic screenshot review on smallest and largest devices.
 > Pre-submission checklist: subscription review guidelines (3.1), restore button,
 > privacy policy URL, App Privacy labels, export compliance (standard encryption
 > exemption), age rating, RTL/Arabic screenshot review on smallest and largest devices.
+
+---
+
+## Part D — Specified, not built
+
+Two features that are **designed and decided but deliberately unbuilt**. Both
+are written out here in enough detail to be implemented without re-opening the
+design. The reasoning, the alternatives and why they lost are in
+`.lavish/spec-compare-and-practice.html`; this section is the build order only.
+
+Both assume the post-Aug-2026 engine: a **`ChartSpec`** is `{root, formId,
+tense, voice, mood}` and names a whole paradigm, `conjugate(spec, slot)` builds
+one word, `fullTable(spec)` builds the chart as `{slot: word}`.
+
+### D.1 Chart comparison — base + delta with vary-by presets
+
+**Decision (Aug 2026):** model C of three considered — the right-hand chart is a
+DELTA over the left, not an independently configured chart. Diffing at all three
+levels. Rejected: two independent pickers (too many taps, teaches nothing about
+axes) and vary-by-only (cannot express a two-axis comparison such as Form I
+majhūl vs Form II maʿlūm).
+
+**No engine, grammar or service changes are required.** A comparison is two
+specs and a diff, and both already exist.
+
+#### State
+
+```js
+state.compare = {
+  delta: { formId: 'II' },   // sparse: ONLY the axes that differ from the base
+  diffOnly: false,           // "show differing rows only" toggle
+}
+```
+
+The base is whatever the Tables browser already has selected. The right chart is
+`wordSpec({ ...baseSpec, ...delta })` — which is why the delta must be sparse:
+an empty delta means "identical to the base", and the summary line says so.
+
+Axes a delta may carry: `root`, `formId`, `tense`, `voice`, `mood`. Note `root`
+is in the spec, so comparing كتب against مدّ costs nothing extra.
+
+Guard every delta through `isValidShape()` before rendering — a delta that sets
+`mood` on a māḍī base is nonsense, and `wordSpec()` will null the mood out
+rather than error, which would silently show the same chart twice.
+
+#### Vary-by presets
+
+One tap, each writing a single field of the delta. Offer only presets that
+produce a chart which exists for the current base (check `fullTable()` first and
+grey out the rest, the way the Practice rows already grey out):
+
+| Preset | Delta | Reads as |
+|---|---|---|
+| Voice | `{ voice: other }` | maʿlūm beside majhūl |
+| Iʿrāb | `{ mood: next }` | marfūʿ beside manṣūb beside majzūm |
+| Tense | `{ tense: 'mudari' }` | māḍī beside muḍāriʿ |
+| Next form | `{ formId: next }` | Form I beside Form II |
+| Wazn | `{ root: FAALA }` | the verb beside فَعَلَ · see note below |
+
+The wazn preset needs the reference root ف-ع-ل as a lexicon-shaped object;
+`waznRoot()` in conjugation-service.js already builds one, and should be
+exported rather than re-created.
+
+#### The diff — all three levels
+
+1. **Row level.** Compare the two words for a slot after NFC (both come out of
+   the engine normalised, so `===` is correct). Equal rows get `opacity: .45`;
+   differing rows get a tinted background. A slot present on one side and absent
+   on the other counts as differing.
+
+2. **Letter level.** Trim the common prefix and the common suffix, highlight
+   what's left. **Compare grapheme clusters, not code units** — a letter plus
+   its ḥaraka plus a shadda is one cluster, and splitting inside it highlights
+   half a ḍamma:
+
+   ```js
+   const seg = new Intl.Segmenter('ar', { granularity: 'grapheme' });
+   const clusters = (w) => [...seg.segment(w)].map((s) => s.segment);
+   ```
+
+   `Intl.Segmenter` is available on Safari 14.1+ / iOS 14.5+, which is under the
+   deployment target. Render each cluster in its own `<span>`, keep
+   `direction: rtl` and `unicode-bidi: isolate` on the row container, and mark
+   only the differing spans — do not rebuild the string with markers inside it,
+   or bidi reordering will move the markers.
+
+3. **Table level.** One line above the table: "9 of 14 rows differ", or "these
+   two charts are identical". Cheap, and it is the line that catches bugs.
+
+#### Rendering
+
+Three columns — ṣīghah label, left word, right word — sharing one scroll
+container so the rows stay aligned. On a narrow phone the pronoun column is the
+one to shrink; never wrap an Arabic word to a second line, as the diff
+highlighting becomes unreadable.
+
+#### Why build it before the weak-verb engines
+
+It is a correctness instrument as much as a feature. Put ظلل Form II manṣūb
+beside majzūm today and it reports **identical**, which is wrong — Form II never
+merges, so it must behave like a sound verb (compare علم II: يُعَلِّمَ vs
+يُعَلِّمْ). That is the outstanding `MUDAAF_ENDINGS.mudari_jazm` issue, visible
+on sight. Writing ajwaf, nāqiṣ and mithāl against this view will surface the
+same class of error while the tables are being authored rather than after.
+
+#### Later extensions, worth not designing out
+
+- A third column, so verb · verb · wazn fit together.
+- A deep link from quiz feedback: "you wrote the manṣūb — here it is beside the
+  majzūm you were asked for", which turns a wrong answer into the comparison
+  that explains it.
+
+### D.2 Practice flow — a wizard behind a feature flag
+
+**Decision (Aug 2026):** build the step-by-step wizard, but **keep the current
+one-screen configuration exactly as it is** and put a flag between them. Both
+ship in the prototype; the choice between them is made from use, not from
+argument. Neither is deleted until that call is made.
+
+#### The flag
+
+```js
+// web-prototype/js/config.js  (new — the prototype's only feature flags)
+export const FLAGS = {
+  practiceFlow: 'classic',   // 'classic' | 'wizard'
+};
+```
+
+Read it in `renderPractice()` and branch to `renderPracticeClassic()` or
+`renderPracticeWizard()`. Requirements on the split:
+
+- **Both flows write the same `state.plan` object.** No wizard-only fields. This
+  is what makes the comparison fair and the flag removable later — whichever
+  loses gets deleted with no migration.
+- **A toggle in the More tab** flips the flag at runtime and persists it in
+  localStorage, so switching does not need an edit-and-reload.
+- Quiz generation, relevance and history are untouched by either flow.
+
+#### The wizard's steps
+
+1. **What to practise** — the four quiz types as cards, each with the subtitle
+   from the naming table at the end of this section. One per session (unchanged rule).
+2. **Which verbs** — verb types, then forms/abwāb. Skipped fields stay at their
+   current defaults.
+3. **Which charts** — tense, then voice, then iʿrāb. Steps that do not apply are
+   **skipped entirely** rather than greyed out: pick amr only and the voice and
+   iʿrāb steps never appear, which is the wizard's main advantage over the
+   one-screen layout.
+4. **How many** — 5 / 10 / 20 / endless.
+5. **Ready** — the summary step, below.
+
+Each step shows the running possible-question count in the footer, so the user
+watches a choice move the number.
+
+#### The summary step — build this for BOTH flows
+
+The highest-value part of the whole redesign, and it is not wizard-specific:
+
+- the chosen configuration as chips, each tappable to jump back to that step
+  (classic flow: scroll to that row)
+- the existing "This setup asks" panel — **moved above the controls** in the
+  classic flow, where it currently sits below everything that determines it
+- the possible-question count
+- **one real generated question, rendered non-interactively.** Build the quiz,
+  take question one, show the card. Nothing written in a subtitle explains
+  "Match the meaning" as well as seeing one.
+
+#### Naming (proposed, not yet decided)
+
+Names each say what you are given and what you must supply. Only two change; the
+subtitles are the substantive fix. Recorded here so the wizard is built against
+the intended copy:
+
+| id | current | proposed | Arabic | subtitle |
+|---|---|---|---|---|
+| `identify` | Identify | **Name the grammar** | تَمْيِيز | You see a word — say its tense, voice, doer, iʿrāb or bāb. |
+| `produce` | Write the word | **Write the word** | صِيَاغَة | You're given the grammar — type the Arabic. |
+| `derived` | Derived nouns | **Derived nouns** | المُشْتَقَّات | From a verb, pick its ism fāʿil, ism mafʿūl or maṣdar. |
+| `fromMeaning` | Meaning → verb | **Match the meaning** | مِنَ المَعْنَى | You read an English meaning — choose the Arabic word that says it. |
+
+`produce` also changes its Arabic label: كِتَابَة is writing as a physical act,
+صِيَاغَة is forming/derivation, which is what the user is doing. **The `id`s do
+not change** — they are written into stored history records.
+
+One more fix that applies to the classic flow regardless of the flag: a retired
+question should say what would bring it back ("Tense — add a second tense to ask
+this"), not only why it died.
 
 ---
 

@@ -2,8 +2,9 @@
 // slots, form ids, verb types, ḥaraka constants. Nothing here grows with
 // content.
 //
-// (v3: the chart is no longer an entity. A word is specified by its axes —
-// tense, voice, mood, slot — carried together in a WordSpec; see word-spec.js.
+// (v3: the chart is no longer an entity. A chart is specified by its axes —
+// tense, voice, mood — carried together in a ChartSpec (see chart-spec.js),
+// and a word is that spec plus a ṣīghah.
 // "The nine charts" are still a real thing on paper, but they are a VIEW over
 // those axes, not a key the engine thinks in.)
 
@@ -15,7 +16,7 @@ export const SHADDA = 'ّ';
 
 // ---------------------------------------------------------------------------
 // The axes a conjugated word varies on. These are what the old ChartID packed
-// into one string; they are now first-class and travel in a WordSpec.
+// into one string; they are now first-class and travel in a ChartSpec.
 //
 // Mood belongs to the muḍāriʿ alone: the māḍī is mabnī on the fatḥa and the amr
 // on the sukūn, so neither is iʿrāb-bearing and both carry mood: null.

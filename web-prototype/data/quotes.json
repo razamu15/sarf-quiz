@@ -1,0 +1,89 @@
+{
+  "_note": "Motivation card on Home. One is picked at random each time Home is shown. Edit freely — no code change needed. `kind` drives the small label above the source: quran | hadith | athar | scholar. VERIFY every reference against a primary source before release.",
+  "quotes": [
+    {
+      "kind": "quran",
+      "ar": "وَقُل رَّبِّ زِدْنِي عِلْمًا",
+      "en": "And say: My Lord, increase me in knowledge.",
+      "source": "Sūrat Ṭāhā 20:114"
+    },
+    {
+      "kind": "quran",
+      "ar": "إِنَّا أَنزَلْنَاهُ قُرْآنًا عَرَبِيًّا لَّعَلَّكُمْ تَعْقِلُونَ",
+      "en": "We have sent it down as an Arabic Qurʾān, so that you may understand.",
+      "source": "Sūrat Yūsuf 12:2"
+    },
+    {
+      "kind": "quran",
+      "ar": "قُلْ هَلْ يَسْتَوِي الَّذِينَ يَعْلَمُونَ وَالَّذِينَ لَا يَعْلَمُونَ",
+      "en": "Say: are those who know equal to those who do not know?",
+      "source": "Sūrat az-Zumar 39:9"
+    },
+    {
+      "kind": "quran",
+      "ar": "بِلِسَانٍ عَرَبِيٍّ مُّبِينٍ",
+      "en": "In a clear Arabic tongue.",
+      "source": "Sūrat ash-Shuʿarāʾ 26:195"
+    },
+    {
+      "kind": "hadith",
+      "ar": "مَنْ سَلَكَ طَرِيقًا يَلْتَمِسُ فِيهِ عِلْمًا سَهَّلَ اللَّهُ لَهُ بِهِ طَرِيقًا إِلَى الْجَنَّةِ",
+      "en": "Whoever treads a path seeking knowledge, Allah makes easy for him a path to Paradise.",
+      "source": "Ṣaḥīḥ Muslim 2699"
+    },
+    {
+      "kind": "hadith",
+      "ar": "خَيْرُكُمْ مَنْ تَعَلَّمَ الْقُرْآنَ وَعَلَّمَهُ",
+      "en": "The best of you are those who learn the Qurʾān and teach it.",
+      "source": "Ṣaḥīḥ al-Bukhārī 5027"
+    },
+    {
+      "kind": "hadith",
+      "ar": "مَنْ يُرِدِ اللَّهُ بِهِ خَيْرًا يُفَقِّهْهُ فِي الدِّينِ",
+      "en": "Whoever Allah intends good for, He gives him understanding of the religion.",
+      "source": "Ṣaḥīḥ al-Bukhārī 71 · Ṣaḥīḥ Muslim 1037"
+    },
+    {
+      "kind": "hadith",
+      "ar": "أَحَبُّ الْأَعْمَالِ إِلَى اللَّهِ أَدْوَمُهَا وَإِنْ قَلَّ",
+      "en": "The deeds most beloved to Allah are the most consistent, even if small.",
+      "source": "Ṣaḥīḥ al-Bukhārī 6464 · Ṣaḥīḥ Muslim 783"
+    },
+    {
+      "kind": "athar",
+      "ar": "تَعَلَّمُوا الْعَرَبِيَّةَ فَإِنَّهَا مِنْ دِينِكُمْ",
+      "en": "Learn Arabic, for it is part of your religion.",
+      "source": "ʿUmar ibn al-Khaṭṭāb — cited in Iqtiḍāʾ aṣ-Ṣirāṭ al-Mustaqīm"
+    },
+    {
+      "kind": "athar",
+      "ar": "احْرِصُوا عَلَى تَعَلُّمِ اللُّغَةِ الْعَرَبِيَّةِ فَإِنَّهَا تُثَبِّتُ الْعَقْلَ وَتَزِيدُ فِي الْمُرُوءَةِ",
+      "en": "Be keen to learn Arabic, for it steadies the mind and increases nobility of character.",
+      "source": "ʿUmar ibn al-Khaṭṭāb — reported by al-Bayhaqī in Shuʿab al-Īmān"
+    },
+    {
+      "kind": "scholar",
+      "ar": "اللِّسَانُ الْعَرَبِيُّ شِعَارُ الْإِسْلَامِ وَأَهْلِهِ",
+      "en": "The Arabic tongue is the emblem of Islam and its people.",
+      "source": "Ibn Taymiyyah — Iqtiḍāʾ aṣ-Ṣirāṭ al-Mustaqīm"
+    },
+    {
+      "kind": "scholar",
+      "ar": "مَنْ تَبَحَّرَ فِي النَّحْوِ اهْتَدَى إِلَى كُلِّ الْعُلُومِ",
+      "en": "Whoever goes deep into grammar finds his way to every other science.",
+      "source": "Attributed to al-Imām ash-Shāfiʿī"
+    },
+    {
+      "kind": "scholar",
+      "ar": "أَخِي لَنْ تَنَالَ الْعِلْمَ إِلَّا بِسِتَّةٍ · سَأُنْبِيكَ عَنْ تَفْصِيلِهَا بِبَيَانِ · ذَكَاءٍ وَحِرْصٍ وَاجْتِهَادٍ وَبُلْغَةٍ · وَصُحْبَةِ أُسْتَاذٍ وَطُولِ زَمَانِ",
+      "en": "Brother, you will not attain knowledge but by six: intelligence, eagerness, striving, sufficiency, the company of a teacher, and a long stretch of time.",
+      "source": "Attributed to al-Imām ash-Shāfiʿī"
+    },
+    {
+      "kind": "scholar",
+      "ar": "الصَّرْفُ أُمُّ الْعُلُومِ وَالنَّحْوُ أَبُوهَا",
+      "en": "Ṣarf is the mother of the sciences, and naḥw their father.",
+      "source": "A saying of the grammarians"
+    }
+  ]
+}

@@ -10,7 +10,8 @@
 // app has.
 //
 // An AnswerRecord is a projection of the question's own identity (the WordSpec
-// in TECHNICAL_PLAN §A.7) plus what the user gave. Nothing is stored
+// of TECHNICAL_PLAN §A.7 — a chart's axes plus the ṣīghah) plus what the user
+// gave. Nothing is stored
 // positionally: `given` and `expected` hold pronoun keys or typed strings, so
 // "you confuse أَنْتَ with هِيَ" stays derivable later.
 //

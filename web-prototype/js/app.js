@@ -14,7 +14,7 @@ import {
   FORM_IDS, MAZEED_IDS, slotsFor,
   VERB_TYPE_GROUP_IDS, verbTypesInGroup, groupOfVerbType,
 } from './vocabulary.js';
-import { wordSpec, chartShape } from './word-spec.js';
+import { chartSpec, chartShape } from './chart-spec.js';
 import {
   PRONOUNS, FORM_NAMES, VERB_TYPE_INFO, CATEGORIES, TENSE_LABELS, VOICE_LABELS, MOOD_LABELS,
 } from './glossary.js';
@@ -62,6 +62,29 @@ const el = (html) => {
   return t.content.firstElementChild;
 };
 
+// ---------------------------------------------------------------------------
+// Motivation card — content, not code. The quotes live in data/quotes.json so
+// they can be edited, reordered or grown without touching this file, and they
+// are fetched once at boot rather than bundled: a failed fetch just means the
+// card doesn't appear, which is the right failure for a decoration.
+// ---------------------------------------------------------------------------
+let QUOTES = [];
+
+const QUOTE_KIND_LABELS = {
+  quran: 'Qurʾān',
+  hadith: 'Ḥadīth',
+  athar: 'Athar',
+  scholar: 'Said by',
+};
+
+fetch('./data/quotes.json')
+  .then((r) => r.json())
+  .then((data) => {
+    QUOTES = data.quotes ?? [];
+    if (state.tab === 'home') render();   // it arrived after the first paint
+  })
+  .catch(() => { /* no card, no error — the app does not depend on it */ });
+
 const TABS = [
   ['home', '⌂', 'Home'],
   ['practice', '✎', 'Practice'],
@@ -95,6 +118,11 @@ function renderHome() {
   app.append(el(`<h1>Sarf Quiz<span class="ar">الصَّرْف</span></h1>`));
   app.append(statsCard());
 
+  // Between the score and the drills on purpose: it reads as the reason to
+  // tap Start rather than as a banner you scroll past to reach your stats.
+  const quote = quoteCard();
+  if (quote) app.append(quote);
+
   app.append(el(`<div class="section-label">Start a drill</div>`));
   for (const preset of DRILL_PRESETS) {
     app.append(presetCard({
@@ -105,6 +133,22 @@ function renderHome() {
       onStart: () => startDrill(preset),
     }));
   }
+}
+
+/**
+ * One quote, picked fresh every time Home is drawn. Null when the file hasn't
+ * loaded (or failed), so the caller can simply skip it.
+ */
+function quoteCard() {
+  if (!QUOTES.length) return null;
+  const q = QUOTES[Math.floor(Math.random() * QUOTES.length)];
+  return el(`<figure class="quote">
+    <blockquote class="ar">${q.ar}</blockquote>
+    <figcaption>
+      <span class="en">${q.en}</span>
+      <cite><b>${QUOTE_KIND_LABELS[q.kind] ?? ''}</b> ${q.source}</cite>
+    </figcaption>
+  </figure>`);
 }
 
 function statsCard() {
@@ -474,8 +518,8 @@ function renderTableView() {
   }
 }
 
-/** The chart the Tables chips currently select, as a WordSpec with no slot. */
-const chartSpecOf = (root, t) => wordSpec({
+/** The chart the Tables chips currently select, as a ChartSpec. */
+const chartSpecOf = (root, t) => chartSpec({
   root, formId: t.formId, tense: t.tense, voice: t.voice, mood: t.mood,
 });
 

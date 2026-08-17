@@ -201,6 +201,15 @@ so filtering by bāb would really be filtering the root list.
 **What type 1 asks is not configurable either** — the app decides, from the
 configuration itself (§5.2b). Its repertoire is tense, voice, doer, iʿrāb and bāb.
 
+> **Planned (Aug 2026): a step-by-step alternative behind a feature flag.**
+> The configuration screen described above stays exactly as it is. A wizard —
+> quiz type → verbs → charts → length → summary — will be built alongside it and
+> selected by a build/settings flag, so both can be used for a while and the
+> better one chosen from experience rather than argument. Neither is removed
+> until that decision is made. Naming and copy proposals, and the summary step
+> both flows share, are in `.lavish/spec-compare-and-practice.html` §03. Build
+> spec: technical plan §D.2.
+
 ### 5.2b Question relevance — the app drops questions it has already answered
 
 A question is **dead when the property it asks about is constant across the pool
@@ -303,6 +312,35 @@ still shown in quiz feedback, it just isn't a column here.)
 Entry points: the Tables tab, and a "See full table" link on every quiz
 feedback box, which deep-links straight to that word's chart. Free feature: it
 showcases the engine and feeds the study loop that makes the drills valuable.
+
+### 5.7 Compare — two charts side by side (planned, not built)
+
+**Decided (Aug 2026): base + delta, with vary-by presets. Diff at all three
+levels.** Design discussion and the alternatives that were rejected:
+`.lavish/spec-compare-and-practice.html` §02. Build spec: technical plan §D.1.
+
+The single most useful study tool this app can offer that a paper book cannot:
+put two fully conjugated charts next to each other and show **what actually
+changed**. Comparisons a student wants:
+
+- the same verb in manṣūb beside majzūm, or maʿlūm beside majhūl
+- Form I muḍāriʿ majhūl beside Form II muḍāriʿ maʿlūm — across two axes at once
+- a sound root beside a doubled one (كتب vs مدّ), which is the whole lesson of
+  the muḍāʿaf chapter in one screen
+
+Entry point: a **Compare** button beside "View table" in the Tables browser —
+the user has already chosen a chart by then, so a separate tab would make them
+choose twice. Free feature, same reasoning as the Tables browser itself.
+
+The right-hand chart starts as a copy of the left, and the user taps only the
+axes that differ. One-tap presets ("compare voices", "compare the three iʿrāb
+states", "compare against the wazn") write a single field of that delta.
+
+Rows that match are dimmed; rows that differ are highlighted, with the
+**differing letters** picked out inside the word; a summary line reports
+"9 of 14 rows differ" or "these two charts are identical". That summary is a
+teaching tool and a correctness instrument at once — it is how a reader notices
+that two charts which *should* differ don't.
 
 ## 6. Content scope at launch (v1.0)
 

@@ -33,8 +33,8 @@ import {
 } from '../grammar/shared-grammar.js';
 import { SALIM_ENDINGS } from '../grammar/salim-grammar.js';
 import {
-  wordSpec, chartKey, slotSpecsOf, CHART_SHAPES, isValidShape,
-} from '../word-spec.js';
+  chartSpec, chartKey, CHART_SHAPES, isValidShape,
+} from '../chart-spec.js';
 import { SalimConjugator, getConjugationData as salimData } from './salim-conjugator.js';
 import { MudaafConjugator } from './mudaaf-conjugator.js';
 import { fill, norm } from './templates.js';
@@ -84,8 +84,8 @@ function chartExists(spec) {
 }
 
 /** The same, for one word: everything above, plus a slot that tense conjugates. */
-const wordExists = (spec) =>
-  chartExists(spec) && slotsFor(spec.tense).includes(spec.slot);
+const wordExists = (spec, slot) =>
+  chartExists(spec) && slotsFor(spec.tense).includes(slot);
 
 /**
  * Can this (root, form) actually produce words? Being present in the lexicon is
@@ -104,37 +104,37 @@ export function isConjugatable(root, formId) {
 }
 
 /**
- * One word from one WordSpec, or null when that word doesn't exist in the
- * language (or the content for it hasn't landed yet). Null is a normal answer
- * here, not an error.
+ * One word: the paradigm the spec names, at one ṣīghah. Null when that word
+ * doesn't exist in the language (or the content for it hasn't landed yet).
+ * Null is a normal answer here, not an error.
  *
- * The spec is the whole input: root, form, tense, voice, mood, slot. Callers
- * that hold only some of those build one with wordSpec(), which fills in the
- * unmarked readings (maʿlūm, marfūʿ).
+ * The spec carries the paradigm — root, form, tense, voice, mood — and the slot
+ * picks the row. Callers that hold only some of the axes build a spec with
+ * chartSpec(), which fills in the unmarked readings (maʿlūm, marfūʿ).
  *
  * Called by: QuizService for every question it builds (the prompt word, the
  * correct answer and the distractors all come through here), fullTable() below
  * for the Tables browser, citation() below, and the smoke test's ~125 hand-typed
  * parity assertions.
  */
-export function conjugate(spec) {
-  if (!wordExists(spec)) return null;
+export function conjugate(spec, slot) {
+  if (!wordExists(spec, slot)) return null;
 
   const engine = engineFor(spec.root);
-  if (engine) return engine.conjugate(spec, spec.slot);
+  if (engine) return engine.conjugate(spec, slot);
 
   // No engine for this verb type yet — fall back to the root's hand-authored
   // table. This is the one place a chart still needs a string: the fixtures are
   // stored per chart in the lexicon, so the spec is asked for its chart key.
   const fixture = spec.root.forms[spec.formId].manualTables?.[chartKey(spec)];
-  return fixture ? norm(fixture[spec.slot] ?? null) : null;
+  return fixture ? norm(fixture[slot] ?? null) : null;
 }
 
 /**
  * The full paper table for one chart, as {slot: word}. Null when empty.
  *
- * Takes the same spec conjugate() does, with the slot left off — a chart is a
- * word with the slot unfixed, which is why it needs no type of its own.
+ * Takes the same spec conjugate() does — the spec IS the chart, which is why
+ * a chart needs no type of its own.
  *
  * Called by: app.js in the Tables tab — once to decide whether "View table" is
  * offered for the current tense/voice/mood selection, and again to render the
@@ -155,7 +155,7 @@ export function fullTable(spec) {
   const fixture = spec.root.forms[spec.formId].manualTables?.[chartKey(spec)];
   if (!fixture) return null;
   const out = {};
-  for (const { slot } of slotSpecsOf(spec)) {
+  for (const slot of slotsFor(spec.tense)) {
     if (fixture[slot]) out[slot] = norm(fixture[slot]);
   }
   return Object.keys(out).length ? out : null;
@@ -174,7 +174,7 @@ export function fullTable(spec) {
  */
 export function availableCharts(root, formId) {
   return CHART_SHAPES
-    .map((shape) => wordSpec({ root, formId, ...shape }))
+    .map((shape) => chartSpec({ root, formId, ...shape }))
     .filter((spec) => fullTable(spec));
 }
 
@@ -218,17 +218,17 @@ const waznRoot = (formId, bab) => ({
 
 /**
  * The pattern word behind a spec — يَسْتَفْعِلُ for X muḍāriʿ rafʿ 3ms. Takes a
- * WordSpec and answers the same word for the reference root ف-ع-ل.
+ * ChartSpec plus a slot and answers the same word for the reference root ف-ع-ل.
  *
  * Called by: QuizService, which appends it to a produce-question explanation
  * ("...on the pattern of يَسْتَفْعِلُ") so the student sees the shape behind the
  * word they just conjugated. Form I needs a `bab`; without one it returns null
  * rather than silently showing the نَصَرَ pattern for a سَمِعَ verb.
  */
-export function waznOf(spec, bab) {
+export function waznOf(spec, slot, bab) {
   return SalimConjugator.conjugate(
-    wordSpec({ ...spec, root: waznRoot(spec.formId, bab) }),
-    spec.slot,
+    chartSpec({ ...spec, root: waznRoot(spec.formId, bab) }),
+    slot,
   );
 }
 
@@ -274,8 +274,8 @@ export function waznOfDerived(formId, nounType, bab) {
  *     (the māḍī) as the verb's display name.
  */
 export function citation(root, formId) {
-  const madi = conjugate(wordSpec({ root, formId, tense: 'madi', slot: '3ms' }));
-  const mudari = conjugate(wordSpec({ root, formId, tense: 'mudari', slot: '3ms' }));
+  const madi = conjugate(chartSpec({ root, formId, tense: 'madi' }), '3ms');
+  const mudari = conjugate(chartSpec({ root, formId, tense: 'mudari' }), '3ms');
   if (madi && mudari) return `${madi} ${mudari}`;
 
   // Half a citation still names the verb. This is the partial-content case: a
@@ -318,10 +318,8 @@ function citationFromStems(root, formId) {
   // The sound engine's own lookup, because the guard above has just established
   // that this is a sound root. A form that doesn't conjugate has no abwāb
   // either, so both entries are plain templates and the bāb never comes up.
-  const madi3ms = wordSpec({ root, formId, tense: 'madi', slot: '3ms' });
-  const mudari3ms = wordSpec({ root, formId, tense: 'mudari', slot: '3ms' });
-  const madiStem = salimData(madi3ms)?.stem;
-  const mudariStem = salimData(mudari3ms)?.stem;
+  const madiStem = salimData(chartSpec({ root, formId, tense: 'madi' }))?.stem;
+  const mudariStem = salimData(chartSpec({ root, formId, tense: 'mudari' }))?.stem;
   if (!madiStem || !mudariStem) return '';
 
   // Assemble the 3ms word exactly as SalimConjugator would have: stem plus that

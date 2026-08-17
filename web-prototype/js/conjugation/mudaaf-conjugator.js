@@ -1,7 +1,7 @@
 import { MUDAAF_STEMS, MUDAAF_ENDINGS, DERIVED_NOUN_STEMS } from '../grammar/mudaaf-grammar.js';
 import { PREFIX_LETTERS, MUDARI_PREFIX_HARAKA } from '../grammar/shared-grammar.js';
 import { slotsFor, SEEGAH_TYPES } from '../vocabulary.js';
-import { babOf } from '../word-spec.js';
+import { babOf } from '../chart-spec.js';
 import { fill, norm, amrOpening } from './templates.js';
 
 /** forms whose own shadda sits between the ayn and the lam, so nothing merges */

@@ -80,18 +80,18 @@ function enForms(usage) {
  * "he hit", "it was said", "they write / will write", "throw! (you (f))" — and
  * for a governed muḍāriʿ, "he will not help" / "he did not help".
  *
- * Takes the same WordSpec ConjugationService.conjugate() does, so the Arabic
- * word and its English are always read off one object rather than two argument
- * lists that could drift apart.
+ * Takes the same (spec, slot) pair ConjugationService.conjugate() does, so the
+ * Arabic word and its English are always read off the same description rather
+ * than two argument lists that could drift apart.
  *
  * `particleId` picks which governing particle to voice for a manṣūb or majzūm
  * muḍāriʿ; omitted, the mood's canonical particle is used. Marfūʿ, māḍī and amr
  * ignore it, so every existing call site keeps its exact output.
  */
-export function verbMeaning(spec, particleId = null) {
+export function verbMeaning(spec, slot, particleId = null) {
   const usage = spec.root.forms[spec.formId];
   if (!usage) return '';
-  const { tense, voice, mood, slot } = spec;
+  const { tense, voice, mood } = spec;
   const subj = PRONOUNS[slot]?.en ?? '';
   const e = enForms(usage);
 

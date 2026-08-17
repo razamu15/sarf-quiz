@@ -1,6 +1,6 @@
-// WordSpec — everything it takes to name ONE conjugated word, in one object.
+// ChartSpec — everything it takes to name ONE PARADIGM, in one object.
 //
-//   { root, formId, tense, voice, mood, slot }
+//   { root, formId, tense, voice, mood }
 //
 // This replaces the ChartID. A chart id was four facts crushed into a string
 // that then had to be looked up in a table to get the facts back out, and every
@@ -8,10 +8,19 @@
 // wants mood, the engine wants all four) paid that round trip. The axes now
 // travel in the open.
 //
-// A spec with `slot: null` names a CHART rather than a word — "مدّ Form I
-// muḍāriʿ maʿlūm marfūʿ", the whole fourteen-row table. That is all a chart
-// ever was, so it needs no entity of its own: `fullTable(spec)` takes the same
-// object `conjugate(spec)` does, minus the slot.
+// THE SLOT IS NOT IN HERE, deliberately. A spec names the whole fourteen-row
+// table — "مدّ Form I muḍāriʿ maʿlūm marfūʿ" — and a ṣīghah indexes into it.
+// Those are two different things, and while the spec carried an optional slot
+// it was standing in for both: `fullTable` ignored the field, `conjugate` read
+// it, and after the engines moved to `conjugate(spec, slot)` there were two
+// sources of truth for the ṣīghah that nothing checked against each other.
+//
+// So a word is a ChartSpec PLUS a slot, and every function that builds one
+// takes them as two arguments. That pair is what the rest of the app calls a
+// WordSpec: quiz questions and history records carry the chart's fields and the
+// slot side by side, which is what they already did. The two names now mean two
+// different things, which is the point — this file owns the chart, and nothing
+// in it knows what a ṣīghah is.
 //
 // Specs are frozen. They are copied into quiz questions and history records as
 // identity, so a caller mutating one after the fact would rewrite history.
@@ -19,37 +28,27 @@
 import { SLOTS, AMR_SLOTS, TENSES, VOICES, MOODS, slotsFor } from './vocabulary.js';
 
 /**
- * Build a WordSpec. `voice` defaults to maʿlūm and `mood` to rafʿ for the
+ * Build a ChartSpec. `voice` defaults to maʿlūm and `mood` to rafʿ for the
  * muḍāriʿ, since those are the unmarked readings.
  *
  * Mood is forced to null outside the muḍāriʿ and voice to maʿlūm for the amr —
  * the māḍī and the amr are not iʿrāb-bearing and there is no passive
  * imperative, so a caller passing one is corrected rather than obeyed. That
- * keeps two specs for the same word from comparing unequal.
+ * keeps two specs for the same paradigm from comparing unequal.
  */
-export function wordSpec({ root, formId, tense, voice = 'malum', mood, slot = null }) {
+export function chartSpec({ root, formId, tense, voice = 'malum', mood }) {
   const spec = {
     root,
     formId,
     tense,
     voice: tense === 'amr' ? 'malum' : voice,
     mood: tense === 'mudari' ? (mood ?? 'raf') : null,
-    slot,
   };
   return Object.freeze(spec);
 }
 
-/** The same spec pointing at a different slot — the usual way to walk a chart. */
-export const atSlot = (spec, slot) => wordSpec({ ...spec, slot });
-
 /** The same spec in the other voice, for "does this verb have a passive?" work. */
-export const inVoice = (spec, voice) => wordSpec({ ...spec, voice });
-
-/** The chart a word belongs to: the same spec with no slot. */
-export const chartOf = (spec) => wordSpec({ ...spec, slot: null });
-
-/** Every slot spec of a chart, in table order. */
-export const slotSpecsOf = (spec) => slotsFor(spec.tense).map((slot) => atSlot(spec, slot));
+export const inVoice = (spec, voice) => chartSpec({ ...spec, voice });
 
 /** The bāb this word is conjugated on — Form I's ʿayn vowel pair, else undefined. */
 export const babOf = (spec) => spec.root.forms[spec.formId]?.bab;
