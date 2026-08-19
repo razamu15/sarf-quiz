@@ -51,9 +51,9 @@ export const NAQIS_STEMS = {
     // pattern puts a kasrah on the second radical, which is exactly the ia baab.
     madi_majhul: {
       // however madi majhul has one more quirk, which is that last weak letter is always a ya
-      regular:  '1' + F + '2' + K + 'ي',
+      regular:  '1' + D + '2' + K + 'ي',
       // [NOTE A1]
-      thirdMascPlural: '1' + F + '2' + D
+      thirdMascPlural: '1' + D + '2' + D
     },
 
     mudari_malum: {
@@ -113,19 +113,19 @@ export const NAQIS_STEMS = {
 
 // naqis has 3 specific seegah that drop the weak letter that do not correspond to a singular group.
 // they drop them because ow you would have 2 weak letter back to back
-const NAQIS_DROPPING_SLOTS_MADI = [
+export const NAQIS_DROPPING_SLOTS_MADI = [
   '3mp', '3fs', '3fd'
 ];
 
-const NAQIS_DROPPING_SLOTS_MUDARI = [
+export const NAQIS_DROPPING_SLOTS_MUDARI = [
   '3mp', '2mp' , '2fs'
 ];
 
 const NAQIS_MUDARI_NON_RAFA_ENDINGS = {
     '3ms': A('', ''),            '3md': A(F, 'ا'),      '3mp': A('', 'وا'),
-    '3fs': A('', ''),            '3md': A(F, 'ا'),      '3fp': A('', 'ن' + F),
-    '2ms': A('', ''),            '3md': A(F, 'ا'),      '2mp': A('', 'وا'),
-    '2fs': A('', 'ي' + 'ن' + F), '3md': A(F, 'ا'),      '2fp': A('', 'ن' + F),
+    '3fs': A('', ''),            '3fd': A(F, 'ا'),      '3fp': A('', 'ن' + F),
+    '2ms': A('', ''),            '2md': A(F, 'ا'),      '2mp': A('', 'وا'),
+    '2fs': A('', 'ي' + S), '2fd': A(F, 'ا'),      '2fp': A('', 'ن' + F),
     '1s':  A('', ''),            '1p':  A('', ''),
   }
 
