@@ -95,7 +95,7 @@ export const NAQIS_STEMS = {
     // because all the naqis mudari majhool are on the same pattern, they look very similar to the mudari malum verbs
     // of the ia or aa baabs, because they all have a fatha on the ayn kalima. 
     mudari_majhul: {
-      regular:  '1' + S + '2' + D + 'ي',
+      regular:  '1' + S + '2' + F + 'ي',
       femSingular: '1' + S + '2' + F,
       mascPlural: '1' + S + '2' + F 
     },
@@ -125,7 +125,7 @@ const NAQIS_MUDARI_NON_RAFA_ENDINGS = {
     '3ms': A('', ''),            '3md': A(F, 'ا'),      '3mp': A('', 'وا'),
     '3fs': A('', ''),            '3fd': A(F, 'ا'),      '3fp': A('', 'ن' + F),
     '2ms': A('', ''),            '2md': A(F, 'ا'),      '2mp': A('', 'وا'),
-    '2fs': A('', 'ي' + S), '2fd': A(F, 'ا'),      '2fp': A('', 'ن' + F),
+    '2fs': A('', 'ي'),           '2fd': A(F, 'ا'),      '2fp': A('', 'ن' + F),
     '1s':  A('', ''),            '1p':  A('', ''),
   }
 
@@ -150,7 +150,7 @@ export const NAQIS_ENDINGS = {
     '3ms': A(D, ''),            '3md': A(F, 'ا' + 'ن' + K),      '3mp': A('', 'و' + 'ن' + F),
     '3fs': A(D, ''),            '3fd': A(F, 'ا' + 'ن' + K),      '3fp': A('', 'ن' + F),
     '2ms': A(D, ''),            '2md': A(F, 'ا' + 'ن' + K),      '2mp': A('', 'و' + 'ن' + F),
-    '2fs': A('', 'ي' + 'ن' + F), '2fd': A(F, 'ا' + 'ن' + K),      '2fp': A('', 'ن' + F),
+    '2fs': A('', 'ي' + 'ن' + F),'2fd': A(F, 'ا' + 'ن' + K),      '2fp': A('', 'ن' + F),
     '1s':  A(D, ''),            '1p':  A(D, ''),
   },
   // ALSO SIDE NOTE LATER CHANGE, but right now the raf endings are here because of the dammah on the 3ms, 3fs
@@ -167,12 +167,8 @@ export const NAQIS_ENDINGS = {
 export const DERIVED_NOUN_STEMS = {};
 
 
+// for da'a, we have  madi maruf 3mpl, missin a sukun
 
-// aight so for the ai, aa and ia baabs, the mabni forms are good, and the regular consturction will 
-// make them easily.
+// for da'a, we have mudari maruf, 5 types with an extra wow
 
-// for the au baab, the 3rd fem pl would be fine with regular construction but the 2nd fem pl would not
-// be because the wow changes to a ya.
-
-
-// for 2fs, we need the baab templates to define the haraka before the ya nun.
+// qada, we have mado maruf, 3ms has a ya with a fatha at the end? where is the fatha coming from and why was the ya not changed?

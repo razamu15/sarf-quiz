@@ -39,10 +39,11 @@ import { SalimConjugator, getConjugationData as salimData } from './salim-conjug
 import { MudaafConjugator } from './mudaaf-conjugator.js';
 import { MithalConjugator } from './mithal-conjugator.js';
 import { AjwafConjugator } from './ajwaf-conjugator.js';
+import { NaqisConjugator } from './naqis-conjugator.js';
 import { fill, norm } from './templates.js';
 
 const ENGINES = Object.fromEntries(
-  [SalimConjugator, MudaafConjugator, MithalConjugator, AjwafConjugator]
+  [SalimConjugator, MudaafConjugator, MithalConjugator, AjwafConjugator, NaqisConjugator]
     .map((engine) => [engine.handles, engine]),
 );
 
