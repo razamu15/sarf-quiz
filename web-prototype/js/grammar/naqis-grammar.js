@@ -121,6 +121,13 @@ const NAQIS_DROPPING_SLOTS_MUDARI = [
   '3mp', '2mp' , '2fs'
 ];
 
+const NAQIS_MUDARI_NON_RAFA_ENDINGS = {
+    '3ms': A('', ''),            '3md': A(F, 'ا'),      '3mp': A('', 'وا'),
+    '3fs': A('', ''),            '3md': A(F, 'ا'),      '3fp': A('', 'ن' + F),
+    '2ms': A('', ''),            '3md': A(F, 'ا'),      '2mp': A('', 'وا'),
+    '2fs': A('', 'ي' + 'ن' + F), '3md': A(F, 'ا'),      '2fp': A('', 'ن' + F),
+    '1s':  A('', ''),            '1p':  A('', ''),
+  }
 
 /**
  * Ending tables — the interesting half of this verb type. The weak letter IS
@@ -150,6 +157,10 @@ export const NAQIS_ENDINGS = {
   // etc, and we have the imperative code in the conjugator doing the nasb and jazm, we should remove the dammah
   // from here and make it consistent and move all those endings to to the code, however, it also makes sense
   // to separate them because rafa has the noons and the other 2 do not.
+
+  mudari_nasb: NAQIS_MUDARI_NON_RAFA_ENDINGS,
+  
+  mudari_jazm: NAQIS_MUDARI_NON_RAFA_ENDINGS,
 };
 
 /** ism fāʿil / ism mafʿūl / maṣdar templates, per form. */
