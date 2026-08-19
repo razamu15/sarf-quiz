@@ -136,7 +136,15 @@ const NAQIS_MUDARI_NON_RAFA_ENDINGS = {
  * SALIM_ENDINGS is imported for the rows that genuinely don't.
  */
 export const NAQIS_ENDINGS = {
-  madi: SALIM_ENDINGS.madi,
+  madi: {
+    // this is identical to the madi endings for the salim verbs, except 3ms, because naqis 3ms ends in the weak letter
+    // and it doesnt take any haraka EXCEPT for the ia baab, which we have added a special case in the code for. TODO
+    '3ms': A('', ''),            '3md': A(F, 'ا'),                '3mp': A(D, 'وا'),
+    '3fs': A(F, 'ت' + S),       '3fd': A(F, 'ت' + F + 'ا'),      '3fp': A(S, 'ن' + F),
+    '2ms': A(S, 'ت' + F),       '2md': A(S, 'ت' + D + 'م' + F + 'ا'), '2mp': A(S, 'ت' + D + 'م' + S),
+    '2fs': A(S, 'ت' + K),       '2fd': A(S, 'ت' + D + 'م' + F + 'ا'), '2fp': A(S, 'ت' + D + 'ن' + SH + F),
+    '1s':  A(S, 'ت' + D),       '1p':  A(S, 'ن' + F + 'ا'),
+  },
 
   // the thing with naqis is that we cannot just use the salim endings because for certain baabs, the
   // the endings are different and so if we try to give the last latter a haraka from the endings object
@@ -147,11 +155,11 @@ export const NAQIS_ENDINGS = {
   // defined only on the dropping stems 
   // the mabni seegahs dont need sukun for naqis (3fp, 2fp)
   mudari_raf: {
-    '3ms': A(D, ''),            '3md': A(F, 'ا' + 'ن' + K),      '3mp': A('', 'و' + 'ن' + F),
-    '3fs': A(D, ''),            '3fd': A(F, 'ا' + 'ن' + K),      '3fp': A('', 'ن' + F),
-    '2ms': A(D, ''),            '2md': A(F, 'ا' + 'ن' + K),      '2mp': A('', 'و' + 'ن' + F),
+    '3ms': A('', ''),            '3md': A(F, 'ا' + 'ن' + K),      '3mp': A('', 'و' + 'ن' + F),
+    '3fs': A('', ''),            '3fd': A(F, 'ا' + 'ن' + K),      '3fp': A('', 'ن' + F),
+    '2ms': A('', ''),            '2md': A(F, 'ا' + 'ن' + K),      '2mp': A('', 'و' + 'ن' + F),
     '2fs': A('', 'ي' + 'ن' + F),'2fd': A(F, 'ا' + 'ن' + K),      '2fp': A('', 'ن' + F),
-    '1s':  A(D, ''),            '1p':  A(D, ''),
+    '1s':  A('', ''),            '1p':  A('', ''),
   },
   // ALSO SIDE NOTE LATER CHANGE, but right now the raf endings are here because of the dammah on the 3ms, 3fs
   // etc, and we have the imperative code in the conjugator doing the nasb and jazm, we should remove the dammah
@@ -165,10 +173,3 @@ export const NAQIS_ENDINGS = {
 
 /** ism fāʿil / ism mafʿūl / maṣdar templates, per form. */
 export const DERIVED_NOUN_STEMS = {};
-
-
-// for da'a, we have  madi maruf 3mpl, missin a sukun
-
-// for da'a, we have mudari maruf, 5 types with an extra wow
-
-// qada, we have mado maruf, 3ms has a ya with a fatha at the end? where is the fatha coming from and why was the ya not changed?
