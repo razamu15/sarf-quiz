@@ -366,10 +366,14 @@ check(verbTypesInGroup('naqis').join() === 'naqis_waw,naqis_ya', 'nāqiṣ cover
 check(stockedTypes().includes('mithal_waw'), 'mithāl content is in the lexicon');
 check(availableTypes().includes('mithal_waw') && availableTypes().includes('mithal_ya'),
   'mithāl is playable — MithalConjugator landed (Form I; mazīd tables still empty)');
-// naqis_waw has neither an engine nor fixtures, so it is still content in
-// waiting — the state ajwaf and mithāl were in until their engines landed.
-check(stockedTypes().includes('naqis_waw') && !availableTypes().includes('naqis_waw'),
-  'a type with no engine and no fixtures stays out of every quiz');
+// Every type the lexicon stocks now has an engine behind it — the holding
+// state mithāl, ajwaf and nāqiṣ each passed through has been cleared.
+check(stockedTypes().every((t) => availableTypes().includes(t)),
+  'every stocked verb type is playable — five engines cover all of them');
+// The gate itself still works: mahmūz and lafīf have no engine, and would stay
+// out of every quiz the moment the lexicon stocked one.
+check(!enginedGroups().includes('mahmuz') && !enginedGroups().includes('lafif'),
+  'mahmūz and lafīf are still engine-less, and nothing pretends otherwise');
 check(availableTypes().includes('ajwaf_waw') && availableTypes().includes('ajwaf_ya'),
   'ajwaf is playable — AjwafConjugator landed, and it serves both weak letters');
 
@@ -927,13 +931,12 @@ check(chartKeysFor({ tenses: ['madi'], voices: ['majhul'], moods: [] }) === 'mad
   check(conjugateChart(byRoot('مدد'), 'I', 'madi_malum', '3ms') === 'مَدَّ',
     'an unsplit type routes through the same group lookup');
 
-  // نوم has no manual tables of its own; it is playable purely because the
-  // ajwaf engine landed and reads its bāb off the lexicon.
+  // نوم and دعو carry no manual tables of their own; they are playable purely
+  // because their engines landed and read the bāb off the lexicon.
   check(conjugateChart(byRoot('نوم'), 'I', 'madi_malum', '3ms') === 'نَامَ',
     'an engine makes fixture-less weak content playable');
-  // نصر is sound, رمي is nāqiṣ with fixtures, دعو is nāqiṣ with neither.
-  check(conjugateChart(byRoot('دعو'), 'I', 'madi_malum', '3ms') === null,
-    'weak content without an engine still conjugates to nothing');
+  check(conjugateChart(byRoot('دعو'), 'I', 'madi_malum', '3ms') === 'دَعَا',
+    'the nāqiṣ engine writes a wāw root back as a full alif');
 }
 
 console.log(`\nTOTAL: ${pass} passed, ${fail} failed`);

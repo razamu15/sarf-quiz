@@ -11,7 +11,7 @@ import {
   NAQIS_DROPPING_SLOTS_MADI, NAQIS_DROPPING_SLOTS_MUDARI,
 } from '../grammar/naqis-grammar.js';
 import { PREFIX_LETTERS, MUDARI_PREFIX_HARAKA } from '../grammar/shared-grammar.js';
-import { slotsFor, MOOD_DISTINCT_SLOTS, FATHA, DAMMA, KASRA } from '../vocabulary.js';
+import { slotsFor, MOOD_DISTINCT_SLOTS, FATHA, DAMMA, KASRA, SUKUN } from '../vocabulary.js';
 import { babOf } from '../chart-spec.js';
 import { fill, norm, joinEnding, amrOpening } from './templates.js';
 
@@ -82,6 +82,59 @@ export function getConjugationData(spec, slot) {
   };
 }
 
+/**
+ * Is the weak letter a long vowel here, or a consonant?
+ *
+ * ُو and ِي are ONE long sound — the haraka and the letter are the same vowel,
+ * so nothing else is written on them. َو and َي are two things: a fatha, then a
+ * consonant, and that consonant carries a sukun of its own.
+ *
+ * That single fact decides every sukun in this verb type: رَمَيْتُ against
+ * رُمِيتُ, رَمَوْا against رُمُوا, يُرْمَيْنَ against يَرْمِينَ. Same slot, same
+ * ending — different only in what the haraka before the weak letter is.
+ */
+function isLongVowel(harakaBefore, weakLetter) {
+  if (weakLetter === 'و' && harakaBefore === DAMMA) return true;
+  if (weakLetter === 'ي' && harakaBefore === KASRA) return true;
+  return false;
+}
+
+/**
+ * The haraka that joins a filled stem to its suffix, once the weak letter has
+ * had its say. Two places it can sit, and the rule is the same in both:
+ *
+ *   stem ends in the weak letter   رَمَي + تَ   → consonant, so sukun
+ *                                  رُمِي + تَ   → long ii, so nothing
+ *   suffix STARTS with one         رَمَ + وا   → consonant, so sukun after it
+ *                                  رُمُ + وا   → long uu, so nothing
+ *
+ * A suffix-less seegah is left alone entirely: رَمَي has to reach the swap
+ * below still ending in its weak letter, or it can never become رَمَى.
+ */
+function joinAcrossWeakLetter(filledStem, affix, stemCarriesItsHaraka) {
+  if (!affix.s) return affix;
+
+  // a dropping template already ends in its own haraka, so the ending adds none
+  let h = affix.h;
+  if (stemCarriesItsHaraka) h = '';
+
+  const last = filledStem[filledStem.length - 1];
+  if (last === 'و' || last === 'ي') {
+    // an ending that brings a real vowel wins outright: the weak letter is a
+    // consonant carrying it, and no sukun question arises. رَمَيَا · رُمِيَتْ
+    if (h !== '' && h !== SUKUN) return { h, s: affix.s };
+    if (isLongVowel(filledStem[filledStem.length - 2], last)) return { h: '', s: affix.s };
+    return { h: SUKUN, s: affix.s };
+  }
+
+  const first = affix.s[0];
+  if (first === 'و' || first === 'ي') {
+    if (isLongVowel(last, first)) return { h, s: affix.s };
+    return { h, s: first + SUKUN + affix.s.slice(1) };
+  }
+  return { h, s: affix.s };
+}
+
 // fully conjugated naqis word is given
 function naqisWeakLetterSwap(word) {
   if (word.endsWith('و') || word.endsWith('ي')) {
@@ -122,11 +175,14 @@ export const NaqisConjugator = {
     let ending = affix;
     let extraHaraka = '';
 
-    // a dropping template already ends in its own haraka, so the ending gives
-    // only its suffix. the mudari endings are already blank there; the madi
-    // ones are borrowed from salim and are not.
-    if (variant !== 'regular') {
-      ending = { h: '', s: affix.s };
+    // the madi 3ms ends in the bare weak letter and normally takes no haraka at
+    // all, so that the swap below can turn it into رَمَى · دَعَا. the exception
+    // is a kasra on the ayn — the ia baab, and the majhool which is built on
+    // that same kasra — where the letter stays a consonant and takes the
+    // fatha of the ending: رَضِيَ · رُمِيَ.
+    const aynTakesKasra = (spec.voice === 'majhul' || babOf(spec) === 'ia');
+    if (spec.tense === 'madi' && slot === '3ms' && aynTakesKasra) {
+      extraHaraka = FATHA;
     }
 
     // so for naqis things are a little bit different, up until now, for all the verb types we have just
@@ -166,7 +222,9 @@ export const NaqisConjugator = {
       template = stem.slice(0, -1);
     }
 
-    let result = joinEnding(fill(template, spec.root.root), ending) + extraHaraka;
+    const filledStem = fill(template, spec.root.root);
+    const joined = joinAcrossWeakLetter(filledStem, ending, variant !== 'regular');
+    let result = joinEnding(filledStem, joined) + extraHaraka;
 
     // The muḍāriʿ prefixes: the letter is a fact about the pronoun, the ḥaraka
     // a fact about the form and voice. The amr drops that prefix and props a

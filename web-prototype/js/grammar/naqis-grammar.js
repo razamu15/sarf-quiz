@@ -34,7 +34,7 @@ export const NAQIS_STEMS = {
       },
       aa: {
         regular:  '1' + F + '2' + F + '3',
-        dropping: '1' + K + '3'
+        dropping: '1' + K + '2' + F
       },
       ia: {
         // for ia naqis verbs, the only seegah that is different is 3rd masc plural,
@@ -82,12 +82,12 @@ export const NAQIS_STEMS = {
       // the femSingular and mascPlural stems bcz if you look at the salim grammar file, they would
       // be getting a kasrah and a dammah respectively
       aa: {
-        regular:  '1' + S + '2' + D + '3',
+        regular:  '1' + S + '2' + F + '3',
         femSingular: '1' + S + '2' + F,
         mascPlural: '1' + S + '2' + F 
       },
       ia: {
-        regular:  '1' + S + '2' + D + '3',
+        regular:  '1' + S + '2' + F + '3',
         femSingular: '1' + S + '2' + F,
         mascPlural: '1' + S + '2' + F 
       }
