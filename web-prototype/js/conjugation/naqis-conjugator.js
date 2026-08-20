@@ -5,6 +5,57 @@
 //
 // This is the first engine whose STEM changes with the mood, so it is also the
 // first with real imperative work in conjugate() — see the mood blocks below.
+//
+// ---------------------------------------------------------------------------
+// THE SUKUN PROBLEM, which is most of what this file is actually about
+// ---------------------------------------------------------------------------
+//
+// Every other verb type can decide a sukun from the ENDING alone: the ending
+// table says A(S, 'تَ') and كَتَبْتَ comes out with its sukun, every time, for
+// every root. The naqis cannot, because the letter the ending lands on is the
+// weak one, and that letter is sometimes a vowel and sometimes a consonant.
+//
+// The whole rule is one fact:
+//
+//     ُو  and  ِي   are ONE long sound. The haraka and the letter are the same
+//                  vowel written twice over, so nothing else goes on them.
+//     َو  and  َي   are TWO things: a fatha, and then a consonant — and that
+//                  consonant carries a sukun of its own.
+//
+// Which means the SAME slot with the SAME ending row comes out differently
+// depending only on what vowel the stem happens to end on:
+//
+//     madi 2ms      رَمَيْتُ    fatha + ya  → consonant → sukun
+//                   رُمِيتُ     kasra + ya  → long ii   → none
+//     madi 3mp      رَمَوْا     fatha + waw → consonant → sukun
+//                   رُمُوا      damma + waw → long uu   → none
+//     mudari 3fp    يُرْمَيْنَ   fatha + ya  → consonant → sukun
+//                   يَرْمِينَ    kasra + ya  → long ii   → none
+//     mudari 2fs    تُرْمَيْنَ   fatha + ya  → consonant → sukun
+//                   تَرْمِينَ    kasra + ya  → long ii   → none
+//
+// Note the last pair: there the weak letter comes from the ENDING, not the
+// stem (the femSingular template stops at the ayn), so the rule has to be
+// applied on both sides of the join. isLongVowel() states the fact and
+// joinAcrossWeakLetter() applies it at both places.
+//
+// Three things override it, all of them in joinAcrossWeakLetter or right
+// beside it:
+//
+//   1. An ending that brings a REAL vowel wins outright — رَمَيَا, رُمِيَتْ.
+//      The weak letter is a consonant carrying that fatha, so there was never
+//      a sukun to decide.
+//   2. A dropping template already ends in its own haraka (رَمَ · رُمُ · رْمَ),
+//      so the ending contributes no haraka at all, only its suffix.
+//   3. A suffix-less seegah is left completely alone. رَمَي has to reach
+//      naqisWeakLetterSwap() still ending in its weak letter, or it can never
+//      become رَمَى — and the one exception to THAT is the madi 3ms on a kasra
+//      ayn (the ia baab and the majhool), where the letter stays a consonant
+//      and takes the ending's fatha: رَضِيَ · رُمِيَ.
+//
+// All of this is checked against رمي's hand-authored tables in the lexicon —
+// 90 cells, exact. They were written before this engine existed, which is what
+// makes them worth checking against.
 
 import {
   NAQIS_STEMS, NAQIS_ENDINGS, DERIVED_NOUN_STEMS,
@@ -179,7 +230,7 @@ export const NaqisConjugator = {
     // all, so that the swap below can turn it into رَمَى · دَعَا. the exception
     // is a kasra on the ayn — the ia baab, and the majhool which is built on
     // that same kasra — where the letter stays a consonant and takes the
-    // fatha of the ending: رَضِيَ · رُمِيَ.
+    // fatha of the ending: رَضِيَ · رُمِيَ. [NOTE A1]
     const aynTakesKasra = (spec.voice === 'majhul' || babOf(spec) === 'ia');
     if (spec.tense === 'madi' && slot === '3ms' && aynTakesKasra) {
       extraHaraka = FATHA;

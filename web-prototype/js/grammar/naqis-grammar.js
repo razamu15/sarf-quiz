@@ -21,10 +21,6 @@ export const NAQIS_STEMS = {
   I: {
     madi_malum: {
       au: {
-        // TODO we need alif becuse 3rd m sing ending is empty string so we need the alif
-        // but also we cant put an alif here because itll bleed over to all the other seegah
-        // i think well need to implement the function that check the last letter and replaces 
-        // if needed based on the naqis rules cz itll be used by mudari as well. 
         regular:  '1' + F + '2' + F + '3',
         dropping: '1' + F + '2' + F
       },
@@ -138,7 +134,7 @@ const NAQIS_MUDARI_NON_RAFA_ENDINGS = {
 export const NAQIS_ENDINGS = {
   madi: {
     // this is identical to the madi endings for the salim verbs, except 3ms, because naqis 3ms ends in the weak letter
-    // and it doesnt take any haraka EXCEPT for the ia baab, which we have added a special case in the code for. TODO
+    // and it doesnt take any haraka EXCEPT for the ia baab, which we have added a special case in the code for. [NOTE A1]
     '3ms': A('', ''),            '3md': A(F, 'ا'),                '3mp': A(D, 'وا'),
     '3fs': A(F, 'ت' + S),       '3fd': A(F, 'ت' + F + 'ا'),      '3fp': A(S, 'ن' + F),
     '2ms': A(S, 'ت' + F),       '2md': A(S, 'ت' + D + 'م' + F + 'ا'), '2mp': A(S, 'ت' + D + 'م' + S),
