@@ -102,7 +102,7 @@ export function getConjugationData(spec, slot) {
   // baab, and the mazeed forms have no abwab at all, so both skip that layer
   let stemSetByVariant = stemSetByForm[tableName];
   if (spec.formId === 'I' && spec.voice === 'malum') {
-    stemSetByVariant = stemSetByForm[tableName]?.[babOf(spec)];
+    stemSetByVariant = stemSetByForm[tableName]?.[babOf(spec.root, spec.formId)];
   }
 
   let variant = 'regular';
@@ -111,7 +111,7 @@ export function getConjugationData(spec, slot) {
     // ayn makes the ya pronounceable — and so does the majhool, which is built
     // on that same kasrah. both stray only in the 3rd masc plural, where the
     // plural waw follows. every other baab drops in all three slots.
-    if (spec.voice === 'majhul' || babOf(spec) === 'ia') {
+    if (spec.voice === 'majhul' || babOf(spec.root, spec.formId) === 'ia') {
       if (slot === '3mp') variant = 'thirdMascPlural';
     } else if (NAQIS_DROPPING_SLOTS_MADI.includes(slot)) {
       variant = 'dropping';
@@ -231,7 +231,7 @@ export const NaqisConjugator = {
     // is a kasra on the ayn — the ia baab, and the majhool which is built on
     // that same kasra — where the letter stays a consonant and takes the
     // fatha of the ending: رَضِيَ · رُمِيَ. [NOTE A1]
-    const aynTakesKasra = (spec.voice === 'majhul' || babOf(spec) === 'ia');
+    const aynTakesKasra = (spec.voice === 'majhul' || babOf(spec.root, spec.formId) === 'ia');
     if (spec.tense === 'madi' && slot === '3ms' && aynTakesKasra) {
       extraHaraka = FATHA;
     }
@@ -251,7 +251,7 @@ export const NaqisConjugator = {
       // so for dropping the noon we will do it via the grammar object as we have done for all the other verb types,
       // but the 5 endings we will do it here because they are dependant on our baabs and endings objects do not contain
       // baab info (this is just a convention we have.)
-      if (babOf(spec) === 'au' || babOf(spec) === 'ai') {
+      if (babOf(spec.root, spec.formId) === 'au' || babOf(spec.root, spec.formId) === 'ai') {
         // the five endings get a fatha on the last letter which is also the last radical of the root
         // all the other seegahs proceed as normal, ie the noon gets dropped to show nasb
         if (MOOD_DISTINCT_SLOTS.includes(slot)) extraHaraka = FATHA;
@@ -284,7 +284,7 @@ export const NaqisConjugator = {
       result = PREFIX_LETTERS[slot] + MUDARI_PREFIX_HARAKA[spec.formId][spec.voice] + result;
     }
     if (spec.tense === 'amr') {
-      result = amrOpening(spec.formId, template, babOf(spec)) + result;
+      result = amrOpening(spec.formId, template, babOf(spec.root, spec.formId)) + result;
     }
 
     // after the work is fully conjugated with the endings and everything, we call the letter swap function

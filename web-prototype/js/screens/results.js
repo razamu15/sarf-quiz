@@ -6,12 +6,18 @@ import { el } from '../ui/dom.js';
 import { state } from '../ui/state.js';
 import { endSession } from '../history/store.js';
 import { basicSummary } from '../history/queries.js';
-import { renderQuestion } from './quiz.js';
 
 let app;
 let onExit;
+let onStartRun;
 
-export function initResultsScreen(root, exit) { app = root; onExit = exit; }
+// `onStartRun` is injected rather than imported. Results needs to begin a new
+// run for "same setup", and quiz.js needs to hand off to results when a run
+// ends — importing each other would make that a cycle. The router owns starting
+// a run, so both screens call up to it instead of across to each other.
+export function initResultsScreen(root, exit, startRun) {
+  app = root; onExit = exit; onStartRun = startRun;
+}
 
 export function renderResults() {
   const run = state.run;
@@ -67,7 +73,7 @@ export function renderResults() {
 
   if (state.replay) {
     const again = el('<button class="btn primary">New round (same setup)</button>');
-    again.onclick = () => { state.run = state.replay(); renderQuestion(); };
+    again.onclick = () => onStartRun(state.replay());
     app.append(again);
   }
   const home = el('<button class="btn ghost">Back to home</button>');

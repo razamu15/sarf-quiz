@@ -59,8 +59,19 @@ export function chartSpec({ root, formId, tense, voice = 'malum', mood }) {
 /** The same spec in the other voice, for "does this verb have a passive?" work. */
 export const inVoice = (spec, voice) => chartSpec({ ...spec, voice });
 
-/** The bāb this word is conjugated on — Form I's ʿayn vowel pair, else undefined. */
-export const babOf = (spec) => spec.root.forms[spec.formId]?.bab;
+/**
+ * The bāb this word is conjugated on — Form I's ʿayn vowel pair, else null.
+ *
+ * Takes (root, formId) rather than a spec, because the bāb is a fact about a
+ * root's USE OF A FORM and has nothing to do with a chart: it is the same
+ * whether you are asking about the māḍī, the amr, or a derived noun. Every
+ * conjugator calls it with a spec's two fields; word-spec.js calls it with a
+ * root and a form and no spec in sight, which is the evidence for the signature.
+ *
+ * Called by: all five conjugators (to pick the ʿayn vowel out of a stem table),
+ * and quiz/word-spec.js (to stamp the bāb onto a stored identity).
+ */
+export const babOf = (root, formId) => root.forms[formId]?.bab ?? null;
 
 /** How the lexicon records this root's usage in this form. */
 export const usageOf = (spec) => spec.root.forms[spec.formId];

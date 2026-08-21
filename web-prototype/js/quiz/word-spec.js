@@ -19,6 +19,8 @@
 // Called by: every question builder (through question.js), history/store.js
 // (which spreads it into the flat query index), and tipsFor().
 
+import { babOf } from '../chart-spec.js';
+
 /**
  * Build an identity. `root` is a lexicon entry; everything else is optional
  * because different question kinds pin different axes:
@@ -47,7 +49,7 @@ export function wordSpec({
     // rather than looked up later: the lexicon is mutable and a correction to a
     // root's bāb must not silently rewrite what old records mean (A1a · F4).
     // null for the mazīd forms, which have no bāb.
-    bab: root.forms[formId]?.bab ?? null,
+    bab: babOf(root, formId),
     // Three fields, not one composed key: "majhūl across every tense" is a
     // group-by, not string surgery (A1a · F2, which is why chartKey is gone).
     tense, voice, mood,

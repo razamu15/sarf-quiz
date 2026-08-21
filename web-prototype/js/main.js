@@ -73,6 +73,6 @@ function leaveQuiz({ keepTab = false } = {}) {
 }
 
 initQuizScreen(app, leaveQuiz);
-initResultsScreen(app, leaveQuiz);
+initResultsScreen(app, leaveQuiz, startRun);
 loadQuotes(() => { if (state.tab === 'home' && !state.run) render(); });
 render();

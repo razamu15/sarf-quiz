@@ -1,0 +1,962 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sarf Quiz — the module web</title>
+<link rel="stylesheet" href="sarf-app.css">
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+  :where(p, h1, h2, h3, h4, li, td, th) { overflow-wrap: anywhere; }
+  :where(.grid2, .grid3, .stat4) > * { min-width: 0; }
+
+  body { margin: 0; background: var(--bg); color: var(--ink);
+         font-family: var(--latin); line-height: 1.6; -webkit-font-smoothing: antialiased; }
+  .wrap { max-width: 1140px; margin: 0 auto; padding: 40px 22px 120px; }
+
+  .masthead { border-bottom: 1px solid #2b3547; padding-bottom: 26px; margin-bottom: 34px; }
+  .eyebrow { font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--accent); font-weight: 700; }
+  .masthead h1 { font-size: clamp(26px, 4vw, 36px); line-height: 1.15; margin: 10px 0 12px; letter-spacing: -0.02em; }
+  .lede { color: var(--ink-dim); font-size: 16px; max-width: 76ch; }
+  .lede b { color: var(--ink); }
+
+  h2.sec { font-size: 13px; text-transform: uppercase; letter-spacing: .12em; color: var(--ink-dim);
+           margin: 58px 0 18px; padding-bottom: 10px; border-bottom: 1px solid #2b3547; }
+  h2.sec b { color: var(--accent); font-weight: 700; margin-inline-end: 8px; }
+  h3.sub { font-size: 20px; margin: 34px 0 8px; letter-spacing: -0.01em; }
+  h4.mini { font-size: 12px; text-transform: uppercase; letter-spacing: .1em; color: var(--accent); margin: 24px 0 8px; }
+  p.body { font-size: 15px; color: var(--ink-dim); max-width: 80ch; margin: 0 0 14px; }
+  p.body b, li b, td b { color: var(--ink); }
+  p.body .ar, li .ar, td .ar { font-family: var(--arabic); font-size: 18px; }
+  ul.body { font-size: 15px; color: var(--ink-dim); max-width: 80ch; padding-inline-start: 20px; margin: 0 0 14px; }
+  ul.body li { margin-bottom: 8px; }
+  code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12.5px; color: var(--accent); }
+
+  .callout { border-inline-start: 3px solid var(--accent); background: var(--card2);
+             border-radius: 10px; padding: 14px 18px; font-size: 15px; margin: 18px 0; color: var(--ink-dim); }
+  .callout.bad { border-inline-start-color: var(--bad); }
+  .callout.good { border-inline-start-color: var(--good); }
+  .callout.warn { border-inline-start-color: #d8a13a; }
+  .callout b { color: var(--ink); }
+  .callout .hd { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: .09em;
+                 margin-bottom: 6px; color: var(--ink-dim); font-weight: 700; }
+  .callout.bad .hd { color: var(--bad); }
+  .callout.good .hd { color: var(--good); }
+  .callout.warn .hd { color: #d8a13a; }
+
+  .tbl-wrap { overflow-x: auto; border: 1px solid #303a4d; border-radius: var(--radius); margin: 16px 0; }
+  table.rev { width: 100%; border-collapse: collapse; background: var(--card); font-size: 13.5px; min-width: 680px; }
+  table.rev th { text-align: start; padding: 10px 13px; font-size: 11px; text-transform: uppercase;
+                 letter-spacing: .08em; color: var(--ink-dim); border-bottom: 1px solid #303a4d; background: var(--card2); }
+  table.rev td { padding: 9px 13px; border-bottom: 1px solid #232c3c; vertical-align: top; color: var(--ink-dim); }
+  table.rev tr:last-child td { border-bottom: 0; }
+  table.rev td.f { font-family: ui-monospace, Menlo, monospace; font-size: 12px; color: var(--ink); white-space: nowrap; }
+  table.rev td.n { color: var(--ink); font-variant-numeric: tabular-nums; text-align: end; }
+  table.rev tr.grouphead td { background: var(--card2); color: var(--accent); font-size: 11px;
+    text-transform: uppercase; letter-spacing: .1em; font-weight: 700; padding: 9px 13px; }
+  table.rev tr.dead td { background: rgba(224,93,93,.06); }
+
+  .pill { display: inline-block; font-size: 10.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase;
+          padding: 2px 8px; border-radius: 99px; white-space: nowrap; }
+  .pill.keep { background: rgba(63,185,111,.16); color: var(--good); }
+  .pill.gone { background: rgba(224,93,93,.16); color: var(--bad); }
+  .pill.warn { background: rgba(216,161,58,.16); color: #d8a13a; }
+
+  .mermaid { background: var(--card); border: 1px solid #303a4d; border-radius: var(--radius);
+             padding: 18px; overflow-x: auto; margin: 18px 0; }
+  .cap { font-size: 12.5px; color: var(--ink-dim); margin: -6px 0 26px; text-align: center; }
+
+  .grid2 { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 18px; }
+  @media (max-width: 900px) { .grid2 { grid-template-columns: minmax(0,1fr); } }
+
+  .panel { background: var(--card); border: 1px solid #303a4d; border-radius: var(--radius); padding: 18px 20px; }
+  .panel h4 { font-size: 12px; text-transform: uppercase; letter-spacing: .1em; color: var(--accent); margin: 0 0 10px; }
+  .panel p { font-size: 14px; color: var(--ink-dim); margin: 0 0 10px; }
+  .panel p:last-child { margin-bottom: 0; }
+  .panel ul { font-size: 14px; color: var(--ink-dim); margin: 0; padding-inline-start: 18px; }
+  .panel ul li { margin-bottom: 6px; }
+  .panel ul li b { color: var(--ink); }
+
+  .stat4 { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 14px; margin: 22px 0 10px; }
+  @media (max-width: 760px) { .stat4 { grid-template-columns: repeat(2, minmax(0,1fr)); } }
+  .stat4 > div { background: var(--card); border: 1px solid #303a4d; border-radius: 14px; padding: 14px 16px; }
+  .num { font-size: 29px; font-weight: 700; color: var(--accent); display: block; line-height: 1.15; font-variant-numeric: tabular-nums; }
+  .num.good { color: var(--good); }
+  .num.bad { color: var(--bad); }
+  .numlabel { font-size: 12.5px; color: var(--ink-dim); }
+
+  pre.code { background: #0b0e14; border: 1px solid #2b3547; border-radius: var(--radius);
+             padding: 16px 18px; overflow-x: auto; font-size: 12.8px; line-height: 1.68;
+             font-family: ui-monospace, SFMono-Regular, Menlo, monospace; color: #cdd8ea; margin: 14px 0; }
+  pre.code .c { color: #6b7a91; }
+  pre.code .k { color: #c48ce0; }
+  pre.code .s { color: #8fd3a4; }
+  pre.code .f { color: #4ea8de; }
+  pre.code .r { color: #e0817d; }
+  pre.code b { color: #fff; font-weight: 600; }
+
+  .legend { display: flex; flex-wrap: wrap; gap: 10px 22px; align-items: center; margin: 14px 0 20px;
+            font-size: 13px; color: var(--ink-dim); background: var(--card2); border: 1px solid #303a4d;
+            border-radius: 12px; padding: 12px 16px; }
+  .legend b { color: var(--ink); }
+
+  .settled { border-inline-start: 3px solid var(--good); background: rgba(63,185,111,.07);
+             border-radius: 10px; padding: 13px 18px; margin: 16px 0; font-size: 14.5px; color: var(--ink-dim); }
+  .settled b { color: var(--ink); }
+  .settled .hd { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: .09em;
+                 margin-bottom: 5px; color: var(--good); font-weight: 700; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="masthead">
+  <div class="eyebrow">Sarf Quiz · module web · post-A1 · Aug 2026</div>
+  <h1>How the 45 files find each other, and what actually runs when you tap Start</h1>
+  <p class="lede">
+    Every edge below was extracted from the source, not drawn from memory: 45 files, <b>169 import
+    edges</b>, walked programmatically. §01–§03 are the static web, §04 traces what executes.
+    <b>§08 is the full tree you asked for</b> — all 45 files, leaves at the bottom, drawn as four
+    branches because 127 edges in one frame is a hairball. <b>§09 tests your hypothesis about
+    <code>chart-spec.js</code></b>: you are right about four of its six exports and, I think, wrong about
+    the two that matter most.
+  </p>
+</header>
+
+<div class="stat4">
+  <div><span class="num">45</span><span class="numlabel">files</span></div>
+  <div><span class="num">169</span><span class="numlabel">import edges</span></div>
+  <div><span class="num good">0</span><span class="numlabel">cycles (was 1)</span></div>
+  <div><span class="num">9</span><span class="numlabel">layers, 1 upward edge</span></div>
+</div>
+
+<!-- ===================================================================== -->
+<h2 class="sec"><b>01</b> The stack — who is allowed to know about whom</h2>
+
+<p class="body">
+  Dependencies point <b>downward only</b>, with exactly one exception, marked in red and explained
+  below it. Nothing in the engine knows a quiz exists; nothing in the quiz knows a screen exists.
+</p>
+
+<div class="mermaid">
+flowchart TD
+  UI["<b>8 · ui + screens</b><br/>main · router · 7 screens · dom · state"]
+  HIST["<b>7 · history</b><br/>store · queries"]
+  QUIZ["<b>6 · quiz</b><br/>plan · pool · question · grading · run · relevance · 4 builders · drills"]
+  MEAN["<b>5 · meaning</b><br/>MeaningService + particles"]
+  ENG["<b>4 · engines</b><br/>5 conjugators + router + templates"]
+  LEX["<b>3 · lexicon</b><br/>roots + validation"]
+  GRAM["<b>2 · grammar</b><br/>5 verb-type tables + shared"]
+  SPEC["<b>1 · chart-spec</b><br/>the ChartSpec type"]
+  FOUND["<b>0 · foundation</b><br/>vocabulary · glossary · arabic-text · settings"]
+
+  UI --> QUIZ
+  UI --> HIST
+  UI --> MEAN
+  UI --> ENG
+  UI --> LEX
+  UI --> SPEC
+  UI --> FOUND
+  QUIZ --> MEAN
+  QUIZ --> ENG
+  QUIZ --> LEX
+  QUIZ --> SPEC
+  QUIZ --> GRAM
+  QUIZ --> FOUND
+  HIST -.->|"nothing"| FOUND
+  MEAN --> FOUND
+  ENG --> GRAM
+  ENG --> SPEC
+  ENG --> FOUND
+  LEX --> FOUND
+  LEX -->|"hasEngine()"| ENG
+  GRAM --> FOUND
+  SPEC --> FOUND
+
+  linkStyle 20 stroke:#e05d5d,stroke-width:2px
+  classDef ui fill:#25203a,stroke:#c48ce0,color:#eef2f8
+  classDef mid fill:#1d3348,stroke:#4ea8de,color:#eef2f8
+  classDef dom fill:#12324a,stroke:#3f7fa8,color:#eef2f8
+  classDef base fill:#1a2030,stroke:#4a5568,color:#93a0b4
+  class UI,HIST ui
+  class QUIZ,MEAN mid
+  class ENG,LEX,GRAM,SPEC dom
+  class FOUND base
+</div>
+<p class="cap">Extracted from 169 import edges. The one red edge is the only upward dependency in the codebase.</p>
+
+<div class="grid2">
+  <div class="callout warn">
+    <span class="hd">The one upward edge — deliberate, but worth knowing about</span>
+    <code>lexicon-service.js</code> imports <code>hasEngine()</code> from the engine router, because
+    <code>availableTypes()</code> is the single owner of <b>“is this verb type playable”</b> — a question
+    that is half lexicon (do we have roots?) and half engine (can anything conjugate them?). Putting the
+    check anywhere else would create a second source of truth for one fact.
+    <b>It is not a cycle</b> — the engine never imports the lexicon — but if it ever bothers you, the clean
+    move is a tiny module above both that owns that one question.
+  </div>
+  <div class="callout good">
+    <span class="hd">History imports nothing but itself</span>
+    <code>history/store.js</code> is a leaf: no vocabulary, no glossary, and <b>no settings</b>. That last
+    one is structural rather than stylistic — the flag that gates the stats <em>screens</em> physically
+    cannot reach the <em>writer</em>, so no configuration change can stop records being kept.
+  </div>
+</div>
+
+<!-- ===================================================================== -->
+<h2 class="sec"><b>02</b> The domain half — root letters to a conjugated word</h2>
+
+<div class="mermaid">
+flowchart LR
+  VOCAB["vocabulary.js<br/><i>enums · slots · verb types</i>"]
+  SPEC["chart-spec.js<br/><i>chartSpec() · babOf()</i>"]
+  ROOTS["lexicon/roots.js<br/><i>58 roots</i>"]
+  LEXSVC["lexicon-service.js<br/><i>classify + validate</i>"]
+  SHARED["grammar/shared-grammar.js<br/><i>FORM_META · prefixes</i>"]
+  GTAB["grammar/*-grammar.js<br/><i>stems + endings ×5</i>"]
+  TPL["conjugation/templates.js<br/><i>fill · norm · joinEnding</i>"]
+  ENGN["5 conjugators<br/><i>salim · mudaaf · mithal<br/>ajwaf · naqis</i>"]
+  CSVC["conjugation-service.js<br/><b>the one entry point</b><br/><i>preconditions + routing</i>"]
+  MEAN["meaning-service.js<br/><i>English + particles</i>"]
+
+  VOCAB --> SPEC
+  VOCAB --> LEXSVC
+  VOCAB --> GTAB
+  VOCAB --> ENGN
+  ROOTS --> LEXSVC
+  SHARED --> GTAB
+  SHARED --> ENGN
+  SHARED --> CSVC
+  GTAB --> ENGN
+  TPL --> ENGN
+  SPEC --> ENGN
+  SPEC --> CSVC
+  ENGN --> CSVC
+  LEXSVC -.->|"hasEngine"| CSVC
+  CSVC --> MEAN
+
+  classDef data fill:#3a2f16,stroke:#d8a13a,color:#eef2f8
+  classDef code fill:#1d3348,stroke:#4ea8de,color:#eef2f8
+  classDef hub fill:#12324a,stroke:#8fd3a4,color:#eef2f8,stroke-width:2px
+  class ROOTS,GTAB,SHARED,VOCAB data
+  class SPEC,TPL,ENGN,LEXSVC,MEAN code
+  class CSVC hub
+</div>
+<p class="cap">Grammar and roots are <b>data</b> (amber); the conjugators are the only code that reads them.</p>
+
+<p class="body">
+  The shape to notice: <b><code>conjugation-service.js</code> is the only door.</b> Nothing outside
+  <code>js/conjugation/</code> imports a conjugator directly — 8 files depend on the service, 0 on an
+  engine. That is what makes “one engine per verb type” an implementation detail rather than something
+  every caller has to know about, and it is where every precondition lives so no engine restates them.
+</p>
+
+<!-- ===================================================================== -->
+<h2 class="sec"><b>03</b> The app half — a word becomes a question, an answer becomes a row</h2>
+
+<div class="mermaid">
+flowchart LR
+  subgraph Q["js/quiz — the chain"]
+    PLAN["quiz-plan.js<br/><i>QuizPlan</i>"]
+    POOL["word-pool.js<br/><i>QuizWordPool</i>"]
+    REL["relevance.js<br/><i>live vs dead kinds</i>"]
+    BLD["builders/ ×4<br/><i>identify · produce<br/>derived · fromMeaning</i>"]
+    QUES["question.js<br/><i>the shape</i>"]
+    WSPEC["word-spec.js<br/><i>the identity</i>"]
+    RUN["quiz-run.js<br/><i>QuizRun</i>"]
+    GRADE["grading.js<br/><i>grade() → Answer</i>"]
+    DRILL["drills.js<br/><i>presets + bundles</i>"]
+  end
+  subgraph H["js/history"]
+    STORE["store.js<br/><i>rows + rowFor()</i>"]
+    QRY["queries.js<br/><i>24 queries</i>"]
+  end
+  subgraph S["js/screens + ui"]
+    MAIN["main.js<br/><i>router</i>"]
+    SCR["home · practice · tables<br/>quiz · results · stats · more"]
+    DOM["ui/dom.js · ui/state.js"]
+  end
+  ATXT["arabic-text.js<br/><i>grapheme clusters</i>"]
+
+  PLAN --> POOL
+  POOL --> REL
+  REL --> BLD
+  BLD --> QUES
+  BLD --> WSPEC
+  QUES --> GRADE
+  POOL --> RUN
+  BLD -.->|"via relevance"| RUN
+  GRADE --> RUN
+  RUN -->|"injected recorder"| STORE
+  STORE --> QRY
+  PLAN --> DRILL
+  ATXT --> GRADE
+  ATXT --> SCR
+  MAIN --> SCR
+  DOM --> SCR
+  SCR --> RUN
+  SCR --> QRY
+  DRILL --> SCR
+
+  classDef q fill:#1d3348,stroke:#4ea8de,color:#eef2f8
+  classDef h fill:#12324a,stroke:#8fd3a4,color:#eef2f8
+  classDef s fill:#25203a,stroke:#c48ce0,color:#eef2f8
+  classDef u fill:#1a2030,stroke:#4a5568,color:#93a0b4
+  class PLAN,POOL,REL,BLD,QUES,WSPEC,RUN,GRADE,DRILL q
+  class STORE,QRY h
+  class MAIN,SCR,DOM s
+  class ATXT u
+</div>
+<p class="cap">The one edge that carries a design decision: <code>QuizRun → store</code> is an
+  <b>injected callback</b>, not an import — the run persists answers without knowing storage exists.</p>
+
+<!-- ===================================================================== -->
+<h2 class="sec"><b>04</b> What actually runs</h2>
+
+<h3 class="sub">Boot, and drawing Home</h3>
+
+<div class="mermaid">
+sequenceDiagram
+  autonumber
+  participant HTML as index.html
+  participant Main as main.js
+  participant Home as screens/home.js
+  participant Drills as quiz/drills.js
+  participant Pool as quiz/word-pool.js
+  participant Q as history/queries.js
+
+  HTML->>Main: module load
+  Main->>Main: render() — tab = 'home'
+  Main->>Home: renderHome(app, ctx)
+  Home->>Q: basicSummary()
+  Q-->>Home: accuracy · streak · week
+  loop each of 3 presets
+    Home->>Drills: presetAvailable(preset)
+    Drills->>Drills: planOf() — expand GROUPS to engine types
+    Drills->>Pool: wordPool(plan)
+    Pool-->>Drills: cells > 0 ?
+    Drills-->>Home: enabled / greyed
+  end
+  Home-->>Main: cards appended
+</div>
+
+<div class="callout">
+  <span class="hd">Step 3 is where the muʿtall drill used to die</span>
+  <code>planOf()</code> expands <code>'ajwaf'</code> (what a student picks) into
+  <code>ajwaf_waw</code> + <code>ajwaf_ya</code> (what the engine routes on) — <b>once, at the boundary</b>.
+  Before A1, the preset carried group names straight into the plan and the lexicon filter compared them
+  against <code>root.type</code>, matched nothing, and greyed the card out as “content coming”.
+</div>
+
+<h3 class="sub">Tapping Start — a preset becomes a question on screen</h3>
+
+<div class="mermaid">
+sequenceDiagram
+  autonumber
+  participant Home as screens/home.js
+  participant Pool as word-pool.js
+  participant Conj as conjugation-service.js
+  participant Rel as relevance.js
+  participant Bld as builders/identify.js
+  participant Mean as meaning-service.js
+  participant Run as quiz-run.js
+  participant Scr as screens/quiz.js
+
+  Home->>Pool: wordPool(plan)
+  loop every root × chart × ṣīghah
+    Pool->>Conj: conjugate(spec, slot)
+    Conj-->>Pool: word or null
+  end
+  Pool-->>Home: cells + varies{} + draw()
+  Home->>Rel: relevance(pool)
+  Rel-->>Home: live kinds (dead ones retired)
+  loop 5 words × live kinds
+    Home->>Pool: draw()
+    Pool-->>Home: {spec, slot, word}
+    Home->>Bld: tenseQuestion / voiceQuestion / doerQuestion
+    Bld->>Conj: conjugate() for every distractor slot
+    Bld->>Mean: verbMeaning(spec, slot)
+    Bld-->>Home: Question {identity, prompt, response, feedback}
+  end
+  Home->>Run: new QuizRun({plan, pool, source, record})
+  Home->>Scr: renderQuestion()
+  Scr->>Scr: CARDS[prompt.kind] — exhaustive, no inference
+</div>
+
+<h3 class="sub">Answering — the path that used to be split across three files</h3>
+
+<div class="mermaid">
+sequenceDiagram
+  autonumber
+  participant Scr as screens/quiz.js
+  participant Run as quiz-run.js
+  participant Gr as quiz/grading.js
+  participant Txt as arabic-text.js
+  participant St as history/store.js
+
+  Scr->>Run: run.answer([valueKeys]) or ([typed])
+  Run->>Gr: grade(question, given)
+  alt choice
+    Gr->>Gr: exact SET match on value keys
+  else typed
+    Gr->>Txt: firstDifferingCluster(typed, expected)
+    Txt-->>Gr: cluster index (not a code-unit index)
+  end
+  Gr-->>Run: Answer {question, given, expected, correct, divergeAt}
+  Run->>St: record(answer) — the injected callback
+  St->>St: rowFor() — flat index + embedded answer
+  St->>St: localStorage
+  Run-->>Scr: Answer
+  Scr->>Scr: render feedback · mark options · underline the cluster
+</div>
+
+<div class="callout good">
+  <span class="hd">Read that against what it replaced</span>
+  This one path used to run through three files computing the same fact: <code>gradeInput()</code> in the
+  quiz service, an eleven-line correctness check <b>inside the view</b>, and <code>expected</code> derived
+  from the question a third time in history. The screen now renders an <code>Answer</code>; it never
+  computes one.
+</div>
+
+<h3 class="sub">The deep link — quiz feedback to the full chart</h3>
+
+<pre class="code"><span class="c">// screens/quiz.js — feedbackBox()</span>
+<span class="k">if</span> (q.identity.tense &amp;&amp; q.identity.slot) {          <span class="c">// derived nouns and citations have no chart</span>
+  link.onclick = () => {
+    <span class="k">const</span> { rootKey, formId, tense, voice, mood, slot } = q.identity;
+    Object.assign(state.tables, { rootKey, formId, tense, voice, mood: mood ?? <span class="s">'raf'</span>,
+                                  viewing: <span class="k">true</span>, highlight: slot });
+    state.tab = <span class="s">'tables'</span>;
+    onExit({ keepTab: <span class="k">true</span> });                       <span class="c">// router redraws; the run is dropped</span>
+  };
+}
+
+<span class="c">// screens/tables.js then does exactly one thing with it:</span>
+<span class="k">const</span> spec = chartSpec({ root, formId, tense, voice, mood });
+<span class="k">const</span> table = fullTable(spec);                       <span class="c">// → engine.conjugateTable()</span></pre>
+
+<p class="body">
+  <b>This is the path that killed <code>chartKey</code>.</b> The question used to compose
+  <code>'mudari_malum_raf'</code> and this handler decomposed it again three lines later. The three axes
+  travel as three fields now, so there is nothing to compose and nothing to reverse.
+</p>
+
+<!-- ===================================================================== -->
+<h2 class="sec"><b>05</b> The load-bearing files</h2>
+
+<p class="body">Ranked by fan-in — how many files import them. These are the ones where a change ripples.</p>
+
+<div class="tbl-wrap">
+<table class="rev">
+  <thead><tr><th>File</th><th style="text-align:end">Imported by</th><th>Owns</th></tr></thead>
+  <tbody>
+    <tr><td class="f">vocabulary.js</td><td class="n">25</td>
+        <td>The closed vocabulary: ḥarakāt, tenses, voices, moods, the 14 ṣīghah, forms, the two-layer verb types, abwāb, derived-noun kinds. Nothing here grows with content.</td></tr>
+    <tr><td class="f">grammar/shared-grammar.js</td><td class="n">14</td>
+        <td><code>FORM_META</code> (does a form conjugate, does it have a passive), muḍāriʿ prefix letters and their ḥaraka. Facts true of a form regardless of verb type.</td></tr>
+    <tr><td class="f">chart-spec.js</td><td class="n">12</td>
+        <td>The <code>ChartSpec</code> type and its constructor — see §06.</td></tr>
+    <tr><td class="f">glossary.js</td><td class="n">9</td>
+        <td>Every display string. No engine data here, no display strings in the grammar.</td></tr>
+    <tr><td class="f">conjugation-service.js</td><td class="n">8</td>
+        <td>The one door to conjugation: preconditions, engine routing, full tables, wazn, citations.</td></tr>
+    <tr><td class="f">ui/dom.js · ui/state.js</td><td class="n">8 · 8</td>
+        <td>Element helpers and chip rows; which tab is showing and the live <code>QuizRun</code>.</td></tr>
+    <tr><td class="f">quiz/question.js</td><td class="n">6</td>
+        <td>The Question shape, six prompt constructors, two response constructors, shared option assembly.</td></tr>
+    <tr><td class="f">history/store.js</td><td class="n">6</td>
+        <td>Sessions, rows, and <code>rowFor()</code> — the only place that knows about query columns.</td></tr>
+    <tr><td class="f">conjugation/templates.js</td><td class="n">6</td>
+        <td><code>fill</code>, <code>norm</code>, <code>joinEnding</code>, <code>amrOpening</code> — used by all five conjugators and nothing else.</td></tr>
+  </tbody>
+</table>
+</div>
+
+<!-- ===================================================================== -->
+<h2 class="sec"><b>06</b> <code>chart-spec.js</code> — do we still need it?</h2>
+
+<div class="settled">
+  <span class="hd">Yes, and it is one of the three most-depended-on files in the codebase</span>
+  12 files import it, including <b>all five conjugators</b>. What was deleted in A1 was the chart
+  <em>string</em> — <code>chartKey()</code> and <code>chartShape()</code>. What remains is the
+  <code>ChartSpec</code> <em>type</em>, which is a different thing and is load-bearing.
+</div>
+
+<p class="body">
+  The confusion is fair, because the file's job narrowed. It used to do two things: <b>name a paradigm as
+  an object</b>, and <b>crush that object into a string so other layers could key data by it</b>. Only the
+  second one was the problem. Here is every export, measured:
+</p>
+
+<div class="tbl-wrap">
+<table class="rev">
+  <thead><tr><th>Export</th><th style="text-align:end">Importers</th><th>What it does, and why it stays</th><th></th></tr></thead>
+  <tbody>
+    <tr><td class="f">chartSpec()</td><td class="n">6</td>
+        <td><b>The constructor, and it normalises.</b> It forces <code>mood</code> to null outside the muḍāriʿ and <code>voice</code> to maʿlūm for the amr — a caller passing a manṣūb māḍī is corrected rather than obeyed. That is what stops two specs for the same paradigm comparing unequal, and it is the reason this is a function and not an object literal.</td>
+        <td><span class="pill keep">core</span></td></tr>
+    <tr><td class="f">babOf()</td><td class="n">5</td>
+        <td>Reads the bāb off (root, form). <b>Every conjugator calls it</b> — it is how a stem table picks the right ʿayn vowel.</td>
+        <td><span class="pill keep">core</span></td></tr>
+    <tr><td class="f">inVoice()</td><td class="n">2</td>
+        <td>The same paradigm in the other voice. Used by drills (to flip a drawn word to its majhūl) and the voice question (to check a pair exists before asking).</td>
+        <td><span class="pill keep">used</span></td></tr>
+    <tr><td class="f">isValidShape()</td><td class="n">2</td>
+        <td>Is this a real combination of axes? Guards <code>planCharts()</code> and the engine's precondition check.</td>
+        <td><span class="pill keep">used</span></td></tr>
+    <tr><td class="f">CHART_SHAPES</td><td class="n">1</td>
+        <td>The nine paper tables as axis triples — a <em>view</em> over the axes, not a type. Used by the engine's <code>availableCharts()</code> and the test's sweep.</td>
+        <td><span class="pill keep">used</span></td></tr>
+    <tr class="dead"><td class="f">usageOf()</td><td class="n">0</td>
+        <td><b>Dead.</b> Zero importers. It reads <code>spec.root.forms[spec.formId]</code>, which the two callers that want it do inline.</td>
+        <td><span class="pill gone">delete</span></td></tr>
+    <tr class="dead"><td class="f">export { SLOTS,<br>AMR_SLOTS, slotsFor }</td><td class="n">0</td>
+        <td><b>Dead pass-through.</b> A re-export of three things that live in <code>vocabulary.js</code>. <b>Zero files take them via this file; 11 take them straight from vocabulary.</b> Worse than merely unused — it is an invitation to import a thing from a sibling that just happens to have it.</td>
+        <td><span class="pill gone">delete</span></td></tr>
+  </tbody>
+</table>
+</div>
+
+<div class="callout">
+  <span class="hd">The short answer</span>
+  <b>Keep the file, delete two exports.</b> Five of seven are load-bearing and one of them is called by
+  every conjugator. The name is still accurate — after A1 it holds exactly what it says: the chart as a
+  spec. Say the word and I will remove <code>usageOf</code> and the re-export line; both are provably
+  unreferenced, so it is a two-line change with no risk.
+</div>
+
+<h4 class="mini">One smaller thing the audit turned up</h4>
+<div class="callout warn">
+  <span class="hd">The bāb is looked up in two places</span>
+  <code>babOf(spec)</code> in this file and <code>wordSpec()</code> in <code>quiz/word-spec.js</code> both
+  compute <code>root.forms[formId]?.bab</code>. Same fact, two derivations — exactly the class of
+  duplication A1 spent its time removing, and I introduced it. The fix is to make <code>babOf</code> take
+  <code>(root, formId)</code> instead of a spec so both call it. Small, and worth doing before it becomes
+  three places.
+</div>
+
+
+<!-- ===================================================================== -->
+<h2 class="sec"><b>08</b> The whole thing as a tree</h2>
+
+<p class="body">
+  All 45 files. Drawn top-down from the entry point, so <b>the leaves are at the bottom</b> — the eight
+  files that import nothing and can be read without chasing anything. Split into four pictures because
+  127 edges in one frame is a hairball, not a diagram; each picture is one branch, and every file appears
+  exactly once.
+</p>
+
+<div class="legend">
+  <span><b>★</b> = leaf, imports nothing</span>
+  <span><b>Green</b> = the single door into a sealed cluster</span>
+  <span><b>Grey dashed</b> = the shared floor, used by nearly everything</span>
+  <span><b>(+n)</b> = extra importers a tree can't draw</span>
+</div>
+
+<h3 class="sub">The canopy — how the branches hang together</h3>
+
+<div class="mermaid">
+flowchart TD
+  MAIN["main.js<br/><i>router · composition root</i>"]
+  SCR["screens/ — 7 files<br/><i>home practice tables quiz<br/>results stats more</i>"]
+  UIST["ui/state.js<br/><i>tab · draft · live run</i>"]
+  QUIZ["quiz/ — 8 files<br/><i>plan pool relevance question<br/>word-spec grading run drills</i>"]
+  BLD["quiz/builders/ — 4 files"]
+  HIST["history/ — 2 files"]
+  CONJ["conjugation/ — 7 files"]
+  GRAM["grammar/ — 6 files"]
+  LEX["lexicon/ — 2 files"]
+  MEAN["meaning-service.js"]
+  SPEC["chart-spec.js"]
+  FLOOR["<b>the floor ★</b><br/>vocabulary · glossary<br/>ui/dom · settings · arabic-text"]
+
+  MAIN --> SCR
+  MAIN --> UIST
+  SCR --> QUIZ
+  SCR --> HIST
+  SCR --> CONJ
+  SCR --> LEX
+  SCR --> MEAN
+  SCR --> SPEC
+  UIST --> QUIZ
+  QUIZ --> BLD
+  QUIZ --> CONJ
+  QUIZ --> LEX
+  QUIZ --> MEAN
+  QUIZ --> SPEC
+  QUIZ --> GRAM
+  BLD --> CONJ
+  BLD --> MEAN
+  CONJ --> GRAM
+  CONJ --> SPEC
+  LEX -.->|"hasEngine"| CONJ
+  MEAN --> FLOOR
+  GRAM --> FLOOR
+  SPEC --> FLOOR
+  HIST --> FLOOR
+  CONJ --> FLOOR
+
+  classDef top fill:#25203a,stroke:#c48ce0,color:#eef2f8
+  classDef mid fill:#1d3348,stroke:#4ea8de,color:#eef2f8
+  classDef dom fill:#12324a,stroke:#3f7fa8,color:#eef2f8
+  classDef floor fill:#1a2030,stroke:#4a5568,color:#93a0b4,stroke-dasharray: 5 4
+  class MAIN,SCR,UIST top
+  class QUIZ,BLD,HIST,MEAN mid
+  class CONJ,GRAM,LEX,SPEC dom
+  class FLOOR floor
+</div>
+
+<h3 class="sub">Branch 1 — the engine, sealed behind one door</h3>
+
+<div class="mermaid">
+flowchart TD
+  CSVC["<b>conjugation-service.js</b><br/><i>THE only door · 8 importers</i>"]
+  SAL["salim-conjugator"]
+  MUD["mudaaf-conjugator"]
+  MIT["mithal-conjugator"]
+  AJW["ajwaf-conjugator"]
+  NAQ["naqis-conjugator"]
+  TPL["templates.js<br/><i>fill · norm · joinEnding · amrOpening</i>"]
+  GSAL["salim-grammar"]
+  GMUD["mudaaf-grammar"]
+  GMIT["mithal-grammar"]
+  GAJW["ajwaf-grammar"]
+  GNAQ["naqis-grammar"]
+  GSH["shared-grammar<br/><i>FORM_META · prefixes</i>"]
+  LSVC["lexicon-service.js<br/><i>classify · validate · availableTypes</i>"]
+  ROOTS["roots.js ★<br/><i>58 roots</i>"]
+  SETT["settings.js ★"]
+  SPEC2["chart-spec.js"]
+
+  CSVC --> SAL & MUD & MIT & AJW & NAQ
+  CSVC --> TPL
+  CSVC --> GSAL
+  CSVC --> GSH
+  CSVC --> SPEC2
+  SAL --> GSAL
+  MUD --> GMUD
+  MIT --> GMIT
+  AJW --> GAJW
+  NAQ --> GNAQ
+  SAL & MUD & MIT & AJW & NAQ --> TPL
+  SAL & MUD & MIT & AJW & NAQ --> SPEC2
+  SAL & MUD & MIT & AJW & NAQ --> GSH
+  GMUD & GMIT & GAJW & GNAQ --> GSAL
+  GSAL --> GSH
+  LSVC --> ROOTS
+  LSVC --> SETT
+  LSVC -.->|"hasEngine"| CSVC
+
+  classDef door fill:#12324a,stroke:#8fd3a4,color:#eef2f8,stroke-width:2px
+  classDef code fill:#1d3348,stroke:#4ea8de,color:#eef2f8
+  classDef data fill:#3a2f16,stroke:#d8a13a,color:#eef2f8
+  classDef leaf fill:#1a2030,stroke:#4a5568,color:#93a0b4,stroke-dasharray: 5 4
+  class CSVC,LSVC door
+  class SAL,MUD,MIT,AJW,NAQ,TPL,SPEC2 code
+  class GSAL,GMUD,GMIT,GAJW,GNAQ,GSH data
+  class ROOTS,SETT leaf
+</div>
+
+<p class="body">
+  <b>Measured: 7 files inside <code>js/conjugation/</code>, and exactly one of them is imported from
+  outside.</b> The five conjugators and <code>templates.js</code> are invisible to the rest of the app.
+  <code>js/lexicon/</code> is the same shape — 2 files, one door. Those are the two clusters that are
+  genuinely sealed, and each pairs a stem table with the one engine that reads it.
+</p>
+
+<h3 class="sub">Branch 2 — the quiz chain, with the builders sealed behind the registry</h3>
+
+<div class="mermaid">
+flowchart TD
+  PLAN["quiz-plan.js<br/><i>QuizPlan · planCharts · planFrom</i>"]
+  POOL["word-pool.js<br/><i>the one walk</i>"]
+  REL["<b>relevance.js</b><br/><i>the registry · the only<br/>importer of builders/</i>"]
+  BID["builders/identify"]
+  BPR["builders/produce"]
+  BDR["builders/derived"]
+  BFM["builders/from-meaning"]
+  QUES["question.js ★<br/><i>shape · 6 prompts · 2 responses</i>"]
+  WS["word-spec.js<br/><i>the identity</i>"]
+  GRD["grading.js<br/><i>grade() → Answer</i>"]
+  RUN["quiz-run.js<br/><i>QuizRun · questionStream</i>"]
+  DRL["drills.js<br/><i>presets · bundles</i>"]
+  ATX["arabic-text.js ★<br/><i>grapheme clusters</i>"]
+  OUT1(["→ conjugation-service"])
+  OUT2(["→ meaning-service"])
+  OUT3(["→ lexicon-service"])
+
+  PLAN --> POOL
+  POOL --> REL
+  REL --> BID & BPR & BDR & BFM
+  BID & BPR & BDR & BFM --> QUES
+  BID & BPR & BDR & BFM --> WS
+  BID & BPR & BDR & BFM --> OUT1
+  BID & BPR & BDR & BFM --> OUT2
+  QUES --> GRD
+  GRD --> ATX
+  RUN --> GRD
+  RUN --> REL
+  RUN --> QUES
+  DRL --> PLAN
+  DRL --> POOL
+  DRL --> REL
+  POOL --> OUT1
+  POOL --> OUT3
+  PLAN --> OUT3
+
+  classDef hub fill:#12324a,stroke:#8fd3a4,color:#eef2f8,stroke-width:2px
+  classDef code fill:#1d3348,stroke:#4ea8de,color:#eef2f8
+  classDef leaf fill:#1a2030,stroke:#4a5568,color:#93a0b4,stroke-dasharray: 5 4
+  classDef ext fill:#2a2130,stroke:#7a5f8a,color:#c9b8d4
+  class REL hub
+  class PLAN,POOL,BID,BPR,BDR,BFM,WS,GRD,RUN,DRL code
+  class QUES,ATX leaf
+  class OUT1,OUT2,OUT3 ext
+</div>
+
+<p class="body">
+  <b>The four builders have exactly one importer between them: <code>relevance.js</code>.</b> Nothing else
+  in the app can reach a builder — which is the structural expression of “what a session asks is decided by
+  the pool, never by the caller”. Adding a fifth quiz type is one file plus one registry row, and no
+  existing caller changes.
+</p>
+
+<h3 class="sub">Branch 3 — screens, and the floor everything stands on</h3>
+
+<div class="mermaid">
+flowchart TD
+  MAIN2["main.js<br/><i>router · injects onExit + onStartRun</i>"]
+  HOME["screens/home"]
+  PRAC["screens/practice"]
+  TABL["screens/tables"]
+  QSCR["screens/quiz"]
+  RES["screens/results"]
+  STAT["screens/stats"]
+  MORE["screens/more"]
+  STATE["ui/state.js<br/><i>tab · draft plan · live run</i>"]
+  STORE["history/store.js ★<br/><i>rows · rowFor() · NO settings import</i>"]
+  QRY["history/queries.js<br/><i>the 24 queries</i>"]
+  DOM["ui/dom.js ★"]
+  VOC["vocabulary.js ★<br/><i>25 importers</i>"]
+  GLOS["glossary.js ★<br/><i>every display string</i>"]
+  SET2["settings.js ★"]
+
+  MAIN2 --> HOME & PRAC & TABL & QSCR & RES & STAT & MORE
+  MAIN2 --> STATE
+  QSCR -->|"onStartRun<br/>via router"| RES
+  QRY --> STORE
+  HOME & PRAC & QSCR & RES & MORE --> STORE
+  HOME & RES & STAT & MORE --> QRY
+  STAT --> SET2
+  MORE --> SET2
+  STATE --> SET2
+  HOME & PRAC & TABL & QSCR & RES & STAT & MORE --> STATE
+  HOME & PRAC & TABL & QSCR & RES & STAT & MORE --> DOM
+  HOME & PRAC & TABL & QSCR --> VOC
+  HOME & PRAC & TABL & QSCR & STAT --> GLOS
+
+  classDef top fill:#25203a,stroke:#c48ce0,color:#eef2f8
+  classDef code fill:#1d3348,stroke:#4ea8de,color:#eef2f8
+  classDef leaf fill:#1a2030,stroke:#4a5568,color:#93a0b4,stroke-dasharray: 5 4
+  class MAIN2 top
+  class HOME,PRAC,TABL,QSCR,RES,STAT,MORE,STATE,QRY code
+  class STORE,DOM,VOC,GLOS,SET2 leaf
+</div>
+
+<div class="grid2">
+  <div class="panel">
+    <h4>The eight leaves</h4>
+    <ul>
+      <li><code>vocabulary.js</code> — 25 importers, the closed domain vocabulary</li>
+      <li><code>glossary.js</code> — 9, every display string</li>
+      <li><code>ui/dom.js</code> — 8, element helpers</li>
+      <li><code>history/store.js</code> — 6, <b>and it imports nothing on purpose</b></li>
+      <li><code>quiz/question.js</code> — 6, the Question shape</li>
+      <li><code>settings/settings.js</code> — 4, the gate table</li>
+      <li><code>arabic-text.js</code> — 2, grapheme clusters</li>
+      <li><code>lexicon/roots.js</code> — 1, the content</li>
+    </ul>
+  </div>
+  <div class="panel">
+    <h4>How sealed each cluster is</h4>
+    <ul>
+      <li><code>conjugation/</code> — 7 files, <b>1 door</b></li>
+      <li><code>lexicon/</code> — 2 files, <b>1 door</b></li>
+      <li><code>quiz/builders/</code> — 4 files, <b>1 importer</b> (relevance)</li>
+      <li><code>grammar/</code> — 6 files; the five stem tables are reached only by their own conjugator. Only <code>shared-grammar</code> leaks out, to 3 quiz files — see below.</li>
+      <li><code>history/</code> — 2 files, entered via both, but <code>queries → store</code> is one-way</li>
+      <li><code>screens/</code> — 7 files, all entered by the router. <b>No screen imports another</b> since the cycle fix.</li>
+    </ul>
+  </div>
+</div>
+
+<div class="callout warn">
+  <span class="hd">The one leak worth knowing about</span>
+  Three quiz files — <code>word-pool</code>, <code>drills</code>, <code>builders/derived</code> — import
+  <code>FORM_META</code> from <code>grammar/shared-grammar.js</code>, reaching past the engine service into
+  grammar data. It is defensible: <code>FORM_META</code> is form metadata (“does Form IX conjugate?”,
+  “does Form VII have a passive?”), true regardless of verb type, and asking it is not conjugating.
+  <b>But note it is an early filter over a check the service also makes authoritatively</b> — the pool skips
+  Form IX candidates for speed, and <code>conjugate()</code> would have refused them anyway. If those two
+  ever disagree, <b>the service wins</b>; the filter is an optimisation, not an invariant.
+</div>
+
+<!-- ===================================================================== -->
+<h2 class="sec"><b>09</b> Should <code>chart-spec.js</code> be dissolved?</h2>
+
+<p class="body">
+  Your hypothesis: <i>“they are just grammatical helper methods, is that not true?”</i>
+  <b>Partly true — for four of the six live exports, and the strongest evidence is the change you just
+  approved.</b> Taken one at a time:
+</p>
+
+<div class="tbl-wrap">
+<table class="rev">
+  <thead><tr><th>Export</th><th>Is it a helper?</th><th>Where it belongs</th></tr></thead>
+  <tbody>
+    <tr class="dead"><td class="f">babOf()</td>
+        <td><b>Yes — you are right.</b> After this morning's fix it is <code>babOf(root, formId)</code>: it takes no spec, returns a lexicon fact, and has <em>nothing to do with a chart</em>. The signature change is the proof.</td>
+        <td><b>Not <code>lexicon-service.js</code></b> — that file already imports the engine router, so five conjugators importing it back would be a cycle. It wants its own home: <code>js/lexicon/root.js</code>, a Root-accessor file that imports nothing. <b>Which is what <code>TECHNICAL_PLAN §A.10</code> already specifies for Swift</b> — <code>Lexicon/Root.swift</code> is listed separately from <code>LexiconService.swift</code>.</td></tr>
+    <tr class="dead"><td class="f">isValidShape()<br>CHART_SHAPES</td>
+        <td><b>Yes.</b> Both describe which combinations of tense × voice × mood name a real table. That is a statement about the axes, and the axes are <code>vocabulary.js</code>'s.</td>
+        <td><code>vocabulary.js</code>, which already owns <code>TENSES</code>, <code>VOICES</code>, <code>MOODS</code> and already explains which tenses bear iʿrāb. The closed set of valid combinations is the same kind of fact.</td></tr>
+    <tr><td class="f">chartSpec()</td>
+        <td><b>No — and this is the one I would push back on.</b> It is not a helper, it is a <b>type constructor with invariants</b>. It forces <code>mood</code> null outside the muḍāriʿ and <code>voice</code> maʿlūm for the amr, so a caller passing a manṣūb māḍī is <em>corrected rather than obeyed</em>. That is the only reason two specs for the same paradigm compare equal — and it is why this is a function rather than an object literal anyone could write by hand.</td>
+        <td>Stays.</td></tr>
+    <tr><td class="f">inVoice()</td>
+        <td><b>No.</b> A spec transformer — it rebuilds a spec through the same constructor, so it inherits the normalisation. It belongs with the type it transforms.</td>
+        <td>Stays.</td></tr>
+    <tr class="dead"><td class="f">usageOf()<br>the re-export</td><td>Dead, both.</td><td>Deleted.</td></tr>
+  </tbody>
+</table>
+</div>
+
+<div class="callout">
+  <span class="hd">Where that lands</span>
+  Move four, delete two, keep two — and the file shrinks from 95 lines to about <b>45</b>, holding the
+  <code>ChartSpec</code> type, its constructor and its one transformer. Which raises the real question,
+  and it is yours to answer:
+</div>
+
+<div class="grid2">
+  <div class="panel">
+    <h4>Option A — keep the slimmed file <span class="pill keep">recommended</span></h4>
+    <p><code>chart-spec.js</code> ≈ 45 lines: the type, the constructor, <code>inVoice</code>. Named for the
+       domain concept, used across both the engine and quiz layers, and the header comment explaining
+       <em>why the ṣīghah is deliberately not in it</em> keeps a home.</p>
+    <p>The alternative below has a charter problem: <code>vocabulary.js</code> says of itself
+       <b>“nothing here grows with content”</b>, and <code>chartSpec()</code> takes a <em>root</em>. Moving it
+       there makes the foundation file depend on content shapes.</p>
+  </div>
+  <div class="panel">
+    <h4>Option B — dissolve it entirely</h4>
+    <p>Fold <code>chartSpec</code> and <code>inVoice</code> into <code>vocabulary.js</code> and delete the
+       file. One fewer module; the axes and the thing built from them live together.</p>
+    <p>Costs the charter above, and puts a constructor beside the enums it is built from — which reads fine
+       until someone adds a second content-aware function on the same excuse.</p>
+  </div>
+</div>
+
+<div class="settled">
+  <span class="hd">Already done, and verified</span>
+  <b><code>babOf</code> now takes <code>(root, formId)</code></b> — the duplicate lookup in
+  <code>word-spec.js</code> is gone, all five conjugators call the shared one, and it returns
+  <code>null</code> rather than <code>undefined</code> for a missing bāb.
+  <b>304 assertions green · zero diffs across 20,252 engine outputs.</b>
+</div>
+
+<!-- ===================================================================== -->
+<h2 class="sec"><b>10</b> What the map found</h2>
+
+<div class="callout bad">
+  <span class="hd">Fixed while making this — an import cycle</span>
+  <code>screens/results.js ↔ screens/quiz.js</code>. When I split results out of the quiz screen in A1(c),
+  quiz imported <code>renderResults</code> and results imported <code>renderQuestion</code> back for the
+  “New round (same setup)” button. ES modules tolerate it — the calls happen at click time, not at module
+  evaluation — so <b>nothing failed and no test noticed</b>. It is still two screens reaching across to
+  each other instead of up to the router that owns starting a run.
+  <br><br>
+  <b>Fixed:</b> results now takes <code>onStartRun</code> injected, the same way it already took
+  <code>onExit</code>. Verified end-to-end in the running app: finish a drill → New round → a fresh
+  question renders. <b>304 assertions still green, 0 cycles.</b>
+</div>
+
+<div class="grid2">
+  <div class="panel">
+    <h4>Worth noticing about the shape</h4>
+    <ul>
+      <li><b>Nine leaves</b> import nothing local: vocabulary, glossary, arabic-text, settings, dom, question, word-spec, store, roots. A leaf is a file you can read without chasing anything.</li>
+      <li><b>Zero files</b> outside <code>js/conjugation/</code> import a conjugator. The service is a real door, not a convention.</li>
+      <li>The quiz chain is <b>linear</b> — plan → pool → relevance → builders → run → grading — with no back-edges.</li>
+    </ul>
+  </div>
+  <div class="panel">
+    <h4>Open, from earlier</h4>
+    <ul>
+      <li>Delete <code>usageOf</code> + the re-export (§06) — awaiting your word.</li>
+      <li>Fold the duplicate bāb lookup into one function (§06).</li>
+      <li><b>Roadmap Q1</b> — corpus gate over five engines.</li>
+      <li><b>Roadmap Q3</b> — does the Practice wizard stay deferred?</li>
+      <li><code>PRODUCT_SPEC</code> §3 and §6 still describe a Pro tier and seven verb types at launch; both are stale under the Settings decision, and Q1/Q3 change what they should say.</li>
+    </ul>
+  </div>
+</div>
+
+</div>
+
+<script type="module">
+  import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.15.0/dist/mermaid.esm.min.mjs";
+  const darkQuery = window.matchMedia("(prefers-color-scheme: dark)");
+  const paint = document.createElement("canvas").getContext("2d");
+  function toRgba(color) {
+    paint.clearRect(0, 0, 1, 1); paint.fillStyle = "#000"; paint.fillStyle = color;
+    paint.fillRect(0, 0, 1, 1); return paint.getImageData(0, 0, 1, 1).data;
+  }
+  function compositeRgba(fg, bg) {
+    const fa = fg[3] / 255, ba = bg[3] / 255; const a = fa + ba * (1 - fa);
+    if (a === 0) return [0, 0, 0, 0];
+    return [(fg[0]*fa + bg[0]*ba*(1-fa))/a, (fg[1]*fa + bg[1]*ba*(1-fa))/a, (fg[2]*fa + bg[2]*ba*(1-fa))/a, a*255];
+  }
+  function pageIsDark() {
+    const root = document.documentElement;
+    const [r, g, b, a] = compositeRgba(
+      document.body ? toRgba(getComputedStyle(document.body).backgroundColor) : [0,0,0,0],
+      toRgba(getComputedStyle(root).backgroundColor));
+    if (a > 0) return (0.2126*r + 0.7152*g + 0.0722*b) / 255 < 0.5;
+    const cs = getComputedStyle(root).colorScheme;
+    if (cs.includes("dark") && !cs.includes("light")) return true;
+    if (cs.includes("light") && !cs.includes("dark")) return false;
+    return darkQuery.matches;
+  }
+  const diagrams = [...document.querySelectorAll(".mermaid")].map((el) => ({ el, src: el.textContent }));
+  let applied, rendering = false, queued = false;
+  function queueRender() { queued = true; if (!rendering) void render(); }
+  async function render() {
+    rendering = true;
+    try {
+      while (queued) {
+        queued = false;
+        const theme = pageIsDark() ? "dark" : "default";
+        if (theme === applied) continue;
+        mermaid.initialize({ startOnLoad: false, theme, securityLevel: "strict" });
+        for (const { el, src } of diagrams) { el.removeAttribute("data-processed"); el.textContent = src; }
+        try { await mermaid.run({ nodes: diagrams.map((d) => d.el) }); }
+        catch (error) { console.error("Mermaid diagram render failed:", error); return; }
+        applied = theme;
+      }
+    } finally { rendering = false; if (queued) queueRender(); }
+  }
+  if (document.readyState === "complete") queueRender();
+  else window.addEventListener("load", queueRender, { once: true });
+  const themeObserver = new MutationObserver(queueRender);
+  for (const el of [document.documentElement, document.body]) {
+    if (el) themeObserver.observe(el, { attributes: true, attributeFilter: ["data-theme", "class", "style"] });
+  }
+  document.addEventListener("change", queueRender, true);
+  document.addEventListener("transitionend", ({ propertyName }) => {
+    if (propertyName === "background-color") queueRender();
+  }, true);
+  darkQuery.addEventListener("change", queueRender);
+</script>
+</body>
+</html>

@@ -49,7 +49,7 @@ export function getConjugationData(spec) {
 
   // this is for form 1, and maroof cases where things differ by baab
   if (spec.formId === 'I' && spec.voice === 'malum') {
-    const bab = babOf(spec);
+    const bab = babOf(spec.root, spec.formId);
     return {
       stem: stemSetByBaab?.[bab] ?? null,
       endingSet,
@@ -88,7 +88,7 @@ export const MithalConjugator = {
       result = PREFIX_LETTERS[slot] + MUDARI_PREFIX_HARAKA[spec.formId][spec.voice] + result;
     }
     if (spec.tense === 'amr') {
-      result = amrOpening(spec.formId, stem, babOf(spec)) + result;
+      result = amrOpening(spec.formId, stem, babOf(spec.root, spec.formId)) + result;
     }
     return norm(result);
   },

@@ -59,7 +59,7 @@ export function getConjugationData(spec, slot) {
   // يَظَلُّ stay apart. the madi collapsed all six into مَدَّ and the majhool
   // neutralises them, so neither of those asks for a baab.
   if (spec.formId === 'I' && tableName === 'mudari_malum') {
-    const bab = babOf(spec);
+    const bab = babOf(spec.root, spec.formId);
     return {
       stem: stemSetByForm[tableName]?.[bab]?.[seegahType] ?? null,
       endingSet,
@@ -94,7 +94,7 @@ export const MudaafConjugator = {
       result = PREFIX_LETTERS[slot] + MUDARI_PREFIX_HARAKA[spec.formId][spec.voice] + result;
     }
     if (spec.tense === 'amr') {
-      result = amrOpening(spec.formId, stem, babOf(spec)) + result;
+      result = amrOpening(spec.formId, stem, babOf(spec.root, spec.formId)) + result;
     }
     return norm(result);
   },
