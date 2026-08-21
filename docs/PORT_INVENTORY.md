@@ -24,6 +24,9 @@ construction, and SwiftUI does not work that way at all — none of that code
 survives, though **every layout decision in it does**. `history/store.js` and
 `settings/settings.js` swap their storage backend and keep their shape.
 
+**Where the code lands is Part 3** — the engine/app package boundary, and what it
+does to the type model.
+
 There are exactly **four things that will silently produce wrong Arabic** if
 transcribed literally, and they are all in §1.1. Read that section twice.
 
@@ -406,7 +409,12 @@ mapping is direct, and the state each one reads is already isolated in
 |---|---|---|
 | `main.js` tab bar | `TabView` | system component; do **not** hand-build it |
 | `screens/home.js` | `HomeScreen` + `StatCard`, `QuoteCard`, `PresetCard` | `ScrollView` + `LazyVStack` |
-| `screens/practice.js` | `PracticeScreen` + `ChipRow` | the axis rows are `ForEach` over `.allCases` |
+| `screens/practice.js` | `PracticeScreen` | picks the flow off `settings.practiceFlow` — a `switch` in the body |
+| `screens/practice-controls.js` | `PracticeControls` (the axis rows) + `ChipRow` | each row is a `ForEach` over `.allCases` binding into `PlanDraft`; **port this first** — both flows are views over it |
+| `screens/practice-classic.js` | `PracticeClassicScreen` | `ScrollView` + `ScrollViewReader` for the summary chips' jump-to-row |
+| `screens/practice-wizard.js` | `PracticeWizardScreen` | the step table is data; `NavigationStack` is **not** the right fit — the live step list changes with the draft, so drive it off the step id in state |
+| `screens/practice-summary.js` | `PracticeSummary` | shared by both; renders `QuestionCard` non-interactively |
+| `screens/question-card.js` | `QuestionCard` | one `View` per prompt kind, `switch` exhaustive over the tag — shared by the quiz and the summary preview |
 | `screens/tables.js` | `TablesScreen` → `TableDetailView` | `.searchable()` replaces the hand-built search box |
 | `screens/quiz.js` | `QuizScreen` + `QuestionCard`, `FeedbackView` | §2.4 — the real work |
 | `screens/results.js` | `ResultsScreen` | |
@@ -426,6 +434,9 @@ mapping is direct, and the state each one reads is already isolated in
 @Observable @MainActor final class AppState {
     var tab: Tab = .home
     var draft: PlanDraft            // the Practice chips — struct, value semantics
+    var practiceStep: PracticeAxis? // where the wizard is standing; nil = not walked
+                                    // yet. An ID, never an index — the live step
+                                    // list changes with the draft.
     var tables: TablesSelection     // rootKey, formId, tense, voice, mood, highlight
     var search: String = ""
     var run: QuizRun?               // non-nil ⇒ a quiz is playing
@@ -601,58 +612,361 @@ run is at risk.
 
 ---
 
-# Part 3 — File-by-file inventory
+# Part 3 — The package boundary
+
+## 3.1 Quiz belongs on the app side — the measurement
+
+TECHNICAL_PLAN §A.10 puts `Quiz/` inside `SarfCore`. That layout predates the A1
+restructure and **does not survive contact with the dependency graph.** Four
+measurements, all from the code as it stands:
+
+1. **Six of nine quiz files import display strings.** `builders/identify.js`,
+   `produce.js`, `from-meaning.js`, `derived.js`, `drills.js` and `quiz-plan.js`
+   all import from `glossary.js` — because an `AnswerOption` is
+   `{ar, en, valueKey}` and the option labels are baked into the question at
+   build time. So *quiz in SarfCore* ⇒ *glossary in SarfCore* ⇒ **the morphology
+   package owns every user-facing English string in the app.** That is exactly
+   the "GrammarTables grab-bag" finding the v2 review fixed at the grammar
+   level, reappearing one layer up.
+2. **The quiz layer holds product copy.** `DRILL_PRESETS`:
+   `desc: 'Hollow, defective, assimilated and doubly-weak, mixed.'`
+   `QUESTION_RULES`: `label: 'Who the doer is'`,
+   `reason: 'only one voice reachable'`. Prompts: `'Is the doer known or
+   unknown?'`. None of that is a fact about Arabic.
+3. **The two halves have opposite stability.** SarfCore is heading for a
+   **freeze** (B3: corpus committed, engine API frozen). The quiz layer is the
+   *least* frozen thing on the roadmap — A2 rebuilds Practice, A3 adds tips, A5
+   adds compare. Shipping them as one package means the frozen thing's version
+   moves every time the unfrozen thing does.
+4. **The app already calls the engine directly.** `screens/tables.js` imports
+   `conjugation-service`; `screens/practice.js` imports `meaning-service`. Quiz
+   was never the only client, so keeping it inside the package protects nothing
+   that `public` does not already protect (§3.3a).
+
+## 3.2 Three targets, not two
+
+The split is right; the destination needs one refinement. Quiz logic should not
+go in the **app target**, because `grade()` is the single owner of correctness
+judgement (ARCHITECTURE §9.2) and `relevance()` is 135 lines of rules — both
+want headless tests with no simulator and no SwiftUI, and both must be provably
+free of UI imports.
+
+```
+Packages/SarfCore     morphology. Frozen at B3. No display strings, no copy.
+Packages/SarfQuiz     quiz rules + the strings they bake in. Churns. No UI.
+SarfQuiz.app          views, navigation, SwiftData, UserDefaults, StoreKit.
+```
+
+A second target costs ~6 lines of `Package.swift` and converts "no UI imports"
+from a convention into a compile error. `QuizRun` can still be
+`@Observable @MainActor` there — `Observation` is not `SwiftUI`.
+
+**Glossary goes in SarfQuiz**, not the app, for one concrete reason: an
+`AnswerOption.en` *is* `TENSE_LABELS[t].en`. Same string, and they must not
+drift. The Tables screen reading `PRONOUNS` transitively is fine. If it ever
+grows or gets localized, promoting it to its own target is one edit.
+
+**Two targets is defensible** if you would rather not carry the middle one — but
+then keep the quiz code in its own directory with a stated no-SwiftUI rule, so
+promoting it later is free.
+
+## 3.3 What the boundary does to the type model
+
+This is where the split pays for itself — it turns four things that are
+currently *documented conventions* into *compiler-enforced facts*.
+
+### (a) `public` makes "one door" real
+
+Swift defaults to `internal` — module-visible. Today ARCHITECTURE §1's headline
+invariant ("`conjugation-service.js` is the only door; seven files live in
+`js/conjugation/` and exactly one is imported from outside") is a rule you keep
+by reading imports. Across a package boundary:
+
+```swift
+public struct ConjugationService { … }        // the door
+struct SalimConjugator: VerbTypeConjugator { … }   // internal — invisible outside
+enum Templates { … }                                // internal
+```
+
+**The app cannot call `SalimConjugator.conjugate` even by accident.** Same for
+the grammar tables: `SALIM_VERB_STEMS` stays `internal` and nothing above the
+engine can read a stem template.
+
+### (b) The known leak becomes a compile error ⚠️
+
+ARCHITECTURE §7 flags one: `word-pool`, `drills` and `builders/derived` import
+`FORM_META` from `grammar/shared-grammar.js`, reaching past the service into
+grammar data. Measured — exactly those three files. The boundary forces a
+decision that JS could only note:
+
+- make `FORM_META` `public` → you have formally blessed grammar data as engine
+  API, and the early filter and the authoritative check are both public with
+  only a comment saying which wins; **or**
+- expose the two facts as behaviour and keep the table `internal`:
+
+```swift
+public extension ConjugationService {
+    func conjugates(_ form: FormID) -> Bool     // FORM_META[f].conjugable
+    func hasPassive(_ form: FormID) -> Bool     // FORM_META[f].hasMajhul
+}
+```
+
+The second is right, and note it is the **same move `hasEngine()` already
+makes** for the other half of the same question. Do this in JS first so the
+parity snapshot stays meaningful.
+
+### (c) The engine's one upward dependency becomes illegal ⚠️
+
+Found while measuring: `lexicon/lexicon-service.js` line 9 imports `settings`,
+and `availableTypes()` reads `CONTENT_FLAG` → `settings[flag]` to gate mahmūz
+and lafīf. **With Settings in the app target, SarfCore would have to import the
+app.** Not allowed, and not fixable by making something public.
+
+The resolution is the move this codebase already makes elsewhere — inject the
+policy instead of reaching for a global, exactly as `QuizRun` takes `record` as
+a callback rather than importing the history store:
+
+```swift
+public func availableTypes(enabled: Set<VerbTypeGroup>) -> [VerbType]
+```
+
+`availableTypes` stays the single owner of "is this verb type playable"; the
+gate arrives as an argument instead of a global read. **Worth doing in JS
+now** — it is a small change and it removes the last thing standing between the
+lexicon and a clean package.
+
+(ARCHITECTURE §7's *other* upward dependency — `lexicon-service` importing
+`hasEngine` from `conjugation-service` — is fine: both are inside SarfCore.)
+
+### (d) Two shapes of one idea, and who owns each
+
+The system already carries the same identity in two forms, and the boundary
+makes the ownership explicit rather than incidental:
+
+| | `ChartSpec` | `WordSpec` |
+|---|---|---|
+| shape | `{root: Root, formId, tense, voice, mood}` | `{rootKey: String, formId, verbType, bab, tense, voice, mood, slot, derivedKind}` |
+| holds the root as | a **reference** | a **key** |
+| purpose | calling the engine | the stored history identity |
+| lifetime | one call | forever |
+| **owner** | **SarfCore** — it is the engine's argument type | **SarfQuiz** — it is the record |
+
+Direction of travel across the boundary:
+
+```
+app / quiz  ──  ChartSpec (carrying a Root)  ──▶  SarfCore
+app / quiz  ◀──  String? / [PronounSlot: String]?  ──  SarfCore
+```
+
+The engine never returns a domain object — only words, or `nil`. That is why the
+API surface is small and why the boundary is cheap.
+
+Going the *other* way is the interesting case: turning a stored `WordSpec` back
+into a live query needs `LexiconService.byRoot(rootKey)`, **which can return
+nil** — the root may have been removed or reclassified since the record was
+written. That nil is the entire reason `rootKey` is a `String` and not a
+reference (ARCHITECTURE §3), and the boundary turns it from a comment into a
+typed obligation the app must handle: replay, stats drill-down and "see the full
+table" all have to say what they do when the root is gone.
+
+### (e) Enum `rawValue`s become a storage contract ⚠️
+
+SarfCore's enums cross into SwiftData through `WordSpec`. The moment `"3ms"`,
+`"ajwaf_waw"` and `"mudari"` are in a user's history, **SarfCore cannot rename a
+case without a migration** — and `enum PronounSlot: String` makes the rawValue
+*look* like an implementation detail when it is a persisted format.
+
+Say it on the type, and pin it:
+
+```swift
+/// rawValue is a STORAGE CONTRACT — these strings are written into history
+/// records (see SarfQuiz.WordSpec). Renaming a case needs a data migration.
+public enum PronounSlot: String, CaseIterable, Codable, Sendable { … }
+```
+
+…plus a test asserting the exact rawValue set. This is a genuinely new hazard:
+in JS the strings were obviously strings, so nobody was tempted.
+
+### (f) The package boundary should also be the concurrency boundary
+
+Make it the same line, deliberately:
+
+| | isolation | why |
+|---|---|---|
+| SarfCore | `nonisolated`, all types `Sendable` | pure, no globals (§1.9) — callable off the main thread |
+| SarfQuiz | `nonisolated` except `QuizRun` (`@MainActor`) | rules are pure; the run is observed by views |
+| app | `@MainActor` | it is UI |
+
+This has a concrete payoff, not just tidiness: `wordPool()` walks every
+candidate × chart × ṣīghah calling `conjugate()` — the same walk that produces
+20,252 outputs — to compute the possible-question count shown under Start, and
+it re-runs **on every chip tap**. On a device that will visibly jank. With
+SarfCore `nonisolated` and `Sendable`, `await Task.detached { wordPool(plan) }`
+is legal and the count updates without blocking. If the engine were entangled
+with `@MainActor` app state, it would not be.
+
+Every type crossing the boundary must be `Sendable`: `Root` as a struct of
+`let`s is automatically so; the closures in `QUESTION_RULES` need `@Sendable`
+(§1.5).
+
+## 3.4 SarfCore's public surface, in full
+
+Small on purpose — this is the whole contract the app codes against:
+
+```swift
+// Models (all public, all Sendable, all Codable where stored)
+Tense · Voice · Mood · FormID · PronounSlot · Bab · VerbType · VerbTypeGroup
+DerivedNounKind · ChartShape · ChartSpec · Root · RootFormUsage · MudariParticle
+
+// Services
+ConjugationService
+    conjugate(_:slot:) -> String?
+    fullTable(_:) -> [PronounSlot: String]?
+    derivedNoun(_:form:kind:) -> String?
+    citation(_:form:) -> String
+    waznOf(_:slot:bab:) -> String?          waznOfDerived · waznCitation
+    waznRoot(...)                            // ROADMAP A5 needs this public
+    hasEngine(_:) · conjugates(_:) · hasPassive(_:)      // §3.3b
+
+LexiconService
+    load() throws -> Lexicon                 // §1.10
+    all · byRoot(_:) · candidates(types:forms:) · classify(_:)
+    availableTypes(enabled:)                 // §3.3c
+
+MeaningService
+    verbMeaning(_:slot:particle:) -> String
+    derivedNounMeaning(_:form:kind:) -> String
+    particles(for:) · particle(for:)
+
+ArabicText
+    clusters(_:) · firstDifferingCluster(_:_:)
+```
+
+Everything else — five conjugators, `Templates`, every grammar table,
+`SEEGAH_TYPES`, `PREFIX_LETTERS` — is `internal`.
+
+## 3.5 Models folders — entities apart from behaviour
+
+Requested, and it works cleanly in all three targets:
+
+```
+Packages/SarfCore/Sources/SarfCore/
+  Models/                  ← ENTITY DEFINITIONS ONLY
+    Vocabulary.swift         Tense · Voice · Mood · FormID · PronounSlot · Bab
+                             VerbType · VerbTypeGroup · DerivedNounKind
+    ChartShape.swift         the nine shapes + isValid
+    ChartSpec.swift          {root, formId, tense, voice, mood}
+    Root.swift               Root · RootFormUsage · EnglishForms
+    GrammarTypes.swift       Affix · StemTemplate · PrefixRule
+    MudariParticle.swift
+  Grammar/                 ← DATA TABLES (content, not entities)
+    SharedGrammar.swift · SalimGrammar.swift · … · NaqisGrammar.swift
+  Conjugation/             ← BEHAVIOUR
+    VerbTypeConjugator.swift · Salim…Naqis · Templates.swift
+    ConjugationService.swift
+  Lexicon/     LexiconService.swift
+  Meaning/     MeaningService.swift
+  Text/        ArabicText.swift
+  Resources/   roots.json
+
+Packages/SarfQuiz/Sources/SarfQuiz/
+  Models/                  ← ENTITY DEFINITIONS ONLY
+    WordSpec.swift · QuizPlan.swift · Question.swift (Prompt · Response ·
+    AnswerOption) · Answer.swift · QuestionRule.swift · DrillPreset.swift
+  Pool/        WordPool.swift
+  Rules/       Relevance.swift          (QUESTION_RULES)
+  Builders/    Identify · Produce · Derived · FromMeaning
+  Grading.swift · QuizRun.swift · Drills.swift · Glossary.swift
+
+SarfQuiz.app/
+  Models/                  ← ENTITY DEFINITIONS ONLY
+    PersistedSession.swift · PersistedAnswer.swift   (@Model)
+    PlanDraft.swift · TablesSelection.swift · Theme.swift
+  App/         SarfQuizApp · RootView · AppState
+  Features/    Home · Practice · Tables · Quiz · Results · More · Stats
+  Services/    HistoryService · Settings · (later) StoreService · ExplainService
+  Resources/   assets · quotes.json
+```
+
+**Three notes on where the line falls**, because Swift makes it fuzzier than JS
+did:
+
+1. **Grammar tables are not entities.** `SALIM_VERB_STEMS` is ~1,000 lines of
+   *content* — the same category as `roots.json`, not the same category as
+   `struct Root`. It stays in `Grammar/`, where it can be read against the paper
+   charts. `Models/GrammarTypes.swift` holds the *shapes* those tables are
+   written in (`Affix`, `StemTemplate`), which is the entity half.
+2. **One stated allowance.** A Models file may hold a computed property that
+   reads **only `self`** — `Bab.madiVowel`, `ChartShape.isValid`,
+   `PronounSlot.person`, `VerbType.group`. It may not hold a lookup into another
+   table, a service call, or I/O. That keeps "data files hold no methods" intact
+   in spirit (nothing in `Models/` *does* anything) while letting Swift model
+   `bab` as an enum instead of a two-character string (§1.3, Trap 3).
+3. **`babOf(root, formId)` moves.** In JS it is a free function in
+   `lexicon/root.js`, split out purely to avoid an import cycle
+   (ARCHITECTURE §7). Swift has no such constraint inside a module, so it
+   becomes `root.bab(for: formId)` on the model — a self-only accessor by rule 2,
+   and `Lexicon/Root.swift` as a separate file disappears.
+
+---
+
+# Part 4 — File-by-file inventory
 
 **Verdict key:** ✅ transcribe (same logic, Swift syntax) · 🔧 adapt (real but
 local changes) · 🔁 rework (same behaviour, different construction) · 🆕 rewrite
 · ⛔ dropped.
 
-## SarfCore — the domain (ports well)
+## SarfCore — morphology (ports well, freezes at B3)
 
 | JS file | Swift destination | verdict | what changes |
 |---|---|---|---|
-| `vocabulary.js` | `Vocabulary.swift` | 🔧 | all id arrays → `enum … CaseIterable`; `Bab` gains vowel accessors; `CHART_SHAPES`/`isValidShape` unchanged |
-| `glossary.js` | `Glossary.swift` | ✅ | later: `LocalizedStringKey` if the UI is ever localized |
-| `arabic-text.js` | `ArabicText.swift` | ✅ | `Intl.Segmenter` → `Array(word)`; **verified byte-identical** |
-| `grammar/shared-grammar.js` | `Grammar/SharedGrammar.swift` | ✅ | `A(h,s)` → `Affix` struct |
-| `grammar/*-grammar.js` (5) | `Grammar/*Grammar.swift` | 🔧 | enum keys; ~1,000 lines of literals retyped |
-| `conjugation/templates.js` | `Conjugation/Templates.swift` | ⚠️🔧 | **Traps 1–3 live here.** Rewrite over `UnicodeScalarView` |
-| `conjugation/salim-conjugator.js` | `SalimConjugator.swift` | ✅ | + exhaustive `switch` on tense |
-| `conjugation/mudaaf-conjugator.js` | `MudaafConjugator.swift` | ✅ | |
-| `conjugation/mithal-conjugator.js` | `MithalConjugator.swift` | ✅ | |
-| `conjugation/ajwaf-conjugator.js` | `AjwafConjugator.swift` | ✅ | |
-| `conjugation/naqis-conjugator.js` | `NaqisConjugator.swift` | ⚠️🔧 | **Trap 4.** Densest scalar-indexing in the codebase |
-| `conjugation/conjugation-service.js` | `ConjugationService.swift` | ✅ | `ENGINES` dict → `[VerbTypeGroup: any VerbTypeConjugator]`; export `waznRoot` (ROADMAP A5) |
-| `lexicon/root.js` | `Lexicon/Root.swift` | ✅ | + ordered `formIDs` accessor (§1.4) |
-| `lexicon/roots.js` | `Resources/roots.json` | 🔁 | **data, not code** — becomes the one JSON, with `Codable` + enum-keyed decode |
-| `lexicon/lexicon-service.js` | `LexiconService.swift` | 🔧 | top-level `throw` → `static func load() throws` (§1.10) |
-| `meaning-service.js` | `MeaningService.swift` | 🔧 | `MudariParticle.en` closure → `@Sendable`; string interpolation is identical |
-| `quiz/word-spec.js` | `Quiz/WordSpec.swift` | ✅ | `Object.freeze` → `struct` + `let`; `Codable, Hashable` |
-| `quiz/quiz-plan.js` | `Quiz/QuizPlan.swift` | ✅ | `count: Int \| 'endless'` → `enum Length { case fixed(Int), endless }` |
-| `quiz/word-pool.js` | `Quiz/WordPool.swift` | 🔧 | closure-over-locals → struct with stored props; `draw()` takes an RNG |
-| `quiz/relevance.js` | `Quiz/Relevance.swift` | 🔧 | `space → AnyHashable` → `distinctAnswers → Int` (§1.5) |
-| `quiz/question.js` | `Quiz/Question.swift` | 🔧 | `Prompt` tagged union → `enum Prompt` with associated values — **the big win**; the `CARDS` table becomes an exhaustive `switch` |
-| `quiz/builders/*.js` (4) | `Quiz/Builders/*.swift` | ✅ | |
-| `quiz/grading.js` | `Quiz/Grading.swift` | ✅ | `divergeAt` → `Int?`; note §1.1b on `==` |
-| `quiz/quiz-run.js` | `Quiz/QuizRun.swift` | 🔧 | generator → `IteratorProtocol`; `@Observable` for the view |
-| `quiz/drills.js` | `Quiz/Drills.swift` | ✅ | |
+| `vocabulary.js` | `Models/Vocabulary.swift` + `Models/ChartShape.swift` | 🔧 | id arrays → `enum … CaseIterable`; `Bab` gains vowel accessors; rawValues are a **storage contract** (§3.3e) |
+| `arabic-text.js` | `Text/ArabicText.swift` | ✅ | `Intl.Segmenter` → `Array(word)`; **verified byte-identical** |
+| `grammar/shared-grammar.js` | `Models/GrammarTypes.swift` (`Affix`) + `Grammar/SharedGrammar.swift` (tables) | 🔧 | split shape from content; `FORM_META` stays **internal** — exposed as behaviour (§3.3b) |
+| `grammar/*-grammar.js` (5) | `Grammar/*Grammar.swift` | 🔧 | enum keys; ~1,000 lines of literals retyped; **internal** |
+| `conjugation/templates.js` | `Conjugation/Templates.swift` | ⚠️🔧 | **Traps 1–3 live here.** Rewrite over `UnicodeScalarView`. Internal |
+| `conjugation/salim-conjugator.js` | `Conjugation/SalimConjugator.swift` | ✅ | + exhaustive `switch` on tense. Internal |
+| `conjugation/mudaaf-conjugator.js` | `Conjugation/MudaafConjugator.swift` | ✅ | internal |
+| `conjugation/mithal-conjugator.js` | `Conjugation/MithalConjugator.swift` | ✅ | internal |
+| `conjugation/ajwaf-conjugator.js` | `Conjugation/AjwafConjugator.swift` | ✅ | internal |
+| `conjugation/naqis-conjugator.js` | `Conjugation/NaqisConjugator.swift` | ⚠️🔧 | **Trap 4.** Densest scalar-indexing in the codebase. Internal |
+| `conjugation/conjugation-service.js` | `Conjugation/ConjugationService.swift` | 🔧 | **the only `public` type here.** + `conjugates`/`hasPassive` (§3.3b), + `waznRoot` (ROADMAP A5) |
+| `lexicon/root.js` | folded into `Models/Root.swift` | 🔧 | `babOf()` → `root.bab(for:)`; the cycle that split it out doesn't exist in Swift (§3.5) |
+| `lexicon/roots.js` | `Resources/roots.json` | 🔁 | **data, not code** — `Codable` with enum-keyed decode |
+| `lexicon/lexicon-service.js` | `Lexicon/LexiconService.swift` | ⚠️🔧 | top-level `throw` → `static func load() throws` (§1.10); **`settings` import must become `availableTypes(enabled:)`** (§3.3c) |
+| `meaning-service.js` | `Meaning/MeaningService.swift` + `Models/MudariParticle.swift` | 🔧 | particle `en` closure → `@Sendable` |
 
-## App target — platform and UI
+## SarfQuiz — quiz rules (new middle target, churns)
 
 | JS file | Swift destination | verdict | what changes |
 |---|---|---|---|
-| `settings/settings.js` | `Services/Settings.swift` | 🔧 | `localStorage` → `UserDefaults`; heterogeneous `default` values need per-type storage or `Codable` boxing; keep the `audience` field |
-| `history/store.js` | `Services/HistoryService.swift` | 🔁 | `@Model QuizSessionRecord` / `AnswerRecord`; `rowFor()` → the flat stored properties (`#Predicate` cannot index an embedded blob — the file already says so); embedded `Answer` → a `Codable` blob column |
+| `glossary.js` | `Glossary.swift` | ✅ | **moves out of SarfCore** (§3.1) — it is what `AnswerOption.en` is made of |
+| `quiz/word-spec.js` | `Models/WordSpec.swift` | ✅ | `Object.freeze` → `struct` + `let`; `Codable, Hashable, Sendable` |
+| `quiz/quiz-plan.js` | `Models/QuizPlan.swift` | ✅ | `count: Int \| 'endless'` → `enum Length { case fixed(Int), endless }` |
+| `quiz/question.js` | `Models/Question.swift` | 🔧 | `Prompt` tagged union → `enum Prompt` with associated values — **the big win**; the `CARDS` table becomes an exhaustive `switch` |
+| `quiz/grading.js` | `Grading.swift` | ✅ | `divergeAt` → `Int?`; note §1.1b on `==` |
+| `quiz/word-pool.js` | `Pool/WordPool.swift` | 🔧 | closure-over-locals → struct with stored props; `draw()` takes an RNG; **run it off the main actor** (§3.3f) |
+| `quiz/relevance.js` | `Rules/Relevance.swift` + `Models/QuestionRule.swift` | 🔧 | `space → Set<AnyHashable>` → `distinctAnswers → Int` (§1.5); rules `@Sendable` |
+| `quiz/builders/*.js` (4) | `Builders/*.swift` | ✅ | |
+| `quiz/quiz-run.js` | `QuizRun.swift` | 🔧 | generator → `IteratorProtocol`; `@Observable @MainActor` |
+| `quiz/drills.js` | `Drills.swift` + `Models/DrillPreset.swift` | ✅ | |
+
+## App target — views, storage, platform
+
+| JS file | Swift destination | verdict | what changes |
+|---|---|---|---|
+| `settings/settings.js` | `Services/Settings.swift` | 🔧 | `localStorage` → `UserDefaults`; heterogeneous defaults need per-type storage or `Codable` boxing; keep the `audience` field; **feeds `availableTypes(enabled:)`** (§3.3c) |
+| `history/store.js` | `Services/HistoryService.swift` + `Models/Persisted*.swift` | 🔁 | `@Model QuizSessionRecord` / `AnswerRecord`; `rowFor()` → the flat stored properties (`#Predicate` cannot index an embedded blob); embedded `Answer` → a `Codable` blob column |
 | `history/queries.js` | `Services/StatsService.swift` | 🔧 | in-memory reduce → `FetchDescriptor` + `#Predicate`; **decide the day boundary** — UTC today, local in Swift (§1.12) |
-| `ui/state.js` | `App/AppState.swift` | 🔁 | `@Observable @MainActor`; navigation booleans → `NavigationStack` (§2.3) |
+| `ui/state.js` | `App/AppState.swift` + `Models/PlanDraft.swift`, `Models/TablesSelection.swift` | 🔁 | `@Observable @MainActor`; navigation booleans → `NavigationStack` (§2.3) |
 | `ui/dom.js` | — | ⛔ | `el()` deleted; `chipRow`/`rowNav` become views |
-| `main.js` | `App/SarfQuizApp.swift` + `RootView.swift` | 🔁 | router → `TabView`; `render()` disappears |
+| `main.js` | `App/SarfQuizApp.swift` + `App/RootView.swift` | 🔁 | router → `TabView`; `render()` disappears |
 | `screens/*.js` (7) | `Features/*/…` | 🆕 | layout preserved, construction rewritten (§2.2) |
-| `css/style.css` | asset catalog + `Theme.swift` | 🆕 | tokens survive, rules don't |
+| `css/style.css` | asset catalog + `Models/Theme.swift` | 🆕 | tokens survive, rules don't |
 | `index.html`, `serve.mjs` | — | ⛔ | Xcode replaces both |
 | `data/quotes.json` | `Resources/quotes.json` | ✅ | bundle read, no `fetch` |
-| `test/smoke.mjs` | `Tests/SarfCoreTests/` | 🔧 | 304 assertions → Swift Testing `#expect`; the 112 hand-typed parity strings port **verbatim** and are the gate |
-| `tools/export-content.mjs` | — | 🔧 | un-park it; it emits `roots.json` + `golden-corpus.json` (ROADMAP B3) |
+| `test/smoke.mjs` | split: `SarfCoreTests` + `SarfQuizTests` | 🔧 | the 112 hand-typed parity strings → `SarfCoreTests`, **verbatim**, and they are the gate; plan/pool/relevance/grading assertions → `SarfQuizTests` |
+| `tools/export-content.mjs` | — | 🔧 | un-park it; emits `roots.json` + `golden-corpus.json` (ROADMAP B3) |
 
 ## What does *not* change — and it is most of the value
 
@@ -665,9 +979,9 @@ JS.
 
 ---
 
-# Part 4 — Consequences and open questions
+# Part 5 — Consequences and open questions
 
-## 4.1 Port readiness — one conflict with your own roadmap ⚠️
+## 5.1 Port readiness — one conflict with your own roadmap ⚠️
 
 You asked to start porting "portions that are more or less completed, such as
 the conjugation engines." ROADMAP Track C says Swift starts when **B3** lands
@@ -702,23 +1016,25 @@ for the five shipped engines. Without a corpus the port has no gate at all, and
 "port then eyeball it" is exactly what the whole prototype-first strategy exists
 to avoid.
 
-## 4.2 Two model changes worth making *during* the port, not after
+## 5.2 Four changes to make in JS *first*
 
-Both are cases where Swift's type system exposes something the JS shape was
-papering over:
+All four are cases where the port exposes something the JS shape was papering
+over. Making them in JavaScript first keeps the two codebases comparable and
+keeps the corpus diff meaningful — **change JS, re-run the 304 assertions and
+the parity snapshot, confirm zero diffs, then port.** Making them only on the
+Swift side would mean the two engines differ structurally on day one.
 
-1. **`relevance`'s `space: (pool) => Set<…>` → `distinctAnswers: (pool) -> Int`**
-   (§1.5). Removes `AnyHashable`, and states the actual contract.
-2. **`Bab` as an enum with `madiVowel`/`mudariVowel`** (§1.3). Removes
-   `bab?.[1]`, and makes the stem tables verifiable against the bāb name the way
-   `vocabulary.js`'s comment already claims.
+| | change | why | where |
+|---|---|---|---|
+| 1 | **`availableTypes()` takes its content gate as an argument** | `lexicon-service.js` imports `settings`; across the package boundary that is SarfCore importing the app — illegal and unfixable by `public` | §3.3c |
+| 2 | **`FORM_META` behind `conjugates()` / `hasPassive()` on the service** | closes ARCHITECTURE §7's known leak; `word-pool`, `drills` and `builders/derived` stop reaching into grammar | §3.3b |
+| 3 | **`relevance`'s `space → Set<…>` becomes `distinctAnswers → Int`** | only `.count > 1` is ever read; removes `AnyHashable` and states the rule's actual contract | §1.5 |
+| 4 | **`bab` as a typed value with `madiVowel` / `mudariVowel`** | removes `bab?.[1]` (Trap 3) and makes the stem tables verifiable against the bāb name, as `vocabulary.js`'s comment already claims | §1.3 |
 
-Doing these in JS first keeps the two codebases comparable and keeps the corpus
-diff meaningful — **change JS, re-run the 304 assertions and the parity
-snapshot, confirm zero diffs, then port.** Doing them only on the Swift side
-would mean the two engines differ structurally on day one.
+(1) and (2) are the ones that actually *block* the package split. (3) and (4)
+are cheap and can ride along.
 
-## 4.3 Things to decide before writing view code
+## 5.3 Things to decide before writing view code
 
 | | question | why it can't wait |
 |---|---|---|
@@ -727,7 +1043,7 @@ would mean the two engines differ structurally on day one.
 | 3 | **iPad?** | The prototype is a fixed-width phone column. iPad is a different navigation structure (`NavigationSplitView`), not a stretch |
 | 4 | **Q1 (corpus scope)** | §4.1 — blocks the acceptance gate |
 
-## 4.4 Effort, honestly
+## 5.4 Effort, honestly
 
 | | |
 |---|---|
