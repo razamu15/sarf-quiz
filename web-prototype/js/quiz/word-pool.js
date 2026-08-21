@@ -17,7 +17,6 @@
 // "This setup asks" panel), and relevance.js.
 
 import { slotsFor, FORM_IDS, DERIVED_NOUN_TYPE_IDS } from '../vocabulary.js';
-import { chartSpec } from '../chart-spec.js';
 import { FORM_META } from '../grammar/shared-grammar.js';
 import { candidates as lexiconCandidates, availableTypes } from '../lexicon/lexicon-service.js';
 import { conjugate, derivedNoun } from '../conjugation/conjugation-service.js';
@@ -84,7 +83,7 @@ export function wordPool(plan) {
   } else {
     for (const c of candidates) {
       for (const chart of charts) {
-        const spec = chartSpec({ root: c.root, formId: c.formId, ...chart });
+        const spec = { root: c.root, formId: c.formId, ...chart };
         for (const slot of slotsFor(chart.tense)) {
           // Nils excluded, so the count is REAL cells. Multiplying dimensions
           // instead is what made a muḍāriʿ-only plan claim 798 questions when
@@ -121,7 +120,7 @@ export function wordPool(plan) {
       const c = rand(candidates);
       const chart = rand(fromCharts);
       const slot = rand(slotsFor(chart.tense));
-      const spec = chartSpec({ root: c.root, formId: c.formId, ...chart });
+      const spec = { root: c.root, formId: c.formId, ...chart };
       const word = conjugate(spec, slot);
       if (word) return { spec, slot, word };
     }

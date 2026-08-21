@@ -18,8 +18,9 @@
 // to narrow, never to resurrect a kind relevance retired — so that "is this
 // question worth asking" keeps one owner.
 
-import { FORM_IDS, QUIZ_TYPE_IDS, TENSES, VOICES, MOODS } from '../vocabulary.js';
-import { isValidShape } from '../chart-spec.js';
+import {
+  FORM_IDS, QUIZ_TYPE_IDS, TENSES, VOICES, MOODS, isValidShape,
+} from '../vocabulary.js';
 import { availableTypes } from '../lexicon/lexicon-service.js';
 
 /**

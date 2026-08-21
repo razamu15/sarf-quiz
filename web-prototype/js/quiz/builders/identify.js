@@ -9,7 +9,6 @@
 // applies several of them to the SAME word to make a bundle.
 
 import { slotsFor, MOOD_DISTINCT_SLOTS, DEFAULT_BAB } from '../../vocabulary.js';
-import { chartSpec, inVoice } from '../../chart-spec.js';
 import {
   PRONOUNS, TENSE_LABELS, VOICE_LABELS, MOOD_LABELS, ABWAB_LABELS,
 } from '../../glossary.js';
@@ -121,7 +120,7 @@ export function moodQuestion(pool) {
     if (!drawn) return null;
     if (!MOOD_DISTINCT_SLOTS.includes(drawn.slot)) continue;
 
-    const rendered = planMoods.map((m) => conjugate(chartSpec({ ...drawn.spec, mood: m }), drawn.slot));
+    const rendered = planMoods.map((m) => conjugate({ ...drawn.spec, mood: m }, drawn.slot));
     if (rendered.some((w) => !w)) continue;
     // Two states rendering alike would make two options defensibly correct.
     if (new Set(rendered).size !== rendered.length) continue;
@@ -168,7 +167,9 @@ export function babQuestion(pool) {
     prompt: citationPrompt('Which bāb of the thulāthī mujarrad is this verb from?', cite, gloss),
     response: singleCorrect(correct, others),
     feedback: feedbackOf(
-      verbMeaning(chartSpec({ root: c.root, formId: 'I', tense: 'madi' }), '3ms'),
+      // The bāb question's feedback quotes the māḍī reading. Axes written out:
+      // a māḍī is maʿlūm here and carries no mood at all.
+      verbMeaning({ root: c.root, formId: 'I', tense: 'madi', voice: 'malum', mood: null }, '3ms'),
       `${cite} (${gloss}) follows ${ABWAB_LABELS[bab].name} (${ABWAB_LABELS[bab].en}).`),
   });
 }
@@ -183,7 +184,7 @@ export function drawVoicePair(pool) {
   for (let i = 0; i < 60; i++) {
     const drawn = pool.draw(voiced);
     if (!drawn) return null;
-    const opposite = inVoice(drawn.spec, drawn.spec.voice === 'malum' ? 'majhul' : 'malum');
+    const opposite = { ...drawn.spec, voice: drawn.spec.voice === 'malum' ? 'majhul' : 'malum' };
     if (!conjugate(opposite, drawn.slot)) continue;
     return drawn;
   }

@@ -11,8 +11,8 @@ import {
   SLOTS, AMR_SLOTS, slotsFor as slotsForTense,
   FORM_IDS, BAB_IDS, DEFAULT_BAB, FATHA as FATHA_C, DAMMA as DAMMA_C,
   VERB_TYPE_IDS, VERB_TYPE_GROUP_IDS, groupOfVerbType, verbTypesInGroup,
+  CHART_SHAPES, isValidShape,
 } from '../js/vocabulary.js';
-import { chartSpec, CHART_SHAPES } from '../js/chart-spec.js';
 import { MUDARI_PREFIX_HARAKA } from '../js/grammar/shared-grammar.js';
 import { getConjugationData as salimData } from '../js/conjugation/salim-conjugator.js';
 import { getConjugationData as mudaafData } from '../js/conjugation/mudaaf-conjugator.js';
@@ -50,12 +50,29 @@ import { MAZEED_IDS } from '../js/vocabulary.js';
 // three lines later), and a WordSpec now carries tense, voice and mood as three
 // fields. They survive here, in the one place that genuinely wants a chart
 // string, defined locally rather than exported for one caller.
+/**
+ * Build a chart spec from partial axes. TEST-LOCAL, and deliberately so: the
+ * assertions below are written in the shorthand of a paper chart ("madi,
+ * malum") and filling in the unmarked readings keeps them readable.
+ *
+ * Production has no such constructor any more. It used to, and it defaulted the
+ * voice and the mood and then silently rewrote combinations that did not fit —
+ * so a caller passing a manṣūb māḍī got a māḍī rather than an error, and
+ * isValidShape() never saw the mistake. Convenience for a test is not the same
+ * thing as a domain rule, which is why this lives here and nowhere else.
+ */
+const chartSpec = ({ root, formId, tense, voice = 'malum', mood }) => ({
+  root, formId, tense,
+  voice: tense === 'amr' ? 'malum' : voice,
+  mood: tense === 'mudari' ? (mood ?? 'raf') : null,
+});
+
 const chartKey = ({ tense, voice, mood }) => (
   tense === 'amr' ? 'amr_malum'
     : tense === 'mudari' ? `mudari_${voice}_${mood ?? 'raf'}`
       : `madi_${voice}`);
 const chartShape = (key) => CHART_SHAPES.find((sh) => chartKey(sh) === key) ?? null;
-const specOf = (root, formId, chart) => chartSpec({ root, formId, ...chartShape(chart) });
+const specOf = (root, formId, chart) => ({ root, formId, ...chartShape(chart) });
 const CHART_IDS = CHART_SHAPES.map(chartKey);
 const slotsFor = (chart) => slotsForTense(chartShape(chart).tense);
 const conjugateChart = (root, formId, chart, slot) => conjugateSpec(specOf(root, formId, chart), slot);

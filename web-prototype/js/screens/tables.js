@@ -7,7 +7,6 @@
 import { el, chipRow, sectionLabel } from '../ui/dom.js';
 import { state } from '../ui/state.js';
 import { slotsFor } from '../vocabulary.js';
-import { chartSpec } from '../chart-spec.js';
 import { PRONOUNS, FORM_NAMES, TENSE_LABELS, VOICE_LABELS, MOOD_LABELS } from '../glossary.js';
 import { LEXICON } from '../lexicon/lexicon-service.js';
 import { fullTable, citation } from '../conjugation/conjugation-service.js';
@@ -24,11 +23,26 @@ const matchingRoots = (query) => {
 
 const currentRoot = () => LEXICON.find((r) => r.root.join('') === state.tables.rootKey) ?? null;
 
-/** The chart the chips currently select, as the ChartSpec the engine takes. */
-const selectedSpec = (root) => chartSpec({
-  root, formId: state.tables.formId,
-  tense: state.tables.tense, voice: state.tables.voice, mood: state.tables.mood,
-});
+/**
+ * The chart the chips currently select, as the engine takes it.
+ *
+ * The screen keeps a voice AND a mood in state at all times so the chips
+ * remember your selection when you flip back to a tense that uses them — but
+ * the amr has no voice and only the muḍāriʿ has a mood, so those are dropped
+ * HERE, where the reason is visible and local to the screen that caused it.
+ *
+ * This used to hand {tense:'madi', mood:'raf'} to a constructor that silently
+ * corrected it — a shape isValidShape() rejects, laundered before the real
+ * guard ever saw it. Now the screen says what it means.
+ */
+const selectedSpec = (root) => {
+  const { formId, tense, voice, mood } = state.tables;
+  return {
+    root, formId, tense,
+    voice: tense === 'amr' ? 'malum' : voice,
+    mood: tense === 'mudari' ? mood : null,
+  };
+};
 
 const chartLabel = ({ tense, voice, mood }) => [
   TENSE_LABELS[tense].en.split(' (')[0],

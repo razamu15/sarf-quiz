@@ -1,7 +1,7 @@
 import { SALIM_VERB_STEMS, SALIM_ENDINGS, DERIVED_NOUN_STEMS } from '../grammar/salim-grammar.js';
 import { PREFIX_LETTERS, MUDARI_PREFIX_HARAKA } from '../grammar/shared-grammar.js';
 import { slotsFor } from '../vocabulary.js';
-import { babOf } from '../chart-spec.js';
+import { babOf } from '../lexicon/root.js';
 import { fill, norm, joinEnding, amrOpening } from './templates.js';
 
 /**

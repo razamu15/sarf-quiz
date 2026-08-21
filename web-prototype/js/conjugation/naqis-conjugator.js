@@ -63,7 +63,7 @@ import {
 } from '../grammar/naqis-grammar.js';
 import { PREFIX_LETTERS, MUDARI_PREFIX_HARAKA } from '../grammar/shared-grammar.js';
 import { slotsFor, MOOD_DISTINCT_SLOTS, FATHA, DAMMA, KASRA, SUKUN } from '../vocabulary.js';
-import { babOf } from '../chart-spec.js';
+import { babOf } from '../lexicon/root.js';
 import { fill, norm, joinEnding, amrOpening } from './templates.js';
 
 /**

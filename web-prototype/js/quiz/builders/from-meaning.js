@@ -20,7 +20,6 @@
 // words look right.
 
 import { slotsFor } from '../../vocabulary.js';
-import { chartSpec } from '../../chart-spec.js';
 import { TENSE_LABELS, VOICE_LABELS, MOOD_LABELS, PRONOUNS } from '../../glossary.js';
 import { conjugate, citation } from '../../conjugation/conjugation-service.js';
 import { verbMeaning, particleFor } from '../../meaning-service.js';
@@ -48,7 +47,7 @@ export function fromMeaningQuestion({ spec, slot, word }, charts) {
     const formId = rand(forms);
     const chart = rand(charts);
     const otherSlot = rand(slotsFor(chart.tense));
-    const other = chartSpec({ root: spec.root, formId, ...chart });
+    const other = { root: spec.root, formId, ...chart };
     const otherWord = conjugate(other, otherSlot);
     if (!otherWord || seenWords.has(otherWord)) continue;
     const meaning = verbMeaning(other, otherSlot);

@@ -29,21 +29,27 @@
 // The full-table API powers the Tables browser and the parity tests.
 
 import {
-  DERIVED_NOUN_TYPES, slotsFor, groupOfVerbType,
+  DERIVED_NOUN_TYPES, slotsFor, groupOfVerbType, CHART_SHAPES, isValidShape,
 } from '../vocabulary.js';
 import {
   FORM_META, PREFIX_LETTERS, MUDARI_PREFIX_HARAKA,
 } from '../grammar/shared-grammar.js';
 import { SALIM_ENDINGS } from '../grammar/salim-grammar.js';
-import {
-  chartSpec, CHART_SHAPES, isValidShape,
-} from '../chart-spec.js';
+
 import { SalimConjugator, getConjugationData as salimData } from './salim-conjugator.js';
 import { MudaafConjugator } from './mudaaf-conjugator.js';
 import { MithalConjugator } from './mithal-conjugator.js';
 import { AjwafConjugator } from './ajwaf-conjugator.js';
 import { NaqisConjugator } from './naqis-conjugator.js';
 import { fill, norm } from './templates.js';
+
+/**
+ * The two citation charts, written out. A verb is NAMED by its māḍī and its
+ * muḍāriʿ 3ms, and every caller below wants exactly those two — so they are
+ * spelled once here rather than defaulted per call.
+ */
+const MADI = (root, formId) => ({ root, formId, tense: 'madi', voice: 'malum', mood: null });
+const MUDARI = (root, formId) => ({ root, formId, tense: 'mudari', voice: 'malum', mood: 'raf' });
 
 const ENGINES = Object.fromEntries(
   [SalimConjugator, MudaafConjugator, MithalConjugator, AjwafConjugator, NaqisConjugator]
@@ -114,8 +120,9 @@ export const hasEngine = (root) => !!engineFor(root);
  * Null is a normal answer here, not an error.
  *
  * The spec carries the paradigm — root, form, tense, voice, mood — and the slot
- * picks the row. Callers that hold only some of the axes build a spec with
- * chartSpec(), which fills in the unmarked readings (maʿlūm, marfūʿ).
+ * picks the row. It is a plain object: every axis is written out by the caller,
+ * because the one thing worse than repeating `mood: null` is a constructor that
+ * quietly supplies it for a tense that cannot carry one.
  *
  * Called by: QuizService for every question it builds (the prompt word, the
  * correct answer and the distractors all come through here), fullTable() below
@@ -164,7 +171,7 @@ export function fullTable(spec) {
  */
 export function availableCharts(root, formId) {
   return CHART_SHAPES
-    .map((shape) => chartSpec({ root, formId, ...shape }))
+    .map((shape) => ({ root, formId, ...shape }))
     .filter((spec) => fullTable(spec));
 }
 
@@ -217,7 +224,7 @@ const waznRoot = (formId, bab) => ({
  */
 export function waznOf(spec, slot, bab) {
   return SalimConjugator.conjugate(
-    chartSpec({ ...spec, root: waznRoot(spec.formId, bab) }),
+    { ...spec, root: waznRoot(spec.formId, bab) },
     slot,
   );
 }
@@ -264,8 +271,8 @@ export function waznOfDerived(formId, nounType, bab) {
  *     (the māḍī) as the verb's display name.
  */
 export function citation(root, formId) {
-  const madi = conjugate(chartSpec({ root, formId, tense: 'madi' }), '3ms');
-  const mudari = conjugate(chartSpec({ root, formId, tense: 'mudari' }), '3ms');
+  const madi = conjugate(MADI(root, formId), '3ms');
+  const mudari = conjugate(MUDARI(root, formId), '3ms');
   if (madi && mudari) return `${madi} ${mudari}`;
 
   // Half a citation still names the verb. This is the partial-content case: a
@@ -308,8 +315,8 @@ function citationFromStems(root, formId) {
   // The sound engine's own lookup, because the guard above has just established
   // that this is a sound root. A form that doesn't conjugate has no abwāb
   // either, so both entries are plain templates and the bāb never comes up.
-  const madiStem = salimData(chartSpec({ root, formId, tense: 'madi' }))?.stem;
-  const mudariStem = salimData(chartSpec({ root, formId, tense: 'mudari' }))?.stem;
+  const madiStem = salimData(MADI(root, formId))?.stem;
+  const mudariStem = salimData(MUDARI(root, formId))?.stem;
   if (!madiStem || !mudariStem) return '';
 
   // Assemble the 3ms word exactly as SalimConjugator would have: stem plus that

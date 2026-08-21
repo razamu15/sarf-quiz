@@ -13,7 +13,6 @@ import { MAZEED_IDS, verbTypesInGroup } from '../vocabulary.js';
 import { FORM_NAMES } from '../glossary.js';
 import { FORM_META } from '../grammar/shared-grammar.js';
 import { LEXICON, availableTypes } from '../lexicon/lexicon-service.js';
-import { inVoice } from '../chart-spec.js';
 import { conjugate } from '../conjugation/conjugation-service.js';
 import { quizPlan } from './quiz-plan.js';
 import { wordPool } from './word-pool.js';
@@ -98,7 +97,7 @@ export function buildDrill(preset, wordCount = WORDS_PER_DRILL) {
   while (bundles.length < wordCount && guard++ < 400) {
     const drawn = pool.draw();
     if (!drawn) break;
-    const majhul = inVoice(drawn.spec, 'majhul');
+    const majhul = { ...drawn.spec, voice: 'majhul' };
     const majhulWord = conjugate(majhul, drawn.slot);
     // Show the majhūl sometimes — but only when both voices exist, so the choice
     // of chart never gives the voice question away.

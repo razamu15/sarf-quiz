@@ -117,9 +117,10 @@
     Every edge below was extracted from the source, not drawn from memory: 45 files, <b>169 import
     edges</b>, walked programmatically. §01–§03 are the static web, §04 traces what executes.
     <b>§08 is the full tree you asked for</b> — all 45 files, leaves at the bottom, drawn as four
-    branches because 127 edges in one frame is a hairball. <b>§09 tests your hypothesis about
-    <code>chart-spec.js</code></b>: you are right about four of its six exports and, I think, wrong about
-    the two that matter most.
+    branches because 127 edges in one frame is a hairball. <b>§09 is your <code>chart-spec.js</code> call, and you were right</b> —
+    I checked my own two justifications for keeping <code>chartSpec()</code> and neither survived, so the
+    file is gone. The graph below still says 45 files: <code>chart-spec.js</code> out,
+    <code>lexicon/root.js</code> in.
   </p>
 </header>
 
@@ -802,67 +803,105 @@ flowchart TD
 </div>
 
 <!-- ===================================================================== -->
-<h2 class="sec"><b>09</b> Should <code>chart-spec.js</code> be dissolved?</h2>
+<h2 class="sec"><b>09</b> <code>chart-spec.js</code> — dissolved</h2>
+
+<div class="callout bad">
+  <span class="hd">You were right, and I was defending a rationale I had not checked</span>
+  I argued <code>chartSpec()</code> earned its place because it kept specs comparable and because specs
+  were stored as identity. <b>I then went and checked both claims. Neither holds:</b>
+  <br><br>
+  <b>Nothing in the codebase ever compares two specs.</b> No <code>===</code>, no deep equal, nothing.
+  <br>
+  <b>No ChartSpec ever reaches a Question or a history record.</b> Questions carry a <code>WordSpec</code>,
+  built from a spec's <em>fields</em> — the spec itself is discarded. So the <code>Object.freeze</code> was
+  guarding an object nobody stores.
+  <br><br>
+  Which leaves exactly what you said it was: two silent defaults and a rewrite, behind a name that does not
+  say so.
+</div>
+
+<h3 class="sub">And the rewrite was worse than a smell — it was a second, contradicting validator</h3>
 
 <p class="body">
-  Your hypothesis: <i>“they are just grammatical helper methods, is that not true?”</i>
-  <b>Partly true — for four of the six live exports, and the strongest evidence is the change you just
-  approved.</b> Taken one at a time:
+  <code>isValidShape()</code> already existed and already judged this, at the boundary
+  <code>chartExists()</code> where your rule 7 says a check belongs. <code>chartSpec()</code> was a second
+  judge that <b>corrected instead of rejecting</b>, and the two disagreed:
 </p>
+
+<pre class="code"><span class="c">// the real guard, in conjugation-service's precondition:</span>
+isValidShape({ tense: <span class="s">'madi'</span>, mood: <span class="s">'raf'</span> })   →  <span class="r">false</span>   <span class="c">"invalid — return null"</span>
+
+<span class="c">// the constructor, on the same input:</span>
+chartSpec({ tense: <span class="s">'madi'</span>, mood: <span class="s">'raf'</span> })      →  <span class="s">{ mood: null }</span>   <span class="c">"valid — here you go"</span></pre>
+
+<p class="body">
+  <b>And the Tables browser hit this on every single māḍī view.</b> The screen keeps a mood in UI state so
+  the chips remember your selection when you flip tenses — so it was handing over
+  <code>{tense:'madi', mood:'raf'}</code>, a shape the guard rejects, and the constructor laundered it into
+  a valid one before the guard ever saw it. Nothing failed, so nothing surfaced it. That is the real cost of
+  a correcting constructor: <b>it does not fix a bug, it hides one.</b>
+</p>
+
+<h3 class="sub">What was done</h3>
 
 <div class="tbl-wrap">
 <table class="rev">
-  <thead><tr><th>Export</th><th>Is it a helper?</th><th>Where it belongs</th></tr></thead>
+  <thead><tr><th>Export</th><th>Went where</th></tr></thead>
   <tbody>
-    <tr class="dead"><td class="f">babOf()</td>
-        <td><b>Yes — you are right.</b> After this morning's fix it is <code>babOf(root, formId)</code>: it takes no spec, returns a lexicon fact, and has <em>nothing to do with a chart</em>. The signature change is the proof.</td>
-        <td><b>Not <code>lexicon-service.js</code></b> — that file already imports the engine router, so five conjugators importing it back would be a cycle. It wants its own home: <code>js/lexicon/root.js</code>, a Root-accessor file that imports nothing. <b>Which is what <code>TECHNICAL_PLAN §A.10</code> already specifies for Swift</b> — <code>Lexicon/Root.swift</code> is listed separately from <code>LexiconService.swift</code>.</td></tr>
-    <tr class="dead"><td class="f">isValidShape()<br>CHART_SHAPES</td>
-        <td><b>Yes.</b> Both describe which combinations of tense × voice × mood name a real table. That is a statement about the axes, and the axes are <code>vocabulary.js</code>'s.</td>
-        <td><code>vocabulary.js</code>, which already owns <code>TENSES</code>, <code>VOICES</code>, <code>MOODS</code> and already explains which tenses bear iʿrāb. The closed set of valid combinations is the same kind of fact.</td></tr>
     <tr><td class="f">chartSpec()</td>
-        <td><b>No — and this is the one I would push back on.</b> It is not a helper, it is a <b>type constructor with invariants</b>. It forces <code>mood</code> null outside the muḍāriʿ and <code>voice</code> maʿlūm for the amr, so a caller passing a manṣūb māḍī is <em>corrected rather than obeyed</em>. That is the only reason two specs for the same paradigm compare equal — and it is why this is a function rather than an object literal anyone could write by hand.</td>
-        <td>Stays.</td></tr>
+        <td><b>Deleted.</b> Call sites write the object out: <code>{ root, formId, tense, voice, mood }</code>. Six of the twelve already passed every axis explicitly (<code>{...chart}</code> from <code>planCharts()</code>), so they lost a wrapper and nothing else. The four that leaned on the defaults now say <code>voice: 'malum', mood: null</code>, and two of those became a named pair — <code>MADI()</code> / <code>MUDARI()</code> in the service — because a citation always wants exactly those two charts.</td></tr>
     <tr><td class="f">inVoice()</td>
-        <td><b>No.</b> A spec transformer — it rebuilds a spec through the same constructor, so it inherits the normalisation. It belongs with the type it transforms.</td>
-        <td>Stays.</td></tr>
-    <tr class="dead"><td class="f">usageOf()<br>the re-export</td><td>Dead, both.</td><td>Deleted.</td></tr>
+        <td><b>Deleted.</b> It is <code>{ ...spec, voice: 'majhul' }</code> at both call sites, which reads better than the name did.</td></tr>
+    <tr><td class="f">babOf()</td>
+        <td><b><code>js/lexicon/root.js</code></b> — a new Root-accessor file that imports nothing, so the five conjugators can use it without the cycle that importing <code>lexicon-service</code> would create. Mirrors <code>Lexicon/Root.swift</code> in <code>TECHNICAL_PLAN §A.10</code>.</td></tr>
+    <tr><td class="f">isValidShape()<br>CHART_SHAPES</td>
+        <td><b><code>vocabulary.js</code></b>, beside the <code>TENSES</code> / <code>VOICES</code> / <code>MOODS</code> they describe. <code>isValidShape</code> is now the single judge of a shape, with no second opinion anywhere.</td></tr>
+    <tr class="dead"><td class="f">usageOf()<br>the re-export</td><td>Deleted — both had zero importers.</td></tr>
   </tbody>
 </table>
 </div>
 
-<div class="callout">
-  <span class="hd">Where that lands</span>
-  Move four, delete two, keep two — and the file shrinks from 95 lines to about <b>45</b>, holding the
-  <code>ChartSpec</code> type, its constructor and its one transformer. Which raises the real question,
-  and it is yours to answer:
-</div>
+<p class="body">
+  The screen that was being laundered now states its own rule, where the reason is visible:
+</p>
 
-<div class="grid2">
-  <div class="panel">
-    <h4>Option A — keep the slimmed file <span class="pill keep">recommended</span></h4>
-    <p><code>chart-spec.js</code> ≈ 45 lines: the type, the constructor, <code>inVoice</code>. Named for the
-       domain concept, used across both the engine and quiz layers, and the header comment explaining
-       <em>why the ṣīghah is deliberately not in it</em> keeps a home.</p>
-    <p>The alternative below has a charter problem: <code>vocabulary.js</code> says of itself
-       <b>“nothing here grows with content”</b>, and <code>chartSpec()</code> takes a <em>root</em>. Moving it
-       there makes the foundation file depend on content shapes.</p>
-  </div>
-  <div class="panel">
-    <h4>Option B — dissolve it entirely</h4>
-    <p>Fold <code>chartSpec</code> and <code>inVoice</code> into <code>vocabulary.js</code> and delete the
-       file. One fewer module; the axes and the thing built from them live together.</p>
-    <p>Costs the charter above, and puts a constructor beside the enums it is built from — which reads fine
-       until someone adds a second content-aware function on the same excuse.</p>
-  </div>
+<pre class="code"><span class="c">// screens/tables.js — the chips keep a voice and a mood at all times so they
+// remember your selection across tense changes. Dropping the ones that do not
+// apply is the SCREEN's business, because the screen is what caused it.</span>
+<span class="k">const</span> selectedSpec = (root) => {
+  <span class="k">const</span> { formId, tense, voice, mood } = state.tables;
+  <span class="k">return</span> {
+    root, formId, tense,
+    voice: tense === <span class="s">'amr'</span>    ? <span class="s">'malum'</span> : voice,
+    mood:  tense === <span class="s">'mudari'</span> ? mood    : <span class="k">null</span>,
+  };
+};</pre>
+
+<div class="callout warn">
+  <span class="hd">The test kept a local copy, deliberately</span>
+  <code>smoke.mjs</code> defines its own <code>chartSpec</code> now, next to its own <code>chartKey</code>.
+  Its ~290 assertions are written in the shorthand of a paper chart (“madi, malum”), and filling in the
+  unmarked readings keeps them readable. <b>Convenience for a test is not the same thing as a domain
+  rule</b> — which is precisely why it belongs there and not in production.
 </div>
 
 <div class="settled">
-  <span class="hd">Already done, and verified</span>
-  <b><code>babOf</code> now takes <code>(root, formId)</code></b> — the duplicate lookup in
-  <code>word-spec.js</code> is gone, all five conjugators call the shared one, and it returns
-  <code>null</code> rather than <code>undefined</code> for a missing bāb.
-  <b>304 assertions green · zero diffs across 20,252 engine outputs.</b>
+  <span class="hd">Verified</span>
+  <b>304 assertions green · zero diffs across 20,252 engine outputs · zero import cycles ·
+  no <code>chartSpec</code> anywhere in <code>js/</code>.</b>
+  Walked in the running app: all four chart types render (past 14 rows, muḍāriʿ rafʿ 14, muḍāriʿ majzūm 14,
+  amr 6), a quiz builds and grades, the feedback deep link works, and the console is clean.
+</div>
+
+<div class="callout bad">
+  <span class="hd">One thing the tests did not catch, again</span>
+  After the first pass the suite was green and <b>the app was broken</b> — one
+  <code>chartSpec(</code> call survived in <code>tables.js</code> because a text replacement silently
+  failed to match and I had not asserted on that one. The tests missed it because the test file has its own
+  local <code>chartSpec</code>, so nothing there could ever see the missing import.
+  Caught by reloading the page: four <code>ReferenceError</code>s and every Tables view dead.
+  <b>Second time this session that green tests hid a real break</b> — the first was
+  <code>JSON.stringify(new Set())</code>.
 </div>
 
 <!-- ===================================================================== -->

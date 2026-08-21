@@ -5,10 +5,10 @@
 // record written today must still say what it asked after the lexicon is
 // edited, a root is removed, or an engine is corrected.
 //
-// A WordSpec is a ChartSpec's AXES plus the ṣīghah plus the two lexical facts
-// stats slice by. chart-spec.js deliberately owns only the chart and knows
-// nothing about a ṣīghah; this is where the two meet, which is why the type
-// lives on the quiz side rather than beside ChartSpec.
+// A WordSpec is a chart's AXES plus the ṣīghah plus the two lexical facts stats
+// slice by. The chart half is a plain {root, formId, tense, voice, mood} object
+// written out at the call site (see CHART_SHAPES in vocabulary.js); a ṣīghah
+// indexes into the table it names. This is where the two meet.
 //
 // What is NOT here is the generated word. A WordSpec is coordinates — two
 // questions about the same word share one — and the word itself lives wherever
@@ -19,7 +19,7 @@
 // Called by: every question builder (through question.js), history/store.js
 // (which spreads it into the flat query index), and tipsFor().
 
-import { babOf } from '../chart-spec.js';
+import { babOf } from '../lexicon/root.js';
 
 /**
  * Build an identity. `root` is a lexicon entry; everything else is optional

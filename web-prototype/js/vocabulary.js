@@ -2,11 +2,11 @@
 // slots, form ids, verb types, ḥaraka constants. Nothing here grows with
 // content.
 //
-// (v3: the chart is no longer an entity. A chart is specified by its axes —
-// tense, voice, mood — carried together in a ChartSpec (see chart-spec.js),
-// and a word is that spec plus a ṣīghah.
-// "The nine charts" are still a real thing on paper, but they are a VIEW over
-// those axes, not a key the engine thinks in.)
+// A chart is not an entity here and never was one: it is specified by its axes —
+// tense, voice, mood — written out together with a root and a form as a plain
+// object, and a word is that plus a ṣīghah. "The nine charts" are a real thing
+// on paper, and CHART_SHAPES below enumerates them, but they are a VIEW over
+// the axes rather than a key the engine thinks in.
 
 export const FATHA = 'َ';
 export const DAMMA = 'ُ';
@@ -24,6 +24,50 @@ export const SHADDA = 'ّ';
 export const TENSES = ['madi', 'mudari', 'amr'];
 export const VOICES = ['malum', 'majhul'];
 export const MOODS = ['raf', 'nasb', 'jazm'];
+
+// ---------------------------------------------------------------------------
+// The nine charts — which combinations of those three axes name a real table.
+//
+// A "chart spec" is just {root, formId} plus one of these shapes, written as a
+// plain object at the call site. There is deliberately no constructor for it:
+// one used to exist and it DEFAULTED the voice to maʿlūm and the mood to rafʿ,
+// then silently rewrote any combination that didn't fit — which meant a caller
+// passing a manṣūb māḍī got a māḍī back instead of an error, and the real guard
+// below never saw the mistake. Two answers to one question. The axes are always
+// written out now, and isValidShape() is the single place that judges them.
+//
+// The ṣīghah is NOT one of these axes. A shape names the whole fourteen-row
+// table; a ṣīghah indexes into it. A word is the two together, which is what
+// quiz/word-spec.js is.
+// ---------------------------------------------------------------------------
+export const CHART_SHAPES = [
+  { tense: 'madi',   voice: 'malum',  mood: null },
+  { tense: 'madi',   voice: 'majhul', mood: null },
+  { tense: 'mudari', voice: 'malum',  mood: 'raf' },
+  { tense: 'mudari', voice: 'malum',  mood: 'nasb' },
+  { tense: 'mudari', voice: 'malum',  mood: 'jazm' },
+  { tense: 'mudari', voice: 'majhul', mood: 'raf' },
+  { tense: 'mudari', voice: 'majhul', mood: 'nasb' },
+  { tense: 'mudari', voice: 'majhul', mood: 'jazm' },
+  { tense: 'amr',    voice: 'malum',  mood: null },
+];
+
+/**
+ * Is this a real combination of axes? THE single judge — mood belongs to the
+ * muḍāriʿ alone, so a māḍī or an amr carrying one is wrong rather than
+ * correctable.
+ *
+ * Called by: conjugation-service's chartExists() precondition (which answers
+ * null for an invalid shape) and quiz-plan's planCharts(). Callers that hold
+ * axes from UI state or from storage must pass what they actually have and let
+ * this reject it — that is the whole point of it being a predicate.
+ */
+export function isValidShape({ tense, voice, mood }) {
+  if (!TENSES.includes(tense)) return false;
+  if (!VOICES.includes(voice)) return false;
+  if (tense === 'mudari') return MOODS.includes(mood);
+  return mood == null;
+}
 
 // ---------------------------------------------------------------------------
 // The 14 pronoun slots, in classic sarf-table order (3rd → 2nd → 1st person)
