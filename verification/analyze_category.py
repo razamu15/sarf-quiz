@@ -32,13 +32,34 @@ Read the mismatches file, then read these files — the ones that actually
 implement this verb type, plus the shared modules they depend on — to
 investigate: {source_files}
 
-Report:
-1. Any pattern across the mismatches (e.g. "every {{slot}} in the
-   {{chart}} chart differs the same way") rather than restating each diff
-   individually.
-2. For each pattern, your assessment of whether it's a genuine engine bug, a
-   notation/convention difference, or a qutrub limitation — and why.
-3. If you find a likely bug, name the file and the specific logic responsible.
+Report, for each pattern you find:
+1. What the pattern is (e.g. "every {{slot}} in the {{chart}} chart differs
+   the same way") rather than restating each diff individually, but give some examples.
+2. Your assessment of whether it's a genuine engine bug, a notation/convention
+   difference, or a qutrub limitation — and why.
+3. If it's a likely bug, name the file and the specific logic responsible.
+4. A minimal reproduction recipe a human can follow by hand, no script
+   required — numbered steps naming one or two specific roots from this
+   category and the exact chart + slot (using this project's own slot codes,
+   e.g. `2ms`) to look at in both sides' output, stating plainly what to
+   notice (e.g. "the ḍamma is replaced by a kasra"), then explaining in terms
+   of the grammar and the responsible code why that difference demonstrates
+   the pattern. Point at the exact entry in the mismatches JSON so the values
+   don't have to be retyped or recomputed by hand. Style to match:
+
+     1. Use نَصَرَ. Look at both qutrub's output and this project's.
+     2. Look at the 2ms slot in both.
+     3. Notice the ḍamma is replaced by a kasra.
+     4. Use وَجِلَ, look at both sources.
+     5. Look at the 2fs slot in both.
+     6. Notice the same ḍamma-for-kasra replacement.
+     [then the grammar/code explanation]
+
+5. How to confirm a fix actually worked: which specific root+chart+slot
+   combination(s) from this pattern should flip from mismatched to matching,
+   and a reminder to re-run compare.py for the whole category afterward (not
+   just spot-check the fixed cells) since a fix to shared logic can change
+   cells that currently match.
 
 Do not edit any files — this is a diagnosis pass only."""
 

@@ -110,8 +110,13 @@ mismatch file is non-empty, invoke Claude Code headless
     modules, as suggested starting points (not the only files it may read)
   - read-only tool access (`--allowedTools "Read Grep Glob"`) — this step
     diagnoses, it doesn't patch, until the harness has proven itself
-  - instructions to look for patterns across the batch and identify a likely
-    root cause, not just restate each individual diff
+  - instructions to, per pattern: name it, classify it (engine bug /
+    notation difference / qutrub limitation) with reasoning, name the
+    responsible file and logic when it's a bug, give a minimal by-hand
+    reproduction recipe (specific root + chart + slot, what to notice,
+    pointed at the exact mismatches-JSON entry), and say which specific
+    cells should flip once a fix lands — so re-running `compare.py` after a
+    fix is a real pass/fail check, not just "fewer mismatches"
 
 Output goes to `output/<type>_analysis.md`, saved next to the raw diff so
 both are reviewable together.
