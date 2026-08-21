@@ -233,7 +233,7 @@ configuration itself (§5.2b). Its repertoire is tense, voice, doer, iʿrāb and
 > tappable chips, the "This setup asks" panel **moved above the controls**, the
 > possible-question count, and **one real generated question rendered
 > non-interactively**. Full build spec: [ROADMAP.md](ROADMAP.md) § A2; design
-> reasoning: technical plan §D.2 and `.lavish/spec-compare-and-practice.html` §03.
+> reasoning: `.lavish/spec-compare-and-practice.html` §03.
 
 ### 5.2b Question relevance — the app drops questions it has already answered
 
@@ -381,12 +381,12 @@ that two charts which *should* differ don't.
 > no weak-verb content**.
 
 - Engine-generated: **all seven verb types get their own conjugator** (see
-  technical plan §A.5) and every one of them ships at launch. Sālim first
+  technical plan §A.4) and every one of them ships at launch. Sālim first
   (~20 roots, Form I 6 abwāb + forms II–X, all charts), then mahmūz and
   muḍāʿaf, then mithāl and ajwaf, then nāqiṣ and lafīf — each encoding its own
   stem and letter-change quirks per chart
 - All seven engines are written, audited and frozen **in the web prototype
-  before any Swift is written** (technical plan Part C, Track 1), so launch
+  before any Swift is written** (technical plan Part C), so launch
   content depth is decided before the iOS build starts
 - Hand-authored tables (قول، رمي today; 2–3 more roots per type as they land)
   are demoted to **test fixtures**: a per-type engine must reproduce them

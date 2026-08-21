@@ -35,8 +35,7 @@ Verified: 304 assertions, zero diffs across 20,252 engine outputs.
 ### A2 · Practice — the summary step **and the wizard** — ⬜ next
 
 **Scope changed Aug 2026: the wizard is back in.** Build both flows behind a
-flag, as TECHNICAL_PLAN §D.2 specifies, and choose between them from use rather
-than argument. Neither is deleted until that call is made.
+flag, and choose between them from use rather than argument. Neither is deleted until that call is made.
 
 **New settings entry** — add to `SETTINGS_SPEC`:
 
@@ -143,7 +142,7 @@ Out of v1 as a user feature; **still the best engine-audit instrument available*
 and B1/B2 are about to author four sets of tables it audits. Put ظلل Form II
 manṣūb beside majzūm today and it reports *identical*, which is wrong on sight.
 
-Spec: TECHNICAL_PLAN §D.1. Entities: `ChartDelta` (sparse — only the axes that
+Spec: TECHNICAL_PLAN §D.1 (full build spec, unchanged). Entities: `ChartDelta` (sparse — only the axes that
 differ), `VARY_BY_PRESETS` (a five-row declarative table), `ChartDiff`
 (`{rows, differing, total, identical}`). Files: `js/compare/` + `screens/compare.js`.
 

@@ -7,7 +7,7 @@
 // carried fixtures (قول, رمي) now have working engines that take precedence in
 // the router, so the branch was serving 0 of 14,638 words: dead code, measured
 // rather than assumed. Those tables stay in the lexicon as PARITY FIXTURES for
-// the test suite, which is the job TECHNICAL_PLAN §A.4 always intended for them.
+// the test suite, which is the job docs/TECHNICAL_PLAN.md §B.6 keeps for them.
 //
 // Note the routing key: `root.type` is granular (ajwaf_waw / ajwaf_ya) because
 // the LEXICON needs that distinction, but there is ONE engine per traditional

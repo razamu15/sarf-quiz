@@ -1,7 +1,7 @@
 // The configuration of a session.
 //
 // It describes A POOL OF WORDS, not a set of questions — which is what lets one
-// configuration serve all four quiz types (TECHNICAL_PLAN §A.7).
+// configuration serve all four quiz types (docs/ARCHITECTURE.md §2).
 //
 // Built in three places, all of which used to write a bare literal: the Practice
 // screen from its chips, drills.js from a preset, and planFrom() below replaying

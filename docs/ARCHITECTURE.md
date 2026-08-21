@@ -2,10 +2,8 @@
 
 > **Read this before writing code.** It describes what `web-prototype/` actually
 > is today, not what was planned. [TECHNICAL_PLAN.md](TECHNICAL_PLAN.md) is the
-> plan for the iOS port and still holds for Part B onward; where its Part A
-> describes the domain model, **this file supersedes it in the specifics** —
-> Part A was written before the A1 restructure and still names types
-> (`ChartID`, `chartKey`, one `QuizService`) that no longer exist.
+> **target iOS architecture** and no longer describes the prototype at all;
+> [PORT_INVENTORY.md](PORT_INVENTORY.md) covers how this code becomes Swift.
 >
 > Companion docs: [PRODUCT_SPEC.md](PRODUCT_SPEC.md) for what the app is,
 > [ROADMAP.md](ROADMAP.md) for what is left to build.
@@ -226,7 +224,7 @@ one. It is not a cycle; the engine never imports the lexicon.
 This is why `babOf()` lives in **`lexicon/root.js`** (a Root-accessor file that
 imports nothing) rather than in `lexicon-service.js`: five conjugators importing
 the service back *would* be a cycle. Same split as `Lexicon/Root.swift` vs
-`LexiconService.swift` in TECHNICAL_PLAN §A.10.
+`LexiconService.swift` in TECHNICAL_PLAN §A.6.
 
 **One known leak:** `word-pool`, `drills` and `builders/derived` import
 `FORM_META` from `grammar/shared-grammar.js`, reaching past the service into

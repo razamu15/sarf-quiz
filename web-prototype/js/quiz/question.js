@@ -31,7 +31,7 @@
 // user got WRONG, which is not known when the question is built. They are
 // computed at render time from (question, answer).
 //
-// Mirrors SarfCore/Quiz/Question.swift (TECHNICAL_PLAN §A.10).
+// Mirrors SarfCore/Quiz/Question.swift (TECHNICAL_PLAN §A.6).
 
 /** Fisher-Yates. Shared by every builder that offers choices. */
 export function shuffle(arr) {

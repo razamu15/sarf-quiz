@@ -6,7 +6,7 @@
 // five conjugators cannot import from it without making a cycle. They import
 // from here, and this file imports nothing.
 //
-// Mirrors SarfCore's Lexicon/Root.swift, which TECHNICAL_PLAN §A.10 already
+// Mirrors SarfCore's Lexicon/Root.swift, which TECHNICAL_PLAN §A.6 already
 // lists separately from LexiconService.swift for the same reason.
 
 /**

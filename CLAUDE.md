@@ -8,13 +8,20 @@ implementation; the Swift app is a port that happens once, later.
 
 | | |
 |---|---|
-| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | **What exists now.** The layers, the object chain, the module map, and the invariants a change must not break. Start here. |
+| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | **What exists now** in `web-prototype/`. The layers, the object chain, the module map, and the invariants a change must not break. Start here. |
 | [docs/ROADMAP.md](docs/ROADMAP.md) | What is left, in build order, with the decisions already made. |
 | [docs/PRODUCT_SPEC.md](docs/PRODUCT_SPEC.md) | What the app is for and how each screen behaves. |
-| [docs/TECHNICAL_PLAN.md](docs/TECHNICAL_PLAN.md) | The iOS port. Its **Part A is superseded** by ARCHITECTURE.md; Parts B–D still hold. |
+| [docs/TECHNICAL_PLAN.md](docs/TECHNICAL_PLAN.md) | The **target iOS app**: stack, module layout, persistence, monetization, AI Explain, testing gates. Does not describe the prototype. |
+| [docs/PORT_INVENTORY.md](docs/PORT_INVENTORY.md) | JS → Swift: every discrepancy and what it costs. Read when the port starts, not before. |
 
-`.lavish/*.html` are review artifacts from design sessions — useful history, not
-authoritative. The docs above are.
+Each doc owns one thing and they do not overlap: **ARCHITECTURE** is what is
+built, **TECHNICAL_PLAN** is what gets built in Swift, **PORT_INVENTORY** is how
+one becomes the other, **ROADMAP** is the order.
+
+**Ignore `docs/archive/`.** Those are superseded plans kept only so the owner can
+trace decisions; they describe types and structures that no longer exist and will
+mislead you. Same for `.lavish/*.html` — design-session review artifacts, useful
+history, **not authoritative**.
 
 ## Working here
 

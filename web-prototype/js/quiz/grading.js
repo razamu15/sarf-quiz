@@ -11,13 +11,13 @@
 // produce, uses input mode — so four type-keyed implementations would be four
 // copies of the same comparison. The two axes are also already known to come
 // apart: a "choose the correct spelling" question is a produce-style prompt with
-// a choice response, and TECHNICAL_PLAN §A.7 states the rule outright —
+// a choice response, and it is stated outright in docs/ARCHITECTURE.md §2 —
 // "grading lives with the response, not the quiz type".
 //
 // Called by: QuizRun.answer(), and nothing else. Screens render an Answer; they
 // never compute one.
 //
-// Mirrors SarfCore/Quiz/Grading.swift (TECHNICAL_PLAN §A.10).
+// Mirrors SarfCore/Quiz/Grading.swift (TECHNICAL_PLAN §A.6).
 
 import { firstDifferingCluster } from '../arabic-text.js';
 

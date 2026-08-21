@@ -1,6 +1,6 @@
 // Display strings only — every Arabic/English label the UI shows. No engine
 // data lives here and no display strings live in the grammar (v2 split of the
-// old GrammarTables grab-bag; see docs/TECHNICAL_PLAN.md §A.3).
+// old GrammarTables grab-bag; see docs/TECHNICAL_PLAN.md §A.2).
 
 export const PRONOUNS = {
   '3ms': { ar: 'هُوَ',      en: 'he' },

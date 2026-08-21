@@ -268,8 +268,9 @@ Five sites use `Math.random()`. Swift: `Int.random(in:)`, `Array.randomElement()
 `Array.shuffled()` — `shuffle()` in `question.js` deletes entirely.
 
 **Worth doing during the port and not after:** thread a
-`RandomNumberGenerator` through the builders (TECHNICAL_PLAN §A.7 already types
-it as `inout RNG`). A seedable RNG makes question generation reproducible, which
+`RandomNumberGenerator` through the builders — the prototype's builders take
+the pool's `draw()` and call `Math.random()` directly, so there is nothing to
+preserve and everything to gain. A seedable RNG makes question generation reproducible, which
 turns "the drill bundle sometimes has two questions" from an anecdote into a
 test.
 
@@ -314,7 +315,7 @@ files in a target see each other freely, and cycles between types are legal.
 
 Two options:
 
-- **(a) One `SarfCore` target.** Simplest, matches TECHNICAL_PLAN §A.10. The
+- **(a) One `SarfCore` target.** Simplest, matches TECHNICAL_PLAN §A.6. The
   layering survives as convention plus code review.
 - **(b) Split targets** — `SarfVocabulary` → `SarfGrammar` → `SarfLexicon` →
   `SarfConjugation` → `SarfQuiz`. SPM enforces the DAG at compile time and the
@@ -509,7 +510,7 @@ TextField("", text: $run.typed)
 
 **The platform problem with no web equivalent:** iOS only offers keyboards the
 user has installed, and the Arabic keyboard is **not** installed by default. A
-user without it literally cannot answer a produce question. TECHNICAL_PLAN §A.7
+user without it literally cannot answer a produce question. PRODUCT_SPEC §5.2
 already calls for detection; the mechanism is
 `UITextInputMode.activeInputModes` filtered on `primaryLanguage` prefixed `"ar"`,
 checked when a produce quiz starts, with a sheet routing to Settings → General →
