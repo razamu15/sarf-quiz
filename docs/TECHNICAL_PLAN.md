@@ -30,9 +30,29 @@ retirement of the JS prototype. Review order agreed with the product owner:
 **docs → JS prototype: restructure (UX sign-off in the browser) and then all
 seven verb-type engines, verified and frozen → Swift port.**
 
-Part A below is **implemented in the web prototype** (Track 1: P1 complete,
-P2 partial — sālim and muḍāʿaf engines shipped) and **not yet in Swift**: the
-`ios/` tree is still v1-shaped code, replaced wholesale by Track 2 · S1.
+> ## ⚠ Status, Aug 2026 — read this before Part A
+>
+> **Part A is superseded in its specifics by
+> [ARCHITECTURE.md](ARCHITECTURE.md).** It was written before the A1 restructure
+> and still names types that no longer exist: `ChartID` and its string keys
+> (`chartKey`/`chartShape`), a single `QuizService`, a `WordSpec` carrying an
+> optional slot, the `manualTables` fixture fallback, and a flat `Question`.
+> Its *reasoning* is still good and worth reading — chart-first grammar, one
+> conjugator per verb type, grammar as code, relevance, the pool-not-questions
+> idea. Its *type names and shapes* are not what is built.
+>
+> **What is actually built**, in `web-prototype/`:
+> `QuizPlan → QuizWordPool → QuizRun → Question → Answer`; a chart is a plain
+> `{root, formId, tense, voice, mood}` object with no constructor and no string
+> key; `Answer` embeds its whole `Question` and is the history row; five of
+> seven engines ship. 45 files, 304 assertions green. See ARCHITECTURE.md.
+>
+> **Parts B, C and D still hold** — the Swift stack, the SwiftData models, the
+> StoreKit and AI-Explain designs, the port sequencing, and the two Part D
+> features. Where Part C's phase table is stale, [ROADMAP.md](ROADMAP.md) is
+> current.
+>
+> The `ios/` tree was deleted in `f78693e`; the port starts clean.
 
 ---
 
@@ -899,6 +919,18 @@ Why this order:
   (stats, paywall, AI Explain) is worth building on top of an engine that is
   known-correct and worthless on top of one that isn't.
 
+> **Superseded by [ROADMAP.md](ROADMAP.md), Aug 2026.** The two-track shape below
+> is still right, and so is its central argument — finish the morphology in
+> JavaScript, then port once against a machine-checkable target. What changed:
+> **mahmūz and lafīf moved out of v1** behind content flags, so P2's mahmūz half
+> and all of P4's lafīf are now post-launch (ROADMAP § B4); the remaining v1
+> engine work is nāqiṣ mazīd and the weak derived-noun stems (§ B1, B2). Track 2
+> gained a product track in the prototype (§ A2–A6) that this table predates.
+>
+> **One consequence is an open decision, and it blocks the freeze:** this plan
+> states that Swift never carries a half-covered `VerbType`, and freezing the
+> corpus over five engines breaks that. See ROADMAP § Open decisions · Q1.
+
 ### Track 1 — Web prototype (JS): the correctness track
 
 | Phase | Scope | Exit criteria |
@@ -1101,6 +1133,20 @@ same class of error while the tables are being authored rather than after.
 
 ### D.2 Practice flow — a wizard behind a feature flag
 
+> **Scheduled Aug 2026 as ROADMAP step A2 — build both flows.** The design below
+> stands; only the flag mechanism changed. There is no `config.js`: the prototype
+> now has one `Settings` object (`js/settings/settings.js`) with a declared
+> audience per entry, so the flag is an entry in `SETTINGS_SPEC`:
+>
+> ```js
+> { id: 'practiceFlow', audience: 'user', default: 'classic',
+>   label: 'Practice layout' }     // 'classic' | 'wizard'
+> ```
+>
+> `audience: 'user'` because the whole point is switching at runtime and living
+> with each — which is also what the "toggle in the More tab" below asked for,
+> and the Settings screen renders user-audience rows automatically.
+
 **Decision (Aug 2026):** build the step-by-step wizard, but **keep the current
 one-screen configuration exactly as it is** and put a flag between them. Both
 ship in the prototype; the choice between them is made from use, not from
@@ -1108,21 +1154,15 @@ argument. Neither is deleted until that call is made.
 
 #### The flag
 
-```js
-// web-prototype/js/config.js  (new — the prototype's only feature flags)
-export const FLAGS = {
-  practiceFlow: 'classic',   // 'classic' | 'wizard'
-};
-```
-
-Read it in `renderPractice()` and branch to `renderPracticeClassic()` or
-`renderPracticeWizard()`. Requirements on the split:
+Read `settings.practiceFlow` in `renderPractice()` and delegate to
+`renderPracticeClassic()` or `renderPracticeWizard()`. Requirements on the split:
 
 - **Both flows write the same `state.plan` object.** No wizard-only fields. This
   is what makes the comparison fair and the flag removable later — whichever
   loses gets deleted with no migration.
-- **A toggle in the More tab** flips the flag at runtime and persists it in
-  localStorage, so switching does not need an edit-and-reload.
+- **The More tab renders the toggle automatically**, because the entry is
+  `audience: 'user'`; `setSetting()` persists it, so switching needs no
+  edit-and-reload.
 - Quiz generation, relevance and history are untouched by either flow.
 
 #### The wizard's steps
@@ -1154,11 +1194,13 @@ The highest-value part of the whole redesign, and it is not wizard-specific:
   take question one, show the card. Nothing written in a subtitle explains
   "Match the meaning" as well as seeing one.
 
-#### Naming (proposed, not yet decided)
+#### Naming (decided Aug 2026 — apply in A2)
 
 Names each say what you are given and what you must supply. Only two change; the
 subtitles are the substantive fix. Recorded here so the wizard is built against
 the intended copy:
+
+`produce`'s Arabic label is already applied in the code. The rest land with A2.
 
 | id | current | proposed | Arabic | subtitle |
 |---|---|---|---|---|

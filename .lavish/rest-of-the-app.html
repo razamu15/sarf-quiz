@@ -1266,26 +1266,16 @@ Answer {
   engine API freezes.
 </div>
 
-<div class="decision">
-  <form data-lavish-question="q3" onsubmit="event.preventDefault(); const v = new FormData(event.currentTarget).get('q3'); if (v) window.lavish.queuePrompt('Q3 — Practice wizard: ' + v, { tag: 'decision', text: 'Q3: ' + v, element: event.currentTarget, data: { question: 'q3-practice-wizard', answer: v } });">
-    <div class="q">Q3 · The Practice wizard (D.2) — confirm it stays deferred?</div>
-    <div class="why">A2 takes the summary step into the flow you already have. The wizard itself is a second full configuration surface to maintain.</div>
-    <label><input type="radio" name="q3" value="defer the wizard; build only the summary step (A2)">
-      <span><span class="opt-b">Defer the wizard, build the summary <span class="rec">recommended</span></span>
-      <span class="opt-d">Takes the valuable half now. With <code>SETTINGS_SPEC</code> in place from A1, adding the wizard later behind a flag stays cheap — which was the point of the flag.</span></span></label>
-    <label><input type="radio" name="q3" value="build both flows behind the flag as D.2 specifies">
-      <span><span class="opt-b">Build both, as D.2 specifies</span>
-      <span class="opt-d">You choose from use rather than argument. Costs a second configuration surface to maintain until you decide.</span></span></label>
-    <button type="submit">Queue this answer</button>
-  </form>
-</div>
-
 <div class="settled">
-  <span class="hd">Q4 · settled — A1 (a) then A1 (b)</span>
-  The stats and history queries first, as a reviewed list; then the object chain designed against them.
-  <b>A1 (a) is in progress</b> — see <code>.lavish/a1a-queries.html</code>. It carries the
-  <code>Answer</code>-embeds-<code>Question</code> question you raised, since that is exactly what the query
-  list decides.
+  <span class="hd">Q3 · settled — build both flows, and the wizard is now part of A2</span>
+  <b>The wizard is back in.</b> A2 is no longer just the summary step: it is
+  <code>practice-classic.js</code> + <code>practice-wizard.js</code> + a shared
+  <code>practice-summary.js</code>, selected by a new <code>settings.practiceFlow</code> entry with
+  <code>audience: 'user'</code> — so it flips at runtime from More, which is the whole point of choosing
+  from use rather than argument. Both flows must write an <b>identical <code>QuizPlan</code></b> with no
+  wizard-only fields; that is what keeps the comparison fair and lets whichever loses be deleted with no
+  migration. Full build spec now lives in <code>docs/ROADMAP.md</code> § A2, and
+  <code>PRODUCT_SPEC §5.2a</code> has been updated from “planned” to “decided”.
 </div>
 
 <!-- ===================================================================== -->

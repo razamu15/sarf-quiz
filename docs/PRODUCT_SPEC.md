@@ -3,6 +3,15 @@
 Working title: **Sarf Quiz** (final name TBD; check App Store availability).
 Platform: iOS 17+, iPhone-first (iPad later). No account required.
 
+> **Scope note (Aug 2026) — read before §3.** This document describes the
+> **eventual product**. **v1 is a free drilling app**: AI Explain, the detailed
+> stats *screens*, chart comparison, monetization, and mahmūz + lafīf verbs are
+> all behind flags and **off**. So v1 has **no Pro tier at all** and ships
+> **five verb types**, not seven. The gate table is
+> `web-prototype/js/settings/settings.js`; the build order is
+> [ROADMAP.md](ROADMAP.md). Everything below still describes where the product
+> is going — only the launch cut changed.
+
 ## 1. One-line pitch
 
 Learn to *read the signs* on Arabic words: short drills that show you a fully-voweled
@@ -36,6 +45,13 @@ or Bayyinah-style programs. Assumes the user can read voweled Arabic script.
 Principle: **free tier is a complete, unlimited quiz app** — never nag mid-quiz. Pro
 sells *memory and insight* (tracking, deeper stats, explanations), not access to
 content.
+
+**In v1, everything in the Pro column is simply off** — there is no subscription
+and no paywall. What v1 does keep is the **storage**: every answer of every
+session is recorded from the first build, unconditionally, so that when the Pro
+screens do arrive they cover a user's whole history rather than starting the day
+they shipped. That is the one part of the Pro plan that cannot be deferred, and
+it is already built.
 
 ## 3.1 The four quiz types
 
@@ -201,14 +217,23 @@ so filtering by bāb would really be filtering the root list.
 **What type 1 asks is not configurable either** — the app decides, from the
 configuration itself (§5.2b). Its repertoire is tense, voice, doer, iʿrāb and bāb.
 
-> **Planned (Aug 2026): a step-by-step alternative behind a feature flag.**
-> The configuration screen described above stays exactly as it is. A wizard —
-> quiz type → verbs → charts → length → summary — will be built alongside it and
-> selected by a build/settings flag, so both can be used for a while and the
-> better one chosen from experience rather than argument. Neither is removed
-> until that decision is made. Naming and copy proposals, and the summary step
-> both flows share, are in `.lavish/spec-compare-and-practice.html` §03. Build
-> spec: technical plan §D.2.
+> **Decided (Aug 2026): both flows ship, behind a setting — build step A2.**
+> The one-screen configuration above stays exactly as it is. A wizard —
+> quiz type → verbs → charts → length → summary — is built alongside it and
+> selected by `settings.practiceFlow` (`'classic' | 'wizard'`, user-adjustable
+> from More so it can be switched at runtime). Both are used for a while and the
+> better one chosen from experience rather than argument; neither is removed
+> until that call is made.
+>
+> **Both flows write the same `QuizPlan`**, with no wizard-only fields — that is
+> what makes the comparison fair and the flag removable later, since whichever
+> loses is deleted with no migration.
+>
+> The **summary step is shared** and is the valuable half: the configuration as
+> tappable chips, the "This setup asks" panel **moved above the controls**, the
+> possible-question count, and **one real generated question rendered
+> non-interactively**. Full build spec: [ROADMAP.md](ROADMAP.md) § A2; design
+> reasoning: technical plan §D.2 and `.lavish/spec-compare-and-practice.html` §03.
 
 ### 5.2b Question relevance — the app drops questions it has already answered
 
@@ -343,6 +368,17 @@ teaching tool and a correctness instrument at once — it is how a reader notice
 that two charts which *should* differ don't.
 
 ## 6. Content scope at launch (v1.0)
+
+> **Revised Aug 2026.** v1 ships **five** verb types — sālim, muḍāʿaf, mithāl,
+> ajwaf, nāqiṣ. **Mahmūz and lafīf are behind content flags and off**: both need
+> root authoring as well as an engine, which was the real schedule, and taking
+> them out of v1 is what makes v1 close. They arrive as a later release
+> (ROADMAP § B4). The bullet below describes the eventual content target.
+>
+> Two gaps inside the five that **must** close before launch (ROADMAP § B1, B2):
+> nāqiṣ conjugates in **Form I only** (its mazīd stem tables are empty), and the
+> derived-noun stems for mithāl, ajwaf and nāqiṣ are empty, so **quiz type 3 has
+> no weak-verb content**.
 
 - Engine-generated: **all seven verb types get their own conjugator** (see
   technical plan §A.5) and every one of them ships at launch. Sālim first
