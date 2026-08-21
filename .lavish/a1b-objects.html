@@ -125,7 +125,7 @@
 <div class="wrap">
 
 <header class="masthead">
-  <div class="eyebrow">Sarf Quiz · A1 (b) · the object chain · Aug 2026</div>
+  <div class="eyebrow">Sarf Quiz · A1 (b) · the object chain · implemented · Aug 2026</div>
   <h1>Every field, why it exists, and how the five objects reference each other</h1>
   <p class="lede">
     Designed against the closed catalogue in <b>A1 (a)</b> — each field below traces to a query that needs
@@ -637,11 +637,65 @@ divergeAt (clusters)   = <b>5</b>  → <span class="s">"نَ"</span>      <span 
   </form>
 </div>
 
+<h2 class="sec"><b>11</b> Shipped</h2>
+
+<div class="settled">
+  <span class="hd">A1 (a), (b) and (c) are implemented</span>
+  D1–D3 answered as recommended: no top-level <code>word</code> field, <code>citation</code> is its own
+  prompt kind, and <code>QuizRun</code> takes an injected recorder. The chain, the settings object, the
+  file split and every deletion in §09 are in the codebase.
+</div>
+
+<div class="stat4">
+  <div><span class="num good">304</span><span class="numlabel">assertions green (was 294)</span></div>
+  <div><span class="num good">0</span><span class="numlabel">diffs across 20,252 engine outputs</span></div>
+  <div><span class="num">45</span><span class="numlabel">files, none over 199 lines</span></div>
+  <div><span class="num bad">−1,842</span><span class="numlabel">lines in the two files that carried everything</span></div>
+</div>
+
+<h4 class="mini">The parity proof</h4>
+<p class="body">
+  A refactor this size needed better evidence than "the tests still pass", so before touching anything I
+  snapshotted <b>every word, derived noun, citation and meaning the engine can produce — 20,252 of them</b>
+  — and diffed it after. Zero differences. The 112 hand-typed v1-parity assertions are also byte-identical.
+  <b>Not one generated word changed.</b>
+</p>
+
+<h4 class="mini">One bug found in this design, during implementation</h4>
+<div class="callout bad">
+  <span class="hd">A Set does not survive JSON</span>
+  §05 specified <code>response.correct</code> as a <code>Set</code> of value keys. But an
+  <code>Answer</code> embeds its whole <code>Question</code> and is written to storage unchanged — and
+  <code>JSON.stringify(new Set(['3fs']))</code> is <code>{}</code>. <b>Every replayed session would have
+  shown no correct option</b>, and nothing else in the suite would have noticed.
+  It is an <b>array</b> now, deduplicated once at the single place a response is built, and a storage
+  round-trip assertion guards it. Caught by exercising the real app, not by the tests — which is itself
+  the argument for walking the thing after a refactor rather than trusting green.
+</div>
+
+<h4 class="mini">Verified in the running app</h4>
+<ul class="body">
+  <li>All four quiz types build and play; the meaning card <b>structurally cannot</b> show its answer.</li>
+  <li><b>The Weak-verbs Home drill works</b> — it drew <span class="ar">أَدْعُو</span> from
+      <span class="ar">دعو</span>, a nāqiṣ root that was unreachable before.</li>
+  <li>A stored row carries all nine identity columns flat — including the new <code>bab</code> and the
+      three chart axes — plus the embedded question with its options and ask sentence intact.</li>
+  <li>Tables renders 14 rows; the deep link from feedback reads the three axes directly, with no chart
+      string to compose and decompose.</li>
+</ul>
+
+<div class="callout warn">
+  <span class="hd">Left undone, deliberately</span>
+  <code>PRODUCT_SPEC §3</code> and <code>§6</code> still describe a free/Pro matrix and seven verb types at
+  launch, neither of which is true under the Settings decision. I have not edited them, because roadmap
+  <b>Q1</b> (the corpus gate over five engines) and <b>Q3</b> (whether the Practice wizard stays deferred)
+  are still open and both change what those sections should say.
+</div>
+
 <div class="callout good" style="margin-top:34px">
   <span class="hd">Next</span>
-  With D1–D3 answered this is a buildable spec. <b>A1 (c)</b> is the split itself — the same behaviour,
-  these objects, the file layout from the roadmap, and the parity bar in §09. I will not touch a generated
-  word, and the 294 assertions stay byte-identical.
+  A1 is done. <b>A2</b> is the Practice summary step, <b>A3</b> the recognition tips, and Track B — the
+  nāqiṣ mazīd stems and the derived-noun stems — can start in parallel whenever you want it to.
 </div>
 
 </div>

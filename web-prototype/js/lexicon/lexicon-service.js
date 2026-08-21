@@ -4,7 +4,9 @@
 // should fail loudly here, not silently misroute to the wrong conjugator.
 
 import { ROOTS } from './roots.js';
-import { isConjugatable } from '../conjugation/conjugation-service.js';
+import { groupOfVerbType } from '../vocabulary.js';
+import { hasEngine } from '../conjugation/conjugation-service.js';
+import { settings } from '../settings/settings.js';
 
 const WEAK = new Set(['و', 'ي']);
 const HAMZA = new Set(['ء', 'أ', 'إ', 'ؤ', 'ئ']);
@@ -53,13 +55,32 @@ export const LEXICON = ROOTS;
 export const byRoot = (letters) => LEXICON.find((r) => r.root.join('') === letters);
 
 /**
- * Verb types that can actually be drilled: present in the lexicon AND able to
- * produce words (an engine, or hand-authored manualTables). A type whose engine
- * hasn't landed yet is content sitting in wait, not a playable option.
+ * CONTENT GATES. A verb type behind an off flag is content sitting in wait, not
+ * a playable option — and the flags are read HERE, inside availableTypes(),
+ * rather than beside it at each call site. "Is this verb type playable" already
+ * had exactly one owner; a second check elsewhere would be a second source of
+ * truth for one fact, and the two would disagree eventually.
+ *
+ * Keyed by display GROUP, because that is the unit a student picks and the unit
+ * a feature flag is written in.
+ */
+const CONTENT_FLAG = { mahmuz: 'mahmuzVerbs', lafif: 'lafifVerbs' };
+
+const contentEnabled = (type) => {
+  const flag = CONTENT_FLAG[groupOfVerbType(type)];
+  return flag ? settings[flag] : true;
+};
+
+/**
+ * Verb types that can actually be drilled: present in the lexicon, served by an
+ * engine, and not gated off. THE single answer to "is this verb type playable".
+ *
+ * Called by: quiz-plan's planFrom() (dropping stored types that no longer
+ * exist), word-pool's candidate filter, drills.js (expanding a preset's groups),
+ * and screens/practice.js (which chips to offer).
  */
 export const availableTypes = () => [...new Set(
-  LEXICON.filter((r) => Object.keys(r.forms).some((f) => isConjugatable(r, f)))
-    .map((r) => r.type),
+  LEXICON.filter((r) => hasEngine(r) && contentEnabled(r.type)).map((r) => r.type),
 )];
 
 /** Every type the lexicon has content for, playable or not. */

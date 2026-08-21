@@ -24,6 +24,15 @@
 //
 // Specs are frozen. They are copied into quiz questions and history records as
 // identity, so a caller mutating one after the fact would rewrite history.
+//
+// THERE IS NO CHART KEY HERE ANY MORE. `chartKey()` and `chartShape()` composed
+// and reversed strings like "mudari_malum_raf", and every consumer immediately
+// undid the other's work: the quiz stamped one onto a question and the Tables
+// deep link decomposed it again three lines later. The engine never thought in
+// chart strings, and now nothing in production does — a WordSpec carries tense,
+// voice and mood as three fields, which is also what lets stats group by one
+// axis at a time. The smoke test keeps its own local key↔shape shim, because
+// chart ids ARE the notation of a paper table and that is the test's vocabulary.
 
 import { SLOTS, AMR_SLOTS, TENSES, VOICES, MOODS, slotsFor } from './vocabulary.js';
 
@@ -74,25 +83,6 @@ export const CHART_SHAPES = [
   { tense: 'mudari', voice: 'majhul', mood: 'jazm' },
   { tense: 'amr',    voice: 'malum',  mood: null },
 ];
-
-/**
- * A stable string naming the chart a spec sits in — "mudari_malum_raf".
- *
- * NOT an identity the engine uses. It exists because two things outside the
- * engine must key data by chart and need a string to do it: the lexicon's
- * hand-authored `manualTables`, and stored history records (which must stay
- * comparable across releases). Everything else passes the spec itself.
- */
-export function chartKey({ tense, voice, mood }) {
-  if (tense === 'amr') return 'amr_malum';
-  if (tense === 'mudari') return `mudari_${voice}_${mood ?? 'raf'}`;
-  return `madi_${voice}`;
-}
-
-/** The axes behind a chart key — for callers still holding stored keys. */
-export function chartShape(key) {
-  return CHART_SHAPES.find((shape) => chartKey(shape) === key) ?? null;
-}
 
 /** Is this a real combination of axes? Guards data read from storage. */
 export function isValidShape({ tense, voice, mood }) {

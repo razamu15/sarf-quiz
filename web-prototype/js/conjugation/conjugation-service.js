@@ -1,10 +1,13 @@
 // The single entry point for conjugation. Routing is a dictionary lookup on
 // the root's verb-type GROUP (data every root already carries — validated by
-// LexiconService):
+// LexiconService): an engine for the group answers, or nothing does.
 //
-//   1. a registered engine for the group → engine result (authoritative)
-//   2. else the root's hand-authored fixture table for the chart
-//   3. else null — no content yet
+// There USED to be a second step — a hand-authored `manualTables` fixture per
+// chart, served when a verb type had no engine yet. It is gone. Both roots that
+// carried fixtures (قول, رمي) now have working engines that take precedence in
+// the router, so the branch was serving 0 of 14,638 words: dead code, measured
+// rather than assumed. Those tables stay in the lexicon as PARITY FIXTURES for
+// the test suite, which is the job TECHNICAL_PLAN §A.4 always intended for them.
 //
 // Note the routing key: `root.type` is granular (ajwaf_waw / ajwaf_ya) because
 // the LEXICON needs that distinction, but there is ONE engine per traditional
@@ -33,7 +36,7 @@ import {
 } from '../grammar/shared-grammar.js';
 import { SALIM_ENDINGS } from '../grammar/salim-grammar.js';
 import {
-  chartSpec, chartKey, CHART_SHAPES, isValidShape,
+  chartSpec, CHART_SHAPES, isValidShape,
 } from '../chart-spec.js';
 import { SalimConjugator, getConjugationData as salimData } from './salim-conjugator.js';
 import { MudaafConjugator } from './mudaaf-conjugator.js';
@@ -51,7 +54,7 @@ const ENGINES = Object.fromEntries(
 const engineFor = (root) => ENGINES[groupOfVerbType(root.type)];
 
 /**
- * Verb-type groups with a working engine. Everything else needs manualTables.
+ * Verb-type groups with a working engine. Everything else has no content yet.
  *
  * Called by: the smoke test, to assert that every registered engine `handles`
  * a real display group rather than a granular lexicon type (one engine per
@@ -92,20 +95,18 @@ const wordExists = (spec, slot) =>
   chartExists(spec) && slotsFor(spec.tense).includes(slot);
 
 /**
- * Can this (root, form) actually produce words? Being present in the lexicon is
- * not enough — a root whose engine hasn't been written yet and which carries no
- * manualTables conjugates to nothing, and quizzes must not offer it.
+ * Does an engine exist for this root's verb type? A root whose engine hasn't
+ * been written yet sits in the lexicon inert, and quizzes must not offer it.
  *
- * Called by: LexiconService.availableTypes() to decide which verb-type chips
- * Practice may offer, and QuizService's candidate filter so a question is never
- * built on a root that can't produce a word.
- * 
- * ---PROTOTYPE ONLY---
+ * A fact about the verb TYPE, not about a particular form — which is why it
+ * takes a root rather than a (root, form) pair. Whether a given form has a stem
+ * table is the engine's own business, and it answers null.
+ *
+ * Called by: LexiconService.availableTypes(), the single owner of "is this verb
+ * type playable" — the content feature flags feed that same function rather than
+ * becoming a second check beside it.
  */
-export function isConjugatable(root, formId) {
-  if (engineFor(root)) return true;
-  return !!root.forms[formId]?.manualTables;
-}
+export const hasEngine = (root) => !!engineFor(root);
 
 /**
  * One word: the paradigm the spec names, at one ṣīghah. Null when that word
@@ -125,13 +126,7 @@ export function conjugate(spec, slot) {
   if (!wordExists(spec, slot)) return null;
 
   const engine = engineFor(spec.root);
-  if (engine) return engine.conjugate(spec, slot);
-
-  // No engine for this verb type yet — fall back to the root's hand-authored
-  // table. This is the one place a chart still needs a string: the fixtures are
-  // stored per chart in the lexicon, so the spec is asked for its chart key.
-  const fixture = spec.root.forms[spec.formId].manualTables?.[chartKey(spec)];
-  return fixture ? norm(fixture[slot] ?? null) : null;
+  return engine ? engine.conjugate(spec, slot) : null;
 }
 
 /**
@@ -149,20 +144,11 @@ export function fullTable(spec) {
   if (!chartExists(spec)) return null;
 
   const engine = engineFor(spec.root);
-  if (engine) {
-    // One call, not one per row: an engine builds a chart in its own shape,
-    // resolving each stem once rather than fourteen times.
-    const table = engine.conjugateTable(spec);
-    return table && Object.keys(table).length ? table : null;
-  }
-
-  const fixture = spec.root.forms[spec.formId].manualTables?.[chartKey(spec)];
-  if (!fixture) return null;
-  const out = {};
-  for (const slot of slotsFor(spec.tense)) {
-    if (fixture[slot]) out[slot] = norm(fixture[slot]);
-  }
-  return Object.keys(out).length ? out : null;
+  if (!engine) return null;
+  // One call, not one per row: an engine builds a chart in its own shape,
+  // resolving each stem once rather than fourteen times.
+  const table = engine.conjugateTable(spec);
+  return table && Object.keys(table).length ? table : null;
 }
 
 /**
@@ -195,7 +181,7 @@ export function availableCharts(root, formId) {
  * maṣdar too. That maṣdar is plain lexicon data and would read correctly for a
  * root whose engine hasn't landed — but handing it out would put a hollow verb
  * into a derived-noun quiz that cannot produce any of its other words, which is
- * exactly the half-paradigm isConjugatable() exists to keep out.
+ * exactly the half-paradigm hasEngine() exists to keep out.
  *
  * Called by: QuizService's derived-noun questions (the answer word, its
  * distractors from other forms, and the wazn probe), and the smoke test.

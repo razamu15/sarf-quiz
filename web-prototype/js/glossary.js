@@ -36,19 +36,6 @@ export const MOOD_LABELS = {
   jazm: { ar: 'مَجْزُوم', en: 'majzūm — after لَمْ، لَا النَّاهِيَة…' },
 };
 
-/** Labels for the table browser's chart picker. */
-export const CHART_LABELS = {
-  madi_malum:         { ar: 'المَاضِي المَعْلُوم', en: 'past · active' },
-  madi_majhul:        { ar: 'المَاضِي المَجْهُول', en: 'past · passive' },
-  mudari_malum_raf:   { ar: 'المُضَارِع المَرْفُوع', en: 'present · active · rafʿ' },
-  mudari_malum_nasb:  { ar: 'المُضَارِع المَنْصُوب', en: 'present · active · naṣb' },
-  mudari_malum_jazm:  { ar: 'المُضَارِع المَجْزُوم', en: 'present · active · jazm' },
-  mudari_majhul_raf:  { ar: 'المُضَارِع المَجْهُول', en: 'present · passive · rafʿ' },
-  mudari_majhul_nasb: { ar: 'المُضَارِع المَجْهُول المَنْصُوب', en: 'present · passive · naṣb' },
-  mudari_majhul_jazm: { ar: 'المُضَارِع المَجْهُول المَجْزُوم', en: 'present · passive · jazm' },
-  amr_malum:          { ar: 'الأَمْر', en: 'command' },
-};
-
 export const NOUN_KIND_LABELS = {
   ismFail:  { ar: 'اسْم فَاعِل', en: 'doer noun (ism fāʿil)' },
   ismMaful: { ar: 'اسْم مَفْعُول', en: 'receiver noun (ism mafʿūl)' },

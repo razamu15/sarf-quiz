@@ -12,7 +12,7 @@ import {
   FORM_IDS, BAB_IDS, DEFAULT_BAB, FATHA as FATHA_C, DAMMA as DAMMA_C,
   VERB_TYPE_IDS, VERB_TYPE_GROUP_IDS, groupOfVerbType, verbTypesInGroup,
 } from '../js/vocabulary.js';
-import { chartSpec, chartShape, chartKey, CHART_SHAPES } from '../js/chart-spec.js';
+import { chartSpec, CHART_SHAPES } from '../js/chart-spec.js';
 import { MUDARI_PREFIX_HARAKA } from '../js/grammar/shared-grammar.js';
 import { getConjugationData as salimData } from '../js/conjugation/salim-conjugator.js';
 import { getConjugationData as mudaafData } from '../js/conjugation/mudaaf-conjugator.js';
@@ -26,18 +26,35 @@ import {
   verbMeaning as verbMeaningSpec, derivedNounMeaning,
   MUDARI_PARTICLES, particlesFor, particleFor,
 } from '../js/meaning-service.js';
+import { quizPlan, planCharts } from '../js/quiz/quiz-plan.js';
+import { wordPool } from '../js/quiz/word-pool.js';
+import { relevance, possibleQuestions, IDENTIFY_CATEGORIES } from '../js/quiz/relevance.js';
+import { questionStream } from '../js/quiz/quiz-run.js';
+import { grade } from '../js/quiz/grading.js';
+import { isMultiSelect } from '../js/quiz/question.js';
+import { clusters } from '../js/arabic-text.js';
 import {
-  buildDrill, buildQuiz, questionStream, DRILL_PRESETS, mazeedPreset, mazeedPresetAvailable,
-  presetAvailable, chartsFor, gradeInput, possibleQuestions, IDENTIFY_CATEGORIES,
-  relevance, poolProfile, WORDS_PER_DRILL,
-} from '../js/quiz/quiz-service.js';
+  buildDrill, DRILL_PRESETS, mazeedPreset, mazeedPresetAvailable,
+  presetAvailable, WORDS_PER_DRILL,
+} from '../js/quiz/drills.js';
 import { MAZEED_IDS } from '../js/vocabulary.js';
 
-// --- chart-id shim ---------------------------------------------------------
-// The engine speaks ChartSpec + slot now. This file's hand-typed expectations are keyed
-// by chart id (that IS the notation of a paper table), so the ids stay as the
-// test's vocabulary and get turned into specs right here — one place, so the
-// ~290 assertions below are unchanged and still compare the same words.
+// --- chart-id shim (TEST-LOCAL) --------------------------------------------
+// The engine speaks ChartSpec + slot. This file's hand-typed expectations are
+// keyed by chart id — that IS the notation of a paper table, and it is this
+// file's vocabulary, so the ~290 assertions below stay unchanged.
+//
+// chartKey() and chartShape() USED to live in chart-spec.js. They were deleted
+// from production: every consumer immediately undid the other's work (the quiz
+// stamped a key onto a question and the Tables deep link decomposed it again
+// three lines later), and a WordSpec now carries tense, voice and mood as three
+// fields. They survive here, in the one place that genuinely wants a chart
+// string, defined locally rather than exported for one caller.
+const chartKey = ({ tense, voice, mood }) => (
+  tense === 'amr' ? 'amr_malum'
+    : tense === 'mudari' ? `mudari_${voice}_${mood ?? 'raf'}`
+      : `madi_${voice}`);
+const chartShape = (key) => CHART_SHAPES.find((sh) => chartKey(sh) === key) ?? null;
 const specOf = (root, formId, chart) => chartSpec({ root, formId, ...chartShape(chart) });
 const CHART_IDS = CHART_SHAPES.map(chartKey);
 const slotsFor = (chart) => slotsForTense(chartShape(chart).tense);
@@ -47,6 +64,24 @@ const waznOfChart = (formId, chart, slot, bab) => waznOfSpec(specOf(null, formId
 const verbMeaningChart = (root, formId, chart, slot) => verbMeaningSpec(specOf(root, formId, chart), slot);
 const verbMeaningChart2 = (root, formId, chart, slot, particleId) =>
   verbMeaningSpec(specOf(root, formId, chart), slot, particleId);
+
+// --- quiz helpers ----------------------------------------------------------
+// The plan is a constructed object now and the pool is a thing you hold, so the
+// two steps that every quiz assertion needs get one helper each.
+const poolOf = (planLike) => wordPool(quizPlan(planLike));
+const buildQuiz = (planLike) => {
+  const pool = poolOf(planLike);
+  const out = [];
+  for (const q of questionStream(pool)) {
+    out.push(q);
+    if (out.length >= (planLike.count ?? 10)) break;
+  }
+  return out;
+};
+/** The engine's own word for a question's identity — used to check answers. */
+const wordOf = (q) => conjugateChart(
+  byRoot(q.identity.rootKey), q.identity.formId, chartKey(q.identity), q.identity.slot);
+const correctOptions = (q) => q.response.options.filter((o) => q.response.correct.includes(o.valueKey));
 
 // --- v1-compat shims: same call shapes as the old engine API ---------------
 const conjugate = (root, formId, tense, voice, slot, mood = 'raf') =>
@@ -404,12 +439,13 @@ check(availableCharts(qala, 'I').length === 9,
     const drill = buildDrill(DRILL_PRESETS[0]);
     for (const q of drill) {
       if (q.category !== 'doer') continue;
-      const correctSlots = q.correctIndices.map((idx) => q.options[idx].valueKey);
+      const correctSlots = [...q.response.correct];
       const consistent = correctSlots.every(
-        (slot) => conjugateChart(byRoot(q.rootKey), q.formId, q.chartId, slot) === q.word,
+        (slot) => conjugateChart(byRoot(q.identity.rootKey), q.identity.formId,
+          chartKey(q.identity), slot) === q.prompt.text,
       );
-      allConsistent &&= consistent && q.correctIndices.length >= 1;
-      if (q.multiSelect) sawMulti = true;
+      allConsistent &&= consistent && correctSlots.length >= 1;
+      if (isMultiSelect(q)) sawMulti = true;
     }
   }
   check(allConsistent, 'every doer correct option really conjugates to the shown word');
@@ -424,14 +460,15 @@ for (const preset of DRILL_PRESETS.filter(presetAvailable)) {
   const words = new Set(quiz.map((q) => q.tag));
   const shapeOk = words.size === WORDS_PER_DRILL
     && quiz.length > 0 && quiz.length <= WORDS_PER_DRILL * 3
-    && quiz.every((q) => q.gloss && q.fullMeaning && q.tag && q.rootKey && q.verbType
-      && q.correctIndices.length >= 1 && q.options.every((o) => 'valueKey' in o || o.valueKey === undefined));
+    && quiz.every((q) => q.prompt.gloss && q.feedback.meaning && q.tag
+      && q.identity.rootKey && q.identity.verbType
+      && q.response.correct.length >= 1 && q.response.options.every((o) => 'valueKey' in o));
   check(shapeOk, `drill ${preset.id}: ${WORDS_PER_DRILL} words with identity + correctness`);
 }
 for (const formId of MAZEED_IDS.filter(mazeedPresetAvailable)) {
   const quiz = buildDrill(mazeedPreset(formId));
   check(new Set(quiz.map((q) => q.tag)).size === WORDS_PER_DRILL
-    && quiz.every((q) => q.formId === formId), `mazeed drill ${formId}`);
+    && quiz.every((q) => q.identity.formId === formId), `mazeed drill ${formId}`);
 }
 check(!mazeedPresetAvailable('IX'), 'IX drill unavailable (recognition-only)');
 
@@ -441,11 +478,11 @@ check(!mazeedPresetAvailable('IX'), 'IX drill unavailable (recognition-only)');
   const fixed = buildQuiz(plan);
   check(fixed.length === 12, 'fixed quiz delivers the requested count');
 
-  const stream = questionStream(plan);
+  const stream = questionStream(poolOf(plan));
   const drawn = [];
   for (const q of stream) { drawn.push(q); if (drawn.length >= 40) break; }
   check(drawn.length === 40, 'endless stream keeps producing (40 pulled)');
-  check(drawn.every((q) => q.category && q.word && q.correctIndices.length >= 1),
+  check(drawn.every((q) => q.category && q.prompt.text && q.response.correct.length >= 1),
     'every streamed question is complete');
 }
 
@@ -632,9 +669,9 @@ check(!madd.forms.I.manualTables && !radd.forms.I.manualTables,
 // ---------------------------------------------------------------------------
 
 // tense × voice × iʿrāb → charts. Amr carries neither voice nor mood, so it
-// contributes exactly one chart however many are ticked. chartsFor returns
-// shapes now, so the expectations are read through chartKey — same charts.
-const chartKeysFor = (plan) => chartsFor(plan).map(chartKey).join();
+// contributes exactly one chart however many are ticked. planCharts returns
+// shapes, so the expectations are read through the local chartKey — same charts.
+const chartKeysFor = (plan) => planCharts(plan).map(chartKey).join();
 check(chartKeysFor({ tenses: ['mudari'], voices: ['malum'], moods: ['raf', 'nasb'] }) ===
   'mudari_malum_raf,mudari_malum_nasb', 'charts: muḍāriʿ × maʿlūm × (rafʿ, naṣb)');
 check(chartKeysFor({ tenses: ['madi', 'amr'], voices: ['malum', 'majhul'], moods: ['raf'] }) ===
@@ -649,7 +686,7 @@ check(chartKeysFor({ tenses: ['madi'], voices: ['majhul'], moods: [] }) === 'mad
     forms: ['I'], types: ['salim'], count: 20,
   };
   const qs = buildQuiz(plan);
-  check(qs.length === 20 && qs.every((q) => q.chartId === 'madi_malum'),
+  check(qs.length === 20 && qs.every((q) => chartKey(q.identity) === 'madi_malum'),
     'identify honours the plan charts');
   check(qs.every((q) => IDENTIFY_CATEGORIES.includes(q.category)),
     'identify asks only from its own repertoire');
@@ -664,7 +701,8 @@ check(chartKeysFor({ tenses: ['madi'], voices: ['majhul'], moods: [] }) === 'mad
     quizType: 'identify', tenses: ['mudari'], voices: ['malum'], moods: ['raf'],
     forms: ['I'], types: ['salim'],
   };
-  const r = relevance(narrow);
+  const narrowPool = poolOf(narrow);
+  const r = relevance(narrowPool);
   const liveIds = r.live.map((k) => k.id);
   const deadIds = r.dead.map((k) => k.id);
   check(!liveIds.includes('tense') && deadIds.includes('tense'),
@@ -681,8 +719,7 @@ check(chartKeysFor({ tenses: ['madi'], voices: ['majhul'], moods: [] }) === 'mad
     'a muḍāriʿ-only quiz asks nothing but the doer');
 
   // The count reflects live kinds, not the whole repertoire.
-  const a = poolProfile(narrow);
-  check(possibleQuestions(narrow, a) === a.cells * r.live.length,
+  check(possibleQuestions(narrowPool) === narrowPool.cells * r.live.length,
     'the question count multiplies by live kinds, not by the category list');
 }
 
@@ -692,7 +729,7 @@ check(chartKeysFor({ tenses: ['madi'], voices: ['majhul'], moods: [] }) === 'mad
     quizType: 'identify', tenses: ['madi', 'mudari'], voices: ['malum', 'majhul'],
     moods: ['raf', 'nasb'], forms: ['I', 'II'], types: ['salim'],
   };
-  const ids = relevance(wide).live.map((k) => k.id);
+  const ids = relevance(poolOf(wide)).live.map((k) => k.id);
   check(['tense', 'voice', 'doer', 'mood', 'bab'].every((id) => ids.includes(id)),
     'a wide plan asks all five identify questions, iʿrāb and bāb included');
 }
@@ -704,7 +741,7 @@ check(chartKeysFor({ tenses: ['madi'], voices: ['majhul'], moods: [] }) === 'mad
     quizType: 'identify', tenses: ['madi'], voices: ['malum', 'majhul'], moods: [],
     forms: ['I'], types: ['salim'],
   };
-  check(!relevance(pastOnly).live.some((k) => k.id === 'bab'),
+  check(!relevance(poolOf(pastOnly)).live.some((k) => k.id === 'bab'),
     'bāb is retired in a single-tense quiz');
 }
 
@@ -713,11 +750,11 @@ check(chartKeysFor({ tenses: ['madi'], voices: ['majhul'], moods: [] }) === 'mad
 {
   const one = { quizType: 'derived', forms: ['I'], types: ['salim'] };
   const many = { quizType: 'derived', forms: ['I', 'II', 'X'], types: ['salim'] };
-  check(!relevance(one).live.some((k) => k.id === 'derivedForm'),
+  check(!relevance(poolOf(one)).live.some((k) => k.id === 'derivedForm'),
     'one form selected → the derived-form question is retired');
-  check(relevance(many).live.some((k) => k.id === 'derivedForm'),
+  check(relevance(poolOf(many)).live.some((k) => k.id === 'derivedForm'),
     'three forms selected → the derived-form question is live');
-  check(buildQuiz({ ...one, count: 20 }).every((q) => !q.prompt.includes('which form')),
+  check(buildQuiz({ ...one, count: 20 }).every((q) => q.category !== 'derivedForm'),
     'a single-form derived quiz never asks which form');
 }
 
@@ -727,7 +764,8 @@ check(chartKeysFor({ tenses: ['madi'], voices: ['majhul'], moods: [] }) === 'mad
     quizType: 'produce', tenses: ['mudari'], voices: ['malum'], moods: ['raf'],
     forms: ['I'], types: ['salim'],
   };
-  check(relevance(narrowest).live.length === 1 && relevance(narrowest).dead.length === 0,
+  const narrowestPool = poolOf(narrowest);
+  check(relevance(narrowestPool).live.length === 1 && relevance(narrowestPool).dead.length === 0,
     'write-the-word survives any configuration');
 }
 
@@ -739,34 +777,51 @@ check(chartKeysFor({ tenses: ['madi'], voices: ['majhul'], moods: [] }) === 'mad
   };
   const qs = buildQuiz(plan);
   check(qs.length === 10, 'produce quiz delivers the requested count');
-  check(qs.every((q) => q.response === 'input' && q.accepted.length === 1 && q.target?.radicals?.length === 3),
+  check(qs.every((q) => q.response.mode === 'input' && q.response.accepted.length === 1
+    && q.prompt.kind === 'spec' && q.prompt.radicals.length === 3),
     'every produce question carries a target spec and one accepted answer');
-  check(qs.every((q) => q.accepted[0] === conjugateChart(byRoot(q.rootKey), q.formId, q.chartId, q.slot)),
+  check(qs.every((q) => q.response.accepted[0] === wordOf(q)),
     'the accepted answer is the engine\'s own string');
 
   const q = qs[0];
-  check(gradeInput(q, q.accepted[0]).correct, 'strict grading accepts the exact string');
-  check(!gradeInput(q, q.accepted[0].slice(0, -1)).correct,
+  const answer = q.response.accepted[0];
+  check(grade(q, [answer]).correct, 'strict grading accepts the exact string');
+  check(!grade(q, [answer.slice(0, -1)]).correct,
     'strict grading rejects a dropped final ḥaraka');
-  const near = gradeInput(q, q.accepted[0].slice(0, 3) + 'X' + q.accepted[0].slice(4));
-  check(!near.correct && near.at === 3, 'grading reports where the answer first diverged');
+
+  // Divergence is reported in GRAPHEME CLUSTERS, not code units: a letter plus
+  // its ḥaraka is one cluster, and an index into the raw string can land on a
+  // bare diacritic with no letter attached — which is what the feedback used to
+  // underline. Corrupting cluster 2 must be reported as cluster 2.
+  const cl = clusters(answer);
+  const corrupted = [...cl.slice(0, 2), 'X', ...cl.slice(3)].join('');
+  const near = grade(q, [corrupted]);
+  check(!near.correct && near.divergeAt === 2,
+    'grading reports where the answer first diverged, by grapheme cluster');
+  check(grade(q, [answer]).divergeAt === null,
+    'a correct answer has no divergence index — null, not -1');
 }
 
 // Type 3: multiple choice, both shapes, Arabic-only options on the pick shape.
 {
   const qs = buildQuiz({ quizType: 'derived', forms: ['I', 'II', 'X'], types: ['salim'], count: 30 });
-  check(qs.length === 30 && qs.every((q) => q.response === 'choice'),
+  check(qs.length === 30 && qs.every((q) => q.response.mode === 'choice'),
     'derived questions are multiple choice');
-  const picks = qs.filter((q) => q.prompt.startsWith('Which is the'));
-  const names = qs.filter((q) => q.prompt === 'Which derivative is this?');
+  // The three shapes are told apart by CATEGORY now, not by matching prompt
+  // prose — the category is the id of the rule that built the question.
+  const picks = qs.filter((q) => q.category === 'derivedPick');
+  const names = qs.filter((q) => q.category === 'derivedKind');
   check(picks.length > 0 && names.length > 0, 'derived interleaves both question shapes (3a + 3b)');
-  check(picks.every((q) => q.options.every((o) => o.en === '')),
+  check(picks.every((q) => q.response.options.every((o) => o.en === '')),
     '3a options carry no English — the label would name the answer');
-  check(picks.every((q) => new Set(q.options.map((o) => o.ar)).size === q.options.length),
+  check(picks.every((q) => new Set(q.response.options.map((o) => o.ar)).size === q.response.options.length),
     '3a options are distinct — no accidental second right answer');
-  check(names.every((q) => q.options.length === 3), '3b asks which derivative out of the three kinds');
-  const forms = qs.filter((q) => q.prompt === 'And which form is it from?');
-  check(forms.every((q) => q.correctIndices.length === 1), '3b form question has exactly one answer');
+  check(names.every((q) => q.response.options.length === 3),
+    '3b asks which derivative out of the three kinds');
+  const forms = qs.filter((q) => q.category === 'derivedForm');
+  check(forms.every((q) => q.response.correct.length === 1), '3b form question has exactly one answer');
+  check(qs.every((q) => q.identity.derivedKind && q.identity.slot === null),
+    'a derived identity names its kind and pins no ṣīghah');
 }
 
 // ---------------------------------------------------------------------------
@@ -785,21 +840,25 @@ check(chartKeysFor({ tenses: ['madi'], voices: ['majhul'], moods: [] }) === 'mad
   };
   const qs = buildQuiz(plan);
   check(qs.length === 60, 'fromMeaning quiz delivers the requested count');
-  check(qs.every((q) => q.response === 'choice' && q.quizType === 'fromMeaning'),
+  check(qs.every((q) => q.response.mode === 'choice' && q.quizType === 'fromMeaning'),
     'fromMeaning questions are multiple choice and carry their own quizType');
-  check(qs.every((q) => q.meaningPrompt && q.meaningPrompt.length > 0),
+  check(qs.every((q) => q.prompt.meaning && q.prompt.meaning.length > 0),
     'every fromMeaning question states the meaning it is asking about');
-  check(qs.every((q) => q.correctIndices.length === 1 && !q.multiSelect),
+  check(qs.every((q) => q.response.correct.length === 1 && !isMultiSelect(q)),
     'fromMeaning has exactly one right answer');
-  check(qs.every((q) => q.options[q.correctIndices[0]].ar === q.word),
+  check(qs.every((q) => correctOptions(q)[0].ar === wordOf(q)),
     'the correct option is the word the identity names');
-  check(qs.every((q) => q.options.every((o) => o.en === '')),
+  // The card must never carry the Arabic word — it is the answer. The type has
+  // no field that could hold one, which is the point of a tagged prompt.
+  check(qs.every((q) => q.prompt.kind === 'meaning' && q.prompt.text === undefined),
+    'the meaning card structurally cannot show the answer');
+  check(qs.every((q) => q.response.options.every((o) => o.en === '')),
     'fromMeaning options carry no English — it would restate the prompt');
-  check(qs.every((q) => q.options.length >= 3 && q.options.length <= 4),
+  check(qs.every((q) => q.response.options.length >= 3 && q.response.options.length <= 4),
     'fromMeaning offers three or four options');
 
   // The two dedupe rules, stated separately because they catch different bugs.
-  check(qs.every((q) => new Set(q.options.map((o) => o.ar)).size === q.options.length),
+  check(qs.every((q) => new Set(q.response.options.map((o) => o.ar)).size === q.response.options.length),
     'fromMeaning options are distinct words — no duplicate button');
   // THE load-bearing assertion. For every distractor, walk every cell of the
   // same root that renders that exact word and confirm none of those readings
@@ -817,20 +876,21 @@ check(chartKeysFor({ tenses: ['madi'], voices: ['majhul'], moods: [] }) === 'mad
     return out;
   };
   check(qs.every((q) => {
-    const root = byRoot(q.rootKey);
-    const answer = q.options[q.correctIndices[0]].ar;
-    return q.options.filter((o) => o.ar !== answer)
-      .every((o) => !readings(root, o.ar).includes(q.meaningPrompt));
+    const root = byRoot(q.identity.rootKey);
+    const answer = correctOptions(q)[0].ar;
+    return q.response.options.filter((o) => o.ar !== answer)
+      .every((o) => !readings(root, o.ar).includes(q.prompt.meaning));
   }), 'no distractor can legitimately mean the prompt');
 
   // Every option must be a real cell of the same root, not filler.
   check(qs.every((q) => {
-    const root = byRoot(q.rootKey);
-    return q.options.every((o) => readings(root, o.ar).length > 0);
+    const root = byRoot(q.identity.rootKey);
+    return q.response.options.every((o) => readings(root, o.ar).length > 0);
   }), 'every distractor is a real conjugation of the same root');
 
   // The prompt is the engine's own meaning string for the answer cell.
-  check(qs.every((q) => q.meaningPrompt === verbMeaningChart(byRoot(q.rootKey), q.formId, q.chartId, q.slot)),
+  check(qs.every((q) => q.prompt.meaning === verbMeaningChart(
+    byRoot(q.identity.rootKey), q.identity.formId, chartKey(q.identity), q.identity.slot)),
     'the prompt is the engine\'s meaning for the answer cell');
 }
 
@@ -886,22 +946,22 @@ check(chartKeysFor({ tenses: ['madi'], voices: ['majhul'], moods: [] }) === 'mad
     quizType: 'fromMeaning', tenses: ['mudari'], voices: ['malum'],
     moods: ['raf', 'nasb', 'jazm'], forms: ['I'], types: ['salim'], count: 90,
   });
-  const moods = new Set(qs.map((q) => q.chartId));
+  const moods = new Set(qs.map((q) => q.identity.mood));
   check(moods.size === 3, 'fromMeaning now draws all three muḍāriʿ states');
 
   // Extra moods widen the pool rather than being collapsed away.
-  const one = possibleQuestions({ quizType: 'fromMeaning', tenses: ['mudari'], voices: ['malum'], moods: ['raf'], forms: ['I'], types: ['salim'] });
-  const all = possibleQuestions({ quizType: 'fromMeaning', tenses: ['mudari'], voices: ['malum'], moods: ['raf', 'nasb', 'jazm'], forms: ['I'], types: ['salim'] });
+  const one = possibleQuestions(poolOf({ quizType: 'fromMeaning', tenses: ['mudari'], voices: ['malum'], moods: ['raf'], forms: ['I'], types: ['salim'] }));
+  const all = possibleQuestions(poolOf({ quizType: 'fromMeaning', tenses: ['mudari'], voices: ['malum'], moods: ['raf', 'nasb', 'jazm'], forms: ['I'], types: ['salim'] }));
   check(all > one, 'selecting more iʿrāb states grows the fromMeaning pool');
 }
 
 // The count under Start is real: a narrow plan reports fewer than a wide one,
 // and an impossible one reports zero.
 {
-  const narrow = possibleQuestions({ quizType: 'produce', tenses: ['madi'], voices: ['malum'], moods: [], forms: ['I'], types: ['salim'] });
-  const wide = possibleQuestions({ quizType: 'produce', tenses: ['madi', 'mudari'], voices: ['malum', 'majhul'], moods: ['raf', 'nasb', 'jazm'], forms: ['I'], types: ['salim'] });
+  const narrow = possibleQuestions(poolOf({ quizType: 'produce', tenses: ['madi'], voices: ['malum'], moods: [], forms: ['I'], types: ['salim'] }));
+  const wide = possibleQuestions(poolOf({ quizType: 'produce', tenses: ['madi', 'mudari'], voices: ['malum', 'majhul'], moods: ['raf', 'nasb', 'jazm'], forms: ['I'], types: ['salim'] }));
   check(narrow > 0 && wide > narrow, 'possibleQuestions grows with the selection');
-  check(possibleQuestions({ quizType: 'identify', tenses: ['amr'], voices: [], moods: [], forms: ['IX'], types: ['salim'] }) === 0,
+  check(possibleQuestions(poolOf({ quizType: 'identify', tenses: ['amr'], voices: [], moods: [], forms: ['IX'], types: ['salim'] })) === 0,
     'possibleQuestions is 0 for a selection that can produce nothing');
 }
 
@@ -937,6 +997,43 @@ check(chartKeysFor({ tenses: ['madi'], voices: ['majhul'], moods: [] }) === 'mad
     'an engine makes fixture-less weak content playable');
   check(conjugateChart(byRoot('دعو'), 'I', 'madi_malum', '3ms') === 'دَعَا',
     'the nāqiṣ engine writes a wāw root back as a full alif');
+}
+
+// ---------------------------------------------------------------------------
+// Storage round trip.
+//
+// An Answer embeds its whole Question and is written to storage UNCHANGED — no
+// projection, no flattening. That only holds if every field survives JSON, and
+// one nearly didn't: `response.correct` began as a Set, and JSON.stringify turns
+// a Set into {}. Every replayed session would have shown no correct option, and
+// nothing else in the suite would have noticed.
+// ---------------------------------------------------------------------------
+{
+  const qs = buildQuiz({
+    quizType: 'identify', tenses: ['madi', 'mudari'], voices: ['malum'], moods: ['raf'],
+    forms: ['I', 'II'], types: ['salim'], count: 12,
+  });
+  const answers = qs.map((q) => grade(q, [...q.response.correct]));
+  check(answers.every((a) => a.correct), 'answering with the correct value keys grades correct');
+
+  const revived = JSON.parse(JSON.stringify(answers));
+  check(revived.every((a, i) => a.correct === answers[i].correct
+    && a.given.join() === answers[i].given.join()
+    && a.expected.join() === answers[i].expected.join()),
+  'an Answer survives the round trip to storage');
+  check(revived.every((a) => a.question.response.correct.length >= 1),
+    'the answer key survives storage — a Set would serialise to {}');
+  check(revived.every((a) => a.question.prompt.kind && a.question.prompt.ask),
+    'a stored question still knows what card it was and what it asked');
+  check(revived.every((a) => a.question.response.options === undefined
+    || a.question.response.options.length >= 2),
+  'a stored question still carries the options it offered — Q21 needs them');
+
+  // Every column the dashboard groups by is on the identity, so the store's
+  // index is a spread rather than a lookup.
+  const cols = ['rootKey', 'formId', 'verbType', 'bab', 'tense', 'voice', 'mood', 'slot', 'derivedKind'];
+  check(revived.every((a) => cols.every((c) => c in a.question.identity)),
+    'a stored identity carries every column the stats queries group by');
 }
 
 console.log(`\nTOTAL: ${pass} passed, ${fail} failed`);
