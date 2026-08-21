@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sarf Quiz — A1 (b): the object chain</title>
+<link rel="stylesheet" href="sarf-app.css">
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+  :where(p, h1, h2, h3, h4, li, td, th) { overflow-wrap: anywhere; }
+  :where(.grid2, .grid3, .stat4, .chain) > * { min-width: 0; }
+
+  body { margin: 0; background: var(--bg); color: var(--ink);
+         font-family: var(--latin); line-height: 1.6; -webkit-font-smoothing: antialiased; }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 40px 22px 120px; }
+
+  .masthead { border-bottom: 1px solid #2b3547; padding-bottom: 26px; margin-bottom: 34px; }
+  .eyebrow { font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--accent); font-weight: 700; }
+  .masthead h1 { font-size: clamp(26px, 4vw, 36px); line-height: 1.15; margin: 10px 0 12px; letter-spacing: -0.02em; }
+  .lede { color: var(--ink-dim); font-size: 16px; max-width: 74ch; }
+  .lede b { color: var(--ink); }
+
+  h2.sec { font-size: 13px; text-transform: uppercase; letter-spacing: .12em; color: var(--ink-dim);
+           margin: 58px 0 18px; padding-bottom: 10px; border-bottom: 1px solid #2b3547; }
+  h2.sec b { color: var(--accent); font-weight: 700; margin-inline-end: 8px; }
+  h3.sub { font-size: 20px; margin: 32px 0 8px; letter-spacing: -0.01em; }
+  h4.mini { font-size: 12px; text-transform: uppercase; letter-spacing: .1em; color: var(--accent); margin: 24px 0 8px; }
+  p.body { font-size: 15px; color: var(--ink-dim); max-width: 78ch; margin: 0 0 14px; }
+  p.body b, li b, td b { color: var(--ink); }
+  p.body .ar, li .ar, td .ar { font-family: var(--arabic); font-size: 18px; }
+  ul.body { font-size: 15px; color: var(--ink-dim); max-width: 78ch; padding-inline-start: 20px; margin: 0 0 14px; }
+  ul.body li { margin-bottom: 8px; }
+  code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12.5px; color: var(--accent); }
+
+  .callout { border-inline-start: 3px solid var(--accent); background: var(--card2);
+             border-radius: 10px; padding: 14px 18px; font-size: 15px; margin: 18px 0; color: var(--ink-dim); }
+  .callout.bad { border-inline-start-color: var(--bad); }
+  .callout.good { border-inline-start-color: var(--good); }
+  .callout.warn { border-inline-start-color: #d8a13a; }
+  .callout b { color: var(--ink); }
+  .callout .hd { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: .09em;
+                 margin-bottom: 6px; color: var(--ink-dim); font-weight: 700; }
+  .callout.bad .hd { color: var(--bad); }
+  .callout.good .hd { color: var(--good); }
+  .callout.warn .hd { color: #d8a13a; }
+
+  .tbl-wrap { overflow-x: auto; border: 1px solid #303a4d; border-radius: var(--radius); margin: 16px 0; }
+  table.rev { width: 100%; border-collapse: collapse; background: var(--card); font-size: 13.5px; min-width: 700px; }
+  table.rev th { text-align: start; padding: 10px 13px; font-size: 11px; text-transform: uppercase;
+                 letter-spacing: .08em; color: var(--ink-dim); border-bottom: 1px solid #303a4d; background: var(--card2); }
+  table.rev td { padding: 10px 13px; border-bottom: 1px solid #232c3c; vertical-align: top; color: var(--ink-dim); }
+  table.rev tr:last-child td { border-bottom: 0; }
+  table.rev td.t { color: var(--ink); font-weight: 600; }
+  table.rev td.f { font-family: ui-monospace, Menlo, monospace; font-size: 12px; color: var(--ink); white-space: nowrap; }
+  table.rev td.ty { font-family: ui-monospace, Menlo, monospace; font-size: 11.5px; color: #c48ce0; white-space: nowrap; }
+  table.rev tr.newrow td { background: rgba(196,140,224,.06); }
+  table.rev .n { color: var(--ink); font-variant-numeric: tabular-nums; font-weight: 600; }
+
+  .pill { display: inline-block; font-size: 10.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase;
+          padding: 2px 8px; border-radius: 99px; white-space: nowrap; }
+  .pill.new  { background: rgba(196,140,224,.18); color: #c48ce0; }
+  .pill.keep { background: rgba(63,185,111,.16); color: var(--good); }
+  .pill.gone { background: rgba(224,93,93,.16); color: var(--bad); }
+  .pill.chg  { background: rgba(216,161,58,.16); color: #d8a13a; }
+
+  .grid2 { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 18px; }
+  @media (max-width: 900px) { .grid2 { grid-template-columns: minmax(0,1fr); } }
+
+  .panel { background: var(--card); border: 1px solid #303a4d; border-radius: var(--radius); padding: 18px 20px; }
+  .panel h4 { font-size: 12px; text-transform: uppercase; letter-spacing: .1em; color: var(--accent); margin: 0 0 10px; }
+  .panel p { font-size: 14px; color: var(--ink-dim); margin: 0 0 10px; }
+  .panel p:last-child { margin-bottom: 0; }
+  .panel ul { font-size: 14px; color: var(--ink-dim); margin: 0; padding-inline-start: 18px; }
+  .panel ul li { margin-bottom: 6px; }
+  .panel ul li b { color: var(--ink); }
+
+  pre.code { background: #0b0e14; border: 1px solid #2b3547; border-radius: var(--radius);
+             padding: 16px 18px; overflow-x: auto; font-size: 12.8px; line-height: 1.68;
+             font-family: ui-monospace, SFMono-Regular, Menlo, monospace; color: #cdd8ea; margin: 14px 0; }
+  pre.code .c { color: #6b7a91; }
+  pre.code .k { color: #c48ce0; }
+  pre.code .s { color: #8fd3a4; }
+  pre.code .f { color: #4ea8de; }
+  pre.code .r { color: #e0817d; }
+  pre.code b { color: #fff; font-weight: 600; }
+
+  .chain { display: grid; grid-template-columns: repeat(5, minmax(0,1fr)); gap: 10px; margin: 20px 0 6px; }
+  @media (max-width: 900px) { .chain { grid-template-columns: repeat(2, minmax(0,1fr)); } }
+  @media (max-width: 520px) { .chain { grid-template-columns: minmax(0,1fr); } }
+  .chain > div { background: var(--card); border: 1px solid #3f5a78; border-radius: 14px; padding: 12px 13px; }
+  .chain > div b { display: block; font-family: ui-monospace, Menlo, monospace; font-size: 12.5px; color: var(--accent); margin-bottom: 5px; }
+  .chain > div small { font-size: 12px; color: var(--ink-dim); line-height: 1.5; display: block; }
+
+  .objcard { border: 1px solid #3f5a78; border-radius: var(--radius); background: var(--card); margin: 18px 0; overflow: hidden; }
+  .objhead { padding: 15px 18px; background: var(--card2); border-bottom: 1px solid #303a4d; }
+  .objhead h3 { font-size: 17px; margin: 0 0 3px; font-family: ui-monospace, Menlo, monospace; color: var(--accent); }
+  .objhead p { font-size: 13.5px; color: var(--ink-dim); margin: 0; }
+  .objbody { padding: 16px 18px; }
+  .objbody > p { font-size: 14px; color: var(--ink-dim); margin: 0 0 12px; }
+  .objbody > p b { color: var(--ink); }
+
+  .settled { border-inline-start: 3px solid var(--good); background: rgba(63,185,111,.07);
+             border-radius: 10px; padding: 13px 18px; margin: 16px 0; font-size: 14.5px; color: var(--ink-dim); }
+  .settled b { color: var(--ink); }
+  .settled .hd { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: .09em;
+                 margin-bottom: 5px; color: var(--good); font-weight: 700; }
+
+  .decision { border: 1px solid #3a4761; border-radius: var(--radius); padding: 18px 20px; margin: 20px 0;
+              background: linear-gradient(160deg, var(--card2), var(--card)); }
+  .decision > .q { font-size: 15.5px; font-weight: 600; margin-bottom: 4px; color: var(--ink); }
+  .decision > .why { color: var(--ink-dim); font-size: 13.5px; margin-bottom: 14px; }
+  .decision label { display: flex; gap: 10px; align-items: flex-start; padding: 10px 12px; border-radius: 12px;
+                    border: 1px solid #303a4d; background: var(--card); margin-bottom: 8px; cursor: pointer; font-size: 14px; }
+  .decision label:hover { border-color: var(--accent); }
+  .decision label input { margin-top: 4px; accent-color: var(--accent); flex: none; }
+  .decision label .opt-b { display: block; font-weight: 600; color: var(--ink); font-size: 14px; }
+  .decision label .opt-d { display: block; color: var(--ink-dim); font-size: 13px; }
+  .decision .rec { color: var(--good); font-size: 10.5px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; margin-inline-start: 6px; }
+  .decision button { border: 0; border-radius: 12px; padding: 9px 16px; font-size: 14px; font-weight: 600;
+                     background: var(--accent); color: var(--accent-ink); cursor: pointer; font-family: var(--latin); margin-top: 6px; }
+  .decision button:hover { filter: brightness(1.08); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="masthead">
+  <div class="eyebrow">Sarf Quiz · A1 (b) · the object chain · Aug 2026</div>
+  <h1>Every field, why it exists, and how the five objects reference each other</h1>
+  <p class="lede">
+    Designed against the closed catalogue in <b>A1 (a)</b> — each field below traces to a query that needs
+    it or a decision already made. Nothing here is speculative structure. Read §02–§06 for the fields,
+    §07 for the three functions that carry the real logic, and §09 for what this <b>deletes</b>, which is
+    more than it adds.
+  </p>
+</header>
+
+<div class="chain">
+  <div><b>QuizPlan</b><small>What to draw from. Frozen.</small></div>
+  <div><b>QuizWordPool</b><small>What <em>can</em> be drawn. One walk.</small></div>
+  <div><b>QuizRun</b><small>The live session.</small></div>
+  <div><b>Question</b><small>One thing asked. Four parts.</small></div>
+  <div><b>Answer</b><small>One thing recorded. The history row.</small></div>
+</div>
+
+<!-- ===================================================================== -->
+<h2 class="sec"><b>01</b> The rule every field below obeys</h2>
+
+<div class="grid2">
+  <div class="panel">
+    <h4>Each object knows only its left neighbour</h4>
+    <p><code>QuizWordPool</code> takes a plan and never hears of questions. <code>Question</code> is built
+       from a drawn <code>WordSpec</code> and never hears of runs. <code>Answer</code> holds a question and
+       never hears of storage.</p>
+    <p>The one place this could break is <code>QuizRun</code> writing history — decision <b>D3</b>.</p>
+  </div>
+  <div class="panel">
+    <h4>Absence is a value, never a stand-in</h4>
+    <p><code>mood</code> is <code>null</code> outside the muḍāriʿ. <code>bab</code> is <code>null</code> for
+       mazīd forms. <code>slot</code> is <code>null</code> for derived-noun and bāb questions.
+       <code>divergeAt</code> is <code>null</code> for choice answers, not <code>-1</code>.
+       <code>total</code> is <code>null</code> for an endless run, not <code>Infinity</code>.</p>
+    <p>Every one of those nulls means “this question does not apply here”, and a reader can tell.</p>
+  </div>
+</div>
+
+<!-- ===================================================================== -->
+<h2 class="sec"><b>02</b> WordSpec — the identity</h2>
+
+<div class="objcard">
+  <div class="objhead"><h3>js/quiz/word-spec.js</h3>
+    <p>The coordinates of one word. Flat, serialisable, key-based — it is what a stored answer carries forever.</p></div>
+  <div class="objbody">
+    <div class="tbl-wrap">
+    <table class="rev">
+      <thead><tr><th>Field</th><th>Type</th><th>Why it exists</th><th></th></tr></thead>
+      <tbody>
+        <tr><td class="f">rootKey</td><td class="ty">string</td>
+            <td>“نصر”. <b>A key, never a <code>Root</code> reference</b> — a stored answer must still say what it asked after the lexicon is edited. Serves Q13.</td><td><span class="pill keep">keep</span></td></tr>
+        <tr><td class="f">formId</td><td class="ty">'I'…'X'</td><td>Q8.</td><td><span class="pill keep">keep</span></td></tr>
+        <tr><td class="f">verbType</td><td class="ty">'ajwaf_waw'</td>
+            <td><b>Granular, always.</b> Folded to a display group only in the view, so “fine on hollow-wāw, lost on hollow-yāʾ” stays askable. Q9.</td><td><span class="pill keep">keep</span></td></tr>
+        <tr class="newrow"><td class="f">bab</td><td class="ty">'au' | null</td>
+            <td><b>New.</b> Q12 — the spec lists bāb among the dashboard dimensions and it was recoverable only by looking the root up in the lexicon, i.e. from data that can change. <code>null</code> for mazīd forms, which have no bāb.</td><td><span class="pill new">new</span></td></tr>
+        <tr class="newrow"><td class="f">tense</td><td class="ty">'madi'|'mudari'|'amr'</td>
+            <td rowspan="3"><b>New as fields</b>, replacing the composed <code>chartId</code> string. Q10 wants one axis at a time — “majhūl across every tense” is a group-by, not string surgery. <code>mood</code> is <code>null</code> outside the muḍāriʿ.</td><td><span class="pill new">new</span></td></tr>
+        <tr class="newrow"><td class="f">voice</td><td class="ty">'malum'|'majhul'</td><td><span class="pill new">new</span></td></tr>
+        <tr class="newrow"><td class="f">mood</td><td class="ty">'raf'|'nasb'|'jazm'|null</td><td><span class="pill new">new</span></td></tr>
+        <tr><td class="f">slot</td><td class="ty">'3ms' | null</td>
+            <td>Q11. <code>null</code> for derived-noun questions and for the bāb question, which shows a citation rather than a conjugated word.</td><td><span class="pill keep">keep</span></td></tr>
+        <tr><td class="f">derivedKind</td><td class="ty">'ismFail' | null</td>
+            <td><code>null</code> for verb questions. Lets type-3 answers be sliced on their own axis.</td><td><span class="pill keep">keep</span></td></tr>
+      </tbody>
+    </table>
+    </div>
+    <p style="margin-top:12px">
+      <b>What is <em>not</em> here:</b> the generated word. A <code>WordSpec</code> is coordinates —
+      two questions about the same word share one. Where the word itself lives is decision <b>D1</b>.
+    </p>
+  </div>
+</div>
+
+<!-- ===================================================================== -->
+<h2 class="sec"><b>03</b> QuizPlan — what to draw from</h2>
+
+<pre class="code"><span class="c">/**
+ * The configuration of a session. It describes A POOL OF WORDS, not a set of
+ * questions — which is what lets one configuration serve all four quiz types.
+ *
+ * Called by: the Practice screen (from its chips), drills.js (from a preset),
+ * and planFrom() below (replaying a stored session).
+ *
+ * NOTE — a tracked decision, not an oversight (A1a · F3): a plan can narrow
+ * WHICH WORDS are drawn, but not WHICH QUESTIONS are asked about them. That is
+ * relevance()'s job, from what the pool actually contains. The consequence is
+ * that a weak-spot drill on "doer × Form II" restricts the forms and then takes
+ * whatever kinds relevance offers, so it is diluted by the questions you were
+ * not weak on. Chosen deliberately in Aug 2026. Revisiting it means an optional
+ * `questionKinds` here that INTERSECTS with the live kinds — able to narrow,
+ * never to resurrect a kind relevance retired.
+ */</span>
+<span class="k">export function</span> <span class="f">quizPlan</span>({ quizType, tenses, voices, moods, forms, types, count }) {
+  <span class="k">return</span> Object.freeze({
+    quizType,   <span class="c">// one per session. Never a list — the results screen must not</span>
+                <span class="c">// average two incomparable skills into one number.</span>
+    tenses, voices,
+    moods,      <span class="c">// meaningful only when 'mudari' is in tenses. Not nulled here:</span>
+                <span class="c">// planCharts() ignores it, and keeping the user's selection means</span>
+                <span class="c">// re-ticking muḍāriʿ restores what they had.</span>
+    forms,
+    types,      <span class="c">// ENGINE types: 'ajwaf_waw'. Never group names. The UI expands a</span>
+                <span class="c">// pick ONCE via verbTypesInGroup(); glossary turns a stored type</span>
+                <span class="c">// back into a label. Carrying group names into data is what</span>
+                <span class="c">// silently killed the muʿtall drill.</span>
+    count,      <span class="c">// 5 | 10 | 20 | 'endless'</span>
+  });
+}
+
+<span class="c">/** tense × voice × mood → the chart shapes this plan admits. */</span>
+<span class="k">export function</span> <span class="f">planCharts</span>(plan) <span class="c">/* → [{tense, voice, mood}] */</span>
+
+<span class="c">/**
+ * Rebuild a plan from a stored session (Q24). VALIDATES rather than trusts:
+ * a plan written by an older release can name a verb type that was since split,
+ * a quizType that was renamed, or a form whose content has gone.
+ *
+ * Returns { plan, dropped } — never a silently narrowed plan. The screen says
+ * "3 verb types from this session are no longer available" instead of quietly
+ * running a smaller quiz than the one being replayed.
+ */</span>
+<span class="k">export function</span> <span class="f">planFrom</span>(stored) <span class="c">/* → { plan, dropped: string[] } */</span></pre>
+
+<!-- ===================================================================== -->
+<h2 class="sec"><b>04</b> QuizWordPool — what can be drawn</h2>
+
+<p class="body">
+  The object that was genuinely missing. Today three functions walk the same candidates for three different
+  answers — <code>poolProfile()</code> for what varies, <code>conjugatable()</code> for what exists,
+  <code>randomWordSpec()</code> for a draw — and none of them is a thing you can hold.
+</p>
+
+<pre class="code"><span class="c">/**
+ * Every word the plan admits, resolved in ONE walk that answers three things:
+ * how many real cells exist (the count under Start), which properties actually
+ * vary (the entire input to relevance), and how to draw one at random.
+ *
+ * Called by: QuizRun (to draw), the Practice screen (count + "This setup asks"),
+ * and relevance() — which now takes a POOL rather than a plan, because a
+ * question dies from what the pool CONTAINS, not from what was ticked.
+ */</span>
+<span class="k">export function</span> <span class="f">wordPool</span>(plan) {
+  <span class="k">const</span> charts = planCharts(plan);
+  <span class="k">const</span> candidates = lexiconCandidates(plan.types, plan.forms)
+    .filter((c) => FORM_META[c.formId].conjugable);   <span class="c">// Form IX is recognition-only</span>
+
+  <span class="k">const</span> varies = { tenses: <span class="k">new</span> Set(), voices: <span class="k">new</span> Set(), moods: <span class="k">new</span> Set(),
+                   slots: <span class="k">new</span> Set(), forms: <span class="k">new</span> Set(), babs: <span class="k">new</span> Set(),
+                   derivedKinds: <span class="k">new</span> Set(), derivedForms: <span class="k">new</span> Set() };
+  <span class="k">let</span> cells = 0;
+
+  <span class="k">if</span> (plan.quizType === <span class="s">'derived'</span>) {
+    <span class="c">// A different unit of account: the askable thing is a DERIVATIVE, not a</span>
+    <span class="c">// chart cell. Same object, different walk — the callers only need the</span>
+    <span class="c">// count and `varies`, and the two fill disjoint keys of it.</span>
+    <span class="k">for</span> (<span class="k">const</span> c <span class="k">of</span> candidates)
+      <span class="k">for</span> (<span class="k">const</span> kind <span class="k">of</span> derivativesOf(c.root, c.formId)) {
+        cells++; varies.derivedKinds.add(kind); varies.derivedForms.add(c.formId);
+      }
+  } <span class="k">else</span> {
+    <span class="k">for</span> (<span class="k">const</span> c <span class="k">of</span> candidates)
+      <span class="k">for</span> (<span class="k">const</span> chart <span class="k">of</span> charts)
+        <span class="k">for</span> (<span class="k">const</span> slot <span class="k">of</span> slotsFor(chart.tense)) {
+          <span class="k">if</span> (!conjugate(specOf(c, chart), slot)) <span class="k">continue</span>;   <span class="c">// nils excluded — the count</span>
+          cells++;                                            <span class="c">// is REAL cells, so no</span>
+          varies.tenses.add(chart.tense);                     <span class="c">// majhūl of a lāzim verb</span>
+          varies.voices.add(chart.voice);                     <span class="c">// is ever promised</span>
+          <span class="k">if</span> (chart.mood) varies.moods.add(chart.mood);
+          varies.slots.add(slot);
+          varies.forms.add(c.formId);
+          <span class="c">// The bāb question reads the ʿayn vowel off a citation, which only</span>
+          <span class="c">// sits in plain view on a sound Form I verb.</span>
+          <span class="k">if</span> (c.formId === <span class="s">'I'</span> &amp;&amp; c.root.type === <span class="s">'salim'</span>) varies.babs.add(c.root.forms.I.bab);
+        }
+  }
+
+  <span class="k">return</span> { plan, candidates, charts, cells, varies, draw };
+}</pre>
+
+<div class="callout">
+  <span class="hd">One thing this walk costs, and why it is still right</span>
+  It conjugates every cell to count it — ~<span class="n">4,900</span> calls for the mazīd preset. That is
+  milliseconds in the browser and it buys an <b>honest</b> count: nils are excluded, so
+  “≈ 1,422 possible questions” never promises a majhūl that a lāzim verb cannot form. The alternative —
+  multiplying dimensions — is what made a muḍāriʿ-only plan claim 798 questions when 266 of them meant
+  anything. <b>If it ever gets slow, the fix is caching the pool per plan, not estimating.</b>
+</div>
+
+<!-- ===================================================================== -->
+<h2 class="sec"><b>05</b> Question — four named parts</h2>
+
+<p class="body">
+  Today this is a flat object of ~15 keys in which identity, display, grading and explanation are
+  indistinguishable, and the screen picks out the three or four it cares about — including by
+  <em>inferring</em> which card to render from which keys happen to be present.
+</p>
+
+<pre class="code">Question {
+  quizType, category,   <span class="c">// WHAT is being asked. Carried, never inferred from shape —</span>
+                        <span class="c">// inferring it is what silently misfiled new quiz types.</span>
+  identity: WordSpec,   <span class="c">// WHAT WORD it is about (§02)</span>
+  prompt:   Prompt,     <span class="c">// WHAT THE CARD RENDERS — tagged (below)</span>
+  response: Response,   <span class="c">// HOW YOU ANSWER, and what counts as correct</span>
+  feedback: { meaning, explanation },   <span class="c">// shown after. Tips are COMPUTED at render</span>
+                        <span class="c">// time from (question, answer) — they depend on what you got</span>
+                        <span class="c">// wrong, which is not known when the question is built.</span>
+}</pre>
+
+<h4 class="mini">Prompt — six kinds, and they are not the four quiz types</h4>
+
+<pre class="code"><span class="c">// The `kind` tag exists because the screen currently INFERS the card from
+// shape:  response === 'input' ? cueCard : meaningPrompt ? meaningCard : wordCard
+// — which is a chain of coincidences, and the fragile kind. Six kinds against
+// four quiz types is the proof that prompt shape is its own axis.</span>
+Prompt =
+  | { kind: <span class="s">'word'</span>,           text, gloss }              <span class="c">// identify — the conjugated word</span>
+  | { kind: <span class="s">'citation'</span>,       text, gloss }              <span class="c">// bāb — نَصَرَ يَنْصُرُ, two tenses</span>
+  | { kind: <span class="s">'spec'</span>,           radicals, gloss, chips }   <span class="c">// produce — the cue card</span>
+  | { kind: <span class="s">'meaning'</span>,        meaning, radicals }        <span class="c">// fromMeaning — English only</span>
+  | { kind: <span class="s">'derivedRequest'</span>, verb, chips }              <span class="c">// 3a — the verb + which derivative</span>
+  | { kind: <span class="s">'derivedWord'</span>,    text }                     <span class="c">// 3b — the derivative itself</span>
+
+<span class="c">// The 'meaning' kind is the one with a live hazard: it must NEVER carry the
+// Arabic word, because the word is the answer. Making it its own type with no
+// `text` field means the mistake cannot be made rather than must be remembered.</span></pre>
+
+<h4 class="mini">Response — two modes, and correctness stops being positional</h4>
+
+<pre class="code">Response =
+  | { mode: <span class="s">'choice'</span>, options: [{ ar, en, valueKey }], correct: Set&lt;valueKey&gt; }
+  | { mode: <span class="s">'input'</span>,  accepted: [<span class="k">string</span>] }
+
+<span class="c">// THE CHANGE THAT MATTERS: `correct` is a set of VALUE KEYS, not indices.
+// Today it is `correctIndices: [i, …]`, so correctness is a property of where
+// a button sits. Re-shuffle the options and the answer key is wrong. Value keys
+// are what history already stores, so this also removes the last translation
+// step between grading and the record.
+//
+// `multiSelect` is DERIVED — correct.size > 1 — not stored. One fact, one place.
+// The UI contract reads it directly: size 1 resolves on first tap, size > 1
+// shows "Select all that apply" and a Check button.</span></pre>
+
+<!-- ===================================================================== -->
+<h2 class="sec"><b>06</b> Answer — the history row</h2>
+
+<pre class="code"><span class="c">/**
+ * One thing recorded. Produced ONCE, appended to the run, and written to
+ * storage unchanged. It replaces the separate shape history.js builds today.
+ */</span>
+Answer {
+  question:  Question,      <span class="c">// EMBEDDED WHOLE (A1a · D1). Its identity is already a</span>
+                            <span class="c">// flat key-based projection, so embedding reintroduces no</span>
+                            <span class="c">// reference. And Q21/Q23 need the options and the prompt,</span>
+                            <span class="c">// which no reconstruction can recover — they were sampled</span>
+                            <span class="c">// and shuffled from a random draw at build time.</span>
+  given:     [<span class="k">string</span>],       <span class="c">// value keys picked, or [the typed string]</span>
+  expected:  [<span class="k">string</span>],       <span class="c">// value keys required, or [the engine's own word]</span>
+  correct:   <span class="k">boolean</span>,
+  divergeAt: <span class="k">number</span> | <span class="k">null</span>, <span class="c">// input only: first differing index. null for choice —</span>
+                            <span class="c">// an absence, not a 0 and not a -1.</span>
+  answeredAt,
+}</pre>
+
+<div class="callout good">
+  <span class="hd">Why <code>given</code> and <code>expected</code> stay flat rather than nesting in the question</span>
+  They are the only fields that are <b>about the user rather than about the question</b> — and they are what
+  Q20 (confusion pairs) and every recognition tip read. Keeping them at the top makes “gave 2ms, wanted 3fs”
+  a one-line read on the record, and it is why <code>tipsFor(question, answer)</code> can fire on the
+  <em>confusion</em> rather than merely on the word.
+</div>
+
+<!-- ===================================================================== -->
+<h2 class="sec"><b>07</b> The three functions that carry the logic</h2>
+
+<h4 class="mini">grade() — the boundary that does not currently exist</h4>
+
+<pre class="code"><span class="c">/**
+ * question + what the user did → an Answer. ONE function, both modes.
+ *
+ * Called by: QuizRun.answer(), and nothing else. The screen renders an Answer;
+ * it never computes one. That is the whole point — today the choice branch of
+ * this lives in app.js's answerChoice() and history.js re-derives `expected`
+ * from the question a third time.
+ *
+ * Grading keys on RESPONSE MODE, not quiz type: nine of the ten question kinds
+ * grade identically, and the plan already anticipates a produce-style prompt
+ * with a choice response ("choose the correct spelling").
+ */</span>
+<span class="k">export function</span> <span class="f">grade</span>(question, given) {
+  <span class="k">const</span> base = { question, answeredAt: nowISO() };
+
+  <span class="k">if</span> (question.response.mode === <span class="s">'choice'</span>) {
+    <span class="k">const</span> expected = [...question.response.correct];
+    <span class="k">return</span> { ...base, given, expected, divergeAt: <span class="k">null</span>,
+             correct: given.length === expected.length
+                      &amp;&amp; given.every((v) => question.response.correct.has(v)) };
+  }
+
+  <span class="c">// Strict, final ḥaraka included — the ending IS the lesson. The engine's
+  // string is already NFC; the typed one may not be.</span>
+  <span class="k">const</span> typed = given[0].normalize(<span class="s">'NFC'</span>).trim();
+  <span class="k">const</span> expected = question.response.accepted[0];
+  <span class="k">if</span> (typed === expected)
+    <span class="k">return</span> { ...base, given: [typed], expected: [expected], correct: <span class="k">true</span>, divergeAt: <span class="k">null</span> };
+
+  <span class="c">// WHERE it diverged, so feedback can say "one ḥaraka off" rather than "wrong".
+  // Walked over GRAPHEME CLUSTERS, not code units: a letter plus its ḥaraka plus
+  // a shadda is one cluster, and an index inside it points at half a ḍamma.</span>
+  <span class="k">return</span> { ...base, given: [typed], expected: [expected], correct: <span class="k">false</span>,
+           divergeAt: firstDifferingCluster(typed, expected) };
+}</pre>
+
+<div class="callout bad">
+  <span class="hd">A live bug hiding in that last line — reproduced, not suspected</span>
+  <p style="margin:0 0 10px">
+    Today <code>gradeInput</code> walks <b>code units</b> and <code>markAt()</code> underlines
+    <code>text[at]</code>, a single UTF-16 unit. Typing <span class="ar">تُنْصَرَانَ</span> for
+    <span class="ar">تُنْصَرَانِ</span> — one ḥaraka off, the commonest possible miss:
+  </p>
+  <pre class="code" style="margin:0 0 10px">divergeAt (code units) = <b>10</b> of 11
+char at that index     = <span class="s">"َ"</span>  → <span class="r">U+064E</span>   <span class="c">← a BARE FATḤA, detached from its ن</span>
+
+clusters               = 6  [<span class="s">"تُ","نْ","صَ","رَ","ا","نَ"</span>]
+divergeAt (clusters)   = <b>5</b>  → <span class="s">"نَ"</span>      <span class="c">← the letter WITH its ḥaraka</span></pre>
+  <p style="margin:0">
+    So the feedback that is supposed to say <em>“you were one ḥaraka off, here”</em> underlines a floating
+    diacritic. <b><code>Intl.Segmenter</code> clusters fix it</b> — and it is the same fix Compare needs for
+    its letter-level diff, so <b>the cluster helper gets one owner</b>, used by grading and by the diff.
+  </p>
+</div>
+
+<h4 class="mini">QuizRun.answer() and advance()</h4>
+
+<pre class="code"><span class="k">class</span> QuizRun {
+  <span class="c">// #source is an array (fixed count) OR an iterator (endless). One field, two
+  // shapes, because "how many are left" is the only thing that differs and the
+  // screen asks that through `total`.</span>
+  #source; #served = [];
+  plan; pool; mode; index = 0; answers = [];
+
+  <span class="k">get</span> <span class="f">current</span>() { <span class="k">return</span> <span class="k">this</span>.#served[<span class="k">this</span>.index]; }
+  <span class="k">get</span> <span class="f">total</span>()   { <span class="k">return</span> <span class="k">this</span>.isEndless ? <span class="k">null</span> : <span class="k">this</span>.#source.length; }
+                    <span class="c">// null, not Infinity: "there is no total" is a different</span>
+                    <span class="c">// fact from "the total is very large", and the progress bar</span>
+                    <span class="c">// needs to tell them apart.</span>
+
+  <span class="f">answer</span>(given) {
+    <span class="k">const</span> a = grade(<span class="k">this</span>.current, given);
+    <span class="k">this</span>.answers.push(a);
+    <span class="k">return</span> a;                    <span class="c">// ← who persists this is decision D3</span>
+  }
+
+  <span class="f">advance</span>() {
+    <span class="k">if</span> (<span class="k">this</span>.isEndless) {
+      <span class="k">const</span> next = <span class="k">this</span>.#source.next();
+      <span class="k">if</span> (next.done) <span class="k">return</span> <span class="k">false</span>;   <span class="c">// the pool ran dry — a real end, even here</span>
+      <span class="k">this</span>.#served.push(next.value);
+    }
+    <span class="k">if</span> (<span class="k">this</span>.index + 1 >= <span class="k">this</span>.#served.length) <span class="k">return</span> <span class="k">false</span>;
+    <span class="k">this</span>.index++;
+    <span class="k">return</span> <span class="k">true</span>;
+  }
+
+  <span class="f">finish</span>() { <span class="k">return</span> { plan: <span class="k">this</span>.plan, mode: <span class="k">this</span>.mode,
+                     startedAt: <span class="k">this</span>.startedAt, endedAt: nowISO(),
+                     answers: <span class="k">this</span>.answers }; }
+}</pre>
+
+<h4 class="mini">store.rowFor() — the only place that knows about query columns</h4>
+
+<pre class="code"><span class="c">/**
+ * A1a · D1. The domain object embeds the question; THIS function alone derives
+ * the flat columns the dashboard groups by. The index is a copy, in one place,
+ * rebuildable from the embedded question at any time — an index, not a second
+ * source of truth.
+ *
+ * In the prototype this is nearly a no-op (localStorage takes JSON). In Swift
+ * the same function fills the @Model's stored properties, because #Predicate
+ * cannot index into an embedded value. Same move LexiconService already makes:
+ * one type knows where the data lives.
+ */</span>
+<span class="k">function</span> <span class="f">rowFor</span>(answer) {
+  <span class="k">const</span> { identity, quizType, category } = answer.question;
+  <span class="k">return</span> {
+    ...identity,        <span class="c">// rootKey formId verbType bab tense voice mood slot derivedKind</span>
+    quizType, category, <span class="c">// Q7, Q14, Q15</span>
+    correct: answer.correct,
+    answeredAt: answer.answeredAt,
+    answer,             <span class="c">// ← the whole thing, for Q21 and Q23</span>
+  };
+}</pre>
+
+<!-- ===================================================================== -->
+<h2 class="sec"><b>08</b> Settings</h2>
+
+<pre class="code"><span class="c">/**
+ * Every gate in the app, in one table. `audience` says who flips it:
+ *   'dev'  — we do. Not rendered in the Settings screen.
+ *   'user' — the user does. The screen renders exactly these.
+ * Reading is audience-blind: settings.compareCharts is the same call either way.
+ */</span>
+<span class="k">export const</span> SETTINGS_SPEC = [
+  { id: <span class="s">'aiExplain'</span>,     audience: <span class="s">'dev'</span>, default: <span class="k">false</span>, label: <span class="s">'AI explanations'</span> },
+  { id: <span class="s">'detailedStats'</span>, audience: <span class="s">'dev'</span>, default: <span class="k">false</span>, label: <span class="s">'Detailed stats'</span> },
+  { id: <span class="s">'compareCharts'</span>, audience: <span class="s">'dev'</span>, default: <span class="k">true</span>,  label: <span class="s">'Compare charts'</span> },  <span class="c">// ← dev-on</span>
+  { id: <span class="s">'monetization'</span>,  audience: <span class="s">'dev'</span>, default: <span class="k">false</span>, label: <span class="s">'Subscription'</span> },
+  { id: <span class="s">'mahmuzVerbs'</span>,   audience: <span class="s">'dev'</span>, default: <span class="k">false</span>, label: <span class="s">'Mahmūz verbs'</span> },
+  { id: <span class="s">'lafifVerbs'</span>,    audience: <span class="s">'dev'</span>, default: <span class="k">false</span>, label: <span class="s">'Lafīf verbs'</span> },
+  { id: <span class="s">'arabicTextSize'</span>,    audience: <span class="s">'user'</span>, default: <span class="s">'large'</span>,  label: <span class="s">'Arabic text size'</span> },
+  { id: <span class="s">'appearance'</span>,        audience: <span class="s">'user'</span>, default: <span class="s">'system'</span>, label: <span class="s">'Appearance'</span> },
+  { id: <span class="s">'defaultQuizLength'</span>, audience: <span class="s">'user'</span>, default: 10,       label: <span class="s">'Default quiz length'</span> },
+];</pre>
+
+<div class="grid2">
+  <div class="callout bad" style="margin-top:4px">
+    <span class="hd">Enforced, not just intended</span>
+    <code>js/history/store.js</code> <b>does not import <code>settings</code> at all.</b> The flag physically
+    cannot reach the writer. Keeping full records for every user is the whole premise; a flag that reached
+    the write path would quietly destroy it.
+  </div>
+  <div class="callout warn" style="margin-top:4px">
+    <span class="hd">Content flags feed the existing owner</span>
+    <code>mahmuzVerbs</code> and <code>lafifVerbs</code> are read <b>inside <code>availableTypes()</code></b>,
+    which already answers “is this verb type playable”. They do not become a second check beside it —
+    two sources of truth for one fact will disagree eventually.
+  </div>
+</div>
+
+<!-- ===================================================================== -->
+<h2 class="sec"><b>09</b> What this deletes</h2>
+
+<p class="body">
+  Worth its own section, because the pass removes more than it adds — and every removal below was
+  <b>proven unreachable or proven redundant</b> in A1 (a), not judged stale by eye.
+</p>
+
+<div class="tbl-wrap">
+<table class="rev">
+  <thead><tr><th>Gone</th><th>Where</th><th>Why it can go</th></tr></thead>
+  <tbody>
+    <tr><td class="f">chartKey()</td><td>chart-spec.js</td><td>Three call sites, each replaced by the three axis fields. <b>F2.</b></td></tr>
+    <tr><td class="f">chartShape()</td><td>chart-spec.js</td><td>Exists only to reverse <code>chartKey()</code>.</td></tr>
+    <tr><td class="f">CHART_LABELS</td><td>glossary.js</td><td>Referenced nowhere. The last display-side survivor of the chart-as-string era. <b>F6.</b></td></tr>
+    <tr><td class="f">manualTables fallback</td><td>conjugation-service.js</td><td>Of 14,638 conjugated words, <b><span class="n">0</span> come from a fixture.</b> Dead code today.</td></tr>
+    <tr><td class="f">isConjugatable()</td><td>conjugation-service.js</td><td>Asks whether a root has <code>manualTables</code> — one answer for every root now.</td></tr>
+    <tr><td class="f">correctIndices</td><td>quiz-service.js</td><td>Positional correctness. Replaced by a set of value keys.</td></tr>
+    <tr><td class="f">multiSelect</td><td>quiz-service.js</td><td>Derived from <code>correct.size > 1</code>. One fact, one place.</td></tr>
+    <tr><td class="f">specFields()<br>derivedFields()</td><td>quiz-service.js</td><td>Two near-identical flatteners. Replaced by one <code>WordSpec</code>.</td></tr>
+    <tr><td class="f">answerChoice()’s<br>grading branch</td><td>app.js</td><td>The view deciding correctness. Moves into <code>grade()</code>.</td></tr>
+    <tr><td class="f">recordAnswer()’s<br>expected re-derivation</td><td>history.js</td><td>The third computation of the same fact. The <code>Answer</code> already holds it.</td></tr>
+    <tr><td class="f">the prompt-shape<br>inference chain</td><td>app.js</td><td><code>response === 'input' ? … : meaningPrompt ? … : …</code>. Replaced by <code>prompt.kind</code>.</td></tr>
+  </tbody>
+</table>
+</div>
+
+<div class="settled">
+  <span class="hd">And the parity bar this is held to</span>
+  <b>294 assertions unchanged and green</b>, every screen walked before and after, the Weak-verbs drill
+  producing questions, and no file over ~250 lines. A1 (c) — the split itself — is not allowed to change a
+  single generated word.
+</div>
+
+<!-- ===================================================================== -->
+<h2 class="sec"><b>10</b> Decisions</h2>
+
+<div class="decision">
+  <form data-lavish-question="b1" onsubmit="event.preventDefault(); const v = new FormData(event.currentTarget).get('b1'); if (v) window.lavish.queuePrompt('A1b D1 — where the generated word lives: ' + v, { tag: 'decision', text: 'D1: ' + v, element: event.currentTarget, data: { question: 'b1-word-field', answer: v } });">
+    <div class="q">D1 · Where does the generated word live?</div>
+    <div class="why">Today <code>word</code> is a top-level field meaning different things per type: the prompt content for identify and derived, the <em>answer</em> for produce and fromMeaning. That ambiguity is worth killing, but there are two ways.</div>
+    <label><input type="radio" name="b1" value="no top-level word field; it lives in prompt or response depending on which side it is on">
+      <span><span class="opt-b">No <code>word</code> field — it lives in <code>prompt</code> or <code>response</code> <span class="rec">recommended</span></span>
+      <span class="opt-d">Type 4 <em>is</em> type 1 run backwards, so which side the word sits on is the real domain fact. No duplication inside the object, nothing to drift. Nothing in the query catalogue reads <code>word</code> directly — Q13 groups by <code>rootKey</code>, Q20 by expected/given.</span></span></label>
+    <label><input type="radio" name="b1" value="keep an explicit targetWord field on the Question, documented as 'the word the identity names'">
+      <span><span class="opt-b">Keep an explicit <code>targetWord</code></span>
+      <span class="opt-d">One unambiguous place to read “the word this question is about”, and it preserves the engine’s output at ask-time even if a grammar fix later changes it. Costs one field duplicated inside the object, which can drift from <code>response.accepted[0]</code>.</span></span></label>
+    <button type="submit">Queue this answer</button>
+  </form>
+</div>
+
+<div class="decision">
+  <form data-lavish-question="b2" onsubmit="event.preventDefault(); const v = new FormData(event.currentTarget).get('b2'); if (v) window.lavish.queuePrompt('A1b D2 — citation prompt kind: ' + v, { tag: 'decision', text: 'D2: ' + v, element: event.currentTarget, data: { question: 'b2-citation-kind', answer: v } });">
+    <div class="q">D2 · Is <code>citation</code> its own prompt kind?</div>
+    <div class="why">The bāb question shows <span class="ar">نَصَرَ يَنْصُرُ</span> — two words, both tenses — where every other identify question shows one. It renders the same as <code>word</code> today.</div>
+    <label><input type="radio" name="b2" value="yes, its own kind — the card can then say it is a citation and why both tenses are shown">
+      <span><span class="opt-b">Its own kind <span class="rec">recommended</span></span>
+      <span class="opt-d">The card can label it (“read the bāb off both tenses”), which is the actual lesson. And a reader of a stored answer can tell a citation from a conjugated word without parsing for a space.</span></span></label>
+    <label><input type="radio" name="b2" value="no, fold it into the 'word' kind — it renders identically">
+      <span><span class="opt-b">Fold into <code>word</code></span>
+      <span class="opt-d">Five prompt kinds instead of six, and the renderer is genuinely identical today. Costs the ability to teach why two words are on screen.</span></span></label>
+    <button type="submit">Queue this answer</button>
+  </form>
+</div>
+
+<div class="decision">
+  <form data-lavish-question="b3" onsubmit="event.preventDefault(); const v = new FormData(event.currentTarget).get('b3'); if (v) window.lavish.queuePrompt('A1b D3 — who persists an answer: ' + v, { tag: 'decision', text: 'D3: ' + v, element: event.currentTarget, data: { question: 'b3-persistence-owner', answer: v } });">
+    <div class="q">D3 · Who writes an answer to storage?</div>
+    <div class="why">The one place the “each object knows only its left neighbour” rule could break. Endless sessions matter here: they can run indefinitely, so a session only written at the end is a session a crash loses.</div>
+    <label><input type="radio" name="b3" value="QuizRun takes a recorder callback at construction; the composition root wires history into it">
+      <span><span class="opt-b">Inject a recorder into <code>QuizRun</code> <span class="rec">recommended</span></span>
+      <span class="opt-d">Answers persist as they happen, so a crashed endless session keeps what was answered — but <code>QuizRun</code> still does not import storage. Tests construct it with a no-op. Same shape as the Swift composition root.</span></span></label>
+    <label><input type="radio" name="b3" value="the screen persists: it calls run.answer() then history.record() itself">
+      <span><span class="opt-b">The screen persists</span>
+      <span class="opt-d">Nothing is injected and the dependency is obvious at the call site. But it puts a correctness duty in the view — forget the second call on one screen and answers silently stop being recorded, which is the class of bug this whole pass is removing.</span></span></label>
+    <label><input type="radio" name="b3" value="QuizRun.finish() returns the session and the caller stores it once, at the end">
+      <span><span class="opt-b">Store once, at <code>finish()</code></span>
+      <span class="opt-d">Cleanest boundary and one write per session. Loses an endless session entirely if the app dies mid-run, and endless is the mode most likely to be long.</span></span></label>
+    <button type="submit">Queue this answer</button>
+  </form>
+</div>
+
+<div class="callout good" style="margin-top:34px">
+  <span class="hd">Next</span>
+  With D1–D3 answered this is a buildable spec. <b>A1 (c)</b> is the split itself — the same behaviour,
+  these objects, the file layout from the roadmap, and the parity bar in §09. I will not touch a generated
+  word, and the 294 assertions stay byte-identical.
+</div>
+
+</div>
+</body>
+</html>

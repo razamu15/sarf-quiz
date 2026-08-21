@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sarf Quiz — A1 (a): the queries</title>
+<link rel="stylesheet" href="sarf-app.css">
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+  :where(p, h1, h2, h3, h4, li, td, th) { overflow-wrap: anywhere; }
+  :where(.grid2, .grid3, .stat4) > * { min-width: 0; }
+
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font-family: var(--latin); line-height: 1.6; -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 40px 22px 120px; }
+
+  .masthead { border-bottom: 1px solid #2b3547; padding-bottom: 26px; margin-bottom: 34px; }
+  .eyebrow { font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--accent); font-weight: 700; }
+  .masthead h1 { font-size: clamp(26px, 4vw, 36px); line-height: 1.15; margin: 10px 0 12px; letter-spacing: -0.02em; }
+  .lede { color: var(--ink-dim); font-size: 16px; max-width: 74ch; }
+  .lede b { color: var(--ink); }
+
+  h2.sec {
+    font-size: 13px; text-transform: uppercase; letter-spacing: .12em; color: var(--ink-dim);
+    margin: 58px 0 18px; padding-bottom: 10px; border-bottom: 1px solid #2b3547;
+  }
+  h2.sec b { color: var(--accent); font-weight: 700; margin-inline-end: 8px; }
+  h3.sub { font-size: 20px; margin: 32px 0 8px; letter-spacing: -0.01em; }
+  h4.mini { font-size: 12px; text-transform: uppercase; letter-spacing: .1em; color: var(--accent); margin: 24px 0 8px; }
+  p.body { font-size: 15px; color: var(--ink-dim); max-width: 78ch; margin: 0 0 14px; }
+  p.body b, li b, td b { color: var(--ink); }
+  p.body .ar, li .ar, td .ar { font-family: var(--arabic); font-size: 18px; }
+  ul.body { font-size: 15px; color: var(--ink-dim); max-width: 78ch; padding-inline-start: 20px; margin: 0 0 14px; }
+  ul.body li { margin-bottom: 8px; }
+  code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12.5px; color: var(--accent); }
+
+  .callout {
+    border-inline-start: 3px solid var(--accent); background: var(--card2);
+    border-radius: 10px; padding: 14px 18px; font-size: 15px; margin: 18px 0; color: var(--ink-dim);
+  }
+  .callout.bad { border-inline-start-color: var(--bad); }
+  .callout.good { border-inline-start-color: var(--good); }
+  .callout.warn { border-inline-start-color: #d8a13a; }
+  .callout b { color: var(--ink); }
+  .callout .hd { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: .09em; margin-bottom: 6px; color: var(--ink-dim); font-weight: 700; }
+  .callout.bad .hd { color: var(--bad); }
+  .callout.good .hd { color: var(--good); }
+  .callout.warn .hd { color: #d8a13a; }
+
+  .tbl-wrap { overflow-x: auto; border: 1px solid #303a4d; border-radius: var(--radius); margin: 16px 0; }
+  table.rev { width: 100%; border-collapse: collapse; background: var(--card); font-size: 13.5px; min-width: 760px; }
+  table.rev th {
+    text-align: start; padding: 10px 13px; font-size: 11px; text-transform: uppercase;
+    letter-spacing: .08em; color: var(--ink-dim); border-bottom: 1px solid #303a4d; background: var(--card2);
+    position: sticky; top: 0;
+  }
+  table.rev td { padding: 10px 13px; border-bottom: 1px solid #232c3c; vertical-align: top; color: var(--ink-dim); }
+  table.rev tr:last-child td { border-bottom: 0; }
+  table.rev td.t { color: var(--ink); font-weight: 600; }
+  table.rev td.q { font-family: ui-monospace, Menlo, monospace; font-size: 12px; color: var(--ink); white-space: nowrap; }
+  table.rev td.id { font-family: ui-monospace, Menlo, monospace; font-size: 11.5px; color: var(--ink-dim); }
+  table.rev .n { color: var(--ink); font-variant-numeric: tabular-nums; font-weight: 600; }
+  table.rev tr.gaprow td { background: rgba(224,93,93,.055); }
+  table.rev tr.grouphead td {
+    background: var(--card2); color: var(--accent); font-size: 11px; text-transform: uppercase;
+    letter-spacing: .1em; font-weight: 700; padding: 9px 13px;
+  }
+
+  .pill { display: inline-block; font-size: 10.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase;
+          padding: 2px 8px; border-radius: 99px; white-space: nowrap; }
+  .pill.ok    { background: rgba(63,185,111,.16); color: var(--good); }
+  .pill.soft  { background: rgba(216,161,58,.16); color: #d8a13a; }
+  .pill.gap   { background: rgba(224,93,93,.16); color: var(--bad); }
+  .pill.v1    { background: rgba(63,185,111,.2); color: var(--good); }
+  .pill.later { background: #2a3346; color: #93a0b4; }
+
+  .grid2 { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 18px; }
+  @media (max-width: 900px) { .grid2 { grid-template-columns: minmax(0,1fr); } }
+
+  .panel { background: var(--card); border: 1px solid #303a4d; border-radius: var(--radius); padding: 18px 20px; }
+  .panel h4 { font-size: 12px; text-transform: uppercase; letter-spacing: .1em; color: var(--accent); margin: 0 0 10px; }
+  .panel p { font-size: 14px; color: var(--ink-dim); margin: 0 0 10px; }
+  .panel p:last-child { margin-bottom: 0; }
+  .panel ul { font-size: 14px; color: var(--ink-dim); margin: 0; padding-inline-start: 18px; }
+  .panel ul li { margin-bottom: 6px; }
+  .panel ul li b { color: var(--ink); }
+
+  .stat4 { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 14px; margin: 22px 0 10px; }
+  @media (max-width: 760px) { .stat4 { grid-template-columns: repeat(2, minmax(0,1fr)); } }
+  .stat4 > div { background: var(--card); border: 1px solid #303a4d; border-radius: 14px; padding: 14px 16px; }
+  .num { font-size: 29px; font-weight: 700; color: var(--accent); display: block; line-height: 1.15; font-variant-numeric: tabular-nums; }
+  .num.bad { color: var(--bad); }
+  .num.warn { color: #d8a13a; }
+  .num.good { color: var(--good); }
+  .numlabel { font-size: 12.5px; color: var(--ink-dim); }
+
+  pre.code {
+    background: #0b0e14; border: 1px solid #2b3547; border-radius: var(--radius);
+    padding: 16px 18px; overflow-x: auto; font-size: 12.8px; line-height: 1.68;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace; color: #cdd8ea; margin: 14px 0;
+  }
+  pre.code .c { color: #6b7a91; }
+  pre.code .k { color: #c48ce0; }
+  pre.code .s { color: #8fd3a4; }
+  pre.code .f { color: #4ea8de; }
+  pre.code .r { color: #e0817d; }
+  pre.code b { color: #fff; font-weight: 600; }
+
+  .finding { border: 1px solid #303a4d; border-radius: var(--radius); background: var(--card); margin: 16px 0; overflow: hidden; }
+  .finding.hard { border-color: #6a3535; }
+  .findhead { display: flex; gap: 13px; align-items: baseline; padding: 15px 18px; background: var(--card2);
+              border-bottom: 1px solid #303a4d; flex-wrap: wrap; }
+  .findno { flex: none; font-family: ui-monospace, Menlo, monospace; font-size: 12px; font-weight: 700;
+            background: var(--bad); color: #fff; border-radius: 7px; padding: 4px 8px; }
+  .finding.soft .findno { background: #d8a13a; color: #201703; }
+  .findhead h3 { font-size: 16px; margin: 0; letter-spacing: -0.01em; flex: 1 1 240px; }
+  .findbody { padding: 16px 18px; font-size: 14px; color: var(--ink-dim); }
+  .findbody p { margin: 0 0 12px; }
+  .findbody p:last-child { margin-bottom: 0; }
+  .findbody b { color: var(--ink); }
+  .fix { border-top: 1px dashed #303a4d; margin-top: 14px; padding-top: 12px; display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap; }
+  .fix .lab { flex: none; font-size: 10.5px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--good); }
+
+  .settled { border-inline-start: 3px solid var(--good); background: rgba(63,185,111,.07);
+             border-radius: 10px; padding: 13px 18px; margin: 16px 0; font-size: 14.5px; color: var(--ink-dim); }
+  .settled b { color: var(--ink); }
+  .settled .hd { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: .09em;
+                 margin-bottom: 5px; color: var(--good); font-weight: 700; }
+
+  .legend { display: flex; flex-wrap: wrap; gap: 10px 20px; align-items: center; margin: 14px 0 20px;
+            font-size: 13px; color: var(--ink-dim); background: var(--card2); border: 1px solid #303a4d;
+            border-radius: 12px; padding: 12px 16px; }
+  .legend > span { display: inline-flex; align-items: center; gap: 7px; }
+  .legend b { color: var(--ink); }
+
+  .decision {
+    border: 1px solid #3a4761; border-radius: var(--radius); padding: 18px 20px; margin: 20px 0;
+    background: linear-gradient(160deg, var(--card2), var(--card));
+  }
+  .decision > .q { font-size: 15.5px; font-weight: 600; margin-bottom: 4px; color: var(--ink); }
+  .decision > .why { color: var(--ink-dim); font-size: 13.5px; margin-bottom: 14px; }
+  .decision label {
+    display: flex; gap: 10px; align-items: flex-start; padding: 10px 12px; border-radius: 12px;
+    border: 1px solid #303a4d; background: var(--card); margin-bottom: 8px; cursor: pointer; font-size: 14px;
+  }
+  .decision label:hover { border-color: var(--accent); }
+  .decision label input { margin-top: 4px; accent-color: var(--accent); flex: none; }
+  .decision label .opt-b { display: block; font-weight: 600; color: var(--ink); font-size: 14px; }
+  .decision label .opt-d { display: block; color: var(--ink-dim); font-size: 13px; }
+  .decision .rec { color: var(--good); font-size: 10.5px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; margin-inline-start: 6px; }
+  .decision button {
+    border: 0; border-radius: 12px; padding: 9px 16px; font-size: 14px; font-weight: 600;
+    background: var(--accent); color: var(--accent-ink); cursor: pointer; font-family: var(--latin); margin-top: 6px;
+  }
+  .decision button:hover { filter: brightness(1.08); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="masthead">
+  <div class="eyebrow">Sarf Quiz · A1 (a) · the queries · Aug 2026</div>
+  <h1>What the stats and history views must ask — and what that demands of the record</h1>
+  <p class="lede">
+    Your sequencing: <b>the queries come first and constrain the objects</b>, not the other way round.
+    So this is the full catalogue of every question the stats screens, the history browser and the weak-spot
+    drills will ask, each one traced to the field it needs. It produced <b>five findings, four of them
+    queries the record cannot answer at all</b> — and it settles your <code>Answer</code>-embeds-<code>Question</code> question, which turns
+    out to be decided by exactly one query.
+  </p>
+</header>
+
+<div class="stat4">
+  <div><span class="num">24</span><span class="numlabel">queries the views need</span></div>
+  <div><span class="num good">18</span><span class="numlabel">answerable from the record today</span></div>
+  <div><span class="num warn">2</span><span class="numlabel">recoverable, but awkwardly or from mutable data</span></div>
+  <div><span class="num bad">4</span><span class="numlabel">not answerable at all</span></div>
+</div>
+
+<!-- ===================================================================== -->
+<h2 class="sec"><b>01</b> The catalogue</h2>
+
+<p class="body">
+  Drawn from <code>PRODUCT_SPEC §5.3 · §5.4</code>, <code>TECHNICAL_PLAN §B.3</code>, and what the prototype
+  already computes. The last column is the point: <b>what each query needs to exist on a stored answer</b>.
+</p>
+
+<div class="legend">
+  <span><span class="pill ok">have</span> the field is on the record today</span>
+  <span><span class="pill soft">soft</span> derivable, but by string surgery or from mutable data</span>
+  <span><span class="pill gap">gap</span> not answerable from a stored record at all</span>
+</div>
+
+<div class="tbl-wrap">
+<table class="rev">
+  <thead><tr><th>#</th><th>Query</th><th>Answers</th><th>Groups / filters by</th><th>Needs on the record</th><th></th></tr></thead>
+  <tbody>
+    <tr class="grouphead"><td colspan="6">Home card — free, v1, always on</td></tr>
+    <tr><td class="id">Q1</td><td class="q">overallAccuracy()</td><td>“78% accuracy”</td><td>—</td><td><code>correct</code></td><td><span class="pill ok">have</span></td></tr>
+    <tr><td class="id">Q2</td><td class="q">currentStreak()</td><td>“6 day streak”</td><td>day of <code>answeredAt</code></td><td><code>answeredAt</code></td><td><span class="pill ok">have</span></td></tr>
+    <tr><td class="id">Q3</td><td class="q">answersPerDay(7)</td><td>the week strip</td><td>day</td><td><code>answeredAt</code></td><td><span class="pill ok">have</span></td></tr>
+
+    <tr class="grouphead"><td colspan="6">Overview tiles</td></tr>
+    <tr><td class="id">Q4</td><td class="q">totalSessions()</td><td>“41 quizzes”</td><td>—</td><td>session rows exist</td><td><span class="pill ok">have</span></td></tr>
+    <tr><td class="id">Q5</td><td class="q">totalAnswers()</td><td>“2,341 answered”</td><td>—</td><td>—</td><td><span class="pill ok">have</span></td></tr>
+    <tr><td class="id">Q6</td><td class="q">bestStreak()</td><td>“best: 14 days”</td><td>day</td><td><code>answeredAt</code></td><td><span class="pill ok">have</span></td></tr>
+
+    <tr class="grouphead"><td colspan="6">Breakdown bars — “where am I weak?”</td></tr>
+    <tr><td class="id">Q7</td><td class="q">accuracyBy('category')</td><td>tense · voice · doer · iʿrāb · bāb</td><td><code>category</code></td><td><code>category</code></td><td><span class="pill ok">have</span></td></tr>
+    <tr><td class="id">Q8</td><td class="q">accuracyBy('form')</td><td>“you’re weak on Form VII”</td><td><code>formId</code></td><td><code>formId</code></td><td><span class="pill ok">have</span></td></tr>
+    <tr><td class="id">Q9</td><td class="q">accuracyBy('verbType')</td><td>sālim vs ajwaf vs nāqiṣ</td><td><code>verbType</code>, <b>granular</b></td><td><code>verbType</code> — group folded at display only, so “fine on hollow-wāw, lost on hollow-yāʾ” stays askable</td><td><span class="pill ok">have</span></td></tr>
+    <tr class="gaprow"><td class="id">Q10</td><td class="q">accuracyByVoice()<br>accuracyByTense()<br>accuracyByMood()</td><td>“majhūl is my problem, in every tense”</td><td>one chart <b>axis</b> at a time</td><td>the axes as <b>three fields</b>. Today only <code>chart: 'mudari_malum_raf'</code> — reversible via <code>chartShape()</code>, but it is string surgery on every row, and no store can index it</td><td><span class="pill soft">soft</span></td></tr>
+    <tr><td class="id">Q11</td><td class="q">accuracyBy('slot')</td><td>which pronouns trip me up</td><td><code>slot</code></td><td><code>slot</code></td><td><span class="pill ok">have</span></td></tr>
+    <tr class="gaprow"><td class="id">Q12</td><td class="q">accuracyBy('bab')</td><td>“nāṣara vs samiʿa”<br><small>named in spec §5.4</small></td><td><code>bab</code></td><td><b><code>bab</code> — not stored.</b> Recoverable only by looking <code>rootKey</code> up in the lexicon, i.e. from data that can be corrected later</td><td><span class="pill soft">soft</span></td></tr>
+    <tr><td class="id">Q13</td><td class="q">accuracyBy('rootKey')</td><td>which verbs I keep missing</td><td><code>rootKey</code></td><td><code>rootKey</code></td><td><span class="pill ok">have</span></td></tr>
+
+    <tr class="grouphead"><td colspan="6">The separation rule — §B.3</td></tr>
+    <tr><td class="id">Q14</td><td class="q">accuracyBy('quizType')</td><td>recognition vs production, <b>never merged</b></td><td><code>quizType</code></td><td><code>quizType</code> — carried explicitly on the question, not inferred from its shape</td><td><span class="pill ok">have</span></td></tr>
+    <tr><td class="id">Q15</td><td class="q">…every bar above, scoped to one quizType</td><td>“my Form II is fine to read, bad to write”</td><td>any field × <code>quizType</code></td><td>both flat</td><td><span class="pill ok">have</span></td></tr>
+
+    <tr class="grouphead"><td colspan="6">Trend</td></tr>
+    <tr><td class="id">Q16</td><td class="q">accuracyPerDay(30)</td><td>the line chart</td><td>day</td><td><code>answeredAt</code>, <code>correct</code></td><td><span class="pill ok">have</span></td></tr>
+    <tr><td class="id">Q17</td><td class="q">sessionsPerWeek(n)</td><td>the bars</td><td>ISO week of <code>startedAt</code></td><td>session <code>startedAt</code></td><td><span class="pill ok">have</span></td></tr>
+
+    <tr class="grouphead"><td colspan="6">Weak spots → a drill</td></tr>
+    <tr><td class="id">Q18</td><td class="q">weakSpots(k, minSample)</td><td>bottom-3 (category × form)</td><td><code>category</code> × <code>formId</code>, ranked ascending, <code>n ≥ minSample</code></td><td>both flat — <b>and a stated minimum sample</b>, or one wrong answer out of one tops the list forever</td><td><span class="pill ok">have</span></td></tr>
+    <tr class="gaprow"><td class="id">Q19</td><td class="q">planFromWeakSpot(spot)</td><td>the “Drill these now” button</td><td>—</td><td><b>A <code>QuizPlan</code> that can say “ask only the doer question”. It cannot.</b> See finding 3</td><td><span class="pill gap">gap</span></td></tr>
+
+    <tr class="grouphead"><td colspan="6">Confusion pairs</td></tr>
+    <tr><td class="id">Q20</td><td class="q">confusions(k)</td><td>“you confuse أَنْتَ with هِيَ”</td><td>(<code>expected</code> → <code>given</code>)</td><td>both as <b>semantic value keys</b>, never button positions</td><td><span class="pill ok">have</span></td></tr>
+    <tr class="gaprow"><td class="id">Q21</td><td class="q">distractorProfile()</td><td>“did you pick the near-miss or the far one?”</td><td>the wrong option chosen, against the ones offered</td><td><b>the options that were shown — not stored.</b> No reconstruction can recover them: they were shuffled and sampled at build time</td><td><span class="pill gap">gap</span></td></tr>
+
+    <tr class="grouphead"><td colspan="6">History browser</td></tr>
+    <tr><td class="id">Q22</td><td class="q">sessionList()</td><td>date · mode · score per session</td><td>session</td><td><code>startedAt</code>, <code>mode</code>, answers’ <code>correct</code></td><td><span class="pill ok">have</span></td></tr>
+    <tr class="gaprow"><td class="id">Q23</td><td class="q">sessionDetail(id)</td><td><b>every question of that session, as it was asked</b></td><td>session</td><td>the prompt, the options, the meaning and the explanation. <b>None of it is stored.</b> The results screen only works because it reads the live in-memory question</td><td><span class="pill gap">gap</span></td></tr>
+    <tr class="gaprow"><td class="id">Q24</td><td class="q">replaySession(id)</td><td>“run this setup again”</td><td>session</td><td>the stored <code>plan</code> — present, but <b>trusted rather than validated</b>: a plan from an older release can name a verb type or quiz type that no longer exists</td><td><span class="pill gap">gap</span></td></tr>
+  </tbody>
+</table>
+</div>
+
+<!-- ===================================================================== -->
+<h2 class="sec"><b>02</b> What the queries found</h2>
+
+<div class="finding hard">
+  <div class="findhead"><span class="findno">F1</span>
+    <h3>Q23 cannot be answered by any record that stores fields instead of the question</h3></div>
+  <div class="findbody">
+    <p>
+      “Show me Tuesday’s session as I saw it” needs the prompt text, the four options, the contextual meaning
+      and the explanation. A field-copying record throws all of that away — and <b>Q21 proves it is
+      unrecoverable in principle</b>, not merely inconvenient: the distractors were sampled and shuffled at
+      build time from a random draw. Re-running the builder gives different options.
+    </p>
+    <p>
+      This is the query that decides your <code>Answer</code> question, and it decides it your way.
+      It also quietly explains a smaller oddity: the results screen shows a vocab recap, but
+      <code>fullMeaning</code> is never written to storage — the recap works only because it reads the
+      <em>live</em> question object. A stored session could not reproduce its own results screen.
+    </p>
+    <div class="fix"><span class="lab">Resolution</span><span><b>Embed the Question whole.</b> Detail and cost in §03.</span></div>
+  </div>
+</div>
+
+<div class="finding soft">
+  <div class="findhead"><span class="findno">F2</span>
+    <h3>The chart is stored as one composed string, and three queries want its axes</h3></div>
+  <div class="findbody">
+    <p>
+      <code>chart: 'mudari_malum_raf'</code> answers “accuracy on this exact chart” and nothing else.
+      Q10 wants “majhūl across every tense”, which means reversing the key on every row through
+      <code>chartShape()</code> before you can group. It works, and it is the wrong shape — the axes are
+      first-class everywhere else in the system, and <code>chart-spec.js</code> already says the key exists
+      only because stored records needed a string.
+    </p>
+    <p>
+      <b>You asked whether <code>chartKey</code> can go entirely. It can — from production, completely.</b>
+      There are exactly three call sites and none of them survives its own replacement:
+    </p>
+    <div class="tbl-wrap">
+    <table class="rev" style="min-width:600px">
+      <thead><tr><th>Call site</th><th>What it does</th><th>After</th></tr></thead>
+      <tbody>
+        <tr><td class="id">quiz-service.js:333</td>
+            <td><code>chartId: chartKey(spec)</code> — composes the stored chart identity</td>
+            <td>the three axis fields on <code>identity</code>, per this finding</td></tr>
+        <tr><td class="id">app.js:857</td>
+            <td><code>chartShape(q.chartId)</code> — <b>immediately decomposes it again</b> for the “See the full table” deep link</td>
+            <td>reads the same three fields. A pure round-trip that simply disappears</td></tr>
+        <tr><td class="id">conjugation-service.js<br>:133 · :159</td>
+            <td><code>manualTables?.[chartKey(spec)]</code> — the hand-authored fixture fallback</td>
+            <td><b>already unreachable</b> — see below</td></tr>
+      </tbody>
+    </table>
+    </div>
+    <p>
+      That third one is worth stating precisely, because it is stronger than “can be removed”.
+      I instrumented a full sweep: <b>of 14,638 conjugated words, 14,638 come from an engine and
+      <span class="n">0</span> come from a fixture.</b> Both roots carrying <code>manualTables</code>
+      — <span class="ar">قول</span> and <span class="ar">رمي</span> — now have working engines
+      (ajwaf, nāqiṣ) that take precedence in the router. <b>The fallback path is dead code today</b>,
+      not at the freeze. B3 was already scheduled to delete it; nothing is waiting on that.
+    </p>
+    <p>
+      <code>chartShape()</code> exists only to reverse <code>chartKey()</code>, so it goes with it.
+      <code>CHART_SHAPES</code> and <code>isValidShape()</code> stay — those are the axes as data, which is
+      the thing we are keeping.
+    </p>
+    <div class="fix"><span class="lab">Resolution</span><span><b>Remove <code>chartKey()</code> and <code>chartShape()</code> from production.</b> Store the three axes as fields.</span></div>
+  </div>
+</div>
+
+<div class="finding hard">
+  <div class="findhead"><span class="findno">F3</span>
+    <h3><code>QuizPlan</code> cannot express the drill a weak spot asks for</h3></div>
+  <div class="findbody">
+    <p>
+      Q18 finds “you are weak on <b>doer × Form II</b>”. Q19 turns that into a quiz. But a plan carries
+      <code>quizType, tenses, voices, moods, forms, types, count</code> — <b>it can narrow the pool, not the
+      question</b>. Which questions get asked is decided by <code>relevance()</code> from what the pool
+      contains. So the best a weak-spot drill can currently do is restrict forms to <code>['II']</code> and
+      then take tense, voice, doer, iʿrāb and bāb questions at random — most of which are not the weakness.
+    </p>
+    <p>
+      This is a genuine architectural finding, and exactly the kind your sequencing was meant to catch:
+      it is invisible until you write down what the drill button has to do. It also has a second use — a
+      “drill just the doer question” option in Practice is the same field.
+    </p>
+    <div class="fix"><span class="lab">Decided</span><span><b>Pool-only, and the drill is knowingly approximate.</b> No <code>questionKinds</code> field on the plan. Recorded below so it stays a tracked choice rather than an oversight.</span></div>
+    <div class="callout warn" style="margin:14px 0 0">
+      <span class="hd">Tracked decision — carry this into the code as a named comment</span>
+      A weak-spot drill <b>narrows the pool, not the question</b>. Told “you are weak on doer × Form II”
+      it restricts forms to <code>['II']</code> and then serves whatever kinds <code>relevance()</code>
+      offers — so the drill is diluted by the questions you were <em>not</em> weak on.
+      <b>This is chosen, not overlooked.</b> The comment lands in <code>quiz-plan.js</code>’s header and
+      at the <code>planFromWeakSpot()</code> call site, so the next reader finds the decision rather than
+      re-deriving it as a bug. Revisiting it means adding an optional <code>questionKinds</code> to the
+      plan, which intersects with the live kinds and can narrow but never resurrect a retired one.
+    </div>
+  </div>
+</div>
+
+<div class="finding soft">
+  <div class="findhead"><span class="findno">F4</span>
+    <h3>The bāb is in the spec’s dashboard and not on the record</h3></div>
+  <div class="findbody">
+    <p>
+      Spec §5.4 lists bāb among the breakdown dimensions, and the bāb question already exists in the quiz.
+      But a bāb answer stores <code>formId: 'I'</code>, <code>chart: null</code>, <code>slot: null</code> and
+      no <code>bab</code>. You would recover it by looking <code>rootKey</code> up in the lexicon —
+      <b>from mutable data</b>. Correct one root’s bāb and every historical record about it silently changes
+      meaning; remove a root and the lookup fails.
+    </p>
+    <div class="fix"><span class="lab">Resolution</span><span>Put <code>bab</code> on the identity. It is a fact about the word that was asked, so it belongs with the word that was asked.</span></div>
+  </div>
+</div>
+
+<div class="finding soft">
+  <div class="findhead"><span class="findno">F5</span>
+    <h3>Q24 trusts a stored plan instead of validating it</h3></div>
+  <div class="findbody">
+    <p>
+      Sessions store the plan verbatim so a setup can be replayed — good. But a plan written by an older
+      release can name a verb type that has since been split, a quiz type that was renamed, or a form whose
+      content has gone. Handing it straight back to the quiz builder is trusting storage.
+    </p>
+    <div class="fix"><span class="lab">Resolution</span><span><code>planFrom(stored)</code> validates on the way in and drops what no longer exists — reporting the drop rather than silently narrowing the quiz.</span></div>
+  </div>
+</div>
+
+<div class="finding soft">
+  <div class="findhead"><span class="findno">F6</span>
+    <h3>Two dead exports, found while auditing <code>chartKey</code></h3></div>
+  <div class="findbody">
+    <p>
+      <code>CHART_LABELS</code> in <code>glossary.js</code> — nine chart-keyed label entries
+      (<span class="ar">المُضَارِع المَرْفُوع</span> and friends) — is <b>referenced nowhere</b>. The Tables
+      browser builds its title in <code>app.js</code> by composing <code>TENSE_LABELS</code>,
+      <code>VOICE_LABELS</code> and <code>MOOD_LABELS</code>, which is the axis-shaped way and the one to
+      keep. <code>CHART_LABELS</code> is the last display-side survivor of the chart-as-string era.
+    </p>
+    <p>
+      Same for the <code>isConjugatable()</code> gate in <code>conjugation-service.js</code>, whose entire
+      job is to ask “does this root have <code>manualTables</code> if it has no engine?” — a question that
+      now has one answer for every root in the lexicon.
+    </p>
+    <div class="fix"><span class="lab">Resolution</span><span>Both deleted with the fixture path. Flagging rather than removing silently — they are outside A1 (a)’s scope.</span></div>
+  </div>
+</div>
+
+<div class="callout good">
+  <span class="hd">And what is already right</span>
+  Eighteen of twenty-four need nothing new. Two decisions already made in this codebase are why:
+  <b>values are stored semantically</b> (pronoun keys, not button positions), which is the whole of Q20; and
+  <b><code>quizType</code> is carried on the question rather than inferred from its shape</b>, which is the
+  whole of Q14 and Q15 — the note in <code>history.js</code> says it used to be guessed downstream and
+  “silently misfiled any new quiz type that happened to be multiple choice”.
+</div>
+
+<!-- ===================================================================== -->
+<h2 class="sec"><b>03</b> The <code>Answer</code> shape — your question, settled</h2>
+
+<blockquote class="callout">
+  “i think the answer entity should embed the question entity that was asked for it. why are we not doing
+  that instead of copying a bunch of fields directly which makes it so we have to <b>reconstruct</b> what was
+  asked instead of just copying it?”
+</blockquote>
+
+<p class="body">
+  <b>You are right, and the query list makes it concrete.</b> Two things were wrong with the copy list.
+  First, the reason I gave for copying does not hold: I said a stored record must survive the lexicon
+  changing — but <code>Question.identity</code> is <em>already</em> a flat, key-based projection built for
+  exactly that (<code>rootKey</code>, never a <code>Root</code> reference), so embedding it reintroduces
+  nothing. Second, and worse, <b>copying loses data that cannot be recovered</b>: F1 and Q21 above.
+</p>
+
+<p class="body">
+  So the domain object embeds. What the query list adds is the one real constraint on <em>how it is stored</em>,
+  and it is a platform fact rather than a design preference:
+</p>
+
+<div class="grid2">
+  <div class="panel">
+    <h4>What Q23 wants</h4>
+    <p>The whole question, verbatim — prompt, options, meaning, explanation — so a session can be redisplayed
+       exactly as it was answered.</p>
+    <p><b>Free in JS.</b> The record is JSON either way.</p>
+  </div>
+  <div class="panel">
+    <h4>What Q7–Q18 want</h4>
+    <p>Flat fields to group and filter by: <code>category</code>, <code>formId</code>, <code>verbType</code>,
+       <code>quizType</code>, <code>slot</code>, <code>bab</code>, the three chart axes, <code>correct</code>,
+       <code>answeredAt</code>.</p>
+    <p><b>Not free in Swift.</b> SwiftData predicates and grouped fetches work over <em>stored properties</em>;
+       fields buried inside an embedded value are not indexable the same way.</p>
+  </div>
+</div>
+
+<h4 class="mini">The resolution — the domain object embeds, the storage layer projects</h4>
+
+<pre class="code"><span class="c">// ---- the domain object: what the run holds, and what you read ----</span>
+Answer {
+  question:  Question,      <span class="c">// embedded WHOLE. Nothing copied, nothing reconstructed.</span>
+  given:     [<span class="k">string</span>],
+  expected:  [<span class="k">string</span>],
+  correct:   <span class="k">boolean</span>,
+  divergeAt: <span class="k">number</span> | <span class="k">null</span>,
+  answeredAt,
+}
+
+<span class="c">// ---- the storage layer: the ONLY place that knows about query columns ----
+// js/history/store.js in JS, HistoryService in Swift. It writes the embedded
+// answer AND a flat index derived from question.identity. Every field in the
+// index is a copy — deliberately, and in one place, because it is an INDEX and
+// not a second source of truth: the embedded question stays authoritative and
+// the index is rebuildable from it at any time.</span>
+<span class="k">function</span> <span class="f">rowFor</span>(answer) {
+  <span class="k">const</span> { identity, quizType, category } = answer.question;
+  <span class="k">return</span> {
+    ...identity,            <span class="c">// rootKey, formId, verbType, bab, tense, voice, mood, slot, derivedKind</span>
+    quizType, category,
+    correct: answer.correct,
+    answeredAt: answer.answeredAt,
+    answer,                 <span class="c">// ← the whole thing, for Q21 and Q23</span>
+  };
+}</pre>
+
+<p class="body">
+  This is the same move <code>LexiconService</code> already makes: <b>one type knows where the data lives,
+  and everything above it is unchanged.</b> In the prototype <code>rowFor()</code> is nearly a no-op —
+  localStorage takes the object as-is. In Swift the same function is what fills the
+  <code>@Model</code>’s stored properties. Your rule 7 holds: the projection happens once, at a boundary, and
+  no reader does it.
+</p>
+
+<div class="callout warn">
+  <span class="hd">The alternative, and why I am not recommending it</span>
+  Store <b>only</b> the embedded question and derive the index at read time. It removes the duplication
+  entirely and is genuinely tempting. The cost is that every dashboard query decodes every record —
+  fine at 2,000 answers, not fine at 50,000 on a phone, and the whole premise of keeping full history for
+  every free user is that the number gets large. It also gives up store-level filtering, so “Form VII only”
+  becomes a full scan. <b>If you would rather take that trade to keep one source of truth, say so —
+  it is a defensible call and it is reversible later, which the reverse is not.</b>
+</div>
+
+<!-- ===================================================================== -->
+<h2 class="sec"><b>04</b> What this means for A1 (b)</h2>
+
+<p class="body">
+  The object design pass now starts with five settled requirements rather than an open field. Nothing below
+  is new invention — each line is a query above, made into a constraint.
+</p>
+
+<div class="tbl-wrap">
+<table class="rev">
+  <thead><tr><th>Requirement</th><th>Comes from</th><th>Lands on</th></tr></thead>
+  <tbody>
+    <tr><td class="t"><code>Answer</code> embeds the whole <code>Question</code></td><td>Q21, Q23 · F1</td><td><code>grading.js</code>, <code>question.js</code></td></tr>
+    <tr><td class="t">The storage layer owns the flat query index — and nobody else</td><td>Q7–Q18</td><td><code>history/store.js</code></td></tr>
+    <tr><td class="t"><code>identity</code> carries <code>bab</code></td><td>Q12 · F4</td><td><code>word-spec.js</code></td></tr>
+    <tr><td class="t"><code>identity</code> carries <code>tense</code>, <code>voice</code>, <code>mood</code> as fields, not a composed key</td><td>Q10 · F2</td><td><code>word-spec.js</code></td></tr>
+    <tr><td class="t"><code>chartKey()</code> and <code>chartShape()</code> deleted from production; the test keeps its own local shim</td><td>F2</td><td><code>chart-spec.js</code>, <code>app.js</code>, <code>quiz-service.js</code></td></tr>
+    <tr><td class="t">The <code>manualTables</code> fallback, <code>isConjugatable()</code> and <code>CHART_LABELS</code> deleted — all provably unreached</td><td>F2 · F6</td><td><code>conjugation-service.js</code>, <code>glossary.js</code></td></tr>
+    <tr><td class="t"><code>planFrom(stored)</code> validates rather than trusts, and reports what it dropped</td><td>Q24 · F5</td><td><code>quiz-plan.js</code></td></tr>
+    <tr><td class="t"><code>weakSpots()</code> takes a required <code>minSample</code> — no invented default</td><td>Q18</td><td><code>history/queries.js</code></td></tr>
+    <tr><td class="t">Weak-spot drills narrow the pool only — <b>recorded as a named comment</b>, not left implicit</td><td>Q19 · F3</td><td><code>quiz-plan.js</code></td></tr>
+  </tbody>
+</table>
+</div>
+
+<div class="settled">
+  <span class="hd">Unchanged from the roadmap, and confirmed by this pass</span>
+  <code>quizType</code> stays carried explicitly on the question · values stay semantic value keys ·
+  <code>verbType</code> stays granular in storage and folds to a group only at display ·
+  <code>divergeAt</code> stays <code>null</code> rather than <code>-1</code> for choice answers ·
+  <b>and no flag ever reaches the history writer</b> — every query here runs over records that were kept
+  regardless of whether any screen was on to read them.
+</div>
+
+<!-- ===================================================================== -->
+<h2 class="sec"><b>05</b> Decisions</h2>
+
+<div class="settled">
+  <span class="hd">D1 · settled — embed the Question, plus a flat query index owned by the storage layer</span>
+  The domain object embeds the whole <code>Question</code>; <code>history/store.js</code> alone derives the
+  flat columns the dashboard groups by. The index is a copy in <b>one function</b>, rebuildable from the
+  embedded question at any time — an index, not a second source of truth. Queries stay cheap at any size and
+  SwiftData can filter in the store.
+</div>
+
+<div class="settled">
+  <span class="hd">D2 · settled — weak-spot drills narrow the pool only</span>
+  No <code>questionKinds</code> field on <code>QuizPlan</code>. The drill is knowingly approximate, and
+  <b>that choice is recorded as a named comment</b> in <code>quiz-plan.js</code> and at the
+  <code>planFromWeakSpot()</code> call site, so it reads as a decision rather than a bug. Full wording in
+  F3 above.
+</div>
+
+<div class="settled">
+  <span class="hd">D3 · settled — the catalogue is complete</span>
+  Twenty-four queries, closed. A1 (b) designs the object chain against them.
+</div>
+
+<div class="settled">
+  <span class="hd">D4 · settled — existing stored history is disregarded</span>
+  No migration and no key bump. Records under <code>sarf.history.v1</code> carrying
+  <code>chart: 'mudari_malum_raf'</code> strings simply stop being read; the new shape writes over them.
+  Your call, and the right one — it is your own test data, and A1 (b) changes the record wholesale anyway,
+  so a migration would be throwaway work for a shape that is about to change again. Worth noting this cost
+  is <b>prototype-only</b>: it lands long before any user has history worth keeping, which is itself an
+  argument for making the record change now rather than after the port.
+</div>
+
+<div class="callout good" style="margin-top:34px">
+  <span class="hd">Next</span>
+  D1–D3 are answered and the catalogue is closed. <b>A1 (b)</b> is the object chain designed against this list — every field of
+  <code>QuizPlan</code>, <code>QuizWordPool</code>, <code>QuizRun</code>, <code>Question</code> and
+  <code>Answer</code>, why each exists, how they reference each other, and pseudo code for
+  <code>wordPool()</code>, <code>grade()</code> and <code>QuizRun.answer()</code> — reviewed before a line is
+  written.
+</div>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,1410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sarf Quiz — the rest of the app</title>
+<link rel="stylesheet" href="sarf-app.css">
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+  :where(p, h1, h2, h3, h4, li, td, th) { overflow-wrap: anywhere; }
+  :where(.grid2, .grid3, .stat4, .stephead, .bucket, .chain) > * { min-width: 0; }
+
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font-family: var(--latin); line-height: 1.6; -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 40px 22px 120px; }
+
+  .masthead { border-bottom: 1px solid #2b3547; padding-bottom: 26px; margin-bottom: 34px; }
+  .eyebrow { font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--accent); font-weight: 700; }
+  .masthead h1 { font-size: clamp(27px, 4vw, 38px); line-height: 1.15; margin: 10px 0 12px; letter-spacing: -0.02em; }
+  .lede { color: var(--ink-dim); font-size: 16px; max-width: 74ch; }
+  .lede b { color: var(--ink); }
+
+  .revnote { background: var(--card2); border: 1px solid #3a4761; border-radius: 12px; padding: 14px 18px; margin-top: 18px; font-size: 14px; color: var(--ink-dim); }
+  .revnote b { color: var(--ink); }
+  .revnote ul { margin: 8px 0 0; padding-inline-start: 18px; }
+  .revnote li { margin-bottom: 5px; }
+
+  h2.sec {
+    font-size: 13px; text-transform: uppercase; letter-spacing: .12em; color: var(--ink-dim);
+    margin: 60px 0 18px; padding-bottom: 10px; border-bottom: 1px solid #2b3547;
+  }
+  h2.sec b { color: var(--accent); font-weight: 700; margin-inline-end: 8px; }
+  h3.sub { font-size: 20px; margin: 32px 0 8px; letter-spacing: -0.01em; }
+  h4.mini { font-size: 12px; text-transform: uppercase; letter-spacing: .1em; color: var(--accent); margin: 22px 0 8px; }
+  p.body { font-size: 15px; color: var(--ink-dim); max-width: 78ch; margin: 0 0 14px; }
+  p.body b, li b, td b { color: var(--ink); }
+  p.body .ar, li .ar, td .ar { font-family: var(--arabic); font-size: 18px; }
+  ul.body { font-size: 15px; color: var(--ink-dim); max-width: 78ch; padding-inline-start: 20px; margin: 0 0 14px; }
+  ul.body li { margin-bottom: 8px; }
+  code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12.5px; color: var(--accent); }
+
+  .callout {
+    border-inline-start: 3px solid var(--accent); background: var(--card2);
+    border-radius: 10px; padding: 14px 18px; font-size: 15px; margin: 18px 0; color: var(--ink-dim);
+  }
+  .callout.bad { border-inline-start-color: var(--bad); }
+  .callout.good { border-inline-start-color: var(--good); }
+  .callout.warn { border-inline-start-color: #d8a13a; }
+  .callout b { color: var(--ink); }
+  .callout .hd { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: .09em; margin-bottom: 6px; color: var(--ink-dim); font-weight: 700; }
+  .callout.bad .hd { color: var(--bad); }
+  .callout.good .hd { color: var(--good); }
+  .callout.warn .hd { color: #d8a13a; }
+
+  .tbl-wrap { overflow-x: auto; border: 1px solid #303a4d; border-radius: var(--radius); margin: 16px 0; }
+  table.rev { width: 100%; border-collapse: collapse; background: var(--card); font-size: 14px; min-width: 660px; }
+  table.rev th {
+    text-align: start; padding: 11px 14px; font-size: 11px; text-transform: uppercase;
+    letter-spacing: .08em; color: var(--ink-dim); border-bottom: 1px solid #303a4d; background: var(--card2);
+  }
+  table.rev td { padding: 11px 14px; border-bottom: 1px solid #232c3c; vertical-align: top; color: var(--ink-dim); }
+  table.rev tr:last-child td { border-bottom: 0; }
+  table.rev td.t { color: var(--ink); font-weight: 600; }
+  table.rev td.t code { color: var(--ink); }
+  table.rev .n { color: var(--ink); font-variant-numeric: tabular-nums; font-weight: 600; }
+
+  .pill { display: inline-block; font-size: 10.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase;
+          padding: 2px 8px; border-radius: 99px; white-space: nowrap; }
+  .pill.live  { background: rgba(63,185,111,.16); color: var(--good); }
+  .pill.part  { background: rgba(216,161,58,.16); color: #d8a13a; }
+  .pill.none  { background: rgba(224,93,93,.14); color: var(--bad); }
+  .pill.plan  { background: rgba(78,168,222,.14); color: var(--accent); }
+  .pill.new   { background: rgba(196,140,224,.18); color: #c48ce0; }
+  .pill.swift { background: #2a3346; color: var(--ink-dim); }
+  .pill.v1    { background: rgba(63,185,111,.2); color: var(--good); }
+  .pill.later { background: #2a3346; color: #93a0b4; }
+
+  .mermaid { background: var(--card); border: 1px solid #303a4d; border-radius: var(--radius); padding: 18px; overflow-x: auto; margin: 18px 0; }
+  .cap { font-size: 12.5px; color: var(--ink-dim); margin: -6px 0 26px; text-align: center; }
+
+  .grid2 { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 18px; }
+  .grid3 { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 16px; }
+  @media (max-width: 900px) { .grid2, .grid3 { grid-template-columns: minmax(0,1fr); } }
+
+  .panel { background: var(--card); border: 1px solid #303a4d; border-radius: var(--radius); padding: 18px 20px; }
+  .panel h4 { font-size: 12px; text-transform: uppercase; letter-spacing: .1em; color: var(--accent); margin: 0 0 10px; }
+  .panel p { font-size: 14px; color: var(--ink-dim); margin: 0 0 10px; }
+  .panel p:last-child { margin-bottom: 0; }
+  .panel ul { font-size: 14px; color: var(--ink-dim); margin: 0; padding-inline-start: 18px; }
+  .panel ul li { margin-bottom: 6px; }
+  .panel ul li b { color: var(--ink); }
+
+  .stat4 { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 14px; margin: 22px 0 10px; }
+  @media (max-width: 760px) { .stat4 { grid-template-columns: repeat(2, minmax(0,1fr)); } }
+  .stat4 > div { background: var(--card); border: 1px solid #303a4d; border-radius: 14px; padding: 14px 16px; }
+  .num { font-size: 29px; font-weight: 700; color: var(--accent); display: block; line-height: 1.15; font-variant-numeric: tabular-nums; }
+  .num.warn { color: #d8a13a; }
+  .num.bad { color: var(--bad); }
+  .numlabel { font-size: 12.5px; color: var(--ink-dim); }
+
+  pre.code {
+    background: #0b0e14; border: 1px solid #2b3547; border-radius: var(--radius);
+    padding: 16px 18px; overflow-x: auto; font-size: 12.8px; line-height: 1.68;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace; color: #cdd8ea; margin: 14px 0;
+  }
+  pre.code .c { color: #6b7a91; }
+  pre.code .k { color: #c48ce0; }
+  pre.code .s { color: #8fd3a4; }
+  pre.code .f { color: #4ea8de; }
+  pre.code .r { color: #e0817d; }
+  pre.code b { color: #fff; font-weight: 600; }
+
+  /* ---- the object chain ---- */
+  .chain { display: grid; grid-template-columns: repeat(5, minmax(0,1fr)); gap: 10px; margin: 20px 0 6px; }
+  @media (max-width: 900px) { .chain { grid-template-columns: repeat(2, minmax(0,1fr)); } }
+  @media (max-width: 520px) { .chain { grid-template-columns: minmax(0,1fr); } }
+  .chain > div { background: var(--card); border: 1px solid #3f5a78; border-radius: 14px; padding: 13px 14px; position: relative; }
+  .chain > div b { display: block; font-family: ui-monospace, Menlo, monospace; font-size: 13px; color: var(--accent); margin-bottom: 5px; }
+  .chain > div small { font-size: 12.5px; color: var(--ink-dim); line-height: 1.5; display: block; }
+  .chain > div i { position: absolute; inset-inline-end: -12px; top: 50%; transform: translateY(-50%);
+                   color: #3f5a78; font-style: normal; font-size: 16px; z-index: 1; }
+  @media (max-width: 900px) { .chain > div i { display: none; } }
+
+  /* ---- step cards ---- */
+  .step { border: 1px solid #303a4d; border-radius: var(--radius); background: var(--card); margin: 16px 0; overflow: hidden; }
+  .step.hero { border-color: #3f5a78; }
+  .stephead { display: flex; gap: 14px; align-items: flex-start; padding: 18px 20px; background: var(--card2); border-bottom: 1px solid #303a4d; flex-wrap: wrap; }
+  .stepno { flex: none; font-family: ui-monospace, Menlo, monospace; font-size: 13px; font-weight: 700;
+            background: var(--accent); color: var(--accent-ink); border-radius: 8px; padding: 5px 9px; letter-spacing: .02em; }
+  .step.b .stepno { background: #d8a13a; color: #201703; }
+  .step.later .stepno { background: #3a4761; color: var(--ink-dim); }
+  .step.later { opacity: .82; }
+  .stephead h3 { font-size: 17px; margin: 0 0 3px; letter-spacing: -0.01em; }
+  .stephead .goal { font-size: 13.5px; color: var(--ink-dim); margin: 0; }
+  .stephead > div { flex: 1 1 260px; }
+  .stepbody { padding: 18px 20px; }
+  .stepbody > p { font-size: 14px; color: var(--ink-dim); margin: 0 0 14px; }
+  .stepbody > p b { color: var(--ink); }
+  .stepbody table.rev { min-width: 520px; }
+  .exit { display: flex; gap: 10px; align-items: baseline; font-size: 13.5px; color: var(--ink-dim);
+          border-top: 1px dashed #303a4d; margin-top: 16px; padding-top: 14px; flex-wrap: wrap; }
+  .exit .lab { flex: none; font-size: 10.5px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--good); }
+  .exit b { color: var(--ink); }
+
+  .filelist { font-family: ui-monospace, Menlo, monospace; font-size: 12.5px; color: var(--ink-dim);
+              background: #0b0e14; border: 1px solid #2b3547; border-radius: 12px; padding: 13px 16px; margin: 0 0 4px; line-height: 1.75; }
+  .filelist b { color: #8fd3a4; font-weight: 400; }
+  .filelist i { color: #6b7a91; font-style: normal; }
+
+  .bucket { display: grid; grid-template-columns: 150px minmax(0,1fr); gap: 0; border: 1px solid #303a4d;
+            border-radius: var(--radius); overflow: hidden; margin: 14px 0; }
+  @media (max-width: 720px) { .bucket { grid-template-columns: minmax(0,1fr); } }
+  .bucket > .bl { background: var(--card2); padding: 16px 18px; border-inline-end: 1px solid #303a4d; }
+  @media (max-width: 720px) { .bucket > .bl { border-inline-end: 0; border-bottom: 1px solid #303a4d; } }
+  .bucket > .bl b { display: block; font-size: 14px; margin-bottom: 4px; }
+  .bucket > .bl small { color: var(--ink-dim); font-size: 12px; }
+  .bucket > .br { background: var(--card); padding: 16px 18px; font-size: 14px; color: var(--ink-dim); }
+  .bucket > .br b { color: var(--ink); }
+
+  .legend { display: flex; flex-wrap: wrap; gap: 10px 20px; align-items: center; margin: 14px 0 20px;
+            font-size: 13px; color: var(--ink-dim); background: var(--card2); border: 1px solid #303a4d;
+            border-radius: 12px; padding: 12px 16px; }
+  .legend > span { display: inline-flex; align-items: center; gap: 7px; }
+  .legend b { color: var(--ink); }
+
+  .settled { border-inline-start: 3px solid var(--good); background: rgba(63,185,111,.07);
+             border-radius: 10px; padding: 13px 18px; margin: 16px 0; font-size: 14.5px; color: var(--ink-dim); }
+  .settled b { color: var(--ink); }
+  .settled .hd { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: .09em;
+                 margin-bottom: 5px; color: var(--good); font-weight: 700; }
+
+  /* ---- phone mock supplements ---- */
+  .mockrow { display: flex; gap: 20px; flex-wrap: wrap; align-items: flex-start; margin: 18px 0 6px; }
+  .mockrow figure { margin: 0; flex: 1 1 300px; max-width: 380px; }
+  .mockrow figcaption { font-size: 12.5px; color: var(--ink-dim); margin-top: 10px; line-height: 1.5; }
+  .mockrow figcaption b { color: var(--ink); }
+  .phone { border: 1px solid #2b3547; border-radius: 22px; }
+  .phone .seetable { font-size: 13px; color: var(--accent); display: inline-block; margin-top: 8px; }
+  .phone .explainbtn {
+    display: block; margin-top: 10px; background: transparent; border: 1px solid rgba(196,140,224,.45);
+    color: #c48ce0; border-radius: 12px; padding: 9px 14px; font-size: 14px; font-family: var(--latin); font-weight: 600;
+  }
+  .phone .deadmark { outline: 2px dashed var(--bad); outline-offset: 3px; border-radius: 12px; }
+  .phone .tip {
+    margin-top: 12px; background: var(--card2); border: 1px solid #3f5a78; border-radius: 12px;
+    padding: 11px 13px; font-size: 13.5px; color: var(--ink-dim); text-align: start;
+  }
+  .phone .tip .hd { display: block; font-size: 10.5px; text-transform: uppercase; letter-spacing: .08em;
+                    color: var(--accent); font-weight: 700; margin-bottom: 4px; }
+  .phone .tip .ar { font-family: var(--arabic); font-size: 17px; color: var(--ink); }
+
+  /* ---- decision forms ---- */
+  .decision {
+    border: 1px solid #3a4761; border-radius: var(--radius); padding: 18px 20px; margin: 20px 0;
+    background: linear-gradient(160deg, var(--card2), var(--card));
+  }
+  .decision > .q { font-size: 15.5px; font-weight: 600; margin-bottom: 4px; color: var(--ink); }
+  .decision > .why { color: var(--ink-dim); font-size: 13.5px; margin-bottom: 14px; }
+  .decision label {
+    display: flex; gap: 10px; align-items: flex-start; padding: 10px 12px; border-radius: 12px;
+    border: 1px solid #303a4d; background: var(--card); margin-bottom: 8px; cursor: pointer; font-size: 14px;
+  }
+  .decision label:hover { border-color: var(--accent); }
+  .decision label input { margin-top: 4px; accent-color: var(--accent); flex: none; }
+  .decision label .opt-b { display: block; font-weight: 600; color: var(--ink); font-size: 14px; }
+  .decision label .opt-d { display: block; color: var(--ink-dim); font-size: 13px; }
+  .decision .rec { color: var(--good); font-size: 10.5px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; margin-inline-start: 6px; }
+  .decision button {
+    border: 0; border-radius: 12px; padding: 9px 16px; font-size: 14px; font-weight: 600;
+    background: var(--accent); color: var(--accent-ink); cursor: pointer; font-family: var(--latin); margin-top: 6px;
+  }
+  .decision button:hover { filter: brightness(1.08); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="masthead">
+  <div class="eyebrow">Sarf Quiz · implementation roadmap · rev 2 · Aug 2026</div>
+  <h1>The rest of the app: what is left, what we build at each step, and in what order</h1>
+  <p class="lede">
+    The engine is real: <b>294 assertions green</b>, <b>~14,600 conjugated cells</b> from 58 roots.
+    Everything on this page was measured against the code, not read off the plan documents.
+    Rev 2 folds in your review — and your <b>Settings</b> decision changes the shape of the whole thing:
+    v1 is no longer “finish the spec, then ship”. It is <b>a complete drilling app, with everything else
+    behind flags</b>.
+  </p>
+  <div class="revnote">
+    <b>What changed in rev 2</b>
+    <ul>
+      <li><b>§04 is new</b> — the <code>Settings</code> object and what v1 actually contains. AI, detailed
+        stats, compare, monetization, mahmūz and lafīf all move behind flags.</li>
+      <li><b>§07 is rewritten</b> — the object chain you asked for:
+        <code>QuizPlan → QuizWordPool → QuizRun → Question → Answer</code>. <code>AnswerResult</code> is gone;
+        <code>Answer</code> <em>is</em> the history row.</li>
+      <li><b>Recognition tips replace AI Explain in v1</b> (A3) — rule-based, offline, free, and it occupies
+        the same slot the AI layer takes later.</li>
+      <li><code>QuizPlan</code> stores <b>engine types only</b>; group names are a UI translation (your note).
+        <code>revive</code> dropped. Compare containment answered in §05.</li>
+      <li><b>Q1 is settled</b>: prototype-first, port once at the freeze. It has moved out of the decisions
+        section into §03 as a decision.</li>
+    </ul>
+  </div>
+</header>
+
+<!-- ===================================================================== -->
+<h2 class="sec"><b>01</b> Where the project actually stands</h2>
+
+<div class="stat4">
+  <div><span class="num">294</span><span class="numlabel">smoke assertions, all green</span></div>
+  <div><span class="num">14,638</span><span class="numlabel">conjugated cells the engine produces</span></div>
+  <div><span class="num warn">5 / 7</span><span class="numlabel">verb-type engines written</span></div>
+  <div><span class="num bad">1,842</span><span class="numlabel">lines in the two files everything else touches</span></div>
+</div>
+
+<p class="body">
+  The domain half is in good shape and reads the way you want it to: closed vocabulary in
+  <code>vocabulary.js</code>, the paradigm as a <code>ChartSpec</code>, grammar as data per verb type, one
+  conjugator per type behind a router that owns every precondition. That structure is not in question here.
+</p>
+
+<h3 class="sub">Feature by feature — and what v1 now contains</h3>
+
+<div class="tbl-wrap">
+<table class="rev">
+  <thead><tr><th>Spec</th><th>Feature</th><th>State</th><th>v1?</th><th>What is actually there</th></tr></thead>
+  <tbody>
+    <tr><td class="t">§3.1</td><td class="t">Four quiz types</td><td><span class="pill live">built</span></td><td><span class="pill v1">v1</span></td>
+        <td>All four build questions. Type 3 has <b>no content for weak verbs</b> until B2.</td></tr>
+    <tr><td class="t">§5.1</td><td class="t">Four tabs</td><td><span class="pill live">built</span></td><td><span class="pill v1">v1</span></td>
+        <td>Home · Practice · Tables · More.</td></tr>
+    <tr><td class="t">§5.2</td><td class="t">Quiz screen</td><td><span class="pill part">built, one stub</span></td><td><span class="pill v1">v1</span></td>
+        <td>Multi-select + Check, endless feed, typed Arabic with first-diverging-ḥaraka feedback, table deep link. The <b>✨ button has no handler</b> — A3 fills that slot with tips.</td></tr>
+    <tr><td class="t">§5.2a</td><td class="t">Practice configuration</td><td><span class="pill part">classic only</span></td><td><span class="pill v1">v1</span></td>
+        <td>Chips, greying, live count, “This setup asks”. No summary step.</td></tr>
+    <tr><td class="t">§5.2b</td><td class="t">Question relevance</td><td><span class="pill live">built</span></td><td><span class="pill v1">v1</span></td>
+        <td>Each kind declares its answer space; dead kinds listed with reasons.</td></tr>
+    <tr><td class="t">§5.3</td><td class="t">Results</td><td><span class="pill live">built</span></td><td><span class="pill v1">v1</span></td>
+        <td>Score ring, by-category, vocab recap, missed review, replay.</td></tr>
+    <tr><td class="t">§5.6</td><td class="t">Tables browser</td><td><span class="pill live">built</span></td><td><span class="pill v1">v1</span></td>
+        <td>Search → chips → all 14 rows, deep-linkable from feedback.</td></tr>
+    <tr><td class="t">—</td><td class="t">Recognition tips</td><td><span class="pill none">nothing</span></td><td><span class="pill v1">v1 · new</span></td>
+        <td>Rule-based hints on a wrong answer. Replaces AI Explain for v1.</td></tr>
+    <tr><td class="t">§5.4</td><td class="t">History <em>storage</em></td><td><span class="pill live">built</span></td><td><span class="pill v1">v1</span></td>
+        <td>Every answer of every session, stored semantically. <b>Always on.</b></td></tr>
+    <tr><td class="t">§5.4</td><td class="t">Basic stats card</td><td><span class="pill live">built</span></td><td><span class="pill v1">v1</span></td>
+        <td>Accuracy, streak, questions this week — all queries, never stored.</td></tr>
+    <tr><td class="t">§5.4</td><td class="t">Detailed stats <em>screens</em></td><td><span class="pill part">half</span></td><td><span class="pill later">flagged off</span></td>
+        <td>Category/form/type bars and confusion pairs exist. Trend, weak-spot card and history browser do not. <b>The flag gates the screen, never the storage.</b></td></tr>
+    <tr><td class="t">§5.7</td><td class="t">Compare</td><td><span class="pill none">nothing</span></td><td><span class="pill later">flagged off</span></td>
+        <td>Fully specified in D.1. Still valuable as a <em>dev</em> audit instrument — see Q2.</td></tr>
+    <tr><td class="t">§5.5</td><td class="t">AI Explain</td><td><span class="pill none">nothing</span></td><td><span class="pill later">later version</span></td>
+        <td>Deferred behind <code>settings.aiExplain</code>.</td></tr>
+    <tr><td class="t">§4</td><td class="t">Monetization</td><td><span class="pill none">nothing</span></td><td><span class="pill later">later version</span></td>
+        <td>Three dead placeholder rows in More.</td></tr>
+    <tr><td class="t">§6</td><td class="t">Mahmūz · lafīf</td><td><span class="pill none">nothing</span></td><td><span class="pill later">flagged off</span></td>
+        <td>No grammar, no engine, <b>0 roots</b> for either.</td></tr>
+    <tr><td class="t">—</td><td class="t">Swift / iOS</td><td><span class="pill none">deleted</span></td><td><span class="pill v1">v1</span></td>
+        <td>The v1 <code>ios/</code> tree was removed in <code>f78693e</code>. The port starts clean.</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h3 class="sub">Four holes inside the part that looks finished</h3>
+
+<div class="tbl-wrap">
+<table class="rev">
+  <thead><tr><th>Gap</th><th>Evidence</th><th>What it costs</th><th>v1?</th></tr></thead>
+  <tbody>
+    <tr><td class="t">Nāqiṣ mazīd II–X</td>
+        <td><code>NAQIS_STEMS.II … .X</code> are empty objects. Sweep: <code>naqis_ya</code> yields <span class="n">0</span> cells for III, IV, VI, VII, VIII, X.</td>
+        <td>A nāqiṣ verb conjugates in Form I only — <span class="n">360</span> cells against sālim’s <span class="n">3,998</span>.</td>
+        <td><span class="pill v1">must fix</span></td></tr>
+    <tr><td class="t">Derived-noun stems<br>for mithāl, ajwaf, nāqiṣ</td>
+        <td><code>DERIVED_NOUN_STEMS = {}</code> in all three grammar files.</td>
+        <td><b>Quiz type 3 has no weak-verb content at all.</b> Those roots produce only their hand-recorded Form I maṣādir.</td>
+        <td><span class="pill v1">must fix</span></td></tr>
+    <tr><td class="t">Mahmūz</td>
+        <td>No grammar, no engine, <b>0 roots</b>.</td>
+        <td>The Sound-verbs drill lists <code>'mahmuz'</code> among its types and quietly matches nothing.</td>
+        <td><span class="pill later">flagged off</span></td></tr>
+    <tr><td class="t">Lafīf</td>
+        <td>Same — no grammar, no engine, <b>0 roots</b>.</td>
+        <td>Classification exists with nothing to classify.</td>
+        <td><span class="pill later">flagged off</span></td></tr>
+  </tbody>
+</table>
+</div>
+
+<div class="callout warn">
+  <span class="hd">Only the first two are holes</span>
+  Mahmūz and lafīf are <em>unstarted work</em>, not regressions — and your Settings decision moves both out of
+  v1. That is a real simplification: it takes the two longest-lead items (they need <b>content authoring</b>,
+  not just code) off the critical path to a shippable app.
+</div>
+
+<h3 class="sub">One live bug, found while reading</h3>
+
+<p class="body">
+  <code>vocabulary.js</code> deliberately keeps two layers of verb type: the <b>engine</b> layer
+  (<code>ajwaf_waw</code> — what routing and iʿlāl need) and the <b>user</b> layer (<code>ajwaf</code> — what a
+  student picks). <code>DRILL_PRESETS.mutall</code> lists the <em>user</em> names and
+  <code>candidates()</code> filters on the <em>engine</em> name, so the filter matches nothing:
+</p>
+
+<pre class="code"><span class="c">// js/quiz/quiz-service.js — the preset</span>
+{ id: <span class="s">'mutall'</span>, title: <span class="s">'Weak verbs'</span>, …,
+  types: [<span class="r">'ajwaf'</span>, <span class="r">'naqis'</span>, <span class="r">'mithal'</span>, <span class="r">'lafif'</span>], forms: [<span class="s">'I'</span>] }   <span class="c">← group ids</span>
+
+<span class="c">// js/lexicon/lexicon-service.js — the filter</span>
+<span class="k">if</span> (!types.includes(root.type)) <span class="k">continue</span>;   <span class="c">← root.type is 'ajwaf_waw'</span>
+
+<span class="c">// measured:</span>
+salim    cells= <b>1422</b>  questions= 13  available= <span class="s">true</span>
+mutall   cells= <b>   0</b>  questions=  0  available= <span class="r">false</span>   <span class="c">← 28 weak roots in scope, none reachable</span>
+mazeed   cells= <b>4984</b>  questions= 11  available= <span class="s">true</span></pre>
+
+<div class="mockrow">
+  <figure>
+    <div class="phone">
+      <h1>Sarf Quiz<span class="ar">الصَّرْف</span></h1>
+      <div class="section-label">Start a drill</div>
+      <div class="preset"><div class="preset-head"><div>
+        <b>Sound verbs</b><span class="ar">سَالِم</span>
+        <div class="preset-desc">No weak letters — the foundation. 5 words.</div>
+      </div><button class="btn primary small">Start</button></div></div>
+      <div class="preset off deadmark"><div class="preset-head"><div>
+        <b>Weak verbs</b><span class="ar">مُعْتَلّ</span>
+        <div class="preset-desc">Hollow, defective, assimilated and doubly-weak, mixed. 5 words.</div>
+      </div><button class="btn primary small" disabled>Soon</button></div></div>
+      <div class="preset"><div class="preset-head"><div>
+        <b>Mazīd fīhi</b><span class="ar">مَزِيد فِيه</span>
+        <div class="preset-desc">The derived forms II–X, shuffled. 5 words.</div>
+      </div><button class="btn primary small">Start</button></div></div>
+    </div>
+    <figcaption><b>One of three Home drills is dead.</b> It reads as “content coming” — but the content is
+      there: 28 weak roots with working engines. It fails safe, which is why it went unnoticed.</figcaption>
+  </figure>
+  <figure>
+    <div class="phone">
+      <div class="feedback bad">
+        <div class="meaning"><span class="ar">تُنْصَرَانِ</span> — “you two (m) are being helped”</div>
+        <b>Not quite.</b> <span class="ar">تُنْصَرَانِ</span> → <span class="ar">هُمَا</span>، <span class="ar">أَنْتُمَا</span> — one written form, several pronouns.
+        <div class="tip">
+          <span class="hd">Tip · how to spot it</span>
+          Every dual ends in <span class="ar">ا + ن</span>. If you see <span class="ar">ـَانِ</span> on a
+          muḍāriʿ, the doer is two people — never one, never three.
+        </div>
+        <span class="seetable">▤ See the full table →</span>
+      </div>
+    </div>
+    <figcaption><b>The slot the dead ✨ button occupies</b> — filled in v1 by a rule-based tip keyed to the
+      distinction you just missed. The AI layer takes the same slot later, behind its flag.</figcaption>
+  </figure>
+</div>
+
+<h3 class="sub">And the structural finding — the reason you are unhappy with the rest</h3>
+
+<div class="grid2">
+  <div class="panel">
+    <h4>Two files carry everything non-engine</h4>
+    <ul>
+      <li><code>quiz/quiz-service.js</code> — <b>884 lines</b>: plan, pool, relevance registry, nine question
+        builders, typed grading, the stream, drills, presets, the question count.</li>
+      <li><code>app.js</code> — <b>958 lines</b>: routing, four tab renderers, the quiz runner, results,
+        the stats dashboard, DOM helpers and all UI state.</li>
+    </ul>
+    <p>Your own rule is 400–500 lines, and you hold the grammar files to it. Every remaining feature adds to
+       exactly these two.</p>
+  </div>
+  <div class="panel">
+    <h4>The object chain has three missing links</h4>
+    <ul>
+      <li><b>The pool</b> is three functions over the same walk, with no object.</li>
+      <li><b>The live quiz</b> is seven loose fields on the global UI state.</li>
+      <li><b>The question</b> is a flat bag of ~15 keys mixing identity, display, response and explanation —
+        and <b>grading is split so the <em>view</em> decides whether a choice answer is correct</b>, while
+        <code>history.js</code> re-derives the expected answer a third time.</li>
+    </ul>
+    <p>§07 is the fix, in the order you named it.</p>
+  </div>
+</div>
+
+<!-- ===================================================================== -->
+<h2 class="sec"><b>02</b> The system as it is today</h2>
+
+<div class="legend">
+  <span><b>Solid</b> — built and settled</span>
+  <span><b>Amber</b> — built with named gaps</span>
+  <span><b>Red</b> — oversized, everything lands on it</span>
+  <span><b>Dashed</b> — does not exist yet</span>
+</div>
+
+<div class="mermaid">
+flowchart TD
+  LEX["Lexicon — roots.js<br/>58 roots · 0 mahmūz · 0 lafīf"]
+  GRAM["Grammar tables<br/>sālim · muḍāʿaf · mithāl · ajwaf · nāqiṣ"]
+  ENG["Conjugators, 5 of 7<br/>+ router owning every precondition"]
+  VOC["vocabulary.js · chart-spec.js · glossary.js<br/>closed enums, ChartSpec, display strings"]
+  MEAN["MeaningService<br/>+ governing particles"]
+  QUIZ["quiz-service.js — 884 lines<br/>pool · relevance · 9 builders · stream · drills"]
+  HIST["history.js<br/>records + 3 queries"]
+  UI["app.js — 958 lines<br/>4 tabs · quiz runner · results · stats"]
+  SET["Settings — one object, two audiences"]
+  TIP["Recognition tips"]
+  STAT["Trend · weak spots · history browser"]
+  CMP["Compare"]
+  EXPL["AI Explain"]
+  PAY["Paywall · entitlement"]
+  SW["SarfCore + SwiftUI app"]
+
+  VOC --> ENG
+  LEX --> ENG
+  GRAM --> ENG
+  ENG --> MEAN
+  ENG --> QUIZ
+  MEAN --> QUIZ
+  QUIZ --> UI
+  HIST --> UI
+  SET -.-> UI
+  QUIZ -.-> TIP
+  HIST -.-> STAT
+  ENG -.-> CMP
+  QUIZ -.-> EXPL
+  UI -.-> PAY
+  ENG -.-> SW
+  UI -.-> SW
+
+  classDef solid fill:#1d3348,stroke:#4ea8de,color:#eef2f8
+  classDef part fill:#3a2f16,stroke:#d8a13a,color:#eef2f8
+  classDef fat fill:#3d2020,stroke:#e05d5d,color:#eef2f8
+  classDef none fill:#1a2030,stroke:#4a5568,color:#93a0b4,stroke-dasharray: 5 4
+  class VOC,MEAN,HIST solid
+  class LEX,GRAM,ENG part
+  class QUIZ,UI fat
+  class SET,TIP,STAT,CMP,EXPL,PAY,SW none
+</div>
+<p class="cap">Everything dashed is left to build. Note that most of it arrives through the two red boxes —
+  which is why the structural pass comes first.</p>
+
+<!-- ===================================================================== -->
+<h2 class="sec"><b>03</b> Where each feature gets built — settled</h2>
+
+<div class="settled">
+  <span class="hd">Decided</span>
+  <b>Prototype-first.</b> Domain logic and screen design are built in the browser and ported once at the
+  freeze; StoreKit, CloudKit and platform work are built exactly once, natively. The cost is a later first
+  TestFlight build, accepted deliberately.
+</div>
+
+<div class="bucket">
+  <div class="bl"><b>Prototype now,<br>transcribe later</b><br><small>Objects · Practice · Tips · Stats queries · Compare</small></div>
+  <div class="br">
+    Domain logic and screen design. A wrong ḥaraka, a wrong bar chart or a wrong distractor costs
+    <b>seconds</b> to find in the browser and a rebuild cycle in Xcode. The aggregations and the diff are pure
+    functions that transcribe into Swift almost line for line.
+  </div>
+</div>
+
+<div class="bucket">
+  <div class="bl"><b>Logic in JS,<br>platform in Swift</b><br><small>History · Settings</small></div>
+  <div class="br">
+    The <em>record shape</em> and the <em>queries over it</em> belong in the prototype, where you can generate
+    real history by drilling. The <em>storage</em> does not: <code>localStorage</code> becomes SwiftData, and
+    persisted settings become <code>UserDefaults</code>. Same reasoning as the lexicon — one type knows where
+    the data lives, everything above it is unchanged.
+  </div>
+</div>
+
+<div class="bucket">
+  <div class="bl"><b>Swift only —<br>do not prototype</b><br><small>Paywall · Sync · Platform</small></div>
+  <div class="br">
+    StoreKit 2 purchase, restore and trial; CloudKit mirroring; detecting that no Arabic keyboard is
+    installed; Dynamic Type and VoiceOver; icon and screenshots. Nothing here a browser can teach us — and
+    with monetization out of v1, most of it is out of v1 too.
+  </div>
+</div>
+
+<!-- ===================================================================== -->
+<h2 class="sec"><b>04</b> Settings — one object, two audiences</h2>
+
+<p class="body">
+  This is the piece that reshapes the plan. A single <code>Settings</code> object gates features for
+  <b>both</b> audiences: developer levers we flip, and preferences the user flips in the Settings UI. One
+  object, one read path — <code>settings.compare</code> reads the same whichever kind it is.
+</p>
+
+<p class="body">
+  The one thing worth keeping visible inside that single object is <b>which audience an entry belongs to</b>.
+  Declaring it on the entry, rather than leaving it to a naming convention, is what lets the Settings screen
+  render exactly the user-facing rows without a second hand-maintained list — and it is the distinction that
+  will matter the day a dev lever gets promoted to a user preference.
+</p>
+
+<pre class="code"><span class="c">/**
+ * Every gate in the app, in one table. `audience` says who flips it:
+ *   'dev'  — we do, in code or a debug screen. Not rendered in Settings.
+ *   'user' — the user does. The Settings screen renders exactly these.
+ *
+ * Reading is audience-blind on purpose: `settings.compare` is the same call
+ * whichever kind it is, so no feature has to know why it is off.
+ */</span>
+<span class="k">export const</span> SETTINGS_SPEC = [
+  <span class="c">// ---- v1 ships with all of these OFF ----</span>
+  { id: <span class="s">'aiExplain'</span>,     audience: <span class="s">'dev'</span>,  default: <span class="k">false</span>,
+    label: <span class="s">'AI explanations'</span>,   note: <span class="s">'§5.5 — later version; tips fill the slot in v1'</span> },
+  { id: <span class="s">'detailedStats'</span>, audience: <span class="s">'dev'</span>,  default: <span class="k">false</span>,
+    label: <span class="s">'Detailed stats'</span>,    note: <span class="s">'gates the SCREENS only — storage is always on'</span> },
+  { id: <span class="s">'compareCharts'</span>, audience: <span class="s">'dev'</span>,  default: <span class="k">false</span>,
+    label: <span class="s">'Compare charts'</span>,    note: <span class="s">'§5.7 / D.1'</span> },
+  { id: <span class="s">'monetization'</span>,  audience: <span class="s">'dev'</span>,  default: <span class="k">false</span>,
+    label: <span class="s">'Subscription'</span>,      note: <span class="s">'§4 — no Pro tier in v1'</span> },
+  { id: <span class="s">'mahmuzVerbs'</span>,   audience: <span class="s">'dev'</span>,  default: <span class="k">false</span>,
+    label: <span class="s">'Mahmūz verbs'</span>,      note: <span class="s">'CONTENT gate — see the note below'</span> },
+  { id: <span class="s">'lafifVerbs'</span>,    audience: <span class="s">'dev'</span>,  default: <span class="k">false</span>,
+    label: <span class="s">'Lafīf verbs'</span>,       note: <span class="s">'CONTENT gate — see the note below'</span> },
+
+  <span class="c">// ---- user-facing, already stubbed in the More tab ----</span>
+  { id: <span class="s">'arabicTextSize'</span>,   audience: <span class="s">'user'</span>, default: <span class="s">'large'</span>,   label: <span class="s">'Arabic text size'</span> },
+  { id: <span class="s">'appearance'</span>,       audience: <span class="s">'user'</span>, default: <span class="s">'system'</span>,  label: <span class="s">'Appearance'</span> },
+  { id: <span class="s">'defaultQuizLength'</span>,audience: <span class="s">'user'</span>, default: 10,        label: <span class="s">'Default quiz length'</span> },
+];</pre>
+
+<div class="grid2">
+  <div class="callout bad" style="margin-top:4px">
+    <span class="hd">The one rule this object must not break</span>
+    <code>detailedStats</code> gates <b>screens</b>, never storage. <code>js/history/store.js</code> must not
+    be able to read it. The whole reason to keep full records for every user is that data you didn’t keep
+    can’t be backfilled — a flag that reaches the writer would quietly destroy that.
+  </div>
+  <div class="callout warn" style="margin-top:4px">
+    <span class="hd">Content gates need one owner, not two</span>
+    “Is this verb type playable?” is already answered by <code>availableTypes()</code>, which excludes types
+    with no engine. <code>mahmuzVerbs</code> / <code>lafifVerbs</code> must <b>feed that same function</b>
+    rather than becoming a second check beside it — otherwise there are two sources of truth for the same
+    fact and they will disagree.
+  </div>
+</div>
+
+<h3 class="sub">What v1 actually is, once the flags are off</h3>
+
+<div class="grid2">
+  <div class="panel">
+    <h4>In v1</h4>
+    <ul>
+      <li>All <b>four quiz types</b>, fixed-count and endless</li>
+      <li>Three Home drills · full Practice configuration · relevance</li>
+      <li><b>Tables browser</b>, searchable, all 14 rows</li>
+      <li>Results with vocab recap and missed review</li>
+      <li><b>Recognition tips</b> on wrong answers</li>
+      <li>Free basic stats card — accuracy, streak, this week</li>
+      <li><b>Full history storage, invisible</b> — every answer kept</li>
+      <li>Five verb types: sālim, muḍāʿaf, mithāl, ajwaf, nāqiṣ</li>
+    </ul>
+  </div>
+  <div class="panel">
+    <h4>Behind a flag, for later</h4>
+    <ul>
+      <li>AI Explain and its backend</li>
+      <li>Detailed stats screens, trend, weak-spot drills, history browser</li>
+      <li>Chart comparison</li>
+      <li>Subscription, paywall, entitlement — <b>so v1 has no Pro tier at all</b></li>
+      <li>Mahmūz and lafīf verbs</li>
+      <li>iCloud sync (it only matters once there are screens to sync for)</li>
+    </ul>
+  </div>
+</div>
+
+<div class="callout good">
+  <span class="hd">Why this is the right call</span>
+  It converts the project from <em>“finish the spec, then ship”</em> into <em>“ship the drilling app, add the
+  rest behind flags.”</em> The two longest-lead items — mahmūz and lafīf — need <b>content authoring</b>, not
+  just code, and they were the schedule. Taking them out makes a shippable v1 a matter of weeks of code
+  rather than months of authoring. <b>Consequence to accept knowingly:</b> spec §4 assumes a paywall at
+  launch; under this plan v1 is a free app and monetization is a v1.x release.
+</div>
+
+<!-- ===================================================================== -->
+<h2 class="sec"><b>05</b> The build plan</h2>
+
+<h3 class="sub">Track A — the v1 product surface</h3>
+
+<div class="step hero">
+  <div class="stephead">
+    <span class="stepno">A1</span>
+    <div>
+      <h3>The object chain, and Settings</h3>
+      <p class="goal">No new features. Identical behaviour. The non-engine half gets the treatment the engine already had.</p>
+    </div>
+    <span class="pill v1">v1</span>
+  </div>
+  <div class="stepbody">
+    <p>
+      First, because everything else lands on these files and because the shapes settled here are what the
+      Swift port transcribes. Following your note in the review, this step now runs in <b>three passes and in
+      this order</b> — the queries come first, because what the stats and history views need to ask is what
+      decides how <code>Question</code> and <code>Answer</code> are stored:
+    </p>
+    <div class="tbl-wrap">
+    <table class="rev">
+      <thead><tr><th>Pass</th><th>What it produces</th></tr></thead>
+      <tbody>
+        <tr><td class="t">a · The queries</td>
+            <td>Enumerate every question the stats and history views will ask (§06). No code — a list, reviewed. <b>These become the requirements on the record shape.</b></td></tr>
+        <tr><td class="t">b · The objects</td>
+            <td><code>QuizPlan → QuizWordPool → QuizRun → Question → Answer</code>, designed field by field against pass (a), plus <code>Settings</code>. Reviewed before anything is written (§07).</td></tr>
+        <tr><td class="t">c · The split</td>
+            <td>884 + 958 lines into the module layout below, behaviour unchanged, assertions unchanged.</td></tr>
+      </tbody>
+    </table>
+    </div>
+
+    <h4 class="mini">Files after the split — what each one owns</h4>
+    <div class="filelist">
+js/quiz/
+  <b>quiz-plan.js</b>     <i>the plan object + planCharts() + planFrom()</i>
+  <b>word-pool.js</b>     <i>candidates × charts, what varies, draw()</i>
+  <b>relevance.js</b>     <i>the question-kind registry; live vs dead, given a pool</i>
+  <b>word-spec.js</b>     <i>the identity every question projects from</i>
+  <b>question.js</b>      <i>the SHAPE — Question, Prompt, Response + the shared assembly</i>
+  <b>grading.js</b>       <i>question + response → Answer. Branches on RESPONSE MODE.</i>
+  <b>quiz-run.js</b>      <i>the live session</i>
+  <b>drills.js</b>        <i>presets + word bundles</i>
+js/quiz/builders/  <i>← one per QUIZ TYPE. All the generation lives here.</i>
+  <b>identify.js</b> <i>·</i> <b>produce.js</b> <i>·</i> <b>derived.js</b> <i>·</i> <b>from-meaning.js</b>
+js/history/    <b>store.js</b> <i>·</i> <b>queries.js</b>   <i>← mirrors Swift HistoryService / StatsService</i>
+js/settings/   <b>settings.js</b>                <i>← the spec table + read/persist</i>
+js/ui/         <b>dom.js</b> <i>·</i> <b>state.js</b> <i>·</i> <b>router.js</b>
+js/screens/    <b>home.js</b> <i>·</i> <b>practice.js</b> <i>·</i> <b>tables.js</b> <i>·</i> <b>quiz.js</b> <i>·</i> <b>results.js</b> <i>·</i> <b>more.js</b> <i>·</i> <b>stats.js</b>
+    </div>
+
+    <h4 class="mini">Why <code>question.js</code> and <code>grading.js</code> are not per quiz type</h4>
+    <p>
+      Fair challenge, and the bare file list above was the reason it needed asking. The short answer:
+      <b><code>question.js</code> holds the shape, not the generation</b> — every line that <em>builds</em> a
+      question is in <code>builders/</code>, one file per quiz type, exactly as you expected. And grading does
+      vary, but <b>not on the quiz-type axis</b>. Three different things vary on three different axes here,
+      and the layout follows the axis each one actually varies on:
+    </p>
+    <div class="tbl-wrap">
+    <table class="rev">
+      <thead><tr><th>Concern</th><th>Varies on</th><th>Lives in</th></tr></thead>
+      <tbody>
+        <tr><td class="t">Building a question</td><td><b>quiz type</b> — four genuinely different jobs</td>
+            <td><code>builders/</code>, one per type</td></tr>
+        <tr><td class="t">The shape a question has</td><td><b>nothing</b> — one invariant across all four</td>
+            <td><code>question.js</code></td></tr>
+        <tr><td class="t">The identity it records</td><td><b>nothing</b> — one projection, or history rows differ by builder</td>
+            <td><code>word-spec.js</code></td></tr>
+        <tr><td class="t">Deciding if an answer is right</td><td><b>response mode</b> — choice or input</td>
+            <td><code>grading.js</code></td></tr>
+      </tbody>
+    </table>
+    </div>
+    <p>
+      <b>Measured, so this is not a guess:</b> of the ten question kinds in the registry, <b>nine grade
+      identically</b> — an exact set match on value keys — and exactly one, <code>produce</code>, uses input
+      mode. Keying grading on quiz type would mean four copies of the same set match. And the two axes are
+      already known to come apart: the technical plan anticipates a <em>“choose the correct spelling”</em>
+      question — a produce-style prompt with a choice response — and states the rule outright,
+      <b>“grading lives with the response, not the quiz type.”</b> Type-keyed grading breaks on that question;
+      mode-keyed grading does not.
+    </p>
+    <p>
+      There is a second reason, and it is your own rule 7. Grading is <b>the boundary where “what the user
+      did” becomes “a fact we store.”</b> Right now that boundary does not exist — the choice branch is inside
+      <code>app.js</code> and <code>history.js</code> re-derives <code>expected</code> a third time. One owner
+      is the fix; four owners would leave the door open again.
+    </p>
+    <div class="callout">
+      <span class="hd">The check that settles it</span>
+      This layout is not invented here — it is <b>the Swift layout from technical plan §A.10</b>, which
+      already lists <code>Question.swift</code>, <code>WordSpec.swift</code>, <code>Grading.swift</code> and a
+      <code>Builders/</code> directory “one per quiz type”. The JS files are named for the same owners so the
+      port stays a transcription. <code>word-spec.js</code> is back in the list above because rev 2 had
+      collapsed it into <code>question.js</code> — your question caught that.
+    </div>
+    <p style="margin-top:10px">Also fixed here, because it is a symptom of the same confusion: the dead
+      muʿtall drill. Per your note, <b><code>QuizPlan</code> stores engine types only</b> — the group→type
+      expansion happens once, at the boundary where a user choice becomes a plan, and the type→label
+      direction is a display translation in <code>glossary.js</code>.</p>
+
+    <div class="exit"><span class="lab">Exit</span><span>
+      294 assertions <b>unchanged</b> and green · every screen walked and behaving identically ·
+      no file over ~250 lines · <b>the Weak-verbs drill produces questions</b>.
+    </span></div>
+  </div>
+</div>
+
+<div class="step">
+  <div class="stephead">
+    <span class="stepno">A2</span>
+    <div>
+      <h3>Practice — the summary step</h3>
+      <p class="goal">Make the configuration explain itself before you tap Start.</p>
+    </div>
+    <span class="pill v1">v1</span>
+  </div>
+  <div class="stepbody">
+    <p>
+      The valuable half of technical plan <b>D.2</b>, and it is not wizard-specific: the configuration as
+      tappable chips, the <b>“This setup asks” panel moved above the controls</b> (it currently sits below
+      everything that determines it), the possible-question count, and <b>one real generated question rendered
+      non-interactively</b> — because nothing written in a subtitle explains “Match the meaning” as well as
+      seeing one. The wizard itself is deferred; see Q3.
+    </p>
+    <div class="exit"><span class="lab">Exit</span><span>
+      The sample question is drawn from the real stream, not faked · the panel sits above the controls that
+      determine it.
+    </span></div>
+  </div>
+</div>
+
+<div class="step">
+  <div class="stephead">
+    <span class="stepno">A3</span>
+    <div>
+      <h3>Recognition tips <span class="pill new" style="vertical-align:middle">new</span></h3>
+      <p class="goal">Fill the wrong-answer slot with something rule-based, offline and free — the slot AI takes later.</p>
+    </div>
+    <span class="pill v1">v1</span>
+  </div>
+  <div class="stepbody">
+    <p>
+      The insight that makes this more than a list of platitudes: <b>a tip should fire on the confusion, not
+      on the word.</b> The tip that helps is the one about the distinction you just missed — and that is only
+      knowable because <code>Answer</code> stores <code>given</code> and <code>expected</code> semantically
+      (pronoun keys, not button positions). A registry of predicates over
+      <code>(question, answer)</code> gets that for free.
+    </p>
+    <pre class="code"><span class="c">/**
+ * Rule-based recognition tips, shown on a wrong answer. The non-AI sibling of
+ * §5.5, occupying the same slot: v1 fills it from this registry, a later
+ * version adds the AI layer behind settings.aiExplain.
+ *
+ * A tip declares WHEN it applies rather than being selected by a branch — same
+ * shape as QUESTION_RULES and MUDARI_PARTICLES, so adding one is one object.
+ */</span>
+Tip { id, when(question, answer) -> <span class="k">boolean</span>, en, ar? }
+
+<span class="k">export const</span> TIPS = [
+  { id: <span class="s">'dual-alif-nun'</span>,
+    when: (q, a) => isDual(q.identity.slot) &amp;&amp; !a.given.some(isDual),
+    en:  <span class="s">'Every dual ends in ا + ن. ـَانِ on a muḍāriʿ means two people — never one, never three.'</span> },
+
+  { id: <span class="s">'ta-serves-two'</span>,
+    when: (q, a) => q.identity.tense === <span class="s">'mudari'</span> &amp;&amp; confused(a, <span class="s">'3fs'</span>, <span class="s">'2ms'</span>),
+    en:  <span class="s">'The تـ prefix serves both هِيَ and أَنْتَ. One written form, two readings — the ambiguity is real, not a trick.'</span> },
+
+  { id: <span class="s">'majhul-damma-fatha'</span>,
+    when: (q, a) => q.identity.voice === <span class="s">'majhul'</span> &amp;&amp; a.given.includes(<span class="s">'malum'</span>),
+    en:  <span class="s">'Ḍamma on the prefix + fatḥa before the last letter = majhūl muḍāriʿ.'</span> },
+
+  { id: <span class="s">'nun-niswa-mabni'</span>, … },
+  { id: <span class="s">'lam-is-past'</span>,      … },   <span class="c">// jussive in form, past in meaning</span>
+];
+
+<span class="f">tipsFor</span>(question, answer) -> Tip[]   <span class="c">// registration order; the screen shows the first one or two</span></pre>
+    <div class="exit"><span class="lab">Exit</span><span>
+      A wrong answer shows at least one tip for every question category · no tip fires on a
+      <em>correct</em> answer · tips are pure functions of <code>(question, answer)</code> and need no network.
+    </span></div>
+  </div>
+</div>
+
+<div class="step later">
+  <div class="stephead">
+    <span class="stepno">A4</span>
+    <div>
+      <h3>Stats screens, history browser, weak-spot drills</h3>
+      <p class="goal">The queries are designed in A1 (a). The screens wait behind <code>settings.detailedStats</code>.</p>
+    </div>
+    <span class="pill later">flagged off</span>
+  </div>
+  <div class="stepbody">
+    <p>
+      Split in two by your review, and the split is the point. <b>The queries are an A1 input</b> — they are
+      what tells us how to store <code>Answer</code>. <b>The screens are a later version</b> — and the storage
+      keeps running the whole time, so when the flag flips, every user has a full history to slice rather than
+      one that begins the day the screen shipped.
+    </p>
+    <div class="exit"><span class="lab">Exit</span><span>
+      Deferred. Its <b>requirements</b> are due in A1 (a); its implementation is not scheduled.
+    </span></div>
+  </div>
+</div>
+
+<div class="step later">
+  <div class="stephead">
+    <span class="stepno">A5</span>
+    <div>
+      <h3>Compare — two charts side by side</h3>
+      <p class="goal">Out of v1 as a user feature. Still the best engine-audit instrument we could build.</p>
+    </div>
+    <span class="pill later">flagged off · see Q2</span>
+  </div>
+  <div class="stepbody">
+    <p><b>Answering your containment question directly: yes.</b> <code>ChartDelta</code> and
+      <code>ChartDiff</code> live in <code>js/compare/</code> and nothing outside consumes them. There are
+      exactly two contact points with the rest of the app, and neither is a type leaking out:</p>
+    <ul class="body">
+      <li>the Tables screen hands in the base <code>ChartSpec</code> it already has, and hosts the entry
+        button beside “View table”;</li>
+      <li><code>waznRoot()</code> in <code>conjugation-service.js</code> becomes exported instead of private,
+        so the wazn preset builds <span class="ar">ف-ع-ل</span> from the same place everything else does.</li>
+    </ul>
+    <p>Delete the folder and the app still compiles. That is what makes this one safe to flag off — and also
+       what makes it safe to build as a <b>dev-only tool</b> if you want the audit value without shipping it,
+       which is exactly the case your two-audience Settings object was made for.</p>
+    <div class="exit"><span class="lab">Exit</span><span>
+      <span class="ar">ظلل</span> II manṣūb vs majzūm reports <b>differing</b> (it currently reports identical,
+      which is wrong on sight) · letter marks land on grapheme clusters, never inside a ḥaraka.
+    </span></div>
+  </div>
+</div>
+
+<div class="step later">
+  <div class="stephead">
+    <span class="stepno">A6</span>
+    <div><h3>AI Explain</h3><p class="goal">The later-version upgrade to the slot A3 fills.</p></div>
+    <span class="pill later">later version</span>
+  </div>
+  <div class="stepbody"><p>
+    <code>ExplainPayload</code> (everything the engine already knows — the model teaches, never derives),
+    a structured <code>Explanation</code> rather than a markdown blob, a cache keyed
+    <code>(word, category)</code>, a trial counter, and one serverless worker. <b>Because A3 built the slot
+    and the feedback shape, this becomes a source swap rather than a new surface.</b>
+  </p></div>
+</div>
+
+<h3 class="sub">Track B — correctness and content, running alongside</h3>
+
+<p class="body">
+  These touch <code>js/grammar/</code> and <code>js/lexicon/</code> and nothing Track A touches, so the tracks
+  do not queue behind each other. With mahmūz and lafīf flagged out of v1, <b>Track B’s v1 scope is the two
+  holes plus the freeze</b>.
+</p>
+
+<div class="step b">
+  <div class="stephead">
+    <span class="stepno">B1</span>
+    <div><h3>Nāqiṣ mazīd II–X</h3><p class="goal">Fill the nine empty stem objects so a defective verb conjugates past Form I.</p></div>
+    <span class="pill v1">v1</span>
+  </div>
+  <div class="stepbody"><p>No new types — <code>NAQIS_STEMS.II</code> … <code>.X</code> are literally
+    <code>{}</code>. Engine, endings, dropping-slot tables and ṣīghah classification all exist and are proven
+    on Form I. Parity: every mazīd chart hand-audited in the Tables browser.</p></div>
+</div>
+
+<div class="step b">
+  <div class="stephead">
+    <span class="stepno">B2</span>
+    <div><h3>Derived-noun stems for mithāl, ajwaf, nāqiṣ</h3><p class="goal">Give quiz type 3 any weak-verb content at all.</p></div>
+    <span class="pill v1">v1</span>
+  </div>
+  <div class="stepbody"><p><code>DERIVED_NOUN_STEMS = {}</code> in all three files; sālim and muḍāʿaf show the
+    shape to follow. Until this lands, a derived-noun quiz with weak verbs selected correctly refuses to build
+    — the right failure, but still a quarter of the launch quiz types missing most of its content.</p></div>
+</div>
+
+<div class="step b">
+  <div class="stephead">
+    <span class="stepno">B3</span>
+    <div><h3>Freeze and export the golden corpus</h3><p class="goal">Turn “did the port regress?” from a judgement call into a diff.</p></div>
+    <span class="pill v1">v1 · see Q1</span>
+  </div>
+  <div class="stepbody"><p>
+    Un-park <code>tools/export-content.mjs</code>; emit <code>roots.json</code> plus
+    <code>golden-corpus.json</code> — every root × form × chart × slot with its exact NFC string,
+    <b>including every combination deliberately answered <code>null</code></b>, plus derived nouns and
+    citations. Delete the <code>manualTables</code> fallback and the <code>isConjugatable</code> gate that
+    exists to serve it. <b>The engine API is frozen after this.</b>
+  </p>
+  <div class="callout warn" style="margin:12px 0 0">
+    <span class="hd">The consequence to decide (Q1)</span>
+    The documented gate was <em>all seven engines before any Swift</em>. Freezing over five means the corpus
+    regenerates when mahmūz and lafīf land. That is survivable — a regenerated corpus is a reviewed diff, which
+    is the mechanism the plan already uses — but it is a real change to a stated rule, not a detail.
+  </div>
+  </div>
+</div>
+
+<div class="step b later">
+  <div class="stephead">
+    <span class="stepno">B4</span>
+    <div><h3>Mahmūz, then lafīf</h3><p class="goal">Grammar, engine and — the long pole — roots.</p></div>
+    <span class="pill later">flagged off</span>
+  </div>
+  <div class="stepbody"><p>Mahmūz is a hamza-seat problem (<span class="ar">أخذ، سأل، قرأ، أمر</span>);
+    lafīf composes the mithāl and nāqiṣ rule sets (<span class="ar">وقي، طوي</span>) and lands last by design,
+    because it validates that those rules <em>compose</em> rather than special-case. Both need
+    <b>content authoring, which is yours</b> — that is why they are the schedule and why moving them out of v1
+    is what makes v1 close.</p></div>
+</div>
+
+<h3 class="sub">Track C — Swift</h3>
+
+<div class="grid2">
+  <div class="panel">
+    <h4>C1 · SarfCore port</h4>
+    <p>The frozen structure ported whole. Gate: <b>zero diffs against the corpus</b>, chart-audit snapshots
+       green, property test green. One mechanical task with a binary pass condition.</p>
+  </div>
+  <div class="panel">
+    <h4>C2 · App v1</h4>
+    <p>Four tabs, quiz flow with multi-select and endless, Tables, Results, tips. Every layout already decided
+       in Track A. First TestFlight build. <b>This is the shippable app.</b></p>
+  </div>
+  <div class="panel">
+    <h4>C3 · Ship <span class="pill swift">swift-only</span></h4>
+    <p>Arabic-keyboard detection, Dynamic Type, VoiceOver spelling, onboarding, icon, screenshots, privacy
+       labels, review notes. SwiftData for history — local only, since sync has nothing to sync for yet.</p>
+  </div>
+  <div class="panel">
+    <h4>C4+ · The flags, one at a time</h4>
+    <p>Detailed stats and CloudKit · compare · monetization and paywall · AI Explain · mahmūz and lafīf.
+       Each is a release, and each has a flag already in place from A1.</p>
+  </div>
+</div>
+
+<!-- ===================================================================== -->
+<h2 class="sec"><b>06</b> Dependency order</h2>
+
+<div class="mermaid">
+flowchart LR
+  Q["A1a · the stats queries"]
+  A1["A1b/c · objects + settings + split"]
+  A2["A2 · Practice summary"]
+  A3["A3 · Recognition tips"]
+  B1["B1 · nāqiṣ mazīd"]
+  B2["B2 · derived stems"]
+  B3["B3 · freeze + corpus"]
+  C1["C1 · SarfCore port"]
+  C2["C2 · SwiftUI app v1"]
+  C3["C3 · ship"]
+  L["later, per flag<br/>stats · compare · paywall · AI · mahmūz · lafīf"]
+
+  Q --> A1
+  A1 --> A2
+  A1 --> A3
+  B1 --> B2 --> B3
+  B3 --> C1 --> C2 --> C3
+  A2 -. "design settled" .-> C2
+  A3 -. "design settled" .-> C2
+  C3 --> L
+  A1 -. "flags in place" .-> L
+
+  classDef ta fill:#1d3348,stroke:#4ea8de,color:#eef2f8
+  classDef tb fill:#3a2f16,stroke:#d8a13a,color:#eef2f8
+  classDef tc fill:#25203a,stroke:#c48ce0,color:#eef2f8
+  classDef later fill:#1a2030,stroke:#4a5568,color:#93a0b4,stroke-dasharray: 5 4
+  class Q,A1,A2,A3 ta
+  class B1,B2,B3 tb
+  class C1,C2,C3 tc
+  class L later
+</div>
+<p class="cap">Two independent chains meet at the freeze. Track B needs no code from Track A;
+  Track A needs nothing from Track B until the port.</p>
+
+<div class="callout">
+  <span class="hd">Read this way</span>
+  <b>The queries are the true first task</b> — they are a list, not code, and they constrain everything after.
+  <b>A1 is the only hard blocker</b> on the product side and the only step with no visible payoff, which is why
+  its exit criteria are parity criteria. After A1, A2 and A3 are independent. Track B can start today,
+  in parallel, in files nothing else touches.
+</div>
+
+<!-- ===================================================================== -->
+<h2 class="sec"><b>07</b> The object chain</h2>
+
+<p class="body">
+  Your progression, adopted whole: <b>a plan describes what to draw from, a pool resolves what can be drawn,
+  a run serves them, each is a question, each question produces an answer.</b> The two things that were
+  missing get names, and the two that were badly shaped get fixed.
+</p>
+
+<div class="chain">
+  <div><b>QuizPlan</b><small>What to draw from. Frozen configuration.</small><i>→</i></div>
+  <div><b>QuizWordPool</b><small>What <em>can</em> be drawn. Resolved once, walked once.</small><i>→</i></div>
+  <div><b>QuizRun</b><small>The live session over that pool.</small><i>→</i></div>
+  <div><b>Question</b><small>One thing asked. Four named parts, not a flat bag.</small><i>→</i></div>
+  <div><b>Answer</b><small>One thing recorded. <em>Is</em> the history row.</small></div>
+</div>
+<p class="cap">Each object is built from the one to its left and knows nothing about the one to its right.</p>
+
+<h4 class="mini">1 · QuizPlan — what to draw from</h4>
+<pre class="code"><span class="c">/**
+ * The configuration of a session. It describes A POOL OF WORDS, not a set of
+ * questions — which is what lets one configuration serve all four quiz types.
+ *
+ * Built today as a bare literal in three places (Practice state, drill presets,
+ * a replayed history record). One constructor gives them all the same shape.
+ */</span>
+<span class="k">export function</span> <span class="f">quizPlan</span>({
+  quizType,          <span class="c">// single-select: one type per session</span>
+  tenses, voices,    <span class="c">// axis values; the pool is their product</span>
+  moods,             <span class="c">// muḍāriʿ only — the constructor nulls it otherwise</span>
+  forms,
+  types,             <span class="c">// ENGINE types: 'ajwaf_waw'. Never group names.</span>
+  count,             <span class="c">// 5 | 10 | 20 | 'endless'</span>
+})
+
+<span class="c">// The group layer is UI, so it stays in the UI. verbTypesInGroup() expands a
+// user's pick ONCE, where the pick happens; groupOfVerbType() + glossary turn a
+// stored type back into a label. The plan itself only ever holds engine types —
+// which is the rule the muʿtall drill broke by carrying group names into data.</span>
+
+<span class="f">planCharts</span>(plan) -> [{ tense, voice, mood }]
+<span class="f">planFrom</span>(stored) -> QuizPlan     <span class="c">// history replay, validated on the way in</span></pre>
+
+<h4 class="mini">2 · QuizWordPool — what can be drawn</h4>
+<pre class="code"><span class="c">/**
+ * Every word the plan admits, resolved once. This is the object that was
+ * missing: today three separate functions walk the same candidates for three
+ * different answers — poolProfile() for what varies, conjugatable() for what
+ * exists, randomWordSpec() for a draw — and none of them is a thing you can
+ * hold, pass, or inspect.
+ *
+ * Relevance becomes a function of the POOL rather than of the plan, which is
+ * more honest: a question dies because of what the pool contains, not because
+ * of what was ticked.
+ */</span>
+<span class="f">wordPool</span>(plan) -> {
+  candidates: [{ root, formId }],       <span class="c">// roots × forms that can produce words</span>
+  charts:     [{ tense, voice, mood }],
+  cells:      <span class="k">number</span>,                   <span class="c">// REAL cells — nils already excluded</span>
+
+  <span class="c">// what actually VARIES across the pool. This is the whole input to
+  // relevance: a question is dead when its property is constant here.</span>
+  varies: { tenses, voices, moods, slots, forms, babs, derivedKinds, derivedForms },
+
+  <span class="f">draw</span>() -> WordSpec | <span class="k">null</span>,           <span class="c">// one random word, or null if the pool is dry</span>
+}
+
+<span class="f">relevance</span>(pool, quizType) -> { live: Rule[], dead: Rule[] }</pre>
+
+<h4 class="mini">3 · QuizRun — the live session</h4>
+<pre class="code"><span class="c">/**
+ * One live quiz. Owns everything that changes as you play. Screens read it and
+ * call it; they hold no quiz state of their own.
+ *
+ * Today: seven fields on the UI's global `state` (quiz, stream, endless, index,
+ * answers, selected, typed), advanced by four functions in app.js. The Swift
+ * plan already names this type (§B.2), so naming it here makes that half of
+ * the port a transcription rather than a design.
+ */</span>
+<span class="k">class</span> QuizRun {
+  plan; pool; mode;        <span class="c">// preset id | 'custom' | 'endless'</span>
+  #source;                 <span class="c">// an array (fixed count) OR an iterator (endless)</span>
+  index = 0;
+  answers = [];            <span class="c">// Answer[] — and these ARE the stored rows</span>
+
+  <span class="k">get</span> current() -> Question
+  <span class="k">get</span> total() <span class="c">// null when endless — an absence, not Infinity</span>
+  <span class="k">get</span> score() -> { right, total }
+
+  <span class="f">answer</span>(response) -> Answer   <span class="c">// grades, appends, returns. One path for both</span>
+                              <span class="c">// response modes, so no screen decides correctness.</span>
+  <span class="f">advance</span>() -> <span class="k">boolean</span>         <span class="c">// pulls from the stream when endless</span>
+  <span class="f">finish</span>()  -> SessionRecord   <span class="c">// { plan, mode, startedAt, endedAt, answers }</span>
+}</pre>
+
+<h4 class="mini">4 · Question — four named parts instead of fifteen loose keys</h4>
+<pre class="code"><span class="c">/**
+ * One thing asked. Today this is a flat object of ~15 keys in which identity,
+ * display, response and explanation are indistinguishable, and readers pick out
+ * the three or four they care about. The four parts below are the shape
+ * TECHNICAL_PLAN §A.7 already specifies; the prototype drifted from it.
+ */</span>
+Question {
+  quizType, category,     <span class="c">// WHAT is being asked. Carried, never inferred from shape —</span>
+                          <span class="c">// inferring it is what silently misfiled new quiz types.</span>
+
+  identity: WordSpec,     <span class="c">// WHAT WORD it is about. Flat and serializable:</span>
+                          <span class="c">//   { rootKey, formId, verbType, tense, voice, mood,</span>
+                          <span class="c">//     slot, derivedKind }</span>
+                          <span class="c">// A KEY, never a Root reference — a stored answer must still</span>
+                          <span class="c">// say what it asked after the lexicon is edited.</span>
+
+  word,                   <span class="c">// the string on the card (or the citation, for the bāb question)</span>
+
+  prompt: {               <span class="c">// WHAT THE CARD RENDERS. Tagged, so the screen switches on</span>
+    kind,                 <span class="c">// 'word' | 'spec' | 'meaning' | 'derived' — one renderer each</span>
+    text, gloss,          <span class="c">// …and cannot accidentally render the answer, which is the</span>
+    chips, radicals,      <span class="c">// live hazard on the meaning card today</span>
+  },
+
+  response:               <span class="c">// HOW YOU ANSWER, and what counts as correct</span>
+    | { mode: <span class="s">'choice'</span>, options: [{ ar, en, valueKey }], correct: Set&lt;valueKey&gt; }
+    | { mode: <span class="s">'input'</span>,  accepted: [<span class="k">string</span>] },
+                          <span class="c">// note: `correct` is a set of VALUE KEYS, not indices — so</span>
+                          <span class="c">// shuffling options can never change what is correct</span>
+
+  feedback: { meaning, explanation },   <span class="c">// shown after; tips are computed, not stored</span>
+}</pre>
+
+<h4 class="mini">5 · Answer — and it <em>is</em> the history row</h4>
+<pre class="code"><span class="c">/**
+ * One thing recorded. This replaces the `AnswerResult` sketch you disliked and
+ * also replaces the SEPARATE shape history.js builds today.
+ *
+ * The problem it solves: the same fact is currently computed in three places —
+ * gradeInput() in the service, eleven lines inside app.js's answerChoice(), and
+ * `expected` re-derived from the question again in recordAnswer(). One object,
+ * produced once, appended to the run and written to storage unchanged.
+ */</span>
+Answer {
+  question:  Question,      <span class="c">// ← EMBEDDED WHOLE, not copied field by field.</span>
+                            <span class="c">// Its `identity` is already a flat, key-based projection</span>
+                            <span class="c">// (rootKey, never a Root reference), so embedding it does</span>
+                            <span class="c">// not reintroduce the reference problem the copy list was</span>
+                            <span class="c">// guarding against. The copy list was re-derivation of</span>
+                            <span class="c">// exactly the kind this object exists to remove.</span>
+
+  given:     [<span class="k">string</span>],       <span class="c">// value keys picked, or [the typed string]</span>
+  expected:  [<span class="k">string</span>],       <span class="c">// value keys required, or [the engine's own word]</span>
+  correct:   <span class="k">boolean</span>,
+  divergeAt: <span class="k">number</span> | <span class="k">null</span>, <span class="c">// typed only: first differing index.</span>
+                            <span class="c">// null for choice — an absence, not a 0 or a -1.</span>
+  answeredAt,
+}
+
+<span class="f">grade</span>(question, response) -> Answer
+<span class="c">// ONE function, both modes. Choice is an exact set match on value keys; input
+// is strict NFC equality with the divergence index. The screen renders an
+// Answer; it never computes one.</span>
+
+<span class="c">// storage is then literally:  session.answers.push(answer)</span>
+<span class="c">// no projection, no flattening, no second shape to keep in sync.</span></pre>
+
+<div class="callout good">
+  <span class="hd">What this buys, concretely</span>
+  Grading gets <b>one owner</b> and leaves the view · history stores what the run already holds, with
+  <b>no re-derivation</b> · <code>tipsFor(question, answer)</code> works because both halves are semantic ·
+  and every one of the stats queries in A1 (a) reads fields that are on the record by design rather than by
+  luck. <b>Reading a stored answer tells you the whole story of the question that produced it.</b>
+</div>
+
+<div class="callout warn">
+  <span class="hd">Revised — you were right about this</span>
+  Rev 2 had <code>Answer</code> copying <code>quizType, category, identity, word</code> out of the Question.
+  Your objection lands: the Question’s <code>identity</code> is <em>already</em> the flat, key-based
+  projection built to survive the lexicon changing, so copying it was reconstruction of the exact kind this
+  object exists to remove — and it silently threw away the options that were shown, which is data no
+  reconstruction can recover.
+  <b>The Question is now embedded whole.</b> What is left to settle is not <em>whether</em> to embed but
+  which fields must <em>also</em> be flat storage columns for the stats queries to be cheap, and that is a
+  question only the query list can answer — so it is carried into A1 (a),
+  <code>.lavish/a1a-queries.html</code>, §04.
+</div>
+
+<!-- ===================================================================== -->
+<h2 class="sec"><b>08</b> How this lines up with how you work</h2>
+
+<div class="tbl-wrap">
+<table class="rev">
+  <thead><tr><th>Your rule</th><th>Where it shows up in this plan</th></tr></thead>
+  <tbody>
+    <tr><td class="t">Model the domain explicitly;<br>keep implementation economical</td>
+        <td><code>Settings</code> is one object with one read path, but each entry <b>declares its audience</b>
+            — the distinction stays in the data even though the code path is unified, so promoting a dev lever
+            to a user preference is a field edit rather than a refactor.</td></tr>
+    <tr><td class="t">Domain distinctions in data;<br>shared behaviour behind a real owner</td>
+        <td>The tips registry and the settings spec are tables, not branches. Grading gets one owner instead
+            of half of it living in the view. <b><code>availableTypes()</code> stays the single owner of
+            “is this verb type playable”</b> — the content flags feed it rather than sitting beside it.</td></tr>
+    <tr><td class="t">Explicit decisions;<br>never default a missing fact</td>
+        <td><code>divergeAt</code> is <code>null</code> for choice answers, not <code>-1</code>.
+            <code>QuizRun.total</code> is <code>null</code> when endless, not <code>Infinity</code>.
+            A tip that has no rule for a case shows nothing rather than something generic.</td></tr>
+    <tr><td class="t">Declarative tables for<br>naturally tabular relationships</td>
+        <td><code>SETTINGS_SPEC</code>, <code>TIPS</code>, the existing <code>QUESTION_RULES</code> and
+            particle registries.</td></tr>
+    <tr><td class="t">Naming is architecture</td>
+        <td>Three things that exist today with no name get one: <code>QuizWordPool</code>,
+            <code>QuizRun</code>, <code>Answer</code>. And <code>Question</code> stops being a bag.</td></tr>
+    <tr><td class="t">File and code splitting</td>
+        <td>884 → eleven files, 958 → ten. Nothing over ~250 lines. <code>js/history/</code> splits into
+            store and queries because they are two concerns and two Swift services.</td></tr>
+    <tr><td class="t">Validate once,<br>at a single boundary</td>
+        <td><code>ConjugationService</code> already owns every conjugation precondition. <code>grade()</code>
+            becomes the second such boundary — <b>the screen stops deciding whether an answer is right</b>.</td></tr>
+    <tr><td class="t">Doc strings name their call sites</td>
+        <td>Every new module’s header names who calls it and why, the way the grammar and engine files do.</td></tr>
+    <tr><td class="t">Planning docs stay in sync</td>
+        <td>The Settings decision changes <code>PRODUCT_SPEC §3</code> (the free/Pro matrix) and
+            <code>§6</code> (launch content). <b>Both need updating when A1 lands</b>, not left stale —
+            flagged here as a task, not done silently.</td></tr>
+  </tbody>
+</table>
+</div>
+
+<!-- ===================================================================== -->
+<h2 class="sec"><b>09</b> Decisions</h2>
+
+<p class="body">
+  Q1 from rev 1 is settled and has moved into §03. These four are what is left — the first is a consequence
+  of your Settings decision that I do not want to resolve silently.
+</p>
+
+<div class="decision">
+  <form data-lavish-question="q1" onsubmit="event.preventDefault(); const v = new FormData(event.currentTarget).get('q1'); if (v) window.lavish.queuePrompt('Q1 — corpus/port gate now that mahmūz and lafīf are flagged out of v1: ' + v, { tag: 'decision', text: 'Q1: ' + v, element: event.currentTarget, data: { question: 'q1-corpus-gate', answer: v } });">
+    <div class="q">Q1 · Flagging mahmūz and lafīf out of v1 breaks a stated rule. Which way?</div>
+    <div class="why">The technical plan says Swift never carries a half-covered <code>VerbType</code>, and the corpus was to freeze over all seven engines. Five engines means the corpus regenerates later.</div>
+    <label><input type="radio" name="q1" value="freeze over five engines; regenerate the corpus when mahmuz and lafif land (a reviewed diff)">
+      <span><span class="opt-b">Freeze over five, regenerate later <span class="rec">recommended</span></span>
+      <span class="opt-d">A regenerated corpus is a reviewed diff — the mechanism already exists. The two absent types are simply not in the lexicon, so nothing is half-covered; they are unstocked, which <code>availableTypes()</code> already models.</span></span></label>
+    <label><input type="radio" name="q1" value="hold the port until all seven engines exist, even though the two are flagged off">
+      <span><span class="opt-b">Hold the port for all seven</span>
+      <span class="opt-d">Keeps the documented rule exactly. But it puts content authoring back on the critical path to an iOS build — which is the thing flagging them off was meant to remove.</span></span></label>
+    <label><input type="radio" name="q1" value="freeze over five and treat mahmuz/lafif as a v2 engine effort with its own corpus, ported separately">
+      <span><span class="opt-b">Five now, the weak pair as its own effort</span>
+      <span class="opt-d">Explicitly a second engine project with its own corpus and its own port, rather than a regeneration of the first. Cleaner story, slightly more ceremony.</span></span></label>
+    <button type="submit">Queue this answer</button>
+  </form>
+</div>
+
+<div class="settled">
+  <span class="hd">Q2 · settled — Compare is built, dev-audience only</span>
+  <code>settings.compareCharts</code> with <code>audience: 'dev'</code>: on for us, off for users in v1. We get
+  the audit value while B1 and B2 are being written; promoting it later is changing one field from
+  <code>dev</code> to <code>user</code>. <b>Consequence for B3:</b> whatever a dev-only Compare needs from
+  <code>ConjugationService</code> — the exported <code>waznRoot()</code> — must land <em>before</em> the
+  engine API freezes.
+</div>
+
+<div class="decision">
+  <form data-lavish-question="q3" onsubmit="event.preventDefault(); const v = new FormData(event.currentTarget).get('q3'); if (v) window.lavish.queuePrompt('Q3 — Practice wizard: ' + v, { tag: 'decision', text: 'Q3: ' + v, element: event.currentTarget, data: { question: 'q3-practice-wizard', answer: v } });">
+    <div class="q">Q3 · The Practice wizard (D.2) — confirm it stays deferred?</div>
+    <div class="why">A2 takes the summary step into the flow you already have. The wizard itself is a second full configuration surface to maintain.</div>
+    <label><input type="radio" name="q3" value="defer the wizard; build only the summary step (A2)">
+      <span><span class="opt-b">Defer the wizard, build the summary <span class="rec">recommended</span></span>
+      <span class="opt-d">Takes the valuable half now. With <code>SETTINGS_SPEC</code> in place from A1, adding the wizard later behind a flag stays cheap — which was the point of the flag.</span></span></label>
+    <label><input type="radio" name="q3" value="build both flows behind the flag as D.2 specifies">
+      <span><span class="opt-b">Build both, as D.2 specifies</span>
+      <span class="opt-d">You choose from use rather than argument. Costs a second configuration surface to maintain until you decide.</span></span></label>
+    <button type="submit">Queue this answer</button>
+  </form>
+</div>
+
+<div class="settled">
+  <span class="hd">Q4 · settled — A1 (a) then A1 (b)</span>
+  The stats and history queries first, as a reviewed list; then the object chain designed against them.
+  <b>A1 (a) is in progress</b> — see <code>.lavish/a1a-queries.html</code>. It carries the
+  <code>Answer</code>-embeds-<code>Question</code> question you raised, since that is exactly what the query
+  list decides.
+</div>
+
+<!-- ===================================================================== -->
+<h2 class="sec"><b>10</b> Risks worth naming now</h2>
+
+<div class="grid2">
+  <div class="panel">
+    <h4>A1 has no visible payoff</h4>
+    <p>The one step that ends with the app looking identical — which is what makes it easy to let drift into a
+       redesign. Its defence is parity: <b>the 294 assertions must stay byte-identical</b>, and every screen
+       gets walked before and after.</p>
+  </div>
+  <div class="panel">
+    <h4>A flag is only as good as its single owner</h4>
+    <p>The two failure modes are already visible: <code>detailedStats</code> reaching the history
+       <em>writer</em>, and the content flags becoming a second answer to “is this type playable” beside
+       <code>availableTypes()</code>. Both are cheap to prevent now and expensive to unpick later.</p>
+  </div>
+  <div class="panel">
+    <h4>The freeze locks the engine API</h4>
+    <p>After B3, changes are a reviewed corpus diff. Anything the Swift app will ever need from
+       <code>ConjugationService</code> <b>must exist before that point</b> — including whatever a
+       dev-only Compare needs, if Q2 goes that way.</p>
+  </div>
+  <div class="panel">
+    <h4>The spec documents now disagree with the plan</h4>
+    <p><code>PRODUCT_SPEC §3</code> promises a free/Pro matrix and <code>§6</code> promises all seven verb
+       types at launch. Neither is true under the Settings decision. They need editing when A1 lands, or the
+       next reader builds from a stale contract.</p>
+  </div>
+  <div class="panel">
+    <h4>Tips need writing, not just wiring</h4>
+    <p>The registry is an afternoon; <b>the tips themselves are content</b>, and a thin one reads worse than
+       nothing. Worth deciding a target — one good tip per question category is the honest minimum for A3
+       to count as done.</p>
+  </div>
+  <div class="panel">
+    <h4>The muʿtall drill was silent for weeks</h4>
+    <p>It failed <em>safe</em> — greyed out, no error — which is why a headline feature being dead went
+       unnoticed. Worth a cheap guard: a startup assertion that every shipped preset produces at least one
+       question.</p>
+  </div>
+</div>
+
+<div class="callout good" style="margin-top:34px">
+  <span class="hd">What happens next</span>
+  Answer the four decisions and annotate anything you still disagree with. Then the first deep dive:
+  <b>the stats and history queries as a reviewed list</b>, followed by the object chain designed against them
+  — every field, why it exists, how they reference each other, and the pseudo code for
+  <code>wordPool</code>, <code>grade</code> and <code>QuizRun.answer</code> before a line is written.
+</div>
+
+</div>
+
+<script type="module">
+  import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.15.0/dist/mermaid.esm.min.mjs";
+
+  const darkQuery = window.matchMedia("(prefers-color-scheme: dark)");
+  const paint = document.createElement("canvas").getContext("2d");
+  function toRgba(color) {
+    paint.clearRect(0, 0, 1, 1);
+    paint.fillStyle = "#000";
+    paint.fillStyle = color;
+    paint.fillRect(0, 0, 1, 1);
+    return paint.getImageData(0, 0, 1, 1).data;
+  }
+  function compositeRgba(fg, bg) {
+    const fa = fg[3] / 255, ba = bg[3] / 255;
+    const a = fa + ba * (1 - fa);
+    if (a === 0) return [0, 0, 0, 0];
+    return [
+      (fg[0] * fa + bg[0] * ba * (1 - fa)) / a,
+      (fg[1] * fa + bg[1] * ba * (1 - fa)) / a,
+      (fg[2] * fa + bg[2] * ba * (1 - fa)) / a,
+      a * 255,
+    ];
+  }
+  function pageIsDark() {
+    const root = document.documentElement;
+    const rootBg = toRgba(getComputedStyle(root).backgroundColor);
+    const bodyBg = document.body ? toRgba(getComputedStyle(document.body).backgroundColor) : [0, 0, 0, 0];
+    const [r, g, b, a] = compositeRgba(bodyBg, rootBg);
+    if (a > 0) return (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255 < 0.5;
+    const cs = getComputedStyle(root).colorScheme;
+    if (cs.includes("dark") && !cs.includes("light")) return true;
+    if (cs.includes("light") && !cs.includes("dark")) return false;
+    return darkQuery.matches;
+  }
+
+  const diagrams = [...document.querySelectorAll(".mermaid")].map((el) => ({ el, src: el.textContent }));
+  let applied, rendering = false, queued = false;
+  function queueRender() { queued = true; if (!rendering) void render(); }
+  async function render() {
+    rendering = true;
+    try {
+      while (queued) {
+        queued = false;
+        const theme = pageIsDark() ? "dark" : "default";
+        if (theme === applied) continue;
+        mermaid.initialize({ startOnLoad: false, theme, securityLevel: "strict" });
+        for (const { el, src } of diagrams) { el.removeAttribute("data-processed"); el.textContent = src; }
+        try { await mermaid.run({ nodes: diagrams.map((d) => d.el) }); }
+        catch (error) { console.error("Mermaid diagram render failed:", error); return; }
+        applied = theme;
+      }
+    } finally { rendering = false; if (queued) queueRender(); }
+  }
+  if (document.readyState === "complete") queueRender();
+  else window.addEventListener("load", queueRender, { once: true });
+  const themeObserver = new MutationObserver(queueRender);
+  for (const el of [document.documentElement, document.body]) {
+    if (!el) continue;
+    themeObserver.observe(el, { attributes: true, attributeFilter: ["data-theme", "class", "style"] });
+  }
+  document.addEventListener("change", queueRender, true);
+  document.addEventListener("transitionend", ({ propertyName }) => {
+    if (propertyName === "background-color") queueRender();
+  }, true);
+  darkQuery.addEventListener("change", queueRender);
+</script>
+</body>
+</html>
