@@ -26,7 +26,11 @@ import {
   verbMeaning as verbMeaningSpec, derivedNounMeaning,
   MUDARI_PARTICLES, particlesFor, particleFor,
 } from '../js/meaning-service.js';
+import { readFileSync } from 'node:fs';
 import { quizPlan, planCharts } from '../js/quiz/quiz-plan.js';
+import { SETTINGS_SPEC } from '../js/settings/settings.js';
+import { state, resetPracticeFlow } from '../js/ui/state.js';
+import { WIZARD_STEPS } from '../js/screens/practice-wizard.js';
 import { wordPool } from '../js/quiz/word-pool.js';
 import { relevance, possibleQuestions, IDENTIFY_CATEGORIES } from '../js/quiz/relevance.js';
 import { questionStream } from '../js/quiz/quiz-run.js';
@@ -1051,6 +1055,74 @@ check(chartKeysFor({ tenses: ['madi'], voices: ['majhul'], moods: [] }) === 'mad
   const cols = ['rootKey', 'formId', 'verbType', 'bab', 'tense', 'voice', 'mood', 'slot', 'derivedKind'];
   check(revived.every((a) => cols.every((c) => c in a.question.identity)),
     'a stored identity carries every column the stats queries group by');
+}
+
+// ---------------------------------------------------------------------------
+// A2 — the two Practice flows
+//
+// The exit criterion is "both flows produce an identical QuizPlan for the same
+// choices". The strongest form of that is structural, not behavioural: NEITHER
+// screen constructs a plan. Both mutate state.draft and practice.js makes the
+// single draftPlan() call, so a wizard cannot write a field classic has no
+// control for. The first check below reads the source to pin exactly that,
+// because it is the kind of invariant a future edit breaks silently.
+// ---------------------------------------------------------------------------
+{
+  const src = (f) => readFileSync(new URL(`../js/${f}`, import.meta.url), 'utf8');
+
+  const flows = ['screens/practice-classic.js', 'screens/practice-wizard.js'];
+  check(flows.every((f) => !/\bquizPlan\s*\(/.test(src(f))),
+    'A2: neither Practice flow constructs a QuizPlan — only practice.js does');
+  check(/draftPlan\(\)/.test(src('screens/practice.js')),
+    'A2: practice.js owns the single draftPlan() call on the start path');
+  // Matches an IMPORT, not a mention: the file's header comment explains at
+  // length why it does not use the summary, and a bare substring test fails on
+  // its own documentation.
+  check(!/^\s*import[^;]*practice-summary/m.test(src('screens/practice-classic.js')),
+    'A2: classic is untouched — it does not import the summary card');
+
+  const ids = WIZARD_STEPS.map((s) => s.id);
+  check(ids.length === 5 && new Set(ids).size === 5,
+    'A2: WIZARD_STEPS is five pages with unique ids');
+  check(ids.join() === 'type,verbs,charts,count,ready',
+    'A2: the pages are in the roadmap order');
+
+  const draft = (over) => ({
+    quizType: 'identify', tenses: ['madi', 'mudari'], voices: ['malum'], moods: ['raf'],
+    forms: ['I'], types: ['salim'], count: 10, ...over,
+  });
+  const visible = (d) => WIZARD_STEPS.filter((s) => s.applies(d)).map((s) => s.id);
+
+  check(visible(draft()).length === 5,
+    'A2: an identify plan walks all five pages');
+  // A derived noun has no chart, so the whole page goes rather than showing
+  // three rows that filter nothing.
+  check(!visible(draft({ quizType: 'derived' })).includes('charts'),
+    'A2: derived nouns skip the charts page entirely');
+  check(visible(draft({ quizType: 'derived' })).length === 4,
+    'A2: and the wizard is four pages long for them');
+  // The amr loses ROWS, not the page — the accepted cost of five multi-field
+  // pages over one page per field (ROADMAP A2 · Q1).
+  check(visible(draft({ tenses: ['amr'] })).includes('charts'),
+    'A2: an amr-only plan keeps the charts page — it loses rows, not the step');
+
+  // Both flows read the same draft, so the same choices give the same plan
+  // whichever screen made them. Frozen, so neither can edit it afterwards.
+  const a = quizPlan(draft());
+  const b = quizPlan(draft());
+  check(JSON.stringify(a) === JSON.stringify(b) && Object.isFrozen(a),
+    'A2: the same draft yields the same frozen plan, whichever flow wrote it');
+
+  const flow = SETTINGS_SPEC.find((x) => x.id === 'practiceFlow');
+  check(flow?.audience === 'user' && flow.default === 'classic'
+    && flow.options?.map((o) => o.value).join() === 'classic,wizard',
+  'A2: practiceFlow is a user setting with two options, defaulting to classic');
+
+  state.practice.step = 'charts';
+  state.practice.sample = { planKey: 'x', question: null };
+  resetPracticeFlow();
+  check(state.practice.step === 'type' && state.practice.sample === null,
+    'A2: resetPracticeFlow sends the wizard back to page one and drops its memo');
 }
 
 console.log(`\nTOTAL: ${pass} passed, ${fail} failed`);

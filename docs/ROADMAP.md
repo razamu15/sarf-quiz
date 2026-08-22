@@ -4,7 +4,8 @@
 > This file is the build order. [PRODUCT_SPEC.md](PRODUCT_SPEC.md) is what the
 > app is for; [TECHNICAL_PLAN.md](TECHNICAL_PLAN.md) covers the iOS port.
 
-**Status: Aug 2026.** A1 is complete. 304 assertions green, zero import cycles.
+**Status: Aug 2026.** A1 and A2 are complete. 316 assertions green, zero import
+cycles, 48 modules.
 
 ---
 
@@ -20,6 +21,7 @@ Do not re-open these without new information.
 | **History storage is unconditional** | Every user's every answer is stored from the first build, whether or not any screen can read it. Data you didn't keep can't be backfilled. |
 | **Compare gets built, dev-only** | `settings.compareCharts` is `audience: 'dev'`, `default: true` — on for us, not shipped in v1. It is the engine-audit instrument. |
 | **Weak-spot drills narrow the pool, not the question** | Accepted as approximate. Recorded as a named comment in `quiz-plan.js`; do not "fix" it as a bug. |
+| **Two Practice flows, one plan** | `settings.practiceFlow` picks the layout; **neither flow constructs a `QuizPlan`**, so the loser is deleted with no migration. Classic is frozen verbatim for the duration — do not "improve" it. See A2. |
 
 ---
 
@@ -32,60 +34,47 @@ object, `history/` split into store + queries, `app.js` and `quiz-service.js`
 dissolved into 20 files, and every deletion listed in ARCHITECTURE §4.
 Verified: 304 assertions, zero diffs across 20,252 engine outputs.
 
-### A2 · Practice — the summary step **and the wizard** — ⬜ next
+### A2 · Practice — the summary step **and the wizard** — ✅ **DONE**
 
-**Scope changed Aug 2026: the wizard is back in.** Build both flows behind a
-flag, and choose between them from use rather than argument. Neither is deleted until that call is made.
+Both flows ship behind `settings.practiceFlow` (`'classic' | 'wizard'`,
+`audience: 'user'`, default `classic`), switchable from More with no reload.
+Delivered: 4 screen files, `QUIZ_TYPE_INFO`, `VOICE_NAMES`, `segmented()`,
+`state.practice`, and the first working user preference in More.
+Verified: **316 assertions** (12 new), zero diffs across 20,252 engine outputs,
+and both flows driven end to end in the running app.
 
-**New settings entry** — add to `SETTINGS_SPEC`:
-
-```js
-{ id: 'practiceFlow', audience: 'user', default: 'classic',
-  label: 'Practice layout',      // 'classic' | 'wizard'
-  note: 'both flows write the same QuizPlan; see ROADMAP A2' }
-```
-
-`audience: 'user'` on purpose — the point is to switch at runtime and live with
-each for a while, which an edit-and-reload defeats.
+**The invariant is structural, not tested.** Neither flow constructs a
+`QuizPlan`: both mutate `state.draft`, and `practice.js` makes the single
+`draftPlan()` call on the start path. `quizPlan()` has exactly two call sites in
+the app — `ui/state.js` and `drills.js` — and neither Practice screen is one.
+A smoke check reads the source to pin that, because it is the kind of invariant
+a later edit breaks silently.
 
 **Files**
 
 ```
-js/screens/practice.js          → reads settings.practiceFlow, delegates
-js/screens/practice-classic.js  → today's one-screen layout, moved
-js/screens/practice-wizard.js   → the stepped flow
-js/screens/practice-summary.js  → SHARED by both — the valuable half
+js/screens/practice.js          the flag, and the only startPlan()
+js/screens/practice-classic.js  today's one-screen layout, moved VERBATIM
+js/screens/practice-wizard.js   WIZARD_STEPS — five pages
+js/screens/practice-summary.js  the sample question + the setup card
 ```
 
-**Hard requirement on the split:** both flows write the **same `QuizPlan`**, with
-no wizard-only fields. That is what makes the comparison fair and the flag
-removable later — whichever loses is deleted with no migration. Quiz generation,
-relevance and history are untouched by either flow.
+**Decisions taken during the design review** (`.lavish/a2-practice.html`).
+Do not re-open these without new information.
 
-**The wizard's steps**
+| | Decision | Consequence accepted |
+|---|---|---|
+| **Wizard shape** | **Five multi-field pages**, not one per field | Voice and iʿrāb are absent *rows* on the charts page, not absent *steps*. Only the whole charts page disappears, and only for `derived`. Picking the amr never visibly shortens the wizard. |
+| **Classic** | **Untouched entirely** — a verbatim file move | No summary card, no reorder, and it keeps the OLD labels. The same quiz type is called *Identify* in classic and *Name the grammar* in the wizard. Deliberate: the flag then compares whole propositions, not layouts. The new names live in `glossary.js · QUIZ_TYPE_INFO`, so adopting them in classic is a three-line diff. |
+| **The sample question** | *A* sample from the real stream, **then discarded** | The run draws its own first question. Memoised on `JSON.stringify(plan)` so it does not re-roll on every tap; `↻` clears the memo. A dry pool renders the gap, never a placeholder. |
+| **The footer** | Count **plus which question kinds changed** | Not optional under five pages: the charts page arrives *and leaves* at 2,268 having retired two kinds and revived a third. Dropping māḍī alone reads `↓ from 2,268 — no longer asking Tense and Bāb`. |
+| **Nothing under `quiz/`** | No `revive` strings on retired rules | A2 is a screens-and-settings change and nothing else. The retired reasons stay `QUESTION_RULES`' own strings verbatim, so the setup card cannot reword them — it puts the value directly above the reason instead. |
+| **Wizard entry** | **Always step 1**, no resume | Changing one chip on session five means walking all five pages. That is the cost the flag is measuring; read a later "the wizard is annoying" as *"a five-page wizard with no shortcut is annoying"*. Reversing it is one line. |
+| **The Ready page** | One card, not two, with an **Edit** button | "This setup asks" and "Your setup" were restating each other. Merged: values on top, live/retired questions below. Edit goes to step 1, which dropped a per-axis `onJump(field)` for a single `onEdit()`. |
+| **Dead taps** | **Accepted as-is**, not special-cased | A chip that changes neither the count nor the kinds renders no delta and an identical number (tapping maʿrūf when it is already the only voice: 378 → 378). Recorded as a named comment in `practice-wizard.js`, because an "unchanged, and why" branch would need `relevance()`'s reasoning. |
 
-1. **What to practise** — the four quiz types as cards, with the subtitles below. One per session.
-2. **Which verbs** — verb types, then forms/abwāb. Skipped fields keep their current values.
-3. **Which charts** — tense, then voice, then iʿrāb. Steps that do not apply are **skipped entirely** rather than greyed out: pick amr only and the voice and iʿrāb steps never appear. That is the wizard's main advantage over the one-screen layout.
-4. **How many** — 5 / 10 / 20 / endless.
-5. **Ready** — the summary step.
-
-Each step shows the running possible-question count in the footer, so a choice
-visibly moves the number.
-
-**The summary step — built once, used by both flows**
-
-- the chosen configuration as chips, each tappable to jump back to that step
-  (classic: scroll to that row)
-- the existing **"This setup asks" panel, moved above the controls** — in the
-  classic flow it currently sits below everything that determines it
-- the possible-question count
-- **one real generated question, rendered non-interactively.** Take question one
-  from the actual stream and show the card. Nothing in a subtitle explains
-  "Match the meaning" as well as seeing one.
-
-**Naming** — apply these. **The `id`s do not change**; they are written into
-stored history records.
+**Naming** — applied **in the wizard only**, per the classic decision above.
+The `id`s do not change; they are written into stored history records.
 
 | id | label | Arabic | subtitle |
 |---|---|---|---|
@@ -94,13 +83,22 @@ stored history records.
 | `derived` | Derived nouns | المُشْتَقَّات | From a verb, pick its ism fāʿil, ism mafʿūl or maṣdar. |
 | `fromMeaning` | **Match the meaning** | مِنَ المَعْنَى | You read an English meaning — choose the Arabic word that says it. |
 
-`produce` keeps صِيَاغَة (already applied): كِتَابَة is writing as a physical
-act; صِيَاغَة is forming, which is what the user is doing.
+**Two smaller things that fell out of the build**
 
-**Exit criteria** — both flows produce an identical `QuizPlan` for the same
-choices (assert it) · the flag flips at runtime from More with no reload · the
-sample question on the summary comes from the real stream · the wizard skips
-inapplicable steps rather than greying them.
+- `VOICE_NAMES` is a **separate glossary export**, not a field on `VOICE_LABELS`,
+  because `builders/identify.js` spreads that object wholesale into an answer
+  option (`{ ...VOICE_LABELS[voice], valueKey: voice }`) and an option is
+  embedded in a stored `Answer`. A field added there for a chip's benefit would
+  be written into every history record for the rest of the app's life.
+- The verb-type group expansion is **duplicated** in `practice-wizard.js`,
+  because classic is frozen. When the flag resolves, the winner keeps the one
+  copy; if a third caller appears first, it belongs in `vocabulary.js` beside
+  `verbTypesInGroup()`.
+
+**When the flag resolves.** The loser is deleted with no migration — that is what
+the shared-plan invariant buys. If classic wins, `practice-summary.js` and
+`QUIZ_TYPE_INFO` are the parts worth keeping and should be folded into it.
+
 
 ### A3 · Recognition tips — ⬜ v1
 
@@ -234,7 +232,7 @@ seven; or treat the weak pair as a separate engine effort with its own corpus.
 Every change:
 
 ```bash
-cd web-prototype && node test/smoke.mjs      # 304 assertions; first 112 are engine parity
+cd web-prototype && node test/smoke.mjs      # 316 assertions; first 112 are engine parity
 ```
 
 Every engine or refactor change, additionally — **snapshot before touching

@@ -19,6 +19,44 @@ export const PRONOUNS = {
   '1p':  { ar: 'نَحْنُ',    en: 'we' },
 };
 
+/**
+ * The four quiz types as a student meets them (ROADMAP A2's naming table).
+ *
+ * Each is named by WHAT YOU ARE GIVEN → WHAT YOU MUST SUPPLY, which is what the
+ * old names failed at: "Identify" did not say identify what, and "Meaning →
+ * verb" was an arrow to decode. `sub` is the first place in the app that says
+ * what a question of that type looks like.
+ *
+ * THE KEYS ARE THE STORED IDS and do not change — history records carry
+ * 'identify', 'produce', 'derived', 'fromMeaning' forever.
+ *
+ * Called by: screens/practice-wizard.js (step 1's cards) and
+ * screens/practice-summary.js (the setup card's Quiz row).
+ *
+ * NOT called by practice-classic.js, which keeps its own older labels — see the
+ * tracked decision at the top of that file.
+ */
+export const QUIZ_TYPE_INFO = {
+  identify: {
+    en: 'Name the grammar', ar: 'تَمْيِيز',
+    sub: 'You see a word — say its tense, voice, doer, iʿrāb or bāb.',
+  },
+  produce: {
+    // صِيَاغَة, not كِتَابَة: writing is the physical act, ṣiyāgha is forming,
+    // which is what the user is actually doing.
+    en: 'Write the word', ar: 'صِيَاغَة',
+    sub: "You're given the grammar — type the Arabic.",
+  },
+  derived: {
+    en: 'Derived nouns', ar: 'المُشْتَقَّات',
+    sub: 'From a verb, pick its ism fāʿil, ism mafʿūl or maṣdar.',
+  },
+  fromMeaning: {
+    en: 'Match the meaning', ar: 'مِنَ المَعْنَى',
+    sub: 'You read an English meaning — choose the Arabic word that says it.',
+  },
+};
+
 export const TENSE_LABELS = {
   madi:   { ar: 'فِعْل مَاضٍ', en: 'past (māḍī)' },
   mudari: { ar: 'فِعْل مُضَارِع', en: 'present/future (muḍāriʿ)' },
@@ -29,6 +67,21 @@ export const VOICE_LABELS = {
   malum:  { ar: 'مَعْلُوم', en: 'active — doer is known' },
   majhul: { ar: 'مَجْهُول', en: 'passive — doer is unknown' },
 };
+
+/**
+ * The romanised term a CONTROL is labelled with — deliberately NOT a field on
+ * VOICE_LABELS, which builders/identify.js spreads wholesale into an answer
+ * option (`{ ...VOICE_LABELS[voice], valueKey: voice }`). An option is embedded
+ * in a stored Answer, so a field added there for a chip's benefit would end up
+ * written into every history record for the rest of the app's life.
+ *
+ * VOICE_LABELS.en is the sentence an option shows ("active — doer is known");
+ * this is the word a chip has room for.
+ *
+ * Called by: screens/practice-wizard.js (the voice row) and
+ * screens/practice-summary.js (reading the same choice back).
+ */
+export const VOICE_NAMES = { malum: 'maʿrūf', majhul: 'majhūl' };
 
 export const MOOD_LABELS = {
   raf:  { ar: 'مَرْفُوع', en: 'marfūʿ — the default state' },

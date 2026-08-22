@@ -24,6 +24,18 @@ export const state = {
     count: settings.defaultQuizLength,
   },
 
+  // The wizard's own view state. NOT plan data — no field here reaches a
+  // QuizPlan, which is what keeps both Practice flows writing the same one.
+  //
+  // `step` is a STAGE ID, never an index into the visible steps: choosing
+  // 'derived' removes the charts page, so an index into a list whose length just
+  // changed would send Back somewhere arbitrary.
+  //
+  // `sample` memoises exactly one generated question against the plan that
+  // produced it, so the summary card does not re-roll on every chip tap. See
+  // practice-summary.js.
+  practice: { step: 'type', sample: null, lastLive: null, lastCount: null },
+
   tables: {
     rootKey: null, formId: null,
     tense: 'madi', voice: 'malum', mood: 'raf',
@@ -38,3 +50,17 @@ export const state = {
 
 /** The draft, frozen into the object the quiz layer takes. */
 export const draftPlan = () => quizPlan(state.draft);
+
+/**
+ * Send the wizard back to its first step and drop everything it remembered.
+ *
+ * Called by: main.js on entering the Practice tab (ROADMAP A2 · Q5 — the wizard
+ * always opens at step 1, with no resume), and more.js when practiceFlow is
+ * flipped, so turning the wizard on does not drop you into step 3 of it.
+ */
+export function resetPracticeFlow() {
+  state.practice.step = 'type';
+  state.practice.sample = null;
+  state.practice.lastLive = null;
+  state.practice.lastCount = null;
+}

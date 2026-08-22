@@ -8,8 +8,8 @@
 > Companion docs: [PRODUCT_SPEC.md](PRODUCT_SPEC.md) for what the app is,
 > [ROADMAP.md](ROADMAP.md) for what is left to build.
 
-Last verified against the code: **Aug 2026**, 45 files, 161 import edges,
-304 assertions green, zero import cycles.
+Last verified against the code: **Aug 2026**, 48 files, 181 import edges,
+316 assertions green, zero import cycles.
 
 ---
 
@@ -270,8 +270,13 @@ js/
     queries.js         basicSummary · accuracyBy · accuracyPerDay · weakSpots
                        · confusions · sessionSummaries
 
-  ui/                  dom.js (helpers) · state.js (tab, draft plan, live run)
-  screens/             home · practice · tables · quiz · results · stats · more
+  ui/                  dom.js (helpers · chipRow · segmented) · state.js (tab,
+                       draft plan, live run, the wizard's step + sample memo)
+  screens/             home · tables · quiz · results · stats · more
+    practice.js        the practiceFlow flag, and the ONLY startPlan()
+    practice-classic.js  the one-screen layout — FROZEN VERBATIM, see §11
+    practice-wizard.js   WIZARD_STEPS · five pages · the running count
+    practice-summary.js  the sample question + the setup card (wizard-only)
   main.js              composition root + router
 ```
 
@@ -299,6 +304,8 @@ js/
 7. **Granular verb types in data, display groups only in the view.** Carrying a
    group name (`'ajwaf'`) into plan data is what silently killed the muʿtall
    Home drill — `candidates()` filters on `root.type` (`'ajwaf_waw'`).
+8. **Neither Practice flow builds a plan.** Both mutate `state.draft`;
+   `practice.js` owns the single `draftPlan()` call. See §11.
 
 ---
 
@@ -308,7 +315,7 @@ js/
 cd web-prototype && node test/smoke.mjs
 ```
 
-304 assertions; the first 112 are hand-typed conjugation and meaning parity and
+316 assertions; the first 112 are hand-typed conjugation and meaning parity and
 must stay byte-identical.
 
 **For any engine or refactor work, that is not enough.** Snapshot the full
@@ -325,3 +332,38 @@ node -e "..." > /tmp/engine-before.txt   # see ROADMAP.md §Verification
 **Then walk the running app.** `preview_start` the `sarf-quiz-web` config, drive
 each tab, and read the console. Tests do not catch serialization, wiring or
 integration breaks.
+
+---
+
+## 11. The two Practice flows
+
+`settings.practiceFlow` chooses between two complete layouts of the same screen
+(ROADMAP A2). They are being lived with, and the loser is deleted.
+
+```
+practice.js ──reads settings.practiceFlow──┬─→ practice-classic.js
+     │                                     └─→ practice-wizard.js ──→ practice-summary.js
+     │                                                    │
+     └───────────── startPlan() ←── draftPlan() ←─── state.draft ─┘
+```
+
+**What makes deleting the loser free:** neither flow constructs a `QuizPlan`.
+Both only paint and mutate `state.draft`, and `practice.js` makes the one
+`draftPlan()` call on the start path — so a wizard cannot write a field the
+classic screen has no control for. `quizPlan()` has exactly two call sites in
+the whole app, `ui/state.js` and `quiz/drills.js`, and neither is a screen.
+A smoke check reads the source to pin this.
+
+**`practice-classic.js` is frozen verbatim.** It does not render the summary
+card and it keeps its older quiz-type labels, so the same type is *Identify* in
+classic and *Name the grammar* in the wizard. That is deliberate: every
+improvement made to one side of a comparison is a result the comparison can no
+longer produce. The consequences — a duplicated verb-type expansion in the
+wizard, and two copies of the muḍāriʿ particle note — are tracked comments in
+those files, not oversights.
+
+**`state.practice` is view state and never reaches a plan.** `step` is a stage
+**id**, not an index: choosing `derived` removes the charts page, so an index
+into a list whose length just changed would send Back somewhere arbitrary. The
+wizard resets to page one on every entry to the tab (`resetPracticeFlow()` in
+`main.js`), which is A2's decided behaviour and not an accident.

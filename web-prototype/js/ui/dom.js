@@ -35,6 +35,25 @@ export function toggle(arr, val) {
   if (i >= 0) arr.splice(i, 1); else arr.push(val);
 }
 
+/**
+ * A one-of-N switch. Sibling of chipRow(), NOT a variant of it: a chip row is a
+ * multi-select filter over a domain axis, and this is a single setting taking
+ * one of a fixed set of values. They should not look alike, because tapping one
+ * adds to a selection and tapping the other replaces it.
+ *
+ * Called by: screens/more.js, for any user setting whose SETTINGS_SPEC entry
+ * declares `options`.
+ */
+export function segmented(options, isOn, onPick, { onChange } = {}) {
+  const seg = el('<div class="seg"></div>');
+  for (const { value, label } of options) {
+    const btn = el(`<button class="${isOn(value) ? 'on' : ''}">${label}</button>`);
+    btn.onclick = () => { onPick(value); onChange?.(); };
+    seg.append(btn);
+  }
+  return seg;
+}
+
 export function rowNav(title, sub, badge) {
   return el(`<button class="row-nav">
     <span><b>${title}</b>${sub ? `<small>${sub}</small>` : ''}</span>

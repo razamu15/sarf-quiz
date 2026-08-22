@@ -26,7 +26,7 @@ history, **not authoritative**.
 ## Working here
 
 ```bash
-cd web-prototype && node test/smoke.mjs     # 304 assertions; the first 112 are engine parity
+cd web-prototype && node test/smoke.mjs     # 316 assertions; the first 112 are engine parity
 ```
 
 **Run the app** with the `sarf-quiz-web` config in `.claude/launch.json`
@@ -53,6 +53,11 @@ These are the ones that have actually caused bugs in this codebase.
 - **Validate once, at a boundary.** `conjugation-service` owns every conjugation
   precondition; `grade()` owns every correctness judgement. No screen decides
   whether an answer is right.
+- **Practice has two flows and they share a plan.** `settings.practiceFlow`
+  picks classic or wizard. Neither screen calls `quizPlan()` — both mutate
+  `state.draft` and `practice.js` makes the one `draftPlan()` call. Keep it that
+  way: it is what lets the losing flow be deleted with no migration.
+  `practice-classic.js` is **frozen verbatim** until that call is made.
 - **Verb types have two layers.** `ajwaf_waw` is what the engine routes on;
   `ajwaf` is what a student picks. Expand at the UI boundary, store the granular
   one. Carrying a group name into plan data silently killed a Home drill.

@@ -1,0 +1,1799 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sarf Quiz — A2: Practice, the wizard and the shared summary</title>
+<style>
+/* ==== app stylesheet, inlined: Lavish serves the artifact from an opaque
+   origin, where a linked sibling sheet loads but never applies. Inlining also
+   keeps the exported copy self-contained. Source: sarf-app-v4.css ==== */
+/* Sarf Quiz app CSS — generated from web-prototype/css/style.css (Aug 2026, 502 lines)
+   for the A2 review artifact. Every selector is scoped under .phone so the app
+   styles paint the device mocks and nothing else; :root keeps the design tokens
+   global so the document chrome uses the same palette. The light-scheme media
+   query is dropped — these review docs are dark-only. Regenerate rather than
+   hand-edit. */
+
+/* Sarf Quiz prototype — mobile-first, mirrors the eventual iOS layout */
+:root {
+  --bg: #0e1117;
+  --card: #191f2b;
+  --card2: #212a3a;
+  --ink: #eef2f8;
+  --ink-dim: #93a0b4;
+  --accent: #4ea8de;
+  --accent-ink: #0b2233;
+  --good: #3fb96f;
+  --bad: #e05d5d;
+  --chip-on: #2b567a;
+  --radius: 16px;
+  --arabic: "Geeza Pro", "Al Bayan", "Baghdad", "Scheherazade New", "Amiri", serif;
+  --latin: -apple-system, "SF Pro Text", "Segoe UI", system-ui, sans-serif;
+}
+
+.phone, .phone * { margin: 0; padding: 0; box-sizing: border-box; }
+
+.phone {
+  width: 100%;
+  max-width: 430px;
+  min-height: 100vh;
+  padding: 28px 20px 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.phone h1 { font-size: 26px; letter-spacing: -0.02em; }
+
+.phone h1 .ar { font-family: var(--arabic); font-size: 30px; margin-inline-start: 8px; color: var(--accent); }
+
+.phone .subtitle { color: var(--ink-dim); font-size: 14px; line-height: 1.5; }
+
+.phone .tabs {
+  display: flex;
+  gap: 6px;
+  background: var(--card);
+  border-radius: 12px;
+  padding: 4px;
+}
+
+.phone .tab {
+  flex: 1;
+  border: 0;
+  background: none;
+  color: var(--ink-dim);
+  font-family: var(--latin);
+  font-size: 14px;
+  font-weight: 600;
+  padding: 10px;
+  border-radius: 9px;
+  cursor: pointer;
+}
+
+.phone .tab.on { background: var(--card2); color: var(--ink); }
+
+/* --- motivation card (Home) ---
+   Quiet by design: it should read as something worth pausing on, not as an
+   advert. No border, no button, no tap target — the Arabic carries it. */
+.phone .quote {
+  margin: 18px 0 4px;
+  padding: 18px 20px;
+  background: linear-gradient(160deg, var(--card2), var(--card));
+  border-inline-start: 3px solid var(--accent);
+  border-radius: var(--radius);
+}
+
+.phone .quote blockquote.ar {
+  font-family: var(--arabic);
+  font-size: 25px;
+  line-height: 2.1;
+  direction: rtl;
+  text-align: start;
+  color: var(--ink);
+  unicode-bidi: isolate;
+}
+
+.phone .quote figcaption { margin-top: 12px; }
+
+.phone .quote .en {
+  display: block;
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--ink-dim);
+  font-style: italic;
+}
+
+.phone .quote cite {
+  display: block;
+  margin-top: 8px;
+  font-size: 11.5px;
+  font-style: normal;
+  color: var(--ink-dim);
+}
+
+.phone .quote cite b {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+  font-weight: 700;
+  margin-inline-end: 6px;
+}
+
+.phone .preset {
+  background: var(--card);
+  border: 1px solid #303a4d;
+  border-radius: var(--radius);
+  padding: 16px;
+}
+
+.phone .preset.off { opacity: 0.45; }
+
+.phone .preset-head { display: flex; align-items: center; justify-content: space-between; gap: 14px; }
+
+.phone .preset b { font-size: 16px; }
+
+.phone .preset .ar { font-family: var(--arabic); font-size: 20px; margin-inline-start: 8px; color: var(--accent); }
+
+.phone .preset-desc { color: var(--ink-dim); font-size: 13px; margin-top: 4px; line-height: 1.5; }
+
+.phone .ar-inline { font-family: var(--arabic); font-size: 16px; color: var(--ink); unicode-bidi: isolate; }
+
+.phone .btn.small { padding: 10px 18px; font-size: 15px; border-radius: 12px; white-space: nowrap; }
+
+.phone .section-label {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--ink-dim);
+  margin-top: 6px;
+}
+
+.phone .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+
+.phone .chip {
+  border: 1px solid #303a4d;
+  background: var(--card);
+  color: var(--ink);
+  border-radius: 999px;
+  padding: 8px 14px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background .15s, border-color .15s;
+  font-family: var(--latin);
+}
+
+.phone .chip .ar { font-family: var(--arabic); margin-inline-start: 6px; color: var(--ink-dim); }
+
+.phone .chip.on { background: var(--chip-on); border-color: var(--accent); }
+
+.phone .chip.on .ar { color: var(--ink); }
+
+.phone .chip:disabled { opacity: 0.38; cursor: not-allowed; }
+
+.phone .chip small { display: block; font-size: 11px; color: var(--ink-dim); }
+
+.phone .btn {
+  border: 0;
+  border-radius: var(--radius);
+  padding: 16px;
+  font-size: 17px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: var(--latin);
+}
+
+.phone .btn.primary { background: var(--accent); color: var(--accent-ink); }
+
+.phone .btn.primary:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.phone .btn.ghost { background: var(--card); color: var(--ink); }
+
+.phone .spacer { flex: 1; }
+
+/* --- quiz --- */
+.phone .topbar { display: flex; align-items: center; gap: 12px; }
+
+.phone .topbar .count { color: var(--ink-dim); font-size: 13px; white-space: nowrap; }
+
+.phone .progress { flex: 1; height: 6px; background: var(--card2); border-radius: 3px; overflow: hidden; }
+
+.phone .progress i { display: block; height: 100%; background: var(--accent); border-radius: 3px; transition: width .3s; }
+
+.phone .quit { background: none; border: 0; color: var(--ink-dim); font-size: 14px; cursor: pointer; }
+
+.phone .word-card {
+  background: linear-gradient(160deg, var(--card2), var(--card));
+  border: 1px solid #2c3850;
+  border-radius: 20px;
+  padding: 34px 20px 28px;
+  text-align: center;
+}
+
+.phone .word-card .word {
+  font-family: var(--arabic);
+  font-size: 58px;
+  line-height: 1.9;
+  direction: rtl;
+}
+
+.phone .word-card .word-tag {
+  font-size: 12px;
+  color: var(--ink-dim);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.phone .word-card .gloss {
+  color: var(--ink-dim);
+  font-size: 16px;
+  font-style: italic;
+  margin-top: 2px;
+}
+
+.phone .word-card .cat {
+  display: inline-block;
+  margin-top: 10px;
+  font-size: 12px;
+  color: var(--accent);
+  background: rgba(78, 168, 222, 0.12);
+  padding: 4px 10px;
+  border-radius: 999px;
+}
+
+.phone .prompt { font-size: 17px; font-weight: 600; text-align: center; }
+
+.phone .options { display: flex; flex-direction: column; gap: 10px; }
+
+.phone .option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border: 1px solid #303a4d;
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  cursor: pointer;
+  font-size: 16px;
+  color: var(--ink);
+  text-align: start;
+  transition: border-color .15s, background .15s;
+}
+
+.phone .option .ar { font-family: var(--arabic); font-size: 24px; direction: rtl; }
+
+.phone .option .en { color: var(--ink-dim); font-size: 13px; }
+
+.phone .option:not(:disabled):hover { border-color: var(--accent); }
+
+.phone .option.correct { background: rgba(63, 185, 111, 0.16); border-color: var(--good); }
+
+.phone .option.wrong { background: rgba(224, 93, 93, 0.14); border-color: var(--bad); }
+
+.phone .option:disabled { cursor: default; }
+
+.phone .feedback {
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  font-size: 14px;
+  line-height: 1.65;
+  background: var(--card2);
+}
+
+.phone .feedback.good { border-inline-start: 3px solid var(--good); }
+
+.phone .feedback.bad { border-inline-start: 3px solid var(--bad); }
+
+.phone .feedback .ar { font-family: var(--arabic); font-size: 19px; }
+
+.phone .feedback .meaning {
+  font-size: 15px;
+  padding-bottom: 8px;
+  margin-bottom: 8px;
+  border-bottom: 1px solid rgba(147, 160, 180, 0.2);
+}
+
+.phone .feedback .meaning .ar { font-size: 24px; }
+
+.phone .review .item.vocab { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+
+/* --- results --- */
+.phone .score-ring {
+  width: 140px; height: 140px;
+  border-radius: 50%;
+  margin: 18px auto 6px;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  background:
+    radial-gradient(closest-side, var(--bg) 82%, transparent 83% 100%),
+    conic-gradient(var(--accent) calc(var(--pct) * 1%), var(--card2) 0);
+}
+
+.phone .score-ring b { font-size: 34px; }
+
+.phone .score-ring span { font-size: 12px; color: var(--ink-dim); }
+
+.phone .breakdown { display: flex; flex-direction: column; gap: 8px; }
+
+.phone .breakdown .row {
+  display: flex; justify-content: space-between;
+  background: var(--card);
+  border-radius: 12px;
+  padding: 10px 14px;
+  font-size: 14px;
+}
+
+.phone .breakdown .row span:last-child { color: var(--ink-dim); }
+
+.phone .review { display: flex; flex-direction: column; gap: 8px; }
+
+.phone .review .item {
+  background: var(--card);
+  border-radius: 12px;
+  padding: 12px 14px;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--ink-dim);
+}
+
+.phone .review .item .ar { font-family: var(--arabic); font-size: 20px; color: var(--ink); }
+
+/* --- v2: multi-select --- */
+.phone .multi-hint { color: var(--ink-dim); font-size: 13px; text-align: center; margin-top: -6px; }
+
+.phone .option.selected { border-color: var(--accent); background: var(--chip-on); }
+
+/* --- v2: endless mode --- */
+.phone .scorebar { color: var(--ink-dim); font-size: 13px; white-space: nowrap; }
+
+.phone .topbar .btn.small.endquiz { padding: 8px 14px; font-size: 13px; }
+
+/* --- v3: four-tab shell --- */
+.phone .tabbar {
+  position: sticky;
+  bottom: 6px;
+  display: flex;
+  gap: 2px;
+  background: var(--card);
+  border: 1px solid #303a4d;
+  border-radius: 16px;
+  padding: 6px;
+  margin-top: 16px;
+  /* The bar floats over content while scrolling; the halo keeps whatever
+     passes underneath from touching its edge. */
+  box-shadow: 0 0 0 6px var(--bg);
+}
+
+.phone .tabbtn {
+  flex: 1;
+  border: 0;
+  background: none;
+  color: var(--ink-dim);
+  font-family: var(--latin);
+  font-size: 11px;
+  padding: 7px 2px;
+  border-radius: 11px;
+  cursor: pointer;
+}
+
+.phone .tabbtn.on { background: var(--card2); color: var(--accent); }
+
+.phone .tabbtn i { display: block; font-style: normal; font-size: 17px; margin-bottom: 2px; }
+
+/* --- v3: home stats card (free tier) --- */
+.phone .statcard {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  text-align: start;
+  background: linear-gradient(160deg, var(--card2), var(--card));
+  border: 1px solid #2c3850;
+  border-radius: var(--radius);
+  padding: 16px;
+  cursor: pointer;
+  font-family: var(--latin);
+  color: var(--ink);
+}
+
+.phone .statcard .ring {
+  width: 74px; height: 74px; flex: none;
+  border-radius: 50%;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  background:
+    radial-gradient(closest-side, var(--card) 78%, transparent 79% 100%),
+    conic-gradient(var(--accent) calc(var(--pct) * 1%), var(--card2) 0);
+}
+
+.phone .statcard .ring b { font-size: 19px; }
+
+.phone .statcard .ring span { font-size: 9px; color: var(--ink-dim); text-transform: uppercase; letter-spacing: .06em; }
+
+.phone .statcard .meta { min-width: 0; }
+
+.phone .statcard .meta b { font-size: 15px; display: block; }
+
+.phone .statcard .meta small { color: var(--ink-dim); font-size: 12.5px; display: block; margin-bottom: 8px; }
+
+.phone .statcard .chev { margin-inline-start: auto; color: var(--ink-dim); font-size: 18px; }
+
+.phone .week { display: flex; gap: 5px; }
+
+.phone .week i { width: 15px; height: 15px; border-radius: 4px; background: var(--card2); display: block; }
+
+.phone .week i.d1 { background: rgba(78, 168, 222, 0.35); }
+
+.phone .week i.d2 { background: rgba(78, 168, 222, 0.65); }
+
+.phone .week i.d3 { background: var(--accent); }
+
+/* --- v3: practice config --- */
+.phone .section-label small { text-transform: none; letter-spacing: 0; opacity: .8; }
+
+.phone .section-label.off { opacity: 0.4; }
+
+.phone .chips-off { opacity: 0.4; }
+
+.phone .count-line { text-align: center; }
+
+.phone .count-line.empty { color: var(--bad); }
+
+/* --- v3: tables search --- */
+.phone .search {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--card); border: 1px solid #303a4d;
+  border-radius: 12px; padding: 4px 14px;
+}
+
+.phone .search input {
+  flex: 1; min-width: 0;
+  background: none; border: 0; outline: none;
+  color: var(--ink); font-family: var(--latin); font-size: 15px; padding: 9px 0;
+}
+
+.phone .results { display: flex; flex-direction: column; gap: 7px; }
+
+.phone .result {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  background: var(--card); border: 1px solid #303a4d; border-radius: 12px;
+  padding: 11px 14px; cursor: pointer; font-family: var(--latin); color: var(--ink);
+  text-align: start;
+}
+
+.phone .result.on { border-color: var(--accent); background: var(--chip-on); }
+
+.phone .result .ar { font-family: var(--arabic); font-size: 21px; }
+
+.phone .result small { color: var(--ink-dim); font-size: 12.5px; }
+
+/* --- v3: more tab rows --- */
+.phone .row-nav {
+  display: flex; justify-content: space-between; align-items: center; gap: 12px;
+  width: 100%; text-align: start;
+  background: var(--card); border: 1px solid #303a4d; border-radius: 12px;
+  padding: 13px 14px; font-size: 14.5px; margin-bottom: 8px;
+  cursor: pointer; font-family: var(--latin); color: var(--ink);
+}
+
+.phone .row-nav small { color: var(--ink-dim); display: block; font-size: 12px; }
+
+.phone .row-nav .chev { color: var(--ink-dim); }
+
+.phone .lock { font-size: 11px; color: #c48ce0; border: 1px solid rgba(196, 140, 224, 0.4); border-radius: 999px; padding: 2px 8px; }
+
+.phone .row-nav.danger b { color: var(--bad); }
+
+/* Practice: what this configuration will actually ask, and what it retired. */
+.phone .asks {
+  border: 1px solid #303a4d; background: var(--card); border-radius: 12px;
+  padding: 11px 14px; font-size: 13px; color: var(--ink-dim);
+  display: flex; flex-direction: column; gap: 3px;
+}
+
+.phone .asks b {
+  color: var(--ink); font-size: 11px; text-transform: uppercase;
+  letter-spacing: .08em; margin-bottom: 3px;
+}
+
+.phone .asks .tick { color: var(--good); }
+
+.phone .asks .cross { color: var(--ink-dim); }
+
+.phone .badge-up { font-size: 12px; color: var(--accent-ink); background: var(--accent); border-radius: 999px; padding: 4px 12px; font-weight: 600; }
+
+.phone .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+.phone .stat-tile { background: var(--card); border: 1px solid #303a4d; border-radius: 14px; padding: 12px 14px; }
+
+.phone .stat-tile b { display: block; font-size: 24px; }
+
+.phone .stat-tile span { font-size: 11.5px; color: var(--ink-dim); text-transform: uppercase; letter-spacing: .06em; }
+
+.phone .table-title { flex: 1; white-space: normal; }
+
+/* --- v4: meaning → verb questions ---
+   The English carries the card, so it gets the size the Arabic word normally
+   has. No Arabic on this card at all — every Arabic string here would be
+   either the answer or a hint toward it. */
+.phone .meaning-card .meaning-prompt {
+  font-size: 24px; line-height: 1.4; font-weight: 600; color: var(--ink);
+  padding: 4px 0;
+}
+
+.phone .meaning-card .root-hint {
+  font-family: var(--arabic); font-size: 20px; direction: rtl; letter-spacing: 6px;
+  color: var(--ink-dim); margin-top: 10px;
+}
+
+/* --- v3: write-the-word questions --- */
+.phone .cue-card .root {
+  font-family: var(--arabic); font-size: 40px; direction: rtl; letter-spacing: 8px;
+  line-height: 1.6;
+}
+
+.phone .cue-spec { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; margin-top: 12px; }
+
+.phone .cue-spec span {
+  font-size: 12px; color: var(--accent); background: rgba(78, 168, 222, 0.12);
+  padding: 4px 10px; border-radius: 999px;
+}
+
+.phone .cue-spec span .ar { font-family: var(--arabic); font-size: 15px; margin-inline-start: 4px; }
+
+.phone .answer-box {
+  width: 100%;
+  border: 1px solid var(--accent); background: var(--card);
+  border-radius: 14px; padding: 12px 14px; text-align: center;
+  font-family: var(--arabic); font-size: 34px; color: var(--ink);
+  outline: none;
+}
+
+.phone .answer-box.correct { border-color: var(--good); background: rgba(63, 185, 111, 0.12); }
+
+.phone .answer-box.wrong { border-color: var(--bad); background: rgba(224, 93, 93, 0.1); }
+
+.phone .diff-pair { display: flex; gap: 18px; justify-content: center; text-align: center; padding-bottom: 10px; margin-bottom: 10px; border-bottom: 1px solid rgba(147, 160, 180, 0.2); }
+
+.phone .diff-label { display: block; font-size: 10px; color: var(--ink-dim); text-transform: uppercase; letter-spacing: .08em; }
+
+.phone .diff { font-family: var(--arabic); font-size: 28px; direction: rtl; }
+
+.phone .diff u { text-decoration: none; background: rgba(224, 93, 93, 0.35); border-radius: 4px; padding: 0 2px; }
+
+.phone .diff.ok u { background: rgba(63, 185, 111, 0.3); }
+
+.phone .seetable { font-size: 13px; color: var(--accent); display: inline-block; margin-top: 10px; cursor: pointer; }
+
+.phone .explainbtn {
+  margin-top: 10px; width: 100%;
+  border: 1px solid rgba(78, 168, 222, 0.4); background: rgba(78, 168, 222, 0.1);
+  color: var(--accent); border-radius: 12px; padding: 10px;
+  font-size: 14px; font-weight: 600; font-family: var(--latin); cursor: pointer;
+}
+
+.phone .fullwidth-note { font-size: 12.5px; color: var(--ink-dim); text-align: center; }
+
+/* --- v2: tables browser --- */
+.phone .conj-table-wrap { overflow-x: auto; border-radius: var(--radius); border: 1px solid #303a4d; }
+
+.phone .conj-table { width: 100%; border-collapse: collapse; background: var(--card); font-size: 14px; }
+
+.phone .conj-table th {
+  text-align: start; padding: 10px 14px; color: var(--ink-dim);
+  font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em;
+  border-bottom: 1px solid #303a4d;
+}
+
+.phone .conj-table td { padding: 8px 14px; border-bottom: 1px solid #232c3c; vertical-align: middle; }
+
+.phone .conj-table tr:last-child td { border-bottom: 0; }
+
+.phone .conj-table .pron .ar { font-family: var(--arabic); font-size: 18px; display: block; }
+
+.phone .conj-table .pron small { color: var(--ink-dim); font-size: 11px; }
+
+.phone .conj-table .word-cell .ar { font-family: var(--arabic); font-size: 26px; direction: rtl; }
+
+.phone .conj-table .wazn-cell .ar { font-family: var(--arabic); font-size: 18px; color: var(--ink-dim); direction: rtl; }
+
+.phone .chip small { display: block; font-size: 11px; color: var(--ink-dim); }
+
+/* All 14 rows, always — the page scrolls rather than the table truncating.
+   A nested scroll box would strand the chart in a short window on a small
+   phone and leave dead space below it. */
+.phone .conj-table-wrap.tall { overflow-y: visible; }
+
+/* Arriving from a quiz's "See full table", the row you just met is marked. */
+.phone .conj-table tr.hit td { background: rgba(78, 168, 222, 0.16); }
+
+.phone .conj-table tr.hit .word-cell .ar { color: var(--accent); }
+
+/* --- mock-only re-scoping: the real .phone owns the viewport; here it sits in a frame --- */
+.phone { min-height: 0; max-width: none; padding: 22px 18px 24px; background: var(--bg);
+         color: var(--ink); font-family: var(--latin); line-height: 1.45; }
+.phone .tabbar { position: static; }
+.phone .spacer { flex: none; height: 4px; }
+
+</style>
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+  :where(p, h1, h2, h3, h4, li, td, th, dd) { overflow-wrap: anywhere; }
+  :where(.grid2, .grid3, .opts, .mockrow, .kv) > * { min-width: 0; }
+
+  html { color-scheme: dark; }
+  body { margin: 0; background: var(--bg); color: var(--ink);
+         font-family: var(--latin); line-height: 1.6; -webkit-font-smoothing: antialiased; }
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 40px 22px 140px; }
+
+  /* ---------- document chrome ---------- */
+  .masthead { border-bottom: 1px solid #2b3547; padding-bottom: 26px; margin-bottom: 10px; }
+  .eyebrow { font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--accent); font-weight: 700; }
+  .masthead h1 { font-size: clamp(26px, 4vw, 36px); line-height: 1.15; margin: 10px 0 12px; letter-spacing: -0.02em; }
+  .lede { color: var(--ink-dim); font-size: 16px; max-width: 76ch; }
+  .lede b { color: var(--ink); }
+
+  h2.sec { font-size: 13px; text-transform: uppercase; letter-spacing: .12em; color: var(--ink-dim);
+           margin: 62px 0 18px; padding-bottom: 10px; border-bottom: 1px solid #2b3547; }
+  h2.sec b { color: var(--accent); font-weight: 700; margin-inline-end: 8px; }
+  h3.sub { font-size: 20px; margin: 34px 0 8px; letter-spacing: -0.01em; }
+  h4.mini { font-size: 11.5px; text-transform: uppercase; letter-spacing: .1em; color: var(--accent);
+            margin: 26px 0 8px; font-weight: 700; }
+  p.body { font-size: 15px; color: var(--ink-dim); max-width: 80ch; margin: 0 0 14px; }
+  p.body b, li b, td b, dd b { color: var(--ink); }
+  p.body .ar, li .ar, td .ar { font-family: var(--arabic); font-size: 18px; }
+  ul.body { font-size: 15px; color: var(--ink-dim); max-width: 80ch; padding-inline-start: 20px; margin: 0 0 14px; }
+  ul.body li { margin-bottom: 9px; }
+  code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12.5px; color: var(--accent); }
+  .num { font-variant-numeric: tabular-nums; }
+
+  .callout { border-inline-start: 3px solid var(--accent); background: var(--card2);
+             border-radius: 10px; padding: 14px 18px; font-size: 14.5px; margin: 18px 0; color: var(--ink-dim); }
+  .callout.bad  { border-inline-start-color: var(--bad); }
+  .callout.good { border-inline-start-color: var(--good); }
+  .callout.warn { border-inline-start-color: #d8a13a; }
+  .callout b { color: var(--ink); }
+  .callout .hd { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: .09em;
+                 margin-bottom: 6px; color: var(--ink-dim); font-weight: 700; }
+  .callout.bad .hd { color: var(--bad); }
+  .callout.good .hd { color: var(--good); }
+  .callout.warn .hd { color: #d8a13a; }
+
+  .grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 18px; }
+  .grid3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
+
+  .panel { background: var(--card); border: 1px solid #303a4d; border-radius: 14px; padding: 16px 18px; }
+  .panel h5 { margin: 0 0 8px; font-size: 14px; }
+  .panel p { margin: 0; font-size: 13.5px; color: var(--ink-dim); }
+
+  .tbl-wrap { overflow-x: auto; border: 1px solid #303a4d; border-radius: 14px; margin: 16px 0; }
+  table.rev { width: 100%; border-collapse: collapse; background: var(--card); font-size: 13.5px; min-width: 640px; }
+  table.rev th { text-align: start; padding: 10px 14px; color: var(--ink-dim); font-size: 10.5px;
+                 text-transform: uppercase; letter-spacing: .09em; border-bottom: 1px solid #303a4d;
+                 background: var(--card2); white-space: nowrap; }
+  table.rev td { padding: 10px 14px; border-bottom: 1px solid #232c3c; vertical-align: top; color: var(--ink-dim); }
+  table.rev tr:last-child td { border-bottom: 0; }
+  table.rev td .ar { font-family: var(--arabic); font-size: 17px; color: var(--ink); }
+  table.rev .yes { color: var(--good); }
+  table.rev .no  { color: var(--bad); }
+
+  /* ---------- device frame ---------- */
+  .device { width: 100%; max-width: 372px; border: 1px solid #333f55; border-radius: 26px;
+            overflow: hidden; background: var(--bg); box-shadow: 0 18px 48px rgba(0,0,0,.45); }
+  .device .cap { font-size: 10.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-dim);
+                 background: #131926; padding: 8px 14px; border-bottom: 1px solid #2b3547; font-weight: 700; }
+  .device .cap em { font-style: normal; color: var(--accent); }
+  .device.rec { border-color: rgba(63,185,111,.55); }
+  .device.rec .cap { color: var(--good); }
+  .mockrow { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+             gap: 22px; align-items: start; margin: 18px 0 8px; justify-items: center; }
+  .mockrow.wide { grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); }
+  .mockrow > * { max-width: 100%; }
+  figure.mock { margin: 0; display: flex; flex-direction: column; gap: 10px; align-items: center; }
+  figure.mock figcaption { font-size: 13px; color: var(--ink-dim); max-width: 372px; }
+  figure.mock figcaption b { color: var(--ink); }
+
+  /* ---------- annotation pins over a mock ---------- */
+  .pinwrap { position: relative; }
+  .pin { position: absolute; top: 8px; right: 12px; z-index: 3; background: #d8a13a; color: #1a1204; border-radius: 999px;
+         width: 22px; height: 22px; display: grid; place-items: center; font-size: 12px; font-weight: 800;
+         box-shadow: 0 0 0 3px rgba(216,161,58,.22); }
+  ol.pins { font-size: 13.5px; color: var(--ink-dim); padding-inline-start: 4px; list-style: none; margin: 10px 0 0; }
+  ol.pins li { margin-bottom: 8px; display: flex; gap: 10px; align-items: baseline; }
+  ol.pins li b { color: var(--ink); }
+  ol.pins .n { flex: none; background: #d8a13a; color: #1a1204; border-radius: 999px; width: 19px; height: 19px;
+               display: inline-grid; place-items: center; font-size: 11px; font-weight: 800; }
+
+  /* ---------- proposed app classes, styled to look native ---------- */
+  .phone .wiz-head { display: flex; align-items: center; gap: 10px; }
+  .phone .wiz-head .back { background: none; border: 0; color: var(--ink-dim); font-size: 18px; cursor: pointer; padding: 0 4px 0 0; }
+  .phone .stepbar { flex: 1; display: flex; gap: 4px; }
+  .phone .stepbar i { flex: 1; height: 4px; border-radius: 2px; background: var(--card2); display: block; }
+  .phone .stepbar i.done { background: var(--accent); }
+  .phone .stepbar i.now { background: var(--accent); box-shadow: 0 0 0 2px rgba(78,168,222,.22); }
+  .phone .stepbar i.gone { background: repeating-linear-gradient(90deg, #2b3547 0 3px, transparent 3px 6px); }
+  .phone .wiz-head .of { font-size: 11px; color: var(--ink-dim); white-space: nowrap; letter-spacing: .04em; }
+  .phone .wiz-title { font-size: 23px; letter-spacing: -.02em; margin-bottom: -8px; }
+  .phone .wiz-why { color: var(--ink-dim); font-size: 13.5px; line-height: 1.5; }
+  .phone .wiz-why .ar { font-family: var(--arabic); font-size: 17px; }
+
+  .phone .wiz-foot { border-top: 1px solid #2b3547; padding-top: 12px; margin-top: 4px;
+                     display: flex; flex-direction: column; gap: 9px; }
+  .phone .wiz-foot .cnt { font-size: 13px; color: var(--ink-dim); text-align: center; }
+  .phone .wiz-foot .cnt b { color: var(--ink); font-variant-numeric: tabular-nums; }
+  .phone .wiz-foot .delta { font-size: 12px; text-align: center; color: #d8a13a; line-height: 1.45; }
+  .phone .wiz-foot .delta.up { color: var(--good); }
+  .phone .wiz-foot .btns { display: flex; gap: 9px; }
+  .phone .wiz-foot .btns .btn { flex: 1; padding: 13px; font-size: 15.5px; }
+  .phone .wiz-foot .btns .btn.ghost { flex: 0 0 78px; }
+
+  .phone .type-card { display: block; width: 100%; text-align: start; background: var(--card);
+                      border: 1px solid #303a4d; border-radius: var(--radius); padding: 13px 15px;
+                      cursor: pointer; font-family: var(--latin); color: var(--ink); }
+  .phone .type-card.on { border-color: var(--accent); background: var(--chip-on); }
+  .phone .type-card .hd { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+  .phone .type-card b { font-size: 15.5px; }
+  .phone .type-card .ar { font-family: var(--arabic); font-size: 18px; color: var(--accent); }
+  .phone .type-card.on .ar { color: var(--ink); }
+  .phone .type-card small { display: block; color: var(--ink-dim); font-size: 12.5px; line-height: 1.45; margin-top: 3px; }
+  .phone .type-card.on small { color: rgba(238,242,248,.8); }
+
+  /* the shared summary component */
+  .phone .sample { position: relative; border: 1px solid #2c3850; border-radius: 20px; overflow: hidden;
+                   background: linear-gradient(160deg, var(--card2), var(--card)); }
+  .phone .sample .rib { display: flex; align-items: center; justify-content: space-between; gap: 8px;
+                        padding: 7px 12px 7px 14px; border-bottom: 1px solid #2c3850; background: rgba(78,168,222,.07); }
+  .phone .sample .rib span { font-size: 10px; letter-spacing: .1em; text-transform: uppercase;
+                             color: var(--accent); font-weight: 700; }
+  .phone .sample .rib button { background: none; border: 0; color: var(--ink-dim); font-size: 15px; cursor: pointer; }
+  .phone .sample .inert { padding: 20px 16px 16px; text-align: center; }
+  .phone .sample .inert .word { font-family: var(--arabic); font-size: 44px; line-height: 1.75; direction: rtl; }
+  .phone .sample .inert .gloss { color: var(--ink-dim); font-size: 14px; font-style: italic; }
+  .phone .sample .inert .cat { display: inline-block; margin-top: 8px; font-size: 11px; color: var(--accent);
+                               background: rgba(78,168,222,.12); padding: 3px 9px; border-radius: 999px; }
+  .phone .sample .ask { font-size: 14.5px; font-weight: 600; text-align: center; padding: 2px 16px 10px; }
+  .phone .sample .opts { display: flex; flex-direction: column; gap: 7px; padding: 0 14px 14px; }
+  .phone .sample .opts .option { padding: 9px 13px; font-size: 14px; pointer-events: none; }
+  .phone .sample .opts .option .ar { font-size: 20px; }
+  .phone .sample.dim .inert, .phone .sample.dim .ask { opacity: .92; }
+  .phone .sample.dim .opts { opacity: .5; }
+  .phone .sample .foot { font-size: 11.5px; color: var(--ink-dim); text-align: center;
+                         padding: 0 14px 12px; line-height: 1.45; }
+  .phone .sample .box { margin: 0 14px 12px; border: 1px dashed rgba(78,168,222,.5); border-radius: 14px;
+                        padding: 11px; text-align: center; font-family: var(--arabic); font-size: 26px;
+                        color: var(--ink-dim); opacity: .5; }
+
+  .phone .cfg { border: 1px solid #303a4d; background: var(--card); border-radius: 12px; overflow: hidden; }
+  .phone .cfg > .hd { font-size: 10.5px; text-transform: uppercase; letter-spacing: .08em; color: var(--ink-dim);
+                      padding: 9px 13px; border-bottom: 1px solid #2b3547; display: flex;
+                      justify-content: space-between; gap: 8px; font-weight: 700; }
+  .phone .cfg > .hd em { font-style: normal; color: var(--accent); font-weight: 600; letter-spacing: 0; text-transform: none; font-size: 11.5px; }
+  .phone .kv { display: grid; grid-template-columns: 62px 1fr; gap: 6px 10px; padding: 11px 13px; align-items: start; }
+  .phone .kv > dt { font-size: 11px; color: var(--ink-dim); padding-top: 5px; text-transform: uppercase; letter-spacing: .05em; }
+  .phone .kv > dd { margin: 0; display: flex; flex-wrap: wrap; gap: 5px; }
+  .phone .kv .vchip { border: 1px solid #35435c; background: var(--card2); border-radius: 999px;
+                      padding: 3px 10px; font-size: 12.5px; color: var(--ink); cursor: pointer; }
+  .phone .kv .vchip .ar { font-family: var(--arabic); font-size: 14px; color: var(--ink-dim); margin-inline-start: 5px; }
+  .phone .cfg > .hd { align-items: center; }
+  .phone .cfg .edit { background: none; border: 1px solid #35435c; color: var(--accent);
+                      border-radius: 999px; padding: 4px 14px; font-size: 11.5px; font-weight: 700;
+                      font-family: var(--latin); cursor: pointer; letter-spacing: .03em; text-transform: none; }
+  /* The asks list becomes the second zone of the setup card, not its own card. */
+  .phone .cfg .asks { border: 0; background: none; border-radius: 0; border-top: 1px solid #2b3547; }
+  .phone .kv .vchip { cursor: default; }
+  .phone .cfg .line { padding: 10px 13px; font-size: 12.5px; color: var(--ink-dim); display: flex;
+                      justify-content: space-between; gap: 10px; align-items: center; cursor: pointer; }
+  .phone .cfg .line span { color: var(--ink); }
+  .phone .cfg .line .chev { color: var(--ink-dim); }
+
+  .phone .asks .cross s { text-decoration: none; opacity: .72; }
+  .phone .asks .fix { color: var(--accent); }
+
+  .phone .seg { display: flex; gap: 3px; background: var(--card2); border-radius: 10px; padding: 3px; }
+  .phone .seg button { flex: 1; border: 0; background: none; color: var(--ink-dim); font-family: var(--latin);
+                       font-size: 12.5px; font-weight: 600; padding: 7px 10px; border-radius: 8px; cursor: pointer; white-space: nowrap; }
+  .phone .seg button.on { background: var(--chip-on); color: var(--ink); }
+  .phone .row-nav.settled { display: block; }
+  .phone .row-nav.settled > b { font-size: 14.5px; display: block; }
+  .phone .row-nav.settled > small { color: var(--ink-dim); display: block; font-size: 12px; margin: 1px 0 9px; }
+
+  /* code */
+  pre.code { background: #10151f; border: 1px solid #283246; border-radius: 12px; padding: 14px 16px;
+             overflow-x: auto; font-size: 12.5px; line-height: 1.65; margin: 14px 0;
+             font-family: ui-monospace, SFMono-Regular, Menlo, monospace; color: #c6d2e2; }
+  pre.code .c { color: #6d7c92; }
+  pre.code .k { color: #c48ce0; }
+  pre.code .s { color: #7fc8a0; }
+  pre.code .f { color: var(--accent); }
+  pre.code b { color: #fff; font-weight: 600; }
+
+  /* decision blocks */
+  .decide { border: 1px solid #35435c; border-radius: 16px; background: var(--card);
+            padding: 18px 20px; margin: 22px 0; }
+  .decide > h4 { margin: 0 0 4px; font-size: 16.5px; color: var(--ink); }
+  .decide > p.q { margin: 0 0 14px; font-size: 13.5px; color: var(--ink-dim); }
+  .decide label { display: flex; gap: 11px; align-items: flex-start; padding: 11px 13px; border-radius: 11px;
+                  border: 1px solid #303a4d; background: var(--card2); margin-bottom: 8px; cursor: pointer; }
+  .decide label:hover { border-color: var(--accent); }
+  .decide label input { margin-top: 3px; accent-color: var(--accent); flex: none; }
+  .decide label .t { font-size: 14px; color: var(--ink); font-weight: 600; }
+  .decide label .d { font-size: 12.5px; color: var(--ink-dim); display: block; font-weight: 400; margin-top: 2px; }
+  .decide label .rec { font-size: 10px; text-transform: uppercase; letter-spacing: .08em; color: var(--good);
+                       border: 1px solid rgba(63,185,111,.4); border-radius: 999px; padding: 1px 7px; margin-inline-start: 7px; }
+  .decide .go { background: var(--accent); color: var(--accent-ink); border: 0; border-radius: 11px;
+                padding: 10px 20px; font-weight: 700; font-size: 13.5px; cursor: pointer; font-family: var(--latin); }
+  .decide .sent { font-size: 12.5px; color: var(--good); margin-inline-start: 12px; }
+
+  .mermaid { background: var(--card); border: 1px solid #303a4d; border-radius: 14px; padding: 18px; margin: 18px 0; }
+  .mermaid svg { max-width: 100%; height: auto; }
+
+  .tag { display: inline-block; font-size: 10px; letter-spacing: .08em; text-transform: uppercase;
+         border-radius: 999px; padding: 2px 9px; font-weight: 700; vertical-align: middle; }
+  .tag.new { color: var(--good); border: 1px solid rgba(63,185,111,.45); }
+  .tag.moved { color: var(--accent); border: 1px solid rgba(78,168,222,.45); }
+  .tag.ask { color: #d8a13a; border: 1px solid rgba(216,161,58,.45); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="masthead">
+  <div class="eyebrow">Roadmap A2 · design, before implementation</div>
+  <h1>Practice — the wizard, and the summary step that is<br>the actually valuable half</h1>
+  <p class="lede">Everything below is <b>rendered in the app's own stylesheet</b>, and every number,
+  Arabic word and question in it came out of the real engine — I ran the plans through
+  <code>wordPool</code> → <code>relevance</code> → <code>questionStream</code> and pasted the output. So the
+  counts move the way they will actually move. <b>Nothing is implemented yet</b>; this is the thing to react to
+  first. Decisions are recorded at the bottom, and every mock is annotatable.</p>
+  <p class="lede" style="margin-top:14px; border-inline-start:3px solid var(--good); padding-inline-start:14px">
+  <b>Revised after your first pass.</b> Five of the six decisions are answered and folded in — the wizard is
+  drawn as <b>five multi-field pages</b> (Q1&nbsp;A), the sample is <b>a sample</b> (Q2), the footer
+  <b>names the questions that changed</b> (Q3), A2 <b>does not touch <code>quiz/</code> at all</b> (Q4), and the
+  wizard <b>always opens at step 1</b> (Q5). Second pass: <b>classic is untouched entirely</b> — a verbatim file move (Q6), the
+  Ready page's two cards are <b>merged into one</b> with an <b>Edit</b> button, and a tap that moves nothing is
+  <b>accepted as-is</b> with a named comment. Where an answer went against my recommendation I have kept the cost
+  visible rather than quietly rewriting it as the better idea.</p>
+</header>
+
+<!-- ══════════════════════════════════════════════════════════════ -->
+<h2 class="sec"><b>00</b> Where A2 starts from</h2>
+
+<p class="body">Today's Practice is one screen: <b>33 controls in 7 rows</b>, and the panel that explains what
+they add up to sits <b>underneath all of them</b>. On a 375&nbsp;pt phone the fold lands mid-way through the
+Abwāb row, so the feedback for a chip you just tapped is roughly a screen and a half below your thumb.</p>
+
+<div class="mockrow wide">
+  <figure class="mock">
+    <div class="device"><div class="cap">Today · <em>screens/practice.js</em> · the top</div>
+      <div class="phone pinwrap">
+        <span class="pin" data-anchor=".chips" data-shift="-2">1</span>
+        <h1>Practice</h1>
+        <div class="section-label">Quiz type <small>one per session</small></div>
+        <div class="chips">
+          <button class="chip on">◉ Identify<span class="ar">تَمْيِيز</span></button>
+          <button class="chip">○ Write the word<span class="ar">صِيَاغَة</span></button>
+          <button class="chip">○ Derived nouns<span class="ar">المُشْتَقَّات</span></button>
+          <button class="chip">○ Meaning → verb<span class="ar">مِنَ المَعْنَى</span></button>
+        </div>
+        <div class="section-label">Tense</div>
+        <div class="chips">
+          <button class="chip on">past<span class="ar">مَاضٍ</span></button>
+          <button class="chip on">present/future<span class="ar">مُضَارِع</span></button>
+          <button class="chip">command<span class="ar">أَمْر</span></button>
+        </div>
+        <div class="section-label">Voice</div>
+        <div class="chips">
+          <button class="chip on">maʿrūf<span class="ar">مَعْلُوم</span></button>
+          <button class="chip">majhūl<span class="ar">مَجْهُول</span></button>
+        </div>
+        <div class="section-label">Iʿrāb <small>muḍāriʿ only</small></div>
+        <div class="chips">
+          <button class="chip on">marfūʿ<span class="ar">مَرْفُوع</span></button>
+          <button class="chip">manṣūb<span class="ar">مَنْصُوب</span></button>
+          <button class="chip">majzūm<span class="ar">مَجْزُوم</span></button>
+        </div>
+        <div class="section-label">Abwāb / forms</div>
+        <div class="chips">
+          <button class="chip on">I<span class="ar">الثلاثي المجرد</span></button>
+          <button class="chip on">II<span class="ar">التَّفْعِيل</span></button>
+          <button class="chip">III<span class="ar">المُفَاعَلَة</span></button>
+          <button class="chip">IV<span class="ar">الإِفْعَال</span></button>
+        </div>
+        <p class="subtitle" style="text-align:center;opacity:.5">… six more form chips, then verb types, then length</p>
+      </div>
+    </div>
+    <figcaption>Real strings, real default selection (<code>state.draft</code>).
+    Everything you can see is a control; nothing you can see is an explanation.</figcaption>
+  </figure>
+
+  <figure class="mock">
+    <div class="device"><div class="cap">Today · the bottom, ~1.5 screens down</div>
+      <div class="phone pinwrap">
+        <span class="pin" data-anchor=".asks" data-shift="2">2</span>
+        <div class="section-label">Verb types</div>
+        <div class="chips">
+          <button class="chip on">sound<span class="ar">سَالِم</span></button>
+          <button class="chip">doubled<span class="ar">مُضَاعَف</span></button>
+          <button class="chip">contains hamza<span class="ar">مَهْمُوز</span><small>content coming</small></button>
+        </div>
+        <div class="section-label">Questions</div>
+        <div class="chips">
+          <button class="chip">5</button>
+          <button class="chip on">10</button>
+          <button class="chip">20</button>
+          <button class="chip">∞ endless</button>
+        </div>
+        <div class="asks"><b>This setup asks</b>
+          <span class="tick">✓ Tense</span>
+          <span class="tick">✓ Who the doer is</span>
+          <span class="tick">✓ Bāb</span>
+          <span class="cross">Voice — only one voice reachable</span>
+          <span class="cross">Iʿrāb — iʿrāb needs the muḍāriʿ in more than one state</span>
+        </div>
+        <p class="subtitle count-line">≈ 2,268 possible questions</p>
+        <button class="btn primary">Start quiz</button>
+        <div class="spacer"></div>
+        <div class="tabbar">
+          <button class="tabbtn"><i>⌂</i>Home</button>
+          <button class="tabbtn on"><i>✎</i>Practice</button>
+          <button class="tabbtn"><i>▤</i>Tables</button>
+          <button class="tabbtn"><i>⋯</i>More</button>
+        </div>
+      </div>
+    </div>
+    <figcaption>The <code>.asks</code> panel and the count are real output for the default draft —
+    <b class="num">2,268</b> possible questions, three live kinds, two retired.</figcaption>
+  </figure>
+</div>
+
+<ol class="pins">
+  <li><span class="n">1</span><span><b>Four quiz types, and not one of them says what a question looks like.</b>
+  "Identify" does not say identify <em>what</em>; "Meaning → verb" is an arrow you have to decode.</span></li>
+  <li><span class="n">2</span><span><b>The explanation is below everything that determines it.</b> Tap a tense chip
+  at the top and the sentence that tells you what just happened is off-screen.</span></li>
+</ol>
+
+<div class="callout warn"><span class="hd">The interesting number, and it is not 2,268</span>
+Dropping <b>māḍī</b> from that default — one tap — takes the count from <b class="num">2,268</b> to
+<b class="num">378</b>. Not because there are fewer words (there are 756 → 378) but because losing a second
+tense <b>retires the Tense question and the Bāb question at the same time</b>. A <b>6× cliff from one chip</b>,
+currently reported as a number that silently changed while off-screen. Making that legible is most of what
+this step is for.</div>
+
+<!-- ══════════════════════════════════════════════════════════════ -->
+<h2 class="sec"><b>01</b> The split — four files, and who is allowed to build a plan</h2>
+
+<p class="body">The roadmap fixes the file list. The part worth deciding now is <b>where <code>startPlan()</code>
+lives</b>, because that is what makes the exit criterion — <em>"both flows produce an identical QuizPlan"</em> —
+true by construction instead of true by test.</p>
+
+<div class="mermaid">
+flowchart TD
+  M["main.js · render()"] --> P["screens/practice.js<br/><b>reads settings.practiceFlow</b><br/>owns startPlan()"]
+  P -->|"'classic'"| C["practice-classic.js<br/>today's 7 rows, moved"]
+  P -->|"'wizard'"| W["practice-wizard.js<br/>WIZARD_STEPS table"]
+  C --> S["practice-summary.js<br/><b>shared</b> — sample · asks · chips"]
+  W --> S
+  C -.->|"mutates"| D["ui/state.js · state.draft<br/><i>the one mutable draft</i>"]
+  W -.->|"mutates"| D
+  D --> Q["draftPlan() → quizPlan()<br/><b>the only construction site</b>"]
+  P --> Q
+  Q --> POOL["wordPool → relevance → questionStream<br/><i>untouched by A2</i>"]
+  S -.->|"reads"| POOL
+</div>
+
+<div class="callout good"><span class="hd">The invariant, made structural</span>
+<b>Neither flow builds a QuizPlan. Both only paint and mutate <code>state.draft</code>.</b>
+<code>practice.js</code> keeps <code>startPlan()</code> and hands it down as a callback. There is then exactly
+one call to <code>draftPlan()</code> on the start path, so "both flows produce the same plan" is not something a
+test has to police — the wizard has no way to write a field the classic screen cannot. It is also what makes
+deleting the loser a pure file deletion with no migration.</div>
+
+<div class="tbl-wrap">
+<table class="rev">
+  <thead><tr><th style="width:210px">File</th><th style="width:70px">Lines</th><th>Owns</th><th style="width:180px">Explicitly does not own</th></tr></thead>
+  <tbody>
+    <tr><td><code>screens/practice.js</code></td><td>~55</td>
+        <td>Reads <code>settings.practiceFlow</code>, delegates, and owns <b><code>startPlan()</code></b> — building the run, the endless/fixed split, and <code>state.replay</code>.</td>
+        <td>Any chip, any layout.</td></tr>
+    <tr><td><code>screens/practice-classic.js</code></td><td>~120</td>
+        <td>Today's file, moved <b>verbatim</b> minus <code>startPlan()</code>. No other change of any kind.</td>
+        <td>Plan construction; the summary card, which is wizard-only.</td></tr>
+    <tr><td><code>screens/practice-wizard.js</code></td><td>~190</td>
+        <td><b><code>WIZARD_STEPS</code></b> — the declarative step table — plus the head, the footer and step navigation.</td>
+        <td>Plan construction; anything the summary renders.</td></tr>
+    <tr><td><code>screens/practice-summary.js</code></td><td>~130</td>
+        <td>The sample question, and the one <b>setup card</b> — chosen values above, live/retired questions below — plus the muḍāriʿ particle note. Takes a single <code>onEdit()</code> callback.</td>
+        <td><b>The count and the Start button</b> — see §02.</td></tr>
+  </tbody>
+</table>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════ -->
+<h2 class="sec"><b>02</b> The shared summary — what it renders, and what it deliberately doesn't</h2>
+
+<p class="body">This is the half that survives whichever flow wins, so it gets designed first. The mock below is
+<b>real output</b> for <em>identify · muḍāriʿ · maʿrūf · all three iʿrāb · Form I · sound + doubled</em>:
+1,134 cells, two live question kinds, <b class="num">2,268</b> possible questions, and the sample is literally
+the first thing <code>questionStream</code> handed me for that plan.</p>
+
+<div class="mockrow wide">
+  <figure class="mock">
+    <div class="device rec"><div class="cap">Proposed · <em>wizard, last step</em></div>
+      <div class="phone pinwrap">
+        <span class="pin" data-anchor=".sample" data-shift="3">1</span>
+        <span class="pin" data-anchor=".cfg" data-shift="3">2</span>
+        <div class="wiz-head">
+          <button class="back">‹</button>
+          <div class="stepbar"><i class="done"></i><i class="done"></i><i class="done"></i><i class="done"></i><i class="now"></i></div>
+          <span class="of">5 / 5</span>
+        </div>
+        <h1 class="wiz-title">Ready</h1>
+        <p class="wiz-why">Here is one of the questions this setup produces.</p>
+
+        <div class="sample dim">
+          <div class="rib"><span>Sample question</span><button title="another">↻</button></div>
+          <div class="inert">
+            <div class="word">أَقْتُلَ</div>
+            <div class="gloss">“to kill”</div>
+            <span class="cat">mood</span>
+          </div>
+          <div class="ask">What is the iʿrāb state of this muḍāriʿ?</div>
+          <div class="opts">
+            <button class="option"><span class="en">manṣūb — after أَنْ، لَنْ، كَيْ…</span><span class="ar">مَنْصُوب</span></button>
+            <button class="option"><span class="en">majzūm — after لَمْ، لَا النَّاهِيَة…</span><span class="ar">مَجْزُوم</span></button>
+            <button class="option"><span class="en">marfūʿ — the default state</span><span class="ar">مَرْفُوع</span></button>
+          </div>
+          <div class="foot">A question this setup can produce. Tap ↻ for another.</div>
+        </div>
+
+        <div class="cfg">
+          <div class="hd"><span>Your setup</span><button class="edit">Edit</button></div>
+          <dl class="kv">
+            <dt>Quiz</dt><dd><span class="vchip">Name the grammar<span class="ar">تَمْيِيز</span></span></dd>
+            <dt>Verbs</dt><dd><span class="vchip">sound<span class="ar">سَالِم</span></span><span class="vchip">doubled<span class="ar">مُضَاعَف</span></span></dd>
+            <dt>Forms</dt><dd><span class="vchip">I</span></dd>
+            <dt>Charts</dt><dd><span class="vchip">muḍāriʿ</span><span class="vchip">maʿrūf</span><span class="vchip">marfūʿ</span><span class="vchip">manṣūb</span><span class="vchip">majzūm</span></dd>
+            <dt>Length</dt><dd><span class="vchip">10 questions</span></dd>
+          </dl>
+          <div class="asks"><b>and it asks</b>
+            <span class="tick">✓ Who the doer is</span>
+            <span class="tick">✓ Iʿrāb</span>
+            <span class="cross">Tense — only one tense selected</span>
+            <span class="cross">Voice — only one voice reachable</span>
+            <span class="cross">Bāb — needs both tenses in scope, and more than one bāb</span>
+          </div>
+        </div>
+
+        <div class="wiz-foot">
+          <div class="cnt">≈ <b>2,268</b> possible questions</div>
+          <div class="btns">
+            <button class="btn ghost">‹ Back</button>
+            <button class="btn primary">Start · 10</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <figcaption><b>Wizard, step "Ready".</b> The head, the count and Start belong to the wizard;
+    everything between them is the shared component.</figcaption>
+  </figure>
+
+  <figure class="mock">
+    <div class="device"><div class="cap">Classic · <em>unchanged, and that is now the decision</em></div>
+      <div class="phone">
+        <h1>Practice</h1>
+        <div class="section-label">Quiz type <small>one per session</small></div>
+        <div class="chips">
+          <button class="chip on">◉ Identify<span class="ar">تَمْيِيز</span></button>
+          <button class="chip">○ Write the word<span class="ar">صِيَاغَة</span></button>
+          <button class="chip">○ Derived nouns<span class="ar">المُشْتَقَّات</span></button>
+          <button class="chip">○ Meaning → verb<span class="ar">مِنَ المَعْنَى</span></button>
+        </div>
+        <div class="section-label">Tense</div>
+        <div class="chips">
+          <button class="chip on">past<span class="ar">مَاضٍ</span></button>
+          <button class="chip on">present/future<span class="ar">مُضَارِع</span></button>
+          <button class="chip">command<span class="ar">أَمْر</span></button>
+        </div>
+        <p class="subtitle" style="text-align:center;opacity:.5">… five more rows, exactly as today …</p>
+        <div class="asks"><b>This setup asks</b>
+          <span class="tick">✓ Tense</span>
+          <span class="tick">✓ Who the doer is</span>
+          <span class="tick">✓ Bāb</span>
+          <span class="cross">Voice — only one voice reachable</span>
+          <span class="cross">Iʿrāb — iʿrāb needs the muḍāriʿ in more than one state</span>
+        </div>
+        <p class="subtitle count-line">≈ 2,268 possible questions</p>
+        <button class="btn primary">Start quiz</button>
+      </div>
+    </div>
+    <figcaption><b>Not a proposal — a photograph.</b> <code>practice-classic.js</code> is today's file moved,
+    minus <code>startPlan()</code>. The asks panel stays below the controls, the labels stay as they are, and the
+    summary card is <b>wizard-only</b>.</figcaption>
+  </figure>
+</div>
+
+<div class="callout warn"><span class="hd">Decided — classic is untouched entirely</span>
+Not just its quiz-type row: <b>no summary card at the top, no reordering, no relabelling</b>.
+<code>practice-classic.js</code> is a verbatim move. That makes the flag a much starker comparison — the summary
+card, the sample question and the renamed types are all things <b>only the wizard has</b>, so what gets judged is
+the whole wizard proposition rather than a layout difference.
+<br><br><b>The one consequence worth a word from you.</b> The same quiz type now has two names depending on the
+flag: classic says <em>Identify</em> and <em>Meaning → verb</em>, the wizard says <b>Name the grammar</b> and
+<b>Match the meaning</b>. The roadmap listed the rename as an A2 item, so this is me deliberately <em>not</em>
+doing half of it in order to honour "untouched entirely". The new names live in
+<code>glossary.js · QUIZ_TYPE_INFO</code>, so pointing classic at them later is a three-line diff — one import,
+one deletion of its local <code>QUIZ_TYPES</code> const, one map. Say the word.</div>
+
+<ol class="pins">
+  <li><span class="n">1</span><span><b>The sample question is the feature.</b> It is drawn from the real
+  <code>questionStream</code> for the real plan, rendered inert. Nothing written in a subtitle explains
+  "Match the meaning" as well as one look at it.</span></li>
+  <li><span class="n">2</span><span><b>One card, two zones — what you chose, and what that makes it ask.</b>
+  You were right that the two were restating each other: "only one tense selected" is the Tense row saying its
+  own value again. They share a border and a header now, and the values sit directly above the consequences.
+  Chips are still grouped <b>by axis</b>, because a bare <span class="ar">مَرْفُوع</span> does not say which row
+  it came from.</span></li>
+
+</ol>
+
+<div class="callout good"><span class="hd">Decided from your annotation — one card, and one <b>Edit</b> button</span>
+The two cards merged, "tap to change" became <b>Edit</b>, and Edit goes to <b>step 1</b>. That simplifies the
+component's interface more than it looks: it no longer needs a per-axis <code>onJump(field)</code> callback, just
+a single <code>onEdit()</code>. The value chips become <b>display, not controls</b>. It is also the coherent
+partner to Q5 — if the wizard always opens at step 1, "Edit" opening anywhere else would be the odd one out.
+<br><br><b>One consequence to accept:</b> the retired reasons stay <em>verbatim</em> from
+<code>QUESTION_RULES</code> — "only one tense selected" still restates the Tense row a little — because Q4 keeps
+A2 out of <code>quiz/</code>, and those strings live there. Putting the value directly above the reason is as far
+as the view can go on its own.</div>
+
+<h3 class="sub">The count and Start are <em>not</em> in the component</h3>
+<p class="body">The roadmap lists the count as part of the summary <b>step</b>. I would keep it out of the summary
+<b>file</b>: the wizard already shows a running count in its footer on <em>every</em> step, and classic already
+shows one directly above Start, which is where it earns its keep (<em>"an over-narrow selection is visible
+before you tap"</em>). Putting it in the component means classic renders the same number twice, 800&nbsp;px apart.
+So the component's job stays sayable in one sentence — <b>"what this configuration will feel like"</b> — and the
+host owns "how big it is and how to start it."</p>
+
+<h3 class="sub">Regenerating the sample: the one real behavioural trap</h3>
+<p class="body">Classic re-renders the whole screen on <b>every chip tap</b>. A freshly drawn question each time is
+visual noise, and worse, it re-rolls when you changed something that did not affect it. The pool walk is already
+paid for on every render (the count needs it), so this is about <b>stability, not cost</b>.</p>
+
+<pre class="code"><span class="c">// ui/state.js — UI state, where the rest of the UI state lives</span>
+state.practice = {
+  step: <span class="s">'type'</span>,          <span class="c">// a STAGE ID, never an index — see §03</span>
+  sample: <span class="k">null</span>,          <span class="c">// { planKey, question } — memo of exactly one</span>
+};
+
+<span class="c">// practice-summary.js</span>
+<span class="k">function</span> <span class="f">sampleFor</span>(plan) {
+  <span class="k">const</span> key = JSON.<span class="f">stringify</span>(plan);            <span class="c">// frozen + flat, so this is honest</span>
+  <span class="k">if</span> (state.practice.sample?.planKey === key) <span class="k">return</span> state.practice.sample.question;
+  <span class="k">for</span> (<span class="k">const</span> q <span class="k">of</span> <span class="f">questionStream</span>(<span class="f">wordPool</span>(plan))) {   <span class="c">// the REAL stream</span>
+    state.practice.sample = { planKey: key, question: q };
+    <span class="k">return</span> q;
+  }
+  <span class="k">return</span> <span class="k">null</span>;                                <span class="c">// dry pool — an absence, and the caller renders the gap</span>
+}
+</pre>
+
+<p class="body">Change any axis → a new sample, which is <em>informative</em> ("oh, now I get iʿrāb questions").
+Change nothing → the same card, so it does not flicker while you scroll. <code>↻</code> clears the memo.</p>
+
+<div class="callout good"><span class="hd">Decided (Q2) — it is <em>a</em> sample, not <em>question one</em></span>
+The roadmap's <em>"take question one from the actual stream"</em> is satisfied by <b>building it with the real
+<code>questionStream</code> over the real plan</b>, then throwing it away. The run that starts afterwards draws
+its own first question. This is what keeps the summary from holding a half-consumed generator across renders,
+and it is what lets <code>↻</code> mean something.</div>
+
+<h3 class="sub">How "non-interactive" should read</h3>
+<div class="mockrow">
+  <figure class="mock">
+    <div class="device rec"><div class="cap">A · card + inert options <em>(recommended)</em></div>
+      <div class="phone">
+        <div class="sample dim">
+          <div class="rib"><span>Sample question</span><button>↻</button></div>
+          <div class="inert"><div class="word">تَضْرِبَانِ</div><span class="cat">fromMeaning</span></div>
+          <div class="ask">Which verb says this?</div>
+          <div class="opts">
+            <button class="option"><span class="ar">تَضْرِبَانِ</span></button>
+            <button class="option"><span class="ar">تَضْرِبُونَ</span></button>
+            <button class="option"><span class="ar">تَضْرِبَ</span></button>
+          </div>
+          <div class="foot">A question this setup can produce.</div>
+        </div>
+      </div>
+    </div>
+    <figcaption>Options dimmed to 50% and <code>pointer-events:none</code>. For <b>Match the meaning</b> and
+    <b>Derived nouns</b> the options <em>are</em> the explanation — four near-misses off one root is the
+    whole pitch.</figcaption>
+  </figure>
+  <figure class="mock">
+    <div class="device"><div class="cap">B · card only, no options</div>
+      <div class="phone">
+        <div class="sample">
+          <div class="rib"><span>Sample question</span><button>↻</button></div>
+          <div class="inert"><div class="word">تَضْرِبَانِ</div><span class="cat">fromMeaning</span></div>
+          <div class="ask">Which verb says this?</div>
+          <div class="foot">Four Arabic options follow, all from ض ر ب.</div>
+        </div>
+      </div>
+    </div>
+    <figcaption>Shorter, and no "why can't I tap this?" — but it describes the options in prose, which is the
+    thing this whole step exists to stop doing.</figcaption>
+  </figure>
+  <figure class="mock">
+    <div class="device"><div class="cap">C · produce — the input case</div>
+      <div class="phone">
+        <div class="sample dim">
+          <div class="rib"><span>Sample question</span><button>↻</button></div>
+          <div class="inert">
+            <div class="word" style="font-size:34px; letter-spacing:8px">غ ف ر</div>
+            <div class="gloss">“to forgive”</div>
+            <div class="cue-spec" style="margin-top:10px">
+              <span>Form I</span><span>present/future<span class="ar">مُضَارِع</span></span>
+              <span>marfūʿ<span class="ar">مَرْفُوع</span></span><span>she<span class="ar">هِيَ</span></span>
+            </div>
+          </div>
+          <div class="ask">Write this verb</div>
+          <div class="box">…</div>
+          <div class="foot">You type it, fully vowelled — the final ḥaraka counts.</div>
+        </div>
+      </div>
+    </div>
+    <figcaption>Real <code>produce</code> output. The disabled field is what tells a first-timer this type
+    wants an Arabic keyboard, before they commit to ten of them.</figcaption>
+  </figure>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════ -->
+<h2 class="sec"><b>03</b> The wizard — five pages, and the number in the footer</h2>
+
+<div class="callout good"><span class="hd">Decided (Q1) — five multi-field pages</span>
+<b>type</b> → <b>verbs + forms</b> → <b>tense + voice + iʿrāb</b> → <b>length</b> → <b>ready</b>. Five Next taps,
+matching the roadmap's step list literally. What that costs, stated plainly rather than argued with:
+<b>"skipped entirely" now operates at two different grains.</b> A whole page disappears only for derived nouns;
+voice and iʿrāb become <b>absent rows on the charts page</b>, not absent steps. That still clears the exit
+criterion — nothing greys out — but a first-timer never sees the wizard visibly shorten when they pick the amr.
+<b>Your Q3 answer is what pays for this</b>, and §03 below shows why it stopped being optional.</div>
+
+<h3 class="sub">The step table</h3>
+<p class="body">Five entries. The cursor is a <b>stage id, never an index</b>: pick Derived nouns and the charts
+page vanishes, so an integer index into a list whose length just changed would land "Back" somewhere arbitrary.</p>
+
+<pre class="code"><span class="c">// practice-wizard.js — the same shape as QUESTION_RULES, SETTINGS_SPEC, CHART_SHAPES.</span>
+<span class="c">// Adding a page is one object; `applies` is the ONLY place a page can disappear.</span>
+<span class="k">export const</span> WIZARD_STEPS = [
+  { id: <span class="s">'type'</span>,   title: <span class="s">'What do you want to practise?'</span>, applies: () <span class="k">=></span> <span class="k">true</span>, render: stepType },
+  { id: <span class="s">'verbs'</span>,  title: <span class="s">'Which verbs?'</span>,                applies: () <span class="k">=></span> <span class="k">true</span>, render: stepVerbs },
+  <span class="c">// A derived noun has no chart, so this whole page is absent — the same condition</span>
+  <span class="c">// practice.js already uses to hide those four rows today.</span>
+  { id: <span class="s">'charts'</span>, title: <span class="s">'Which charts?'</span>,               applies: (d) <span class="k">=></span> d.quizType !== <span class="s">'derived'</span>, render: stepCharts },
+  { id: <span class="s">'count'</span>,  title: <span class="s">'How many questions?'</span>,         applies: () <span class="k">=></span> <span class="k">true</span>, render: stepCount },
+  { id: <span class="s">'ready'</span>,  title: <span class="s">'Ready'</span>,                       applies: () <span class="k">=></span> <span class="k">true</span>, render: stepReady },
+];
+
+<span class="k">const</span> <span class="f">visibleSteps</span> = (d) <span class="k">=></span> WIZARD_STEPS.<span class="f">filter</span>((s) <span class="k">=></span> s.<span class="f">applies</span>(d));
+
+<span class="c">// Row-level applicability INSIDE the charts page. Two conditions, both lifted</span>
+<span class="c">// verbatim from today's practice.js — the amr is neither passive nor iʿrāb-bearing,</span>
+<span class="c">// and only the muḍāriʿ has moods. Here they omit a row instead of greying one.</span>
+<span class="k">const</span> <span class="f">hasVoice</span>  = (d) <span class="k">=></span> d.tenses.<span class="f">some</span>((t) <span class="k">=></span> t !== <span class="s">'amr'</span>);
+<span class="k">const</span> <span class="f">hasMoods</span>  = (d) <span class="k">=></span> d.tenses.<span class="f">includes</span>(<span class="s">'mudari'</span>);
+</pre>
+
+<div class="callout bad"><span class="hd">Skipped ≠ cleared</span>
+A page or row that does not apply <b>leaves <code>state.draft</code> alone</b>. Choose Derived nouns, then go back
+to Name the grammar, and your tense/voice/iʿrāb selection is exactly as you left it. That matches the existing
+comment in <code>quiz-plan.js</code> about not nulling <code>moods</code> outside the muḍāriʿ — same rule, same
+reason: a skipped axis is <em>not applicable</em>, not <em>unset</em>.</div>
+
+<h3 class="sub">The walk, with the counts it actually produces</h3>
+<p class="body">Every footer number below came from running that exact draft through
+<code>possibleQuestions(wordPool(quizPlan(d)))</code>. The delta line compares against <b>the previous render</b>,
+so on a multi-row page each tap still names what it did.</p>
+
+<div class="mockrow wide">
+  <figure class="mock">
+    <div class="device"><div class="cap">Step 1 / 5 · <em>type</em></div>
+      <div class="phone">
+        <div class="wiz-head">
+          <button class="back" style="opacity:.3">‹</button>
+          <div class="stepbar"><i class="now"></i><i></i><i></i><i></i><i></i></div>
+          <span class="of">1 / 5</span>
+        </div>
+        <h1 class="wiz-title">What do you want to practise?</h1>
+        <p class="wiz-why">One type per session — the results screen must not average recognition and production into one number.</p>
+        <button class="type-card on"><span class="hd"><b>Name the grammar</b><span class="ar">تَمْيِيز</span></span>
+          <small>You see a word — say its tense, voice, doer, iʿrāb or bāb.</small></button>
+        <button class="type-card"><span class="hd"><b>Write the word</b><span class="ar">صِيَاغَة</span></span>
+          <small>You're given the grammar — type the Arabic.</small></button>
+        <button class="type-card"><span class="hd"><b>Derived nouns</b><span class="ar">المُشْتَقَّات</span></span>
+          <small>From a verb, pick its ism fāʿil, ism mafʿūl or maṣdar.</small></button>
+        <button class="type-card"><span class="hd"><b>Match the meaning</b><span class="ar">مِنَ المَعْنَى</span></span>
+          <small>You read an English meaning — choose the Arabic word that says it.</small></button>
+        <div class="wiz-foot">
+          <div class="cnt">≈ <b>2,268</b> possible questions</div>
+          <div class="btns"><button class="btn primary">Next ›</button></div>
+        </div>
+      </div>
+    </div>
+    <figcaption>The renamed types with their subtitles. <b>The <code>id</code>s do not change</b> —
+    <code>identify</code>, <code>produce</code>, <code>derived</code>, <code>fromMeaning</code> are written into
+    stored history records.</figcaption>
+  </figure>
+
+  <figure class="mock">
+    <div class="device"><div class="cap">Step 2 / 5 · <em>verbs + forms</em></div>
+      <div class="phone pinwrap">
+        <span class="pin" data-anchor=".wiz-foot .cnt" data-shift="-2">!</span>
+        <div class="wiz-head">
+          <button class="back">‹</button>
+          <div class="stepbar"><i class="done"></i><i class="now"></i><i></i><i></i><i></i></div>
+          <span class="of">2 / 5</span>
+        </div>
+        <h1 class="wiz-title">Which verbs?</h1>
+        <p class="wiz-why">Which roots the questions are drawn from, and which forms of them.</p>
+        <div class="section-label">Verb types</div>
+        <div class="chips">
+          <button class="chip on">sound<span class="ar">سَالِم</span></button>
+          <button class="chip on">doubled<span class="ar">مُضَاعَف</span></button>
+          <button class="chip">hollow<span class="ar">أَجْوَف</span></button>
+          <button class="chip">defective<span class="ar">نَاقِص</span></button>
+          <button class="chip">assimilated<span class="ar">مِثَال</span></button>
+          <button class="chip">hamza<span class="ar">مَهْمُوز</span><small>content coming</small></button>
+        </div>
+        <div class="section-label">Abwāb / forms</div>
+        <div class="chips">
+          <button class="chip on">I<span class="ar">الثلاثي المجرد</span></button>
+          <button class="chip">II<span class="ar">التَّفْعِيل</span></button>
+          <button class="chip">III<span class="ar">المُفَاعَلَة</span></button>
+          <button class="chip">IV<span class="ar">الإِفْعَال</span></button>
+          <button class="chip">V<span class="ar">التَّفَعُّل</span></button>
+          <button class="chip">X<span class="ar">الاسْتِفْعَال</span></button>
+        </div>
+        <div class="wiz-foot">
+          <div class="cnt">≈ <b>2,268</b> possible questions</div>
+          <div class="delta">↓ from 3,612 — you dropped Forms II and X</div>
+          <div class="btns"><button class="btn ghost">‹ Back</button><button class="btn primary">Next ›</button></div>
+        </div>
+      </div>
+    </div>
+    <figcaption>You arrived at <b class="num">2,268</b>, added doubled verbs (→&nbsp;3,612), dropped two forms,
+    and <b>left at 2,268</b>. The page's net effect is zero and two things changed —
+    that is option A's cost, live.</figcaption>
+  </figure>
+
+  <figure class="mock">
+    <div class="device"><div class="cap">Step 3 / 5 · <em>charts</em> — after one tap</div>
+      <div class="phone pinwrap">
+        <span class="pin" data-anchor=".wiz-foot .delta" data-shift="-2">!</span>
+        <div class="wiz-head">
+          <button class="back">‹</button>
+          <div class="stepbar"><i class="done"></i><i class="done"></i><i class="now"></i><i></i><i></i></div>
+          <span class="of">3 / 5</span>
+        </div>
+        <h1 class="wiz-title">Which charts?</h1>
+        <p class="wiz-why">Pick more than one tense and the app can ask which tense a word is; pick one and it can't.</p>
+        <div class="section-label">Tense</div>
+        <div class="chips">
+          <button class="chip">past<span class="ar">مَاضٍ</span></button>
+          <button class="chip on">present/future<span class="ar">مُضَارِع</span></button>
+          <button class="chip">command<span class="ar">أَمْر</span></button>
+        </div>
+        <div class="section-label">Voice</div>
+        <div class="chips">
+          <button class="chip on">maʿrūf<span class="ar">مَعْلُوم</span></button>
+          <button class="chip">majhūl<span class="ar">مَجْهُول</span></button>
+        </div>
+        <div class="section-label">Iʿrāb</div>
+        <div class="chips">
+          <button class="chip on">marfūʿ<span class="ar">مَرْفُوع</span></button>
+          <button class="chip">manṣūb<span class="ar">مَنْصُوب</span></button>
+          <button class="chip">majzūm<span class="ar">مَجْزُوم</span></button>
+        </div>
+        <div class="wiz-foot">
+          <div class="cnt">≈ <b>378</b> possible questions</div>
+          <div class="delta">↓ from 2,268 — <b>Tense</b> and <b>Bāb</b> can no longer be asked</div>
+          <div class="btns"><button class="btn ghost">‹ Back</button><button class="btn primary">Next ›</button></div>
+        </div>
+      </div>
+    </div>
+    <figcaption><b class="num">2,268 → 378</b> from dropping māḍī. The word count only halved; the collapse is
+    two whole question kinds retiring at once.</figcaption>
+  </figure>
+
+  <figure class="mock">
+    <div class="device"><div class="cap">Step 3 / 5 · <em>charts</em> — two taps later</div>
+      <div class="phone">
+        <div class="wiz-head">
+          <button class="back">‹</button>
+          <div class="stepbar"><i class="done"></i><i class="done"></i><i class="now"></i><i></i><i></i></div>
+          <span class="of">3 / 5</span>
+        </div>
+        <h1 class="wiz-title">Which charts?</h1>
+        <p class="wiz-why">Pick more than one tense and the app can ask which tense a word is; pick one and it can't.</p>
+        <div class="section-label">Tense</div>
+        <div class="chips">
+          <button class="chip">past<span class="ar">مَاضٍ</span></button>
+          <button class="chip on">present/future<span class="ar">مُضَارِع</span></button>
+          <button class="chip">command<span class="ar">أَمْر</span></button>
+        </div>
+        <div class="section-label">Voice</div>
+        <div class="chips">
+          <button class="chip on">maʿrūf<span class="ar">مَعْلُوم</span></button>
+          <button class="chip">majhūl<span class="ar">مَجْهُول</span></button>
+        </div>
+        <div class="section-label">Iʿrāb</div>
+        <div class="chips">
+          <button class="chip on">marfūʿ<span class="ar">مَرْفُوع</span></button>
+          <button class="chip on">manṣūb<span class="ar">مَنْصُوب</span></button>
+          <button class="chip on">majzūm<span class="ar">مَجْزُوم</span></button>
+        </div>
+        <p class="wiz-why">Governed states are read through their particle — <span class="ar">لَنْ</span> for manṣūb,
+          <span class="ar">لَمْ</span> for majzūm — so “he did not help” and “he will not help” are separate answers.</p>
+        <div class="wiz-foot">
+          <div class="cnt">≈ <b>2,268</b> possible questions</div>
+          <div class="delta up">↑ from 378 — <b>Iʿrāb</b> is back in play</div>
+          <div class="btns"><button class="btn ghost">‹ Back</button><button class="btn primary">Next ›</button></div>
+        </div>
+      </div>
+    </div>
+    <figcaption><b>The same page arrives at 2,268 and leaves at 2,268</b>, having retired two questions and
+    revived a third. Without the delta line this page is a number that wobbled and came back.</figcaption>
+  </figure>
+</div>
+
+<div class="callout good"><span class="hd">Decided (Q3) — and on a five-page wizard it stops being a nicety</span>
+On a one-lever-per-page wizard the count alone almost tells the story. On a <b>three-row charts page</b> it does
+not: the two mocks above are the <em>same page</em> at <b class="num">2,268</b> both times, with three question
+kinds having changed underneath. The line costs one field of UI state — the previous render's live-kind ids — and
+about eight lines. It is the thing that keeps §5.2b teachable now that the rows share a page.</div>
+
+<h3 class="sub">Skipping, shown at both grains</h3>
+<div class="mockrow">
+  <figure class="mock">
+    <div class="device"><div class="cap">amr only · <em>two rows absent, page stays</em></div>
+      <div class="phone">
+        <div class="wiz-head">
+          <button class="back">‹</button>
+          <div class="stepbar"><i class="done"></i><i class="done"></i><i class="now"></i><i></i><i></i></div>
+          <span class="of">3 / 5</span>
+        </div>
+        <h1 class="wiz-title">Which charts?</h1>
+        <p class="wiz-why">The amr has neither voice nor iʿrāb, so those rows do not appear at all.</p>
+        <div class="section-label">Tense</div>
+        <div class="chips">
+          <button class="chip">past<span class="ar">مَاضٍ</span></button>
+          <button class="chip">present/future<span class="ar">مُضَارِع</span></button>
+          <button class="chip on">command<span class="ar">أَمْر</span></button>
+        </div>
+        <div class="wiz-foot">
+          <div class="cnt">≈ <b>114</b> possible questions</div>
+          <div class="delta">↓ from 2,268 — only <b>Who the doer is</b> survives an amr-only setup</div>
+          <div class="btns"><button class="btn ghost">‹ Back</button><button class="btn primary">Next ›</button></div>
+        </div>
+      </div>
+    </div>
+    <figcaption>Real: amr · Form I · sound = <b class="num">114</b> cells, one live kind. Absent rows, not greyed
+    ones — but the step counter still says <b>3 / 5</b>, which is the concession option A makes.</figcaption>
+  </figure>
+  <figure class="mock">
+    <div class="device"><div class="cap">Derived nouns · <em>the whole page is gone</em></div>
+      <div class="phone">
+        <div class="wiz-head">
+          <button class="back">‹</button>
+          <div class="stepbar"><i class="done"></i><i class="done"></i><i class="gone"></i><i class="now"></i><i></i></div>
+          <span class="of">3 / 4</span>
+        </div>
+        <h1 class="wiz-title">How many questions?</h1>
+        <p class="wiz-why">A derived noun has no chart, so tense, voice and iʿrāb were skipped entirely.</p>
+        <div class="chips">
+          <button class="chip">5</button><button class="chip on">10</button>
+          <button class="chip">20</button><button class="chip">∞ endless</button>
+        </div>
+        <div class="wiz-foot">
+          <div class="cnt">≈ <b>222</b> possible questions</div>
+          <div class="delta">74 derivatives × 3 live kinds</div>
+          <div class="btns"><button class="btn ghost">‹ Back</button><button class="btn primary">Next ›</button></div>
+        </div>
+      </div>
+    </div>
+    <figcaption>Real: derived · I&nbsp;II&nbsp;X · sound = <b class="num">74</b> derivatives, all three derived
+    kinds live. <b>The unit of account changes</b> — cells become derivatives — and <code>word-pool.js</code>
+    already walks it that way. The dissolved segment stays visible as a dash so the bar does not silently
+    re-length.</figcaption>
+  </figure>
+</div>
+
+<h3 class="sub">Where the wizard opens on your fifth session</h3>
+<div class="callout good"><span class="hd">Decided (Q5) — always step 1</span>
+No summary-first shortcut. The consequence is the one the flag exists to measure: <b>changing one chip on session
+five means walking all five pages</b>, and if that is what sinks the wizard, it sinks it honestly rather than
+being papered over by a shortcut classic does not have. Concretely: <code>state.practice.step</code> is
+initialised to <code>'type'</code> whenever Practice is entered, not persisted across visits.
+<b>The summary chips still jump</b> — from the Ready page you can tap a chip to go back to its step, which is a
+different thing from opening there.</div>
+
+<h2 class="sec"><b>04</b> The setting — and the gap it exposes in More</h2>
+
+<p class="body">The roadmap wants <code>practiceFlow</code> at <code>audience:&nbsp;'user'</code> precisely so it can
+be flipped at runtime. There is a catch worth naming: <b>no user-audience setting in More is currently
+changeable.</b> <code>more.js</code> renders them as read-only rows —</p>
+
+<pre class="code"><span class="c">// screens/more.js, today — a value, and no handler</span>
+<span class="k">for</span> (<span class="k">const</span> s <span class="k">of</span> <span class="f">userSettings</span>()) {
+  app.<span class="f">append</span>(<span class="f">rowNav</span>(s.label, <span class="f">String</span>(settings[s.id])));   <span class="c">// ← no .onclick anywhere</span>
+}
+</pre>
+
+<p class="body">So A2 has to build the <b>first working user preference</b>. The cheapest honest version keeps the
+registry declarative: an entry that carries <code>options</code> renders a segmented control; one that doesn't stays
+exactly as it is today. Additive, and the other three user rows are untouched until someone gives them options.</p>
+
+<div class="mockrow wide">
+  <figure class="mock">
+    <div class="device rec"><div class="cap">More · <em>Study</em></div>
+      <div class="phone">
+        <div class="section-label">Study</div>
+        <div class="row-nav settled">
+          <b>Practice layout</b>
+          <small>Both flows build the same quiz — this only changes how you choose it.</small>
+          <div class="seg"><button class="on">One screen</button><button>Step by step</button></div>
+        </div>
+        <button class="row-nav"><span><b>Arabic text size</b><small>large</small></span><span class="chev">›</span></button>
+        <button class="row-nav"><span><b>Appearance</b><small>system</small></span><span class="chev">›</span></button>
+        <button class="row-nav"><span><b>Default quiz length</b><small>10</small></span><span class="chev">›</span></button>
+      </div>
+    </div>
+    <figcaption>Only the row with <code>options</code> gains a control. The other three render as today —
+    the change is a capability the registry can now express, not a rewrite of the screen.</figcaption>
+  </figure>
+  <div style="min-width:0; width:100%">
+<pre class="code"><span class="c">// settings/settings.js — one new entry, one new optional field</span>
+{ id: <span class="s">'practiceFlow'</span>, audience: <span class="s">'user'</span>, default: <span class="s">'classic'</span>,
+  label: <span class="s">'Practice layout'</span>,
+  <b>options: [</b>
+    { value: <span class="s">'classic'</span>, label: <span class="s">'One screen'</span> },
+    { value: <span class="s">'wizard'</span>,  label: <span class="s">'Step by step'</span> },
+  <b>],</b>
+  note: <span class="s">'both flows write the same QuizPlan; see ROADMAP A2'</span> },
+
+<span class="c">// screens/more.js — a row with options gets a control; one without stays read-only.</span>
+<span class="k">for</span> (<span class="k">const</span> s <span class="k">of</span> <span class="f">userSettings</span>()) {
+  app.<span class="f">append</span>(s.options
+    ? <span class="f">settingRow</span>(s, (v) <span class="k">=></span> { <span class="f">setSetting</span>(s.id, v); <span class="f">resetWizard</span>(); <span class="f">rerender</span>(); })
+    : <span class="f">rowNav</span>(s.label, <span class="f">String</span>(settings[s.id])));
+}
+
+<span class="c">// ui/dom.js — new sibling of chipRow(). A chip row is a multi-select filter;</span>
+<span class="c">// this is a one-of-N switch, and they should not look alike.</span>
+<span class="k">export function</span> <span class="f">segmented</span>(options, isOn, onPick) { … }
+</pre>
+    <div class="callout bad" style="margin-top:0"><span class="hd">The bug this prevents</span>
+    Flipping the flag while <code>state.practice.step === 'charts'</code> and then opening Practice drops you
+    into <b>step 3 of a wizard you just turned on</b>. <code>resetWizard()</code> — one line — is not optional.
+    Under Q5 the wizard resets on every entry anyway, so this is the same line doing double duty.</div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════ -->
+<h2 class="sec"><b>05</b> Naming — and the one place classic can't follow</h2>
+
+<p class="body">Two labels change and all four gain a subtitle. The <b><code>id</code>s do not</b> — they are in
+stored history rows. The wizard shows the subtitles on cards; <b>classic has no room for four of them</b>, and a
+chip row is the wrong shape for a paragraph.</p>
+
+<div class="tbl-wrap">
+<table class="rev">
+  <thead><tr><th style="width:110px">id</th><th style="width:150px">Today</th><th style="width:170px">A2</th><th style="width:110px">Arabic</th><th>Subtitle</th></tr></thead>
+  <tbody>
+    <tr><td><code>identify</code></td><td>Identify</td><td><b>Name the grammar</b> <span class="tag new">new</span></td><td class="ar">تَمْيِيز</td><td>You see a word — say its tense, voice, doer, iʿrāb or bāb.</td></tr>
+    <tr><td><code>produce</code></td><td>Write the word</td><td>Write the word</td><td class="ar">صِيَاغَة</td><td>You're given the grammar — type the Arabic.</td></tr>
+    <tr><td><code>derived</code></td><td>Derived nouns</td><td>Derived nouns</td><td class="ar">المُشْتَقَّات</td><td>From a verb, pick its ism fāʿil, ism mafʿūl or maṣdar.</td></tr>
+    <tr><td><code>fromMeaning</code></td><td>Meaning → verb</td><td><b>Match the meaning</b> <span class="tag new">new</span></td><td class="ar">مِنَ المَعْنَى</td><td>You read an English meaning — choose the Arabic word that says it.</td></tr>
+  </tbody>
+</table>
+</div>
+
+<div class="callout warn"><span class="hd">Decided (Q6) — classic is untouched, so this table describes the wizard only</span>
+The four names and subtitles above are what <b>step 1 of the wizard</b> renders. Classic keeps its existing chip
+labels. They live in <code>glossary.js · QUIZ_TYPE_INFO</code> — a shared home, so classic can adopt them later
+without a second copy of the strings.</div>
+
+<!-- ══════════════════════════════════════════════════════════════ -->
+<h2 class="sec"><b>06</b> What A2 must not touch, and how we'd know</h2>
+
+<div class="tbl-wrap">
+<table class="rev">
+  <thead><tr><th style="width:230px">Invariant</th><th>How this design holds it</th></tr></thead>
+  <tbody>
+    <tr><td><b>Both flows write the same <code>QuizPlan</code>, with no wizard-only fields</b></td>
+        <td class="yes">Structural: neither flow calls <code>quizPlan()</code>. Both mutate <code>state.draft</code>; <code>practice.js</code> owns the single <code>draftPlan()</code> call on the start path. A smoke assertion can still pin it, but it cannot fail differently from the code.</td></tr>
+    <tr><td><b>Quiz generation, relevance and history are untouched</b></td>
+        <td class="yes"><b>Nothing below <code>screens/</code> changes at all</b> — that is now absolute, since you declined the <code>revive</code> strings (Q4). The summary <em>reads</em> <code>questionStream</code>, <code>wordPool</code> and <code>relevance</code>; it does not extend any of them. A2 is a screens-and-settings change and nothing else, which makes the parity snapshot a formality rather than a real risk.</td></tr>
+    <tr><td><b>Absence is a value</b></td>
+        <td class="yes">A dry pool gives <code>sampleFor() → null</code> and the summary renders the gap ("No questions possible — widen the selection"). No placeholder question is ever invented.</td></tr>
+    <tr><td><b>Granular verb types in data, display groups in the view</b></td>
+        <td class="yes">The wizard's verb step reuses the existing <code>verbTypesInGroup()</code> expansion verbatim. It is the same boundary, moved to its own screen.</td></tr>
+    <tr><td><b>Files stay under ~400 lines</b></td>
+        <td class="yes">Largest is <code>practice-wizard.js</code> at roughly 190, most of it the eight step renderers.</td></tr>
+    <tr><td><b>The engine snapshot</b></td>
+        <td>A2 touches no engine code, so the 20,252-line parity dump should be <b>unnecessary</b> — but it is cheap, and <code>practice.js</code> imports the pool walk. Run it anyway; the cost is one command.</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h4 class="mini">Build order I'd follow</h4>
+<ul class="body">
+  <li><b>1 · Split the files, change nothing else.</b> Move <code>startPlan()</code> up, extract classic verbatim,
+  add the flag. Green suite, identical screen. A commit that is provably a no-op.</li>
+  <li><b>2 · <code>glossary.js · QUIZ_TYPE_INFO</code> and <code>practice-summary.js</code>.</b> The strings get a
+  shared home and the summary card gets built, even though only the wizard renders it.</li>
+  <li><b>3 · The wizard</b>, step table first, renderers second, summary card as step 5.</li>
+  <li><b>4 · The More control</b> and the reset-on-flip.</li>
+</ul>
+
+<!-- ══════════════════════════════════════════════════════════════ -->
+<h2 class="sec"><b>07</b> Risks I can see</h2>
+
+<div class="grid2">
+  <div class="panel" style="border-color: rgba(216,161,58,.45)"><h5>A tap that changes nothing — accepted as-is</h5>
+    <p>The <b>voice row frequently moves neither the count nor the kinds</b>: maʿrūf is already the only voice
+    selected, so tapping it goes 378 → 378 with no delta line. You accepted that it looks broken for now rather
+    than building an "unchanged" case. <b>Recorded as a named comment where the footer is rendered</b>, not only
+    here:</p>
+<pre class="code" style="margin:10px 0 0"><span class="c">// ACCEPTED (A2, Aug 2026): a chip that changes neither the count nor the</span>
+<span class="c">// live kinds renders no delta line and an identical number — tapping maʿrūf</span>
+<span class="c">// when it is already the only voice goes 378 → 378. It reads as a dead</span>
+<span class="c">// control. Deliberately NOT special-cased: an "unchanged, and here is why"</span>
+<span class="c">// branch would need to know WHY nothing moved, which is relevance()'s</span>
+<span class="c">// business, and Q4 keeps A2 out of quiz/.</span></pre></div>
+  <div class="panel"><h5>Two flows means two places to forget something <span class="tag moved">your question</span></h5>
+    <p><b>To be precise about what I meant:</b> <span class="ar">لَنْ</span> and <span class="ar">لَمْ</span>
+    themselves are not classic-only. The registry is <code>MUDARI_PARTICLES</code> in
+    <code>meaning-service.js</code>, and <code>builders/from-meaning.js:67</code> reads it, so the particles reach
+    the quiz cards and the feedback line whichever screen started the session.</p>
+    <p style="margin-top:8px">What is classic-only is <b>one sentence of pre-quiz copy</b> —
+    <code>screens/practice.js:126–134</code>, the note that says governed states are read through their particle,
+    so “he did not help” and “he will not help” are separate answers. It is the <b>only</b> screen-level use of
+    <code>particleFor</code>. Classic keeps its copy untouched; the wizard needs <b>its own</b>, in the summary
+    card, or someone picking manṣūb there is never told why the meanings will look like that. So the note is
+    <b>duplicated across the two flows</b> — deliberately, since classic is frozen and the two are being compared,
+    not merged. If the wizard wins, classic is deleted and the duplicate goes with it.</p></div>
+  <div class="panel"><h5>The sample can be slower than it looks</h5>
+    <p><code>wordPool()</code> is already walked on every render, so the marginal cost is one
+    <code>draw()</code>. But <code>draw()</code> retries up to 80 times and returns <code>null</code> on a
+    nearly-dry pool — a configuration with 3 valid cells will sometimes show no card at all while claiming
+    "≈ 3 possible questions". Needs a deliberate empty state, not a blank box.</p></div>
+  <div class="panel"><h5>Endless + summary</h5>
+    <p>With <code>count: 'endless'</code> the Start button reads "Start · ∞", and the count line means something
+    different (a pool size, not a quiz length). Minor, but the summary chip should say <b>endless</b>, not a
+    number, and Start should not imply a finish line.</p></div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════ -->
+<h2 class="sec"><b>08</b> Decisions — all closed</h2>
+
+<div class="tbl-wrap">
+<table class="rev">
+  <thead><tr><th style="width:52px"></th><th style="width:238px">Decision</th><th style="width:186px">Your answer</th><th>What it changed here</th></tr></thead>
+  <tbody>
+    <tr><td><b>Q1</b></td><td>Wizard step granularity</td>
+        <td><b>A · five multi-field pages</b><br><small style="color:var(--bad)">against my recommendation</small></td>
+        <td>§03 redrawn: <code>WIZARD_STEPS</code> is five entries; voice and iʿrāb become absent <em>rows</em> rather than absent <em>steps</em>. Cost kept visible in the §03 opener.</td></tr>
+    <tr><td><b>Q2</b></td><td>Sample question semantics</td><td><b>A sample, then discarded</b></td>
+        <td>§02: <code>sampleFor(plan)</code> memoised per plan, re-rollable, no coupling to <code>QuizRun</code>.</td></tr>
+    <tr><td><b>Q3</b></td><td>Footer delta line</td><td><b>Count + which kinds changed</b></td>
+        <td>Built. Under Q1 it stopped being optional — the two charts-page mocks both read 2,268.</td></tr>
+    <tr><td><b>Q4</b></td><td>"How to bring it back" strings</td>
+        <td><b>No — keep A2 out of <code>quiz/</code></b><br><small style="color:var(--bad)">against my recommendation</small></td>
+        <td>The asks list keeps today's exact strings. §06's "nothing below <code>screens/</code> changes" is absolute.</td></tr>
+    <tr><td><b>Q5</b></td><td>Wizard entry on return</td>
+        <td><b>W1 · always step 1</b><br><small style="color:var(--bad)">against my recommendation</small></td>
+        <td><code>state.practice.step</code> resets to <code>'type'</code> on every entry to Practice.</td></tr>
+    <tr><td><b>Q6</b></td><td>Classic</td><td><b>Untouched entirely</b></td>
+        <td>A verbatim file move. No summary card, no reorder, no relabel — so the summary, the sample question and the new names are all <em>wizard-only</em>, and the flag compares whole propositions.</td></tr>
+    <tr><td><b>—</b></td><td>The Ready page's two cards <small>(your annotation)</small></td><td><b>Merge into one</b></td>
+        <td>§02: one card, values above and live/retired questions below. "tap to change" → <b>Edit</b> → step 1, which drops <code>onJump(field)</code> for a single <code>onEdit()</code>.</td></tr>
+    <tr><td><b>—</b></td><td>Taps that change nothing <small>(your annotation)</small></td><td><b>Accept as-is</b></td>
+        <td>§07: no "unchanged" branch. Recorded as a named comment at the footer render site, per CLAUDE.md.</td></tr>
+  </tbody>
+</table>
+</div>
+
+<div class="callout warn"><span class="hd">Two things I did not silently absorb</span>
+<b>1 · Q1 and Q5 together</b> make the wizard <b>five pages you walk in full, every session</b>. That is a
+legitimate way to run the experiment, as long as a later "the wizard is annoying" is read as <em>"a five-page
+wizard with no shortcut is annoying"</em> rather than <em>"wizards are wrong for this app"</em>. Both flows write
+the same plan, so reversing it is a one-line change to <code>WIZARD_STEPS</code> or to where <code>step</code> is
+initialised — not a rebuild.<br><br>
+<b>2 · The rename is now half-done, on purpose.</b> "Untouched entirely" means classic keeps <em>Identify</em>
+and <em>Meaning → verb</em> while the wizard says <b>Name the grammar</b> and <b>Match the meaning</b> — two names
+for one quiz type, behind a runtime flag. I did not quietly relabel classic to fix it. The new names sit in
+<code>glossary.js · QUIZ_TYPE_INFO</code>; pointing classic at them is a three-line diff whenever you want it.</div>
+
+<p class="body" style="margin-top:34px">Everything is decided. Unless you flag something else, I'll build in the
+§06 order — split the files as a provable no-op, then the summary card against classic, then the five wizard
+pages, then the More control — with <code>node test/smoke.mjs</code> green and a walk of the running app at each
+step.</p>
+
+</div>
+
+<script type="module">
+  import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.15.0/dist/mermaid.esm.min.mjs";
+  const darkQuery = window.matchMedia("(prefers-color-scheme: dark)");
+  const paint = document.createElement("canvas").getContext("2d");
+  function toRgba(color) {
+    paint.clearRect(0, 0, 1, 1); paint.fillStyle = "#000"; paint.fillStyle = color;
+    paint.fillRect(0, 0, 1, 1); return paint.getImageData(0, 0, 1, 1).data;
+  }
+  function compositeRgba(fg, bg) {
+    const fa = fg[3] / 255, ba = bg[3] / 255, a = fa + ba * (1 - fa);
+    if (a === 0) return [0, 0, 0, 0];
+    return [(fg[0]*fa + bg[0]*ba*(1-fa))/a, (fg[1]*fa + bg[1]*ba*(1-fa))/a, (fg[2]*fa + bg[2]*ba*(1-fa))/a, a*255];
+  }
+  function pageIsDark() {
+    const root = document.documentElement;
+    const rb = toRgba(getComputedStyle(root).backgroundColor);
+    const bb = document.body ? toRgba(getComputedStyle(document.body).backgroundColor) : [0,0,0,0];
+    const [r, g, b, a] = compositeRgba(bb, rb);
+    if (a > 0) return (0.2126*r + 0.7152*g + 0.0722*b) / 255 < 0.5;
+    const cs = getComputedStyle(root).colorScheme;
+    if (cs.includes("dark") && !cs.includes("light")) return true;
+    if (cs.includes("light") && !cs.includes("dark")) return false;
+    return darkQuery.matches;
+  }
+  const diagrams = [...document.querySelectorAll(".mermaid")].map((el) => ({ el, src: el.innerHTML }));
+  let applied, rendering = false, queued = false;
+  function queueRender() { queued = true; if (rendering) return; void render(); }
+  async function render() {
+    rendering = true;
+    try {
+      while (queued) {
+        queued = false;
+        const theme = pageIsDark() ? "dark" : "default";
+        if (theme === applied) continue;
+        mermaid.initialize({ startOnLoad: false, theme, securityLevel: "strict" });
+        for (const { el, src } of diagrams) { el.removeAttribute("data-processed"); el.innerHTML = src; }
+        try { await mermaid.run({ nodes: diagrams.map((d) => d.el) }); }
+        catch (error) { console.error("Mermaid diagram render failed:", error); return; }
+        applied = theme;
+      }
+    } finally { rendering = false; if (queued) queueRender(); }
+  }
+  if (document.readyState === "complete") queueRender();
+  else window.addEventListener("load", queueRender, { once: true });
+  const themeObserver = new MutationObserver(queueRender);
+  for (const el of [document.documentElement, document.body]) {
+    if (!el) continue;
+    themeObserver.observe(el, { attributes: true, attributeFilter: ["data-theme", "class", "style"] });
+  }
+  document.addEventListener("change", queueRender, true);
+  document.addEventListener("transitionend", ({ propertyName }) => { if (propertyName === "background-color") queueRender(); }, true);
+  darkQuery.addEventListener("change", queueRender);
+</script>
+
+<script>
+  // Pins point at a named element rather than a hardcoded offset: the Arabic
+  // fallback font differs per machine, so a fixed `top` lands on the wrong row.
+  function placePins() {
+    for (const pin of document.querySelectorAll('.pin[data-anchor]')) {
+      const wrap = pin.closest('.pinwrap');
+      const target = wrap && wrap.querySelector(pin.dataset.anchor);
+      if (!target) continue;
+      const shift = Number(pin.dataset.shift || 0);
+      pin.style.top = (target.getBoundingClientRect().top
+                       - wrap.getBoundingClientRect().top + shift) + 'px';
+    }
+  }
+  if (document.readyState === 'complete') placePins();
+  else window.addEventListener('load', placePins, { once: true });
+  window.addEventListener('resize', placePins);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(placePins);
+</script>
+</body>
+</html>

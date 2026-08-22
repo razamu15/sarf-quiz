@@ -4,8 +4,8 @@
 // than hand-listed, which is what the audience field is for: adding a user
 // preference is one row in that table, and promoting a dev lever is a field edit.
 
-import { el, rowNav } from '../ui/dom.js';
-import { state } from '../ui/state.js';
+import { el, rowNav, segmented } from '../ui/dom.js';
+import { state, resetPracticeFlow } from '../ui/state.js';
 import { settings, setSetting, userSettings, SETTINGS_SPEC } from '../settings/settings.js';
 import { deleteAll } from '../history/store.js';
 import { basicSummary } from '../history/queries.js';
@@ -21,7 +21,10 @@ export function renderMore(app, { rerender }) {
 
   app.append(el('<div class="section-label">Study</div>'));
   for (const s of userSettings()) {
-    app.append(rowNav(s.label, String(settings[s.id])));
+    // An entry that declares `options` is a choice, and gets a control; one that
+    // does not stays the read-only value row it has always been. Making the
+    // other three editable is a field edit in SETTINGS_SPEC, not a change here.
+    app.append(s.options ? choiceRow(s, rerender) : rowNav(s.label, String(settings[s.id])));
   }
 
   app.append(el('<div class="section-label">App</div>'));
@@ -49,4 +52,26 @@ export function renderMore(app, { rerender }) {
     row.onclick = () => { setSetting(s.id, !settings[s.id]); rerender(); };
     app.append(row);
   }
+}
+
+/**
+ * One user setting rendered as a segmented control, with its `note` as the
+ * explanatory line — the same field the dev rows use, so a setting documents
+ * itself in one place whichever audience it belongs to.
+ */
+function choiceRow(spec, rerender) {
+  const row = el(`<div class="row-nav settled"><b>${spec.label}</b>${
+    spec.note ? `<small>${spec.note}</small>` : ''}</div>`);
+  row.append(segmented(
+    spec.options,
+    (v) => settings[spec.id] === v,
+    (v) => {
+      setSetting(spec.id, v);
+      // Switching Practice layouts must not drop the user into step 3 of a
+      // wizard they just turned on.
+      if (spec.id === 'practiceFlow') resetPracticeFlow();
+    },
+    { onChange: rerender },
+  ));
+  return row;
 }

@@ -9,7 +9,7 @@
 // every piece of UI state in one file.
 
 import { el } from './ui/dom.js';
-import { state } from './ui/state.js';
+import { state, resetPracticeFlow } from './ui/state.js';
 import { renderHome, loadQuotes } from './screens/home.js';
 import { renderPractice } from './screens/practice.js';
 import { renderTables } from './screens/tables.js';
@@ -36,6 +36,11 @@ function tabBar() {
       state.tab = b.dataset.tab;
       state.tables.viewing = false;
       state.showStats = false;
+      // Each screen's transient view state is dropped on the way in, which is
+      // where the wizard's "always open at step 1" (ROADMAP A2 · Q5) lives. It
+      // cannot go inside renderPractice(): that runs on every chip tap, and
+      // resetting there would pin the wizard to page one forever.
+      resetPracticeFlow();
       render();
     };
   });

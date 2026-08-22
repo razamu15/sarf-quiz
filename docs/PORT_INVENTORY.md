@@ -7,7 +7,7 @@
 > app; [ROADMAP.md](ROADMAP.md) Track C is the schedule this feeds.
 >
 > Written Aug 2026 against 45 JS files / 6,468 lines, five shipped engines
-> (sālim · muḍāʿaf · mithāl · ajwaf · nāqiṣ), 58 roots, 304 assertions green.
+> (sālim · muḍāʿaf · mithāl · ajwaf · nāqiṣ), 58 roots, 316 assertions green.
 > Toolchain on this machine: Xcode 26.6, Swift 6.3.3, iOS 26.5 SDK.
 
 ---
@@ -1020,7 +1020,7 @@ to avoid.
 
 All four are cases where the port exposes something the JS shape was papering
 over. Making them in JavaScript first keeps the two codebases comparable and
-keeps the corpus diff meaningful — **change JS, re-run the 304 assertions and
+keeps the corpus diff meaningful — **change JS, re-run the 316 assertions and
 the parity snapshot, confirm zero diffs, then port.** Making them only on the
 Swift side would mean the two engines differ structurally on day one.
 
