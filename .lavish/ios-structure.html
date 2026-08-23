@@ -1,0 +1,855 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sarf Quiz — the iOS codebase in outline</title>
+<style>
+  :root {
+    --bg: #0e1117;
+    --card: #191f2b;
+    --card2: #212a3a;
+    --ink: #eef2f8;
+    --ink-dim: #93a0b4;
+    --accent: #4ea8de;
+    --good: #3fb96f;
+    --bad: #e05d5d;
+    --warn: #d8a13a;
+    --radius: 16px;
+    --arabic: "Geeza Pro", "Al Bayan", "Baghdad", "Scheherazade New", "Amiri", serif;
+    --latin: -apple-system, "SF Pro Text", "Segoe UI", system-ui, sans-serif;
+    --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    color-scheme: dark;
+  }
+  *, *::before, *::after { box-sizing: border-box; }
+  :where(p, h1, h2, h3, h4, li, td, th, dd, figcaption) { overflow-wrap: anywhere; }
+  :where(.grid2, .grid3, .stat4, .laws) > * { min-width: 0; }
+  :where(img, svg, canvas) { max-width: 100%; height: auto; }
+
+  body { margin: 0; background: var(--bg); color: var(--ink);
+         font-family: var(--latin); line-height: 1.6; -webkit-font-smoothing: antialiased; }
+  .wrap { max-width: 1140px; margin: 0 auto; padding: 40px 22px 120px; }
+
+  .masthead { border-bottom: 1px solid #2b3547; padding-bottom: 26px; margin-bottom: 30px; }
+  .eyebrow { font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--accent); font-weight: 700; }
+  .masthead h1 { font-size: clamp(26px, 4vw, 36px); line-height: 1.15; margin: 10px 0 12px; letter-spacing: -0.02em; }
+  .lede { color: var(--ink-dim); font-size: 16px; max-width: 78ch; }
+  .lede b { color: var(--ink); }
+
+  h2.sec { font-size: 13px; text-transform: uppercase; letter-spacing: .12em; color: var(--ink-dim);
+           margin: 56px 0 16px; padding-bottom: 10px; border-bottom: 1px solid #2b3547; }
+  h2.sec b { color: var(--accent); font-weight: 700; margin-inline-end: 8px; }
+  h3.sub { font-size: 19px; margin: 30px 0 8px; letter-spacing: -0.01em; }
+  h4.mini { font-size: 12px; text-transform: uppercase; letter-spacing: .1em; color: var(--accent); margin: 22px 0 8px; }
+  p.body { font-size: 15px; color: var(--ink-dim); max-width: 82ch; margin: 0 0 14px; }
+  p.body b, li b, td b, dd b { color: var(--ink); }
+  ul.body { font-size: 15px; color: var(--ink-dim); max-width: 82ch; padding-inline-start: 20px; margin: 0 0 14px; }
+  ul.body li { margin-bottom: 7px; }
+  code { font-family: var(--mono); font-size: 12.5px; color: var(--accent); }
+  .ar { font-family: var(--arabic); }
+
+  .callout { border-inline-start: 3px solid var(--accent); background: var(--card2);
+             border-radius: 10px; padding: 14px 18px; font-size: 14.5px; margin: 18px 0; color: var(--ink-dim); }
+  .callout.bad { border-inline-start-color: var(--bad); }
+  .callout.good { border-inline-start-color: var(--good); }
+  .callout.warn { border-inline-start-color: var(--warn); }
+  .callout b { color: var(--ink); }
+  .callout .hd { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: .09em;
+                 margin-bottom: 6px; color: var(--ink-dim); font-weight: 700; }
+  .callout.bad .hd { color: var(--bad); }
+  .callout.good .hd { color: var(--good); }
+  .callout.warn .hd { color: var(--warn); }
+
+  .tbl-wrap { overflow-x: auto; border: 1px solid #303a4d; border-radius: var(--radius); margin: 16px 0; }
+  table.rev { width: 100%; border-collapse: collapse; background: var(--card); font-size: 13.5px; min-width: 660px; }
+  table.rev th { text-align: start; padding: 10px 13px; font-size: 11px; text-transform: uppercase;
+                 letter-spacing: .08em; color: var(--ink-dim); border-bottom: 1px solid #303a4d; background: var(--card2); }
+  table.rev td { padding: 10px 13px; border-bottom: 1px solid #232c3c; vertical-align: top; color: var(--ink-dim); }
+  table.rev tr:last-child td { border-bottom: 0; }
+  table.rev td.f { font-family: var(--mono); font-size: 12px; color: var(--ink); }
+  table.rev td.f.nw { white-space: nowrap; }
+  table.rev tr.grouphead td { background: var(--card2); color: var(--accent); font-size: 11px;
+    text-transform: uppercase; letter-spacing: .1em; font-weight: 700; }
+
+  .pill { display: inline-block; font-size: 10.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase;
+          padding: 2px 8px; border-radius: 99px; white-space: nowrap; }
+  .pill.keep { background: rgba(63,185,111,.16); color: var(--good); }
+  .pill.gone { background: rgba(224,93,93,.16); color: var(--bad); }
+  .pill.warn { background: rgba(216,161,58,.16); color: var(--warn); }
+  .pill.new  { background: rgba(78,168,222,.16); color: var(--accent); }
+
+  .mermaid { background: var(--card); border: 1px solid #303a4d; border-radius: var(--radius);
+             padding: 18px; overflow-x: auto; margin: 18px 0; }
+  .cap { font-size: 12.5px; color: var(--ink-dim); margin: -6px 0 26px; text-align: center; }
+
+  .grid2 { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 18px; }
+  .grid3 { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 16px; }
+  @media (max-width: 900px) { .grid2, .grid3 { grid-template-columns: minmax(0,1fr); } }
+
+  .panel { background: var(--card); border: 1px solid #303a4d; border-radius: var(--radius); padding: 18px 20px; }
+  .panel h4 { font-size: 12px; text-transform: uppercase; letter-spacing: .1em; color: var(--accent); margin: 0 0 10px; }
+  .panel p { font-size: 14px; color: var(--ink-dim); margin: 0 0 10px; }
+  .panel p:last-child { margin-bottom: 0; }
+  .panel ul { font-size: 14px; color: var(--ink-dim); margin: 0; padding-inline-start: 18px; }
+  .panel ul li { margin-bottom: 6px; }
+
+  .stat4 { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 14px; margin: 22px 0 10px; }
+  @media (max-width: 760px) { .stat4 { grid-template-columns: repeat(2, minmax(0,1fr)); } }
+  .stat4 > div { background: var(--card); border: 1px solid #303a4d; border-radius: 14px; padding: 14px 16px; }
+  .num { font-size: 28px; font-weight: 700; color: var(--accent); display: block; line-height: 1.15; font-variant-numeric: tabular-nums; }
+  .numlabel { font-size: 12.5px; color: var(--ink-dim); }
+
+  pre.tree { background: #0b0e14; border: 1px solid #2b3547; border-radius: var(--radius);
+             padding: 18px 20px; overflow-x: auto; font-size: 12.7px; line-height: 1.75;
+             font-family: var(--mono); color: #cdd8ea; margin: 14px 0; }
+  pre.tree .c { color: #6b7a91; }
+  pre.tree .d { color: var(--accent); font-weight: 600; }
+  pre.tree .lock { color: var(--warn); }
+  pre.tree b { color: #fff; font-weight: 600; }
+
+  .codehost { margin: 14px 0; border-radius: var(--radius); overflow: hidden; border: 1px solid #2b3547; }
+  .codehost pre.fallback { margin: 0; background: #0b0e14; padding: 16px 18px; overflow-x: auto;
+    font-size: 12.7px; line-height: 1.7; font-family: var(--mono); color: #cdd8ea; }
+
+  .laws { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 14px; margin: 18px 0; }
+  @media (max-width: 820px) { .laws { grid-template-columns: minmax(0,1fr); } }
+  .law { background: var(--card); border: 1px solid #303a4d; border-radius: 14px; padding: 15px 17px; display: flex; gap: 13px; }
+  .law .n { font-family: var(--mono); font-size: 12px; color: var(--accent); font-weight: 700; padding-top: 2px; }
+  .law p { margin: 0; font-size: 14px; color: var(--ink-dim); }
+  .law p b { color: var(--ink); }
+
+  .qbox { background: var(--card); border: 1px solid #303a4d; border-radius: var(--radius); padding: 18px 20px; margin: 14px 0; }
+  .qbox h4 { font-size: 15px; color: var(--ink); margin: 0 0 4px; }
+  .qbox .why { font-size: 13.5px; color: var(--ink-dim); margin: 0 0 12px; }
+  .qbox label { display: flex; gap: 9px; align-items: flex-start; font-size: 14px; color: var(--ink-dim);
+                padding: 8px 10px; border-radius: 9px; cursor: pointer; }
+  .qbox label:hover { background: var(--card2); }
+  .qbox label input { margin-top: 4px; accent-color: var(--accent); flex: none; }
+  .qbox label b { color: var(--ink); }
+  .qbox label .rec { font-size: 10.5px; text-transform: uppercase; letter-spacing: .07em; color: var(--good); font-weight: 700; }
+  .qbox button { margin-top: 10px; background: var(--accent); color: #0b2233; border: 0; border-radius: 10px;
+                 font-family: var(--latin); font-size: 13px; font-weight: 700; padding: 9px 16px; cursor: pointer; }
+  .qbox button:hover { filter: brightness(1.08); }
+  .qbox .sent { font-size: 12.5px; color: var(--good); margin-top: 8px; display: none; }
+  .qbox.queued .sent { display: block; }
+
+  dl.kv { margin: 0; font-size: 14px; }
+  dl.kv dt { font-family: var(--mono); font-size: 12px; color: var(--accent); margin-top: 12px; }
+  dl.kv dt:first-child { margin-top: 0; }
+  dl.kv dd { margin: 3px 0 0; color: var(--ink-dim); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="masthead">
+  <div class="eyebrow">Sarf Quiz · the Swift port · structure sketch · Aug 2026</div>
+  <h1>What the iOS codebase looks like — targets, features, views, and who owns which piece of state</h1>
+  <p class="lede">
+    The prototype is 48 files of imperative DOM. SwiftUI is declarative and component-based, so
+    <b>the whole top half of that structure stops applying</b> — but only the top half.
+    This is the shape of the replacement, at outline altitude: <b>three targets, four tabs,
+    seven features, one view model</b>. Every claim about the prototype below was read out of the
+    source, not remembered.
+  </p>
+  <p class="lede" style="margin-top:12px">
+    <b>What this is not:</b> not the port schedule (<code>ROADMAP.md</code> Track C), not the
+    file-by-file inventory (<code>PORT_INVENTORY.md</code> Part 4), not the engine's design
+    (<code>TECHNICAL_PLAN.md</code> Part A). Those already exist and are not repeated here. What is
+    genuinely new is <b>§04–§07: the component hierarchy and the state map</b>, which no doc covers
+    today. §10 is the handful of decisions this shape still needs from you.
+  </p>
+</header>
+
+<div class="stat4">
+  <div><span class="num">3</span><span class="numlabel">targets · one boundary each</span></div>
+  <div><span class="num">7</span><span class="numlabel">feature folders (+2 flagged)</span></div>
+  <div><span class="num">1</span><span class="numlabel">view model in the whole app</span></div>
+  <div><span class="num">4</span><span class="numlabel">state lifetimes, §06</span></div>
+</div>
+
+<!-- ===================================================================== -->
+<h2 class="sec"><b>01</b> Three rings — the boundary decides the structure, not the other way round</h2>
+
+<p class="body">
+  This split is already decided in <code>PORT_INVENTORY §3.2</code>; it is restated here because
+  everything below hangs off it. The rule that produced it is one sentence: <b>a target is a group
+  of code that changes for the same reason.</b> The morphology is heading for a freeze; the quiz
+  rules churn every roadmap step; the views are being written for the first time.
+</p>
+
+<div class="mermaid">
+flowchart TD
+  subgraph APP["SarfQuiz.app — views · navigation · platform"]
+    FEAT["Features/ · Components/ · DesignSystem/"]
+    SVC["Services/ — SwiftData · UserDefaults · keyboard"]
+  end
+  subgraph QUIZ["Packages/SarfQuiz — quiz rules, no UI"]
+    RULES["QuizPlan · WordPool · Relevance<br/>Builders · Grading · QuizRun"]
+    GLOSS["Glossary — every display string"]
+  end
+  subgraph CORE["Packages/SarfCore — morphology, frozen at B3"]
+    ENG["ConjugationService ← the only door<br/>LexiconService · MeaningService"]
+    GRAM["Grammar tables · 5 conjugators<br/><i>internal — invisible outside</i>"]
+  end
+
+  FEAT --> RULES
+  FEAT --> GLOSS
+  FEAT -->|"Tables asks for a chart directly"| ENG
+  SVC --> RULES
+  RULES --> ENG
+  GLOSS -.->|"AnswerOption.en IS a glossary string"| RULES
+  ENG --> GRAM
+  CORE -.->|"never imports upward"| QUIZ
+</div>
+<p class="cap">Arrows point at what a layer is allowed to know about. The dotted edge at the bottom is the one that must stay impossible.</p>
+
+<div class="grid3">
+  <div class="panel">
+    <h4>SarfCore</h4>
+    <p>Root letters in, a fully-vowelled word or <code>nil</code> out. <b>It never returns a domain
+    object</b> — only strings — which is why the API surface is tiny and the boundary is cheap.</p>
+    <p>Contains no display strings and no product copy. Freezes at the corpus export.</p>
+  </div>
+  <div class="panel">
+    <h4>SarfQuiz</h4>
+    <p>Turns a pool of words into questions worth asking, and judges the answers.
+    <b>Glossary lives here, not in Core</b>: an <code>AnswerOption.en</code> literally <i>is</i>
+    <code>TENSE_LABELS[t].en</code>, and the two must not drift.</p>
+    <p>No SwiftUI import — a compile error, not a convention.</p>
+  </div>
+  <div class="panel">
+    <h4>SarfQuiz.app</h4>
+    <p>Views, navigation, storage, StoreKit later. <b>Holds no rule about Arabic and no rule about
+    correctness.</b> The screens ask; they never decide.</p>
+    <p>This is the only target with <code>@MainActor</code> everywhere.</p>
+  </div>
+</div>
+
+<div class="callout good">
+  <span class="hd">What the boundary buys, concretely</span>
+  Swift defaults to <code>internal</code>, so <b>"<code>ConjugationService</code> is the only door"
+  stops being a rule you keep by reading imports and becomes a fact the compiler enforces</b>. The
+  app cannot call <code>SalimConjugator</code> or read a stem table even by accident.
+</div>
+
+<!-- ===================================================================== -->
+<h2 class="sec"><b>02</b> Why the app is carved into <i>those</i> seven folders</h2>
+
+<p class="body">
+  Feature folders are named for <b>what the user is doing to the domain</b>, not for what the screen
+  looks like. There are only four verbs in this product, and every screen is one of them or a
+  shortcut into one:
+</p>
+
+<div class="mermaid">
+flowchart LR
+  CONF["<b>Configure</b><br/>describe a pool of words"] --> PLAY["<b>Play</b><br/>answer questions from it"]
+  PLAY --> REV["<b>Review</b><br/>what you just did, and what you always do"]
+  LOOK["<b>Look up</b><br/>the whole chart, offline"]
+  REV -.->|"weak-spot drill (later)"| CONF
+  PLAY -.->|"See the full table"| LOOK
+</div>
+
+<div class="tbl-wrap">
+<table class="rev">
+  <thead><tr><th>Verb</th><th>Feature folder</th><th>Owns</th><th>Reads</th></tr></thead>
+  <tbody>
+    <tr><td><b>Configure</b></td><td class="f nw">Features/Practice</td>
+        <td>the <code>PlanDraft</code>, both flow layouts, the "this setup asks" panel</td>
+        <td><code>WordPool</code>, <code>relevance()</code></td></tr>
+    <tr><td><b>Play</b></td><td class="f nw">Features/Quiz</td>
+        <td>rendering one <code>QuizRun</code>, the answer surfaces, the keyboard gate</td>
+        <td><code>QuizRun</code> only</td></tr>
+    <tr><td><b>Review</b></td><td class="f nw">Features/Results · Features/Stats</td>
+        <td>score, breakdowns, recap · the flagged dashboard</td>
+        <td><code>QuizRun.answers</code> · <code>StatsService</code></td></tr>
+    <tr><td><b>Look up</b></td><td class="f nw">Features/Tables · Features/Compare</td>
+        <td>search, the attribute chips, the 14-row chart</td>
+        <td><code>ConjugationService</code> directly</td></tr>
+    <tr><td><b>—</b></td><td class="f nw">Features/Home</td>
+        <td>three prebuilt drills + the free stats card</td>
+        <td><code>DrillPreset</code>, <code>StatsService</code></td></tr>
+    <tr><td><b>—</b></td><td class="f nw">Features/More</td>
+        <td>settings rows, delete-my-history, the way into Stats</td>
+        <td><code>AppSettings</code></td></tr>
+  </tbody>
+</table>
+</div>
+
+<p class="body">
+  Home and More are the two that are not verbs, and both are deliberately thin: Home is
+  <b>shortcuts into Play plus a peek at Review</b>, More is a settings table. Neither owns a domain
+  concept, which is why neither grows.
+</p>
+
+<!-- ===================================================================== -->
+<h2 class="sec"><b>03</b> The tree</h2>
+
+<p class="body">
+  The two packages are collapsed here — their internals are already specified in
+  <code>TECHNICAL_PLAN §A.6</code> and <code>PORT_INVENTORY §3.5</code>, and this outline changes
+  nothing about them. The app target is the part that has never been written down.
+</p>
+
+<pre class="tree"><span class="c">Packages/</span>
+  <span class="d">SarfCore/</span>     <span class="c">Models · Grammar · Conjugation · Lexicon · Meaning · Text · roots.json</span>
+  <span class="d">SarfQuiz/</span>     <span class="c">Models · Pool · Rules · Builders · Grading · QuizRun · Drills · Glossary</span>
+
+<span class="d">SarfQuiz/</span>                        <span class="c">← the app target. UI, navigation, platform. No sarf logic.</span>
+│
+├─ <span class="d">App/</span>
+│   ├─ <b>SarfQuizApp.swift</b>         <span class="c">@main · one WindowGroup · builds AppModel once</span>
+│   ├─ <b>AppModel.swift</b>            <span class="c">composition root — LexiconService.load() then Conjugation/</span>
+│   │                             <span class="c">Meaning on top; HistoryService; AppSettings. .environment()</span>
+│   ├─ <b>AppState.swift</b>            <span class="c">@Observable @MainActor — tab · draft · tables · run · replay</span>
+│   └─ <b>RootView.swift</b>            <span class="c">TabView(4 tabs) + the quiz fullScreenCover</span>
+│
+├─ <span class="d">DesignSystem/</span>               <span class="c">domain-free primitives. Nothing here knows what a verb is.</span>
+│   ├─ Theme.swift                <span class="c">spacing · radii · the colour token names</span>
+│   ├─ ArabicWord.swift           <span class="c">the Arabic Text view: font, vertical room for tashkīl,</span>
+│   │                             <span class="c">bidi isolation. NOT SarfCore.ArabicText — see §09</span>
+│   ├─ FlowLayout.swift           <span class="c">`flex-wrap` has no SwiftUI equivalent. Written once.</span>
+│   ├─ ChipRow.swift              <span class="c">Chip · ChipRow&lt;Value&gt; — binds into a Set or an array</span>
+│   ├─ SegmentedRow.swift         <span class="c">one-of-N (the More screen's controls)</span>
+│   ├─ NavRow.swift               <span class="c">rowNav() — title · subtitle · badge · chevron</span>
+│   ├─ SectionLabel.swift
+│   └─ ScoreRing.swift            <span class="c">Circle().trim — Home card and Results</span>
+│
+├─ <span class="d">Components/</span>                 <span class="c">domain-shaped views used by MORE THAN ONE feature</span>
+│   ├─ <b>QuestionCard.swift</b>        <span class="c">exhaustive switch over Prompt's six kinds.</span>
+│   │                             <span class="c">.interactive (Quiz) | .preview (Practice summary) — §07</span>
+│   ├─ AnswerOptions.swift        <span class="c">OptionButton + OptionState — derived, never applied (§05)</span>
+│   ├─ FeedbackView.swift         <span class="c">meaning · explanation · tip · "See the full table"</span>
+│   ├─ ClusterDiffText.swift      <span class="c">underlines the first diverging grapheme cluster</span>
+│   └─ ChartTable.swift           <span class="c">the 14-row chart. Tables now, Compare later</span>
+│
+├─ <span class="d">Features/</span>                   <span class="c">one folder per thing the user is DOING (§02)</span>
+│   ├─ <span class="d">Home/</span>       HomeScreen · DrillCard · StatCard · QuoteCard
+│   ├─ <span class="d">Practice/</span>   <b>PracticeScreen</b>          <span class="c">reads practiceFlow; the ONE .plan() call</span>
+│   │               PracticeControls        <span class="c">the axis chip rows — shared by both flows</span>
+│   │               PracticeClassicScreen
+│   │               PracticeWizardScreen · WizardSteps
+│   │               SetupSummary            <span class="c">sample question + live/retired kinds</span>
+│   │               PoolPreview             <span class="c">async pool · relevance · count cache (§06)</span>
+│   ├─ <span class="d">Quiz/</span>       <b>QuizScreen</b> · QuizTopBar · ChoiceAnswer · TypedAnswer
+│   │               ArabicKeyboardNotice    <span class="c">platform gate — no web counterpart</span>
+│   ├─ <span class="d">Results/</span>    ResultsScreen · CategoryBreakdown · VocabRecap
+│   ├─ <span class="d">Tables/</span>     TablesScreen · RootSearchResults · ChartPickers · ChartScreen
+│   ├─ <span class="d">More/</span>       MoreScreen · SettingRow · DeleteHistoryRow
+│   ├─ <span class="d">Stats/</span>      StatsScreen · breakdown views        <span class="lock">🔒 detailedStats</span>
+│   └─ <span class="d">Compare/</span>    CompareScreen · ChartDiffTable       <span class="lock">🔒 compareCharts</span>
+│
+├─ <span class="d">Services/</span>                   <span class="c">platform-facing. The only code that touches iOS storage.</span>
+│   ├─ HistoryService.swift       <span class="c">SwiftData writes + the flat query index (store.rowFor)</span>
+│   ├─ StatsService.swift         <span class="c">the six queries as FetchDescriptor + #Predicate</span>
+│   ├─ AppSettings.swift          <span class="c">SETTINGS_SPEC over UserDefaults, @Observable</span>
+│   └─ ArabicKeyboard.swift       <span class="c">is one installed? — gates quiz type 2 entirely</span>
+│
+├─ <span class="d">Models/</span>                     <span class="c">app-lifetime ENTITIES only. No behaviour.</span>
+│   ├─ PlanDraft.swift            <span class="c">what the chips mutate; .plan() is its only exit</span>
+│   ├─ TablesSelection.swift      <span class="c">rootKey · formId · tense · voice · mood · highlight</span>
+│   ├─ AppTab.swift
+│   └─ PersistedSession.swift · PersistedAnswer.swift    <span class="c">@Model</span>
+│
+└─ <span class="d">Resources/</span>   Assets.xcassets <span class="c">(colours = today's CSS tokens)</span> · quotes.json
+</pre>
+
+<div class="laws">
+  <div class="law"><span class="n">01</span><p><b>Views never compute a domain fact.</b> No screen decides whether an answer is right, whether a chart exists, or which questions are worth asking. It asks a package.</p></div>
+  <div class="law"><span class="n">02</span><p><b>One view model in the app: <code>QuizRun</code>.</b> Everything else is value state plus views over it. A feature gets an observable object only when it owns something that outlives a view <i>and</i> mutates.</p></div>
+  <div class="law"><span class="n">03</span><p><b>Features never import each other.</b> The moment two features need the same view, it moves to <code>Components/</code>. Cross-feature <i>navigation</i> goes through <code>AppState</code>.</p></div>
+  <div class="law"><span class="n">04</span><p><b>Nothing in <code>Features/</code> touches SwiftData or UserDefaults.</b> <code>Services/</code> owns storage, exactly as <code>history/store.js</code> does today — and for the same reason: no flag may reach the writer.</p></div>
+  <div class="law"><span class="n">05</span><p><b>State lives at the lowest level that outlives the view that reads it.</b> That single rule produces the whole of §06 — and it is what keeps the wizard's step out of plan data.</p></div>
+  <div class="law"><span class="n">06</span><p><b>Files stay under ~400 lines, screens under ~200.</b> A screen file is a layout; its child views sit beside it in the feature folder rather than nested inside it.</p></div>
+</div>
+
+<!-- ===================================================================== -->
+<h2 class="sec"><b>04</b> The view hierarchy — what contains what</h2>
+
+<p class="body">
+  Four tabs, each with its own <code>NavigationStack</code>, and <b>one thing that is not in the tab
+  world at all</b>: the quiz. In the prototype the quiz takes over by simply not appending the tab
+  bar; in SwiftUI that is a <code>fullScreenCover</code>, which suppresses the tab bar and gives
+  back the dismissal for free.
+</p>
+
+<div class="mermaid">
+flowchart TD
+  APP["SarfQuizApp<br/><i>@main · builds AppModel</i>"] --> ROOT["RootView<br/><i>TabView(selection: app.tab)</i>"]
+
+  ROOT --> H["HomeScreen"]
+  ROOT --> P["PracticeScreen"]
+  ROOT --> T["TablesScreen"]
+  ROOT --> M["MoreScreen"]
+  ROOT -.->|".fullScreenCover(item: app.run)"| COVER["QuizFlow"]
+
+  H --> HC["StatCard · QuoteCard<br/>DrillCard ×3"]
+  H -->|"push"| ST["StatsScreen 🔒"]
+
+  P -->|"settings.practiceFlow"| PC["PracticeClassicScreen"]
+  P -->|"settings.practiceFlow"| PW["PracticeWizardScreen"]
+  PC --> CTRL["PracticeControls<br/><i>the axis chip rows</i>"]
+  PW --> CTRL
+  PW --> SUM["SetupSummary"]
+  SUM --> QCARD["QuestionCard<br/><i>.preview</i>"]
+
+  T --> TS["RootSearchResults · ChartPickers"]
+  T -->|"push"| TD["ChartScreen<br/><i>14 rows</i>"]
+  TD --> CT["ChartTable"]
+  T -.->|"🔒 compareCharts"| CMP["CompareScreen"]
+
+  M --> MR["SettingRow ×n · DeleteHistoryRow"]
+  M -->|"push"| ST
+
+  COVER --> Q["QuizScreen"]
+  COVER --> R["ResultsScreen"]
+  Q --> QCARD2["QuestionCard<br/><i>.interactive</i>"]
+  Q --> AO["AnswerOptions / TypedAnswer"]
+  Q --> FB["FeedbackView"]
+  FB -.->|"deep link · dismisses the cover"| T
+</div>
+<p class="cap">Solid edges are containment; dotted edges are presentation or navigation that crosses a feature.</p>
+
+<div class="grid2">
+  <div class="panel">
+    <h4>Why Results lives inside the cover</h4>
+    <p>A finished quiz is still the quiz. Putting <code>ResultsScreen</code> inside the same cover
+    means <b>"Back to home" is one dismissal</b>, "New round, same setup" swaps the run without any
+    navigation at all, and the tab bar stays suppressed the whole time — which is exactly what
+    <code>main.js</code> achieves today by not appending it.</p>
+  </div>
+  <div class="panel">
+    <h4>The two cross-feature jumps</h4>
+    <p>There are only two, and both are one assignment on <code>AppState</code>:
+    <b>quiz feedback → a chart</b> (<code>tables = …; tab = .tables; run = nil</code>) and
+    <b>Home's stat card → Stats</b> (<code>tab = .more; path = [.stats]</code>). Neither feature
+    imports the other — they write shared state and let the router react.</p>
+  </div>
+</div>
+
+<!-- ===================================================================== -->
+<h2 class="sec"><b>05</b> The quiz screen — the one component that is a rewrite, not a port</h2>
+
+<p class="body">
+  <code>screens/quiz.js</code>'s <code>submit()</code> reaches into already-rendered buttons and
+  mutates them: remove the Check button, strip <code>.selected</code>, add <code>.correct</code> or
+  <code>.wrong</code>, append the feedback box. <b>None of that has a SwiftUI translation.</b> The
+  fix is not a trick — it is a modelling change: the after-state stops being <i>applied</i> and
+  becomes <i>derived</i>.
+</p>
+
+<div class="codehost" id="code-optionstate"><pre class="fallback">// Components/AnswerOptions.swift
+enum OptionState { case idle, selected, correct, wrong, dimmed }
+
+func state(for option: AnswerOption) -&gt; OptionState {
+    guard let answer else {
+        return run.selected.contains(option.valueKey) ? .selected : .idle
+    }
+    if question.response.correctKeys.contains(option.valueKey) { return .correct }
+    if answer.given.contains(option.valueKey) { return .wrong }
+    return .dimmed
+}</pre></div>
+
+<p class="body">
+  The screen needs <b>one piece of state it does not have today</b> — the answer for the current
+  question — and <code>QuizRun</code> already stores every <code>Answer</code> and knows
+  <code>isAnswered</code>, so it is a bounds-checked read at <code>run.index</code>.
+  <b>No model change.</b> Everything else on that screen falls out of the same move:
+</p>
+
+<div class="tbl-wrap">
+<table class="rev">
+  <thead><tr><th>Prototype does</th><th>SwiftUI does</th><th>Lives in</th></tr></thead>
+  <tbody>
+    <tr><td class="f">removes the Check button</td><td><code>if !isAnswered { Button("Check") }</code></td><td class="f nw">QuizScreen</td></tr>
+    <tr><td class="f">appends feedbackBox()</td><td><code>if let answer { FeedbackView(answer) }</code></td><td class="f nw">Components/FeedbackView</td></tr>
+    <tr><td class="f">btn.classList.add('correct')</td><td>the <code>OptionState</code> above</td><td class="f nw">Components/AnswerOptions</td></tr>
+    <tr><td class="f">next.scrollIntoView()</td><td><code>ScrollViewReader.scrollTo(_:anchor:)</code></td><td class="f nw">QuizScreen</td></tr>
+    <tr><td class="f">confirm('Quit this quiz?')</td><td><code>@State</code> + <code>.alert</code> — an alert <i>is</i> state</td><td class="f nw">QuizTopBar</td></tr>
+    <tr><td class="f">&lt;input dir="rtl"&gt;</td><td><code>TextField</code> + layoutDirection, plus the keyboard gate</td><td class="f nw">TypedAnswer</td></tr>
+  </tbody>
+</table>
+</div>
+
+<div class="callout warn">
+  <span class="hd">Budget this as a feature, not polish</span>
+  <b>The Arabic keyboard is not installed by default on iOS</b>, and there is no way to force one
+  from an app. Without it, quiz type 2 is unanswerable rather than merely hard — so
+  <code>ArabicKeyboard.swift</code> + <code>ArabicKeyboardNotice</code> gate one of the four quiz
+  types and belong in the first build of the Quiz feature, not in a polish pass.
+</div>
+
+<!-- ===================================================================== -->
+<h2 class="sec"><b>06</b> State — four lifetimes, and nothing global</h2>
+
+<p class="body">
+  <code>ui/state.js</code> is one mutable global that every screen writes to, because
+  <code>render()</code> rebuilds the world on every tap. In Swift that object <b>splits by
+  lifetime</b>, and the split is already visible in the file — <code>state.practice</code> even
+  carries a comment saying it is view state that must never reach a plan.
+</p>
+
+<div class="tbl-wrap">
+<table class="rev">
+  <thead><tr><th>Lifetime</th><th>Lives in</th><th>Holds</th><th>Ends when</th></tr></thead>
+  <tbody>
+    <tr><td><b>Persistent</b></td><td class="f nw">AppSettings (UserDefaults)<br>HistoryService (SwiftData)</td>
+        <td>preferences · every answer of every session, unconditionally</td><td>the user deletes it</td></tr>
+    <tr><td><b>App session</b></td><td class="f nw">AppState<br><span style="color:var(--ink-dim)">@Observable @MainActor</span></td>
+        <td>selected tab · <code>PlanDraft</code> · <code>TablesSelection</code> · search text · the live run · replay</td><td>the app quits</td></tr>
+    <tr><td><b>One quiz</b></td><td class="f nw">QuizRun<br><span style="color:var(--ink-dim)">@Observable @MainActor</span></td>
+        <td>index · answers · current selection · typed text · the question source</td><td>the cover dismisses</td></tr>
+    <tr><td><b>One screen</b></td><td class="f nw">@State inside the view</td>
+        <td>wizard step · the sample-question memo · the pool cache · alert flags · field focus</td><td>the view goes away</td></tr>
+  </tbody>
+</table>
+</div>
+
+<div class="codehost" id="code-appstate"><pre class="fallback">// App/AppState.swift — the app-session tier, and nothing else
+@Observable @MainActor
+final class AppState {
+    var tab: AppTab = .home
+    var draft = PlanDraft()          // struct — the Practice chips bind into it
+    var tables = TablesSelection()   // rootKey · formId · tense · voice · mood · highlight
+    var search = ""
+    var run: QuizRun?                // non-nil ⇒ the quiz cover is up
+    var replay: (() -&gt; QuizRun?)?    // "new round, same setup"
+}</pre></div>
+
+<div class="grid2">
+  <div class="panel">
+    <h4>The invariant that must survive the port</h4>
+    <p><b>Neither Practice flow builds a <code>QuizPlan</code>.</b> Both take a
+    <code>@Binding&lt;PlanDraft&gt;</code> and only paint chips;
+    <code>PracticeScreen</code> makes the single <code>draft.plan()</code> call on the start path.
+    That is what lets the losing flow be deleted with no migration — and in Swift it gets
+    <i>stronger</i>, because <code>PlanDraft</code> is a value type: a flow that tried to build a
+    plan would have to be handed the type that makes one.</p>
+  </div>
+  <div class="panel">
+    <h4>One place the port needs new machinery</h4>
+    <p>The wizard opens at step 1 every time (decided, A2·Q5). Today that is free —
+    <code>resetPracticeFlow()</code> on tab entry. <b>SwiftUI keeps a tab's view tree alive across
+    tab switches</b>, so <code>@State</code> would silently remember the step. It needs an explicit
+    reset on appear. Small, but it is the kind of behaviour that disappears quietly in a port.</p>
+  </div>
+</div>
+
+<div class="callout">
+  <span class="hd">The one performance-shaped structure decision</span>
+  <code>wordPool()</code> walks every candidate × chart × ṣīghah calling <code>conjugate()</code>,
+  and <b>Practice re-runs it on every chip tap</b> to show the count under Start. On a phone that
+  will jank. Because SarfCore is <code>nonisolated</code> and <code>Sendable</code>, the walk can
+  run off the main actor — so Practice owns a small <code>PoolPreview</code> holding
+  <code>{pool, live/retired kinds, count, sample}</code>, recomputed by
+  <code>.task(id: draft)</code>. <b>That is the only computed cache in the app</b>, and it is the
+  reason Practice is the one feature with more than views in its folder.
+</div>
+
+<!-- ===================================================================== -->
+<h2 class="sec"><b>07</b> Shared components — the leaves, and who reuses them</h2>
+
+<p class="body">
+  Everything below exists because <b>two or more features render it</b>. That is the only admission
+  test; a view used once stays in its feature folder.
+</p>
+
+<div class="tbl-wrap">
+<table class="rev">
+  <thead><tr><th>Component</th><th>Renders</th><th>Used by</th><th>Replaces</th></tr></thead>
+  <tbody>
+    <tr class="grouphead"><td colspan="4">Components/ — domain-shaped</td></tr>
+    <tr><td class="f nw">QuestionCard</td><td>one card body per <code>Prompt</code> kind, exhaustive</td>
+        <td>Quiz · Practice summary</td><td class="f">quiz.js CARDS + practice-summary.js PREVIEW_BODIES</td></tr>
+    <tr><td class="f nw">AnswerOptions</td><td>the option buttons and their five states</td>
+        <td>Quiz · Practice summary (inert)</td><td class="f">renderChoices() + submit()</td></tr>
+    <tr><td class="f nw">FeedbackView</td><td>meaning · explanation · tip · table link</td>
+        <td>Quiz · Results review</td><td class="f">feedbackBox()</td></tr>
+    <tr><td class="f nw">ClusterDiffText</td><td>the first diverging grapheme cluster, underlined</td>
+        <td>Quiz · Compare 🔒</td><td class="f">markCluster()</td></tr>
+    <tr><td class="f nw">ChartTable</td><td>pronoun + word, all 14 rows, one highlight</td>
+        <td>Tables · Compare 🔒</td><td class="f">renderTableView()</td></tr>
+    <tr class="grouphead"><td colspan="4">DesignSystem/ — domain-free</td></tr>
+    <tr><td class="f nw">ChipRow&lt;Value&gt;</td><td>a row of toggleable chips over a closed enum</td>
+        <td>Practice ×2 flows · Tables</td><td class="f">dom.js chipRow()</td></tr>
+    <tr><td class="f nw">ArabicWord</td><td>Arabic text with room for tashkīl and bidi isolation</td>
+        <td>everywhere</td><td class="f">.ar CSS class</td></tr>
+    <tr><td class="f nw">FlowLayout</td><td>wrapping rows of chips</td>
+        <td>ChipRow · cue cards</td><td class="f">flex-wrap <span class="pill new">new code</span></td></tr>
+    <tr><td class="f nw">ScoreRing</td><td>the accuracy ring</td>
+        <td>Home card · Results</td><td class="f">--pct conic-gradient</td></tr>
+    <tr><td class="f nw">NavRow · SegmentedRow · SectionLabel</td><td>list furniture</td>
+        <td>More · Tables · Practice</td><td class="f">dom.js rowNav() / segmented()</td></tr>
+  </tbody>
+</table>
+</div>
+
+<div class="callout warn">
+  <span class="hd">A duplication the prototype chose on purpose — and I think Swift retires it</span>
+  <code>practice-summary.js</code> keeps its own <code>PREVIEW_BODIES</code> table, deliberately
+  separate from <code>quiz.js</code>'s <code>CARDS</code>: <i>"a fifth prompt kind must be added to
+  both, and the missing-key crash is how you find out."</i> That argument is entirely about
+  JavaScript. In Swift, <code>Prompt</code> is an <code>enum</code> with associated values, so
+  <b>a fifth kind is a compile error in every switch that handles it</b> — the crash-as-detector is
+  replaced by something strictly better, and the two tables can become one
+  <code>QuestionCard</code> with a <code>style</code>. Recorded as a decision in §10 rather than
+  taken silently.
+</div>
+
+<!-- ===================================================================== -->
+<h2 class="sec"><b>08</b> One tap, end to end</h2>
+
+<p class="body">
+  The path from a chip to a stored answer, with the target boundary marked. Note where the work
+  happens: <b>the app coordinates and renders; it never judges.</b>
+</p>
+
+<div class="mermaid">
+sequenceDiagram
+  autonumber
+  participant V as View · SwiftUI
+  participant S as AppState
+  participant Q as SarfQuiz
+  participant C as SarfCore
+  participant H as HistoryService
+
+  V->>S: chip tap → draft.tenses.toggle(.madi)
+  S-->>V: @Observable invalidates the body
+  V->>Q: .task(id: draft) → WordPool(plan)
+  Q->>C: conjugate() × every cell
+  C-->>Q: word or nil
+  Q-->>V: pool · live kinds · ≈ N possible
+  V->>Q: Start → QuizRun(plan, pool, record:)
+  Q->>Q: questionStream → Question
+  V->>V: QuestionCard + AnswerOptions render it
+  V->>Q: run.answer(given)
+  Q->>Q: grade() — the ONLY correctness judgement
+  Q-->>H: Answer (injected recorder, as it happens)
+  Q-->>V: Answer → OptionState + FeedbackView
+</div>
+
+<div class="callout good">
+  <span class="hd">Two things this diagram is asserting</span>
+  <b>(1)</b> The recorder is still <i>injected</i>, not imported — <code>QuizRun</code> knows
+  nothing about SwiftData, exactly as it knows nothing about <code>localStorage</code> today, and
+  answers persist as they happen so a killed app keeps what was answered.
+  <b>(2)</b> Steps 3–6 are the only place SarfCore runs, and they run <b>off the main actor</b>.
+</div>
+
+<!-- ===================================================================== -->
+<h2 class="sec"><b>09</b> What actually changes from the JS layout</h2>
+
+<div class="tbl-wrap">
+<table class="rev">
+  <thead><tr><th>Prototype area</th><th>Becomes</th><th>Verdict</th><th>Why</th></tr></thead>
+  <tbody>
+    <tr><td class="f nw">grammar · conjugation · lexicon · meaning</td><td class="f nw">SarfCore/</td>
+        <td><span class="pill keep">same shape</span></td><td>pure functions over closed enums — the shape Swift is best at</td></tr>
+    <tr><td class="f nw">quiz/ · glossary.js</td><td class="f nw">SarfQuiz/</td>
+        <td><span class="pill keep">same shape</span></td><td>the object chain is already a view model plus rules</td></tr>
+    <tr><td class="f nw">history/store.js</td><td class="f nw">Services/HistoryService + Models/Persisted*</td>
+        <td><span class="pill warn">backend swap</span></td><td><code>rowFor()</code> becomes the <code>@Model</code>'s stored columns; the shape survives</td></tr>
+    <tr><td class="f nw">settings/settings.js</td><td class="f nw">Services/AppSettings</td>
+        <td><span class="pill warn">backend swap</span></td><td>same table, same <code>audience</code> field, UserDefaults underneath</td></tr>
+    <tr><td class="f nw">ui/state.js</td><td class="f nw">AppState + Models/ + per-view @State</td>
+        <td><span class="pill warn">splits 4 ways</span></td><td>one global becomes four lifetimes — §06</td></tr>
+    <tr><td class="f nw">main.js (router + render())</td><td class="f nw">App/RootView</td>
+        <td><span class="pill gone">dissolves</span></td><td>there is no <code>render()</code> to call; the framework calls you</td></tr>
+    <tr><td class="f nw">ui/dom.js</td><td class="f nw">DesignSystem/</td>
+        <td><span class="pill gone">deleted</span></td><td><code>el()</code> has no analogue; <code>chipRow()</code> becomes a view</td></tr>
+    <tr><td class="f nw">screens/ ×10</td><td class="f nw">Features/ ×7</td>
+        <td><span class="pill gone">rewritten</span></td><td>every <i>layout decision</i> survives; none of the construction does</td></tr>
+    <tr><td class="f nw">css/style.css</td><td class="f nw">Assets.xcassets + Theme.swift</td>
+        <td><span class="pill gone">rewritten</span></td><td>the tokens port; the 502 lines of rules do not</td></tr>
+    <tr><td class="f nw">—</td><td class="f nw">Services/ArabicKeyboard · FlowLayout · safe areas · Dynamic Type</td>
+        <td><span class="pill new">new</span></td><td>platform obligations with no web counterpart</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h3 class="sub">Three names this outline changes, and why</h3>
+<dl class="kv">
+  <dt>SarfCore.ArabicText  →  and, separately, DesignSystem.ArabicWord</dt>
+  <dd>The package keeps <code>ArabicText</code> (grapheme clustering — used by grading and the
+  chart diff). The <b>view</b> that displays Arabic must not share that name; a reader seeing
+  <code>ArabicText(word)</code> in a body cannot tell whether it renders or computes.</dd>
+
+  <dt>Services/Settings.swift  →  <b>AppSettings</b></dt>
+  <dd><code>Settings</code> is a SwiftUI scene type. A settings store that collides with a
+  framework noun costs a disambiguating import at every use site.</dd>
+
+  <dt>Prompt · Response  →  <b>Question.Prompt · Question.Response</b></dt>
+  <dd>Nested rather than top-level. <code>Response</code> alone is a network noun, and
+  <code>ExplainService</code> arrives later in the same app. Nesting states the ownership the
+  prototype's file comment already claims: these are <i>parts of a Question</i>, not free types.</dd>
+</dl>
+
+<div class="callout bad">
+  <span class="hd">The trap that outranks every structural choice here</span>
+  <b>JS indexes strings by UTF-16 code unit; Swift indexes by grapheme cluster.</b> Four engine
+  sites transcribe "correctly" and silently produce wrong Arabic — <span class="ar">مُتْتُ</span>
+  for <span class="ar">مُتُّ</span>, <span class="ar">كْتُبْ</span> for
+  <span class="ar">اُكْتُبْ</span>. That is <code>PORT_INVENTORY §1.1</code>, it is not a structure
+  question, and no amount of good architecture prevents it. Named here only so this document is not
+  mistaken for the whole plan.
+</div>
+
+<!-- ===================================================================== -->
+<h2 class="sec"><b>10</b> Decisions this outline still needs</h2>
+
+<p class="body">
+  Five. The first three change view code everywhere and are cheap now, expensive later; the last
+  two are structure choices I have a recommendation on but did not want to take silently. Pick in
+  place — each queues one prompt back to me.
+</p>
+
+<div class="grid2">
+  <form class="qbox" data-lavish-question="deployment-target" onsubmit="queueChoice(event, 'deployment target')">
+    <h4>1 · Deployment target</h4>
+    <p class="why">Affects every view file. <code>@Observable</code> needs 17; newer <code>TabView</code> and <code>Layout</code> conveniences need 18+.</p>
+    <label><input type="radio" name="answer" value="iOS 17"> <span><b>iOS 17</b> — as planned. Widest reach; hand-write the conveniences.</span></label>
+    <label><input type="radio" name="answer" value="iOS 18+"> <span><b>iOS 18+</b> <span class="rec">simpler code</span> — newer navigation and layout APIs, smaller audience.</span></label>
+    <label><input type="radio" name="answer" value="iOS 26"> <span><b>iOS 26</b> — newest only; smallest install base by a lot.</span></label>
+    <button type="submit">Queue this answer</button>
+    <span class="sent">Queued — press Send to Agent when you are done.</span>
+  </form>
+
+  <form class="qbox" data-lavish-question="ipad" onsubmit="queueChoice(event, 'iPad support')">
+    <h4>2 · iPad in v1?</h4>
+    <p class="why">Not a stretch of the phone column — a different navigation structure (<code>NavigationSplitView</code>), decided before views are written or retrofitted after.</p>
+    <label><input type="radio" name="answer" value="iPhone only in v1"> <span><b>iPhone only</b> <span class="rec">recommended</span> — matches the prototype; ship, then adapt.</span></label>
+    <label><input type="radio" name="answer" value="iPad from the start"> <span><b>iPad from the start</b> — Tables and Compare genuinely want the width.</span></label>
+    <button type="submit">Queue this answer</button>
+    <span class="sent">Queued — press Send to Agent when you are done.</span>
+  </form>
+
+  <form class="qbox" data-lavish-question="quiz-resume" onsubmit="queueChoice(event, 'interrupted quiz')">
+    <h4>3 · Does an interrupted quiz resume?</h4>
+    <p class="why">History is safe either way — answers persist as they happen. This is only about the in-flight run, and it decides whether <code>QuizRun</code> must be <code>Codable</code>.</p>
+    <label><input type="radio" name="answer" value="no resume"> <span><b>No — a killed app ends the quiz</b> <span class="rec">recommended</span>. The session is still recorded.</span></label>
+    <label><input type="radio" name="answer" value="resume"> <span><b>Yes — restore the run</b>. <code>QuizRun</code> and its question source become <code>Codable</code>.</span></label>
+    <button type="submit">Queue this answer</button>
+    <span class="sent">Queued — press Send to Agent when you are done.</span>
+  </form>
+
+  <form class="qbox" data-lavish-question="question-card" onsubmit="queueChoice(event, 'QuestionCard')">
+    <h4>4 · One QuestionCard, or two?</h4>
+    <p class="why">The prototype keeps two exhaustive prompt tables on purpose (§07). Swift's enum switch replaces the reason for that.</p>
+    <label><input type="radio" name="answer" value="unify into one QuestionCard with a style"> <span><b>Unify</b> <span class="rec">recommended</span> — one card, <code>style: .interactive | .preview</code>.</span></label>
+    <label><input type="radio" name="answer" value="keep two separate cards"> <span><b>Keep two</b> — preview and live drift freely; the compiler still catches a new kind.</span></label>
+    <button type="submit">Queue this answer</button>
+    <span class="sent">Queued — press Send to Agent when you are done.</span>
+  </form>
+</div>
+
+<form class="qbox" data-lavish-question="feature-state" onsubmit="queueChoice(event, 'feature state style')">
+  <h4>5 · One view model, or one per feature?</h4>
+  <p class="why">The whole app's state fits in §06's four tiers with exactly one observable object (<code>QuizRun</code>) plus one async cache in Practice. The alternative is the conventional MVVM shape: a <code>HomeModel</code>, <code>TablesModel</code>, <code>ResultsModel</code> beside every screen.</p>
+  <label><input type="radio" name="answer" value="one view model (QuizRun) plus @State"> <span><b>One view model</b> <span class="rec">recommended</span> — the other screens are pure functions of state already; a model per feature would be an empty box that has to be kept in sync.</span></label>
+  <label><input type="radio" name="answer" value="a view model per feature"> <span><b>One per feature</b> — conventional, more uniform, more ceremony; easier if a screen later grows real coordination logic.</span></label>
+  <button type="submit">Queue this answer</button>
+  <span class="sent">Queued — press Send to Agent when you are done.</span>
+</form>
+
+<p class="body" style="margin-top:26px">
+  Once these five land, the next artifact worth making is the level below this one:
+  <b>the Practice feature drawn in full</b> — both flows, the controls, the pool cache and the
+  summary — because it is the screen with the most state and the one that proves the pattern for
+  the other six.
+</p>
+
+<script>
+  function queueChoice(event, label) {
+    event.preventDefault();
+    const form = event.currentTarget;
+    const answer = new FormData(form).get('answer');
+    if (!answer) return;
+    const question = form.dataset.lavishQuestion;
+    if (window.lavish && window.lavish.queuePrompt) {
+      window.lavish.queuePrompt('Decision — ' + label + ': ' + answer, {
+        tag: 'choice',
+        text: label + ' → ' + answer,
+        element: form,
+        queueKey: question,
+        data: { question: question, answer: answer },
+      });
+    }
+    form.classList.add('queued');
+  }
+</script>
+
+<script type="module">
+  import { File } from "https://esm.sh/@pierre/diffs@1.2.10?bundle";
+  const options = { theme: { light: "github-light", dark: "github-dark" }, themeType: "dark", overflow: "wrap" };
+  const files = [
+    ["#code-optionstate", "SarfQuiz/Components/AnswerOptions.swift"],
+    ["#code-appstate", "SarfQuiz/App/AppState.swift"],
+  ];
+  for (const [selector, name] of files) {
+    const host = document.querySelector(selector);
+    if (!host) continue;
+    const contents = host.querySelector("pre.fallback").textContent;
+    host.innerHTML = "";
+    new File(options).render({ containerWrapper: host, file: { name, contents } });
+  }
+</script>
+
+<script type="module">
+  import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.15.0/dist/mermaid.esm.min.mjs";
+  const darkQuery = window.matchMedia("(prefers-color-scheme: dark)");
+  const paint = document.createElement("canvas").getContext("2d");
+  function toRgba(color) {
+    paint.clearRect(0, 0, 1, 1); paint.fillStyle = "#000"; paint.fillStyle = color;
+    paint.fillRect(0, 0, 1, 1); return paint.getImageData(0, 0, 1, 1).data;
+  }
+  function compositeRgba(fg, bg) {
+    const fa = fg[3] / 255, ba = bg[3] / 255; const a = fa + ba * (1 - fa);
+    if (a === 0) return [0, 0, 0, 0];
+    return [(fg[0]*fa + bg[0]*ba*(1-fa))/a, (fg[1]*fa + bg[1]*ba*(1-fa))/a, (fg[2]*fa + bg[2]*ba*(1-fa))/a, a*255];
+  }
+  function pageIsDark() {
+    const root = document.documentElement;
+    const [r, g, b, a] = compositeRgba(
+      document.body ? toRgba(getComputedStyle(document.body).backgroundColor) : [0,0,0,0],
+      toRgba(getComputedStyle(root).backgroundColor));
+    if (a > 0) return (0.2126*r + 0.7152*g + 0.0722*b) / 255 < 0.5;
+    const cs = getComputedStyle(root).colorScheme;
+    if (cs.includes("dark") && !cs.includes("light")) return true;
+    if (cs.includes("light") && !cs.includes("dark")) return false;
+    return darkQuery.matches;
+  }
+  const diagrams = [...document.querySelectorAll(".mermaid")].map((el) => ({ el, src: el.textContent }));
+  let applied, rendering = false, queued = false;
+  function queueRender() { queued = true; if (!rendering) void render(); }
+  async function render() {
+    rendering = true;
+    try {
+      while (queued) {
+        queued = false;
+        const theme = pageIsDark() ? "dark" : "default";
+        if (theme === applied) continue;
+        mermaid.initialize({ startOnLoad: false, theme, securityLevel: "strict" });
+        for (const { el, src } of diagrams) { el.removeAttribute("data-processed"); el.textContent = src; }
+        try { await mermaid.run({ nodes: diagrams.map((d) => d.el) }); }
+        catch (error) { console.error("Mermaid diagram render failed:", error); return; }
+        applied = theme;
+      }
+    } finally { rendering = false; if (queued) queueRender(); }
+  }
+  if (document.readyState === "complete") queueRender();
+  else window.addEventListener("load", queueRender, { once: true });
+  const themeObserver = new MutationObserver(queueRender);
+  for (const el of [document.documentElement, document.body]) {
+    if (el) themeObserver.observe(el, { attributes: true, attributeFilter: ["data-theme", "class", "style"] });
+  }
+  document.addEventListener("change", queueRender, true);
+  document.addEventListener("transitionend", ({ propertyName }) => {
+    if (propertyName === "background-color") queueRender();
+  }, true);
+  darkQuery.addEventListener("change", queueRender);
+</script>
+
+</div>
+</body>
+</html>

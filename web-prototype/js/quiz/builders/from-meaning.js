@@ -16,13 +16,26 @@
 // يَنْصُرْ is "he did not help" — so all three states are askable here, and the
 // mood becomes a thing this type teaches rather than one it dodges.
 //
+// THE PARTICLE GOES ON BOTH SIDES, and for a while it did not. The prompt was
+// rendered through the particle and the options were the BARE engine string, so
+// "she will not be broken" sat above a تُكْسَرَ which, read as written, says
+// "she will be broken" — the negation lived entirely in a particle the card
+// never showed, and the correct answer did not say what the prompt said. 65% of
+// this type's questions were affected once all three iʿrāb states were in scope.
+// Options now go through verbPhrase(), the Arabic sibling of verbMeaning(), and
+// both read the particle off one owner so they cannot name different ones.
+//
+// `valueKey` stays the BARE word. The particle is presentation — the mood is
+// already on the identity, so a stored answer keeps naming the word the engine
+// produced, and grading, history and the stats breakdown are untouched.
+//
 // Called by: relevance.js. Never retired — no configuration can make three wrong
 // words look right.
 
 import { slotsFor } from '../../vocabulary.js';
 import { TENSE_LABELS, VOICE_LABELS, MOOD_LABELS, PRONOUNS } from '../../glossary.js';
 import { conjugate, citation } from '../../conjugation/conjugation-service.js';
-import { verbMeaning, particleFor } from '../../meaning-service.js';
+import { verbMeaning, verbPhrase, particleFor } from '../../meaning-service.js';
 import { wordSpecOf } from '../word-spec.js';
 import { question, meaningPrompt, singleCorrect, feedbackOf, rand } from '../question.js';
 
@@ -57,7 +70,10 @@ export function fromMeaningQuestion({ spec, slot, word }, charts) {
     if (!meaning || seenMeanings.has(meaning)) continue;
     seenWords.add(otherWord);
     seenMeanings.add(meaning);
-    others.push({ ar: otherWord, en: '', valueKey: otherWord });
+    // Each distractor is voiced by ITS OWN mood's particle, not the answer's —
+    // لَمْ تُكَسِّرْ can legitimately stand beside لَنْ تُكْسَرَ, and telling
+    // those two apart is the lesson.
+    others.push({ ar: verbPhrase(other, otherWord), en: '', valueKey: otherWord });
   }
   if (others.length < 2) return null;
 
@@ -73,11 +89,11 @@ export function fromMeaningQuestion({ spec, slot, word }, charts) {
     // orient without narrowing — all four options are built from them.
     prompt: meaningPrompt('Which verb says this?', answerMeaning, spec.root.root),
     // Options are Arabic only: an English label would restate the prompt.
-    response: singleCorrect({ ar: word, en: '', valueKey: word }, others),
+    response: singleCorrect({ ar: verbPhrase(spec, word), en: '', valueKey: word }, others),
     feedback: feedbackOf(answerMeaning,
       `${word} — "${answerMeaning}": ${TENSE_LABELS[tense].ar} ${VOICE_LABELS[voice].ar}`
       + `${state ? ` ${state}` : ''}, ${PRONOUNS[slot].ar} (${PRONOUNS[slot].en})`
-      + `${particle ? `, as in ${particle.ar} ${word} — ${particle.ar} ${particle.note}` : ''}.`
+      + `${particle ? `, as in ${verbPhrase(spec, word)} — ${particle.ar} ${particle.note}` : ''}.`
       + ` From ${citation(spec.root, spec.formId)}.`),
   });
 }

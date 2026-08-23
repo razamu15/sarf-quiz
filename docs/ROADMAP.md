@@ -4,7 +4,7 @@
 > This file is the build order. [PRODUCT_SPEC.md](PRODUCT_SPEC.md) is what the
 > app is for; [TECHNICAL_PLAN.md](TECHNICAL_PLAN.md) covers the iOS port.
 
-**Status: Aug 2026.** A1 and A2 are complete. 316 assertions green, zero import
+**Status: Aug 2026.** A1 and A2 are complete. 329 assertions green, zero import
 cycles, 48 modules.
 
 ---
@@ -232,7 +232,7 @@ seven; or treat the weak pair as a separate engine effort with its own corpus.
 Every change:
 
 ```bash
-cd web-prototype && node test/smoke.mjs      # 316 assertions; first 112 are engine parity
+cd web-prototype && node test/smoke.mjs      # 329 assertions; first 112 are engine parity
 ```
 
 Every engine or refactor change, additionally — **snapshot before touching

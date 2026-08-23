@@ -9,7 +9,7 @@
 > [ROADMAP.md](ROADMAP.md) for what is left to build.
 
 Last verified against the code: **Aug 2026**, 48 files, 181 import edges,
-316 assertions green, zero import cycles.
+329 assertions green, zero import cycles.
 
 ---
 
@@ -251,7 +251,11 @@ js/
                        availableTypes) · root.js (accessors)
   conjugation/         5 conjugators · templates.js · conjugation-service.js
                        ← THE only door
-  meaning-service.js   English readings + the governing-particle registry
+  meaning-service.js   English readings + the governing-particle registry.
+                       verbMeaning() gives the English, verbPhrase() the Arabic
+                       that says it — both read the particle off ONE owner, so
+                       "she will not be broken" can never sit above a bare
+                       تُكْسَرَ (see PRODUCT_SPEC §3.1)
 
   quiz/
     quiz-plan.js       QuizPlan · planCharts · planFrom (validates stored plans)
@@ -315,7 +319,7 @@ js/
 cd web-prototype && node test/smoke.mjs
 ```
 
-316 assertions; the first 112 are hand-typed conjugation and meaning parity and
+329 assertions; the first 112 are hand-typed conjugation and meaning parity and
 must stay byte-identical.
 
 **For any engine or refactor work, that is not enough.** Snapshot the full

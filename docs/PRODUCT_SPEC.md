@@ -88,6 +88,14 @@ meaning — the trap worth drilling). Launch ships لَنْ for manṣūb and ل
 majzūm; the particle table is a registry, so أَنْ، كَيْ، حَتَّى and
 لَمَّا، لَا النَّاهِيَة، لَامُ الأَمْر are additions rather than rewrites.
 
+**The particle appears on BOTH sides of the question, and it has to.** The
+option is `لَنْ تُكْسَرَ`, not a bare `تُكْسَرَ` — because read as written the
+bare word says "she **will** be broken", so a prompt of "she will not be broken"
+would have no option that says it. The negation is the particle. Each option is
+voiced by its own mood's particle, so `لَمْ تُكَسِّرْ` legitimately stands beside
+`لَنْ تُكْسَرَ` and telling those apart is the drill. Fixed Aug 2026; it had
+affected 65% of this type's questions once all three iʿrāb states were in scope.
+
 **Type 1's repertoire is tense, voice, doer, iʿrāb and bāb.** Which of them a
 given session asks is decided by the configuration, not by the user — see §5.2b.
 
@@ -448,7 +456,16 @@ not extracted.
 
 Accepted as-is for now; fix after launch unless they start costing users.
 
-1. **Contextual meaning on multi-answer questions picks one slot.** When a
+1. **A governed option can be identifiable by its particle alone.** Now that
+   options show لَنْ / لَمْ, a question whose answer is governed while all three
+   distractors are not can be answered from the particle without reading the
+   verb. Measured over 431 governed-answer questions: 2+ options carry a particle
+   in 84% of them, so it decides nothing; in the remaining **16%** it does. The
+   fix is to bias distractor selection toward the other governed states when the
+   answer is governed — deliberately deferred, because the alternative it
+   replaced was 65% of questions being unanswerable as written.
+
+2. **Contextual meaning on multi-answer questions picks one slot.** When a
    written form serves several pronouns (تُفْتَحَانِ = هُمَا / أَنْتُمَا) and all
    are correct, the post-answer meaning line still renders one of them
    ("you two (m) are being opened"), silently privileging it. Should list the

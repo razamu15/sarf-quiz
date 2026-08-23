@@ -26,7 +26,7 @@ history, **not authoritative**.
 ## Working here
 
 ```bash
-cd web-prototype && node test/smoke.mjs     # 316 assertions; the first 112 are engine parity
+cd web-prototype && node test/smoke.mjs     # 329 assertions; the first 112 are engine parity
 ```
 
 **Run the app** with the `sarf-quiz-web` config in `.claude/launch.json`

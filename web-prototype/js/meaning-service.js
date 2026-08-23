@@ -62,6 +62,56 @@ export const particlesFor = (mood) => MUDARI_PARTICLES.filter((p) => p.mood === 
 /** The canonical particle for a mood — the one meanings default to. */
 export const particleFor = (mood) => particlesFor(mood)[0] ?? null;
 
+/**
+ * The particle that voices this spec, or null when it is ungoverned.
+ *
+ * ONE OWNER for that choice, because two renderings depend on it and they must
+ * never disagree: verbMeaning() writes the English through it and verbPhrase()
+ * writes the Arabic. If they picked separately, a prompt reading "he will not
+ * help" could sit above an option reading لَمْ يَنْصُرْ.
+ *
+ * The MOOD always wins over the requested particle: the mood is a fact about the
+ * word, `particleId` is only a preference for how to voice it. Asking for one
+ * that governs a different mood falls back to the canonical particle rather than
+ * to the ungoverned reading, because "he helps" for a manṣūb word would silently
+ * restore the exact ambiguity this whole registry exists to remove.
+ */
+function governingParticle({ tense, mood }, particleId = null) {
+  if (tense !== 'mudari' || !mood || mood === 'raf') return null;
+  const named = particleId
+    ? MUDARI_PARTICLES.find((p) => p.id === particleId && p.mood === mood)
+    : null;
+  return named ?? particleFor(mood);
+}
+
+/**
+ * The Arabic as it must be PRESENTED when its English reading is the thing being
+ * matched — لَنْ تُكْسَرَ, لَمْ يَنْصُرْ, or the bare word when ungoverned.
+ *
+ * The Arabic sibling of verbMeaning(): same spec, same particle, one gives the
+ * English and one gives the Arabic that says it.
+ *
+ * WHY THIS EXISTS. verbMeaning() renders a governed muḍāriʿ through its particle
+ * — that is what makes the three iʿrāb states distinguishable in English at all.
+ * Quiz type 4 then showed the BARE word as the option, so the correct answer did
+ * not say what the prompt said: "she will not be broken" above a تُكْسَرَ that,
+ * read as written, is "she will be broken". The negation lived entirely in a
+ * particle the card never showed. Measured before the fix: 65% of type-4
+ * questions with all three iʿrāb states selected were affected.
+ *
+ * Called by: quiz/builders/from-meaning.js — its options and its feedback.
+ *
+ * NOT called anywhere else, and that is the rule rather than an accident: the
+ * particle belongs exactly where the English reading is what you match against.
+ * The iʿrāb question would have the answer given away by it; the `produce` cue
+ * card names the mood in a chip and asks for the verb; a manṣūb chart in the
+ * Tables browser is conventionally bare.
+ */
+export function verbPhrase(spec, word, particleId = null) {
+  const particle = governingParticle(spec, particleId);
+  return particle ? `${particle.ar} ${word}` : word;
+}
+
 /** English verb pieces for a form usage, with regular-verb fallbacks. */
 function enForms(usage) {
   const base = (usage.gloss ?? '').replace(/^to /, '');
@@ -91,25 +141,16 @@ function enForms(usage) {
 export function verbMeaning(spec, slot, particleId = null) {
   const usage = spec.root.forms[spec.formId];
   if (!usage) return '';
-  const { tense, voice, mood } = spec;
+  const { tense, voice } = spec;   // the mood is governingParticle()'s business now
   const subj = PRONOUNS[slot]?.en ?? '';
   const e = enForms(usage);
 
   // A governed muḍāriʿ is read through its particle — that is the only thing
-  // that makes naṣb and jazm distinguishable in English at all.
-  //
-  // The MOOD always wins over the requested particle: the mood is a fact about
-  // the word, the particle is only how we voice it. Asking for a particle that
-  // governs a different mood falls back to the canonical one rather than to the
-  // ungoverned reading, because "he helps" for a manṣūb word would silently
-  // restore the exact ambiguity this exists to remove.
-  if (tense === 'mudari' && mood && mood !== 'raf') {
-    const named = particleId
-      ? MUDARI_PARTICLES.find((p) => p.id === particleId && p.mood === mood)
-      : null;
-    const particle = named ?? particleFor(mood);
-    if (particle) return particle.en({ subj, slot, e, voice });
-  }
+  // that makes naṣb and jazm distinguishable in English at all. Which particle
+  // is governingParticle()'s call, shared with verbPhrase() so the English and
+  // the Arabic can never name different ones.
+  const particle = governingParticle(spec, particleId);
+  if (particle) return particle.en({ subj, slot, e, voice });
 
   if (e.be) {
     if (tense === 'madi') return `${subj} ${bePast(slot)} ${e.be}`;

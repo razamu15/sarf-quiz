@@ -23,7 +23,7 @@ import {
   fullTable as fullTableSpec, availableCharts, enginedGroups,
 } from '../js/conjugation/conjugation-service.js';
 import {
-  verbMeaning as verbMeaningSpec, derivedNounMeaning,
+  verbMeaning as verbMeaningSpec, derivedNounMeaning, verbPhrase,
   MUDARI_PARTICLES, particlesFor, particleFor,
 } from '../js/meaning-service.js';
 import { readFileSync } from 'node:fs';
@@ -867,8 +867,13 @@ check(chartKeysFor({ tenses: ['madi'], voices: ['majhul'], moods: [] }) === 'mad
     'every fromMeaning question states the meaning it is asking about');
   check(qs.every((q) => q.response.correct.length === 1 && !isMultiSelect(q)),
     'fromMeaning has exactly one right answer');
-  check(qs.every((q) => correctOptions(q)[0].ar === wordOf(q)),
+  check(qs.every((q) => correctOptions(q)[0].valueKey === wordOf(q)),
     'the correct option is the word the identity names');
+  // The particle is PRESENTATION. valueKey stays the bare engine string, so a
+  // stored answer names the word the engine produced and grading, history and
+  // the stats breakdown are untouched by the fix below.
+  check(qs.every((q) => q.response.options.every((o) => !o.valueKey.includes(' '))),
+    'every valueKey is the bare word — the particle never reaches history');
   // The card must never carry the Arabic word — it is the answer. The type has
   // no field that could hold one, which is the point of a tagged prompt.
   check(qs.every((q) => q.prompt.kind === 'meaning' && q.prompt.text === undefined),
@@ -879,8 +884,44 @@ check(chartKeysFor({ tenses: ['madi'], voices: ['majhul'], moods: [] }) === 'mad
     'fromMeaning offers three or four options');
 
   // The two dedupe rules, stated separately because they catch different bugs.
-  check(qs.every((q) => new Set(q.response.options.map((o) => o.ar)).size === q.response.options.length),
-    'fromMeaning options are distinct words — no duplicate button');
+  check(qs.every((q) => new Set(q.response.options.map((o) => o.ar)).size === q.response.options.length
+    && new Set(q.response.options.map((o) => o.valueKey)).size === q.response.options.length),
+  'fromMeaning options are distinct words — no duplicate button');
+
+  // THE REGRESSION THIS FILE EXISTS TO CATCH (Aug 2026). The prompt renders a
+  // governed muḍāriʿ through its particle, so the option must too — otherwise
+  // "she will not be broken" sits above a bare تُكْسَرَ, which read as written
+  // says "she will be broken", and the correct answer does not say what the
+  // prompt says. It affected 65% of this type's questions.
+  const governed = qs.filter((q) => q.identity.mood && q.identity.mood !== 'raf');
+  check(governed.length > 0, 'the sample contains governed-muḍāriʿ answers at all');
+  check(governed.every((q) => {
+    const p = particleFor(q.identity.mood);
+    return correctOptions(q)[0].ar === `${p.ar} ${wordOf(q)}`;
+  }), 'a governed answer is shown WITH its particle, not bare');
+  // And each distractor is voiced by its OWN mood: لَمْ تُكَسِّرْ may stand
+  // beside لَنْ تُكْسَرَ, and telling those apart is the lesson.
+  check(qs.every((q) => q.response.options.every((o) => {
+    const bare = o.ar === o.valueKey;
+    const voiced = MUDARI_PARTICLES.some((p) => o.ar === `${p.ar} ${o.valueKey}`);
+    return bare || voiced;
+  })), 'every option is either the bare word or that word behind one particle');
+
+  // CONTAINMENT. The particle belongs exactly where the English reading is the
+  // thing you match against, and that is this type alone. On the iʿrāb question
+  // it would hand over the answer; on the produce cue card you are asked to
+  // write the verb, with the mood named in a chip. Anyone wiring verbPhrase()
+  // into another builder trips this.
+  const leadingParticle = /^(لَنْ|لَمْ) /;
+  const wordsShownBy = (quizType) => buildQuiz({ ...plan, quizType, count: 40 })
+    .flatMap((q) => [q.prompt.text, ...(q.response.options ?? []).map((o) => o.ar),
+      ...(q.response.accepted ?? [])].filter(Boolean));
+  check(wordsShownBy('identify').every((w) => !leadingParticle.test(w)),
+    'no identify question shows a particle — it would give the iʿrāb away');
+  check(wordsShownBy('produce').every((w) => !leadingParticle.test(w)),
+    'produce still asks for the bare verb, particle-free');
+  check(qs.some((q) => q.response.options.some((o) => leadingParticle.test(o.ar))),
+    'fromMeaning is the one type that does show them');
   // THE load-bearing assertion. For every distractor, walk every cell of the
   // same root that renders that exact word and confirm none of those readings
   // means what the prompt says. If one did, the question would have two
@@ -898,15 +939,15 @@ check(chartKeysFor({ tenses: ['madi'], voices: ['majhul'], moods: [] }) === 'mad
   };
   check(qs.every((q) => {
     const root = byRoot(q.identity.rootKey);
-    const answer = correctOptions(q)[0].ar;
-    return q.response.options.filter((o) => o.ar !== answer)
-      .every((o) => !readings(root, o.ar).includes(q.prompt.meaning));
+    const answerKey = correctOptions(q)[0].valueKey;
+    return q.response.options.filter((o) => o.valueKey !== answerKey)
+      .every((o) => !readings(root, o.valueKey).includes(q.prompt.meaning));
   }), 'no distractor can legitimately mean the prompt');
 
   // Every option must be a real cell of the same root, not filler.
   check(qs.every((q) => {
     const root = byRoot(q.identity.rootKey);
-    return q.response.options.every((o) => readings(root, o.ar).length > 0);
+    return q.response.options.every((o) => readings(root, o.valueKey).length > 0);
   }), 'every distractor is a real conjugation of the same root');
 
   // The prompt is the engine's own meaning string for the answer cell.
@@ -951,6 +992,29 @@ check(chartKeysFor({ tenses: ['madi'], voices: ['majhul'], moods: [] }) === 'mad
   check(particleFor('nasb').ar === 'لَنْ' && particleFor('jazm').ar === 'لَمْ',
     'the canonical particles are لَنْ for naṣb and لَمْ for jazm');
   check(particleFor('raf') === null, 'the marfūʿ is ungoverned — no particle');
+
+  // verbPhrase — the Arabic sibling of verbMeaning. Same spec, same particle:
+  // one gives the English, one gives the Arabic that says it.
+  const phraseOf = (chart, slot, particleId) => {
+    const spec = specOf(nasara, 'I', chart);
+    return verbPhrase(spec, conjugateChart(nasara, 'I', chart, slot), particleId);
+  };
+  check(phraseOf('mudari_malum_nasb', '3ms') === 'لَنْ يَنْصُرَ',
+    'verbPhrase voices a manṣūb muḍāriʿ through لَنْ');
+  check(phraseOf('mudari_malum_jazm', '3ms') === 'لَمْ يَنْصُرْ',
+    'verbPhrase voices a majzūm muḍāriʿ through لَمْ');
+  check(phraseOf('mudari_malum_raf', '3ms') === 'يَنْصُرُ',
+    'a marfūʿ muḍāriʿ is ungoverned, so verbPhrase leaves it bare');
+  check(phraseOf('madi_malum', '3ms') === 'نَصَرَ',
+    'the māḍī has no iʿrāb, so verbPhrase leaves it bare');
+  // The MOOD wins over the requested particle, exactly as it does for the
+  // English — asking for لَمْ on a manṣūb word must not produce لَمْ يَنْصُرَ.
+  check(phraseOf('mudari_malum_nasb', '3ms', 'lam') === 'لَنْ يَنْصُرَ',
+    'a particle that governs another mood falls back to the canonical one');
+  // The two renderings read the particle off ONE owner, so they cannot disagree.
+  check(verbMeaningChart2(nasara, 'I', 'mudari_malum_jazm', '3ms', 'lam') === 'he did not help'
+    && phraseOf('mudari_malum_jazm', '3ms', 'lam') === 'لَمْ يَنْصُرْ',
+  'the English and the Arabic name the same particle');
   check(MUDARI_PARTICLES.every((p) => p.id && p.ar && p.mood && typeof p.en === 'function'),
     'every registered particle declares an id, an Arabic form, its mood and a renderer');
 
