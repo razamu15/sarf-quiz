@@ -88,6 +88,16 @@ export const MithalConjugator = {
       result = PREFIX_LETTERS[slot] + MUDARI_PREFIX_HARAKA[spec.formId][spec.voice] + result;
     }
     if (spec.tense === 'amr') {
+      // FUTURE FIX — missing iʿlāl bi-l-qalb: a sākin wāw after a kasra becomes a
+      // yāʾ. The amr of bāb `ia` opens with the waṣl hamza's kasra and then the
+      // root's own wāw, so اِوْجَلْ should surface as اِيجَلْ (qutrub, and the same
+      // shape as mithāl yāʾ's اِيقَنْ — which reaches it by a different road, its
+      // radical being a yāʾ already, so this conversion is genuinely absent rather
+      // than merely unexercised). 12 cells today: the amr charts of وجل and وجع.
+      // Deliberately not folded into the bāb `ia` stem fix in mithal-grammar.js —
+      // that one is about which letters exist, this one about what a letter turns
+      // into next to a vowel, and they want separate parity runs.
+      // [SCHOLAR VERIFY]
       result = amrOpening(spec.formId, stem, babOf(spec.root, spec.formId)) + result;
     }
 

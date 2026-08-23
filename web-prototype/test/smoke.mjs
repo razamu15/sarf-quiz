@@ -422,6 +422,21 @@ check(verbTypesInGroup('naqis').join() === 'naqis_waw,naqis_ya', 'nāqiṣ cover
 check(stockedTypes().includes('mithal_waw'), 'mithāl content is in the lexicon');
 check(availableTypes().includes('mithal_waw') && availableTypes().includes('mithal_ya'),
   'mithāl is playable — MithalConjugator landed (Form I; mazīd tables still empty)');
+
+// The mithāl wāw drops its wāw for a KASRA on the ʿayn, not for "anything but a
+// ḍamma" — bāb `ia`'s fatḥa is *yafʿalu*'s own and never deleted anything. The
+// engine deleted it anyway until this was caught against qutrub (96 cells,
+// verification/output/mithal_waw_analysis.md §Pattern 3). One assertion per
+// side of the rule, so a future edit to MITHAL_STEMS cannot quietly re-break it.
+const wajila = byRoot('وجل');
+check(conjugate(wajila, 'I', 'mudari', 'malum', '3ms') === 'يَوْجَلُ',
+  'mithāl wāw bāb ia KEEPS its wāw — وَجِلَ يَوْجَلُ');
+check(conjugate(wajila, 'I', 'mudari', 'malum', '2ms', 'jazm') === 'تَوْجَلْ',
+  'وجل majzūm is تَوْجَلْ — the Qurʾānic form, 15:53 لَا تَوْجَلْ');
+check(conjugate(byRoot('وصل'), 'I', 'mudari', 'malum', '3ms') === 'يَصِلُ',
+  'mithāl wāw bāb ai DROPS its wāw — وَصَلَ يَصِلُ');
+check(conjugate(byRoot('وجه'), 'I', 'mudari', 'malum', '3ms') === 'يَوْجُهُ',
+  'mithāl wāw bāb uu keeps its wāw — وَجُهَ يَوْجُهُ');
 // Every type the lexicon stocks now has an engine behind it — the holding
 // state mithāl, ajwaf and nāqiṣ each passed through has been cleared.
 check(stockedTypes().every((t) => availableTypes().includes(t)),

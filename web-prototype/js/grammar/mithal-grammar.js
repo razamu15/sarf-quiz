@@ -19,15 +19,29 @@ export const MITHAL_STEMS = {
     // now with the mithaal mudari, things are a little different not just upon the baab, but also if its is a
     // mithaal ya or mithaal wow.
     mithal_waw: {
-      // with mithal wow mudari, the first weak letter gets dropped based on the baab that it is.
-      // the baabs with dammah in the mudari keep the wow, because the dammah gives it space to be pronounced.
+      // with mithal wow mudari, the first weak letter gets dropped based on the baab.
+      // what deletes it is specifically a KASRA on the ayn: the wow ends up crushed
+      // between the prefix's fatha and that kasra and elides — يَوْعِدُ → يَعِدُ. a
+      // dammah leaves it room to be pronounced, so it stays.
+      //
+      // the catch is that a fatha on the ayn can mean either of two things, and only
+      // the MADI vowel tells them apart — which is why this is keyed by baab (both
+      // vowels) and not by the mudari vowel alone:
+      //
+      //   فَعَلَ / يَفْعَلُ (aa) only exists with a harf halq, and its fatha is an
+      //   opened kasra — يَوْضِعُ lost its wow by the rule above and only THEN did
+      //   the ع pull the kasra down to يَضَعُ. the deletion already happened.
+      //
+      //   فَعِلَ / يَفْعَلُ (ia) is the regular native pairing and its fatha is
+      //   original. there was never a kasra, so nothing ever deleted the wow:
+      //   وَجِلَ يَوْجَلُ — Qur'an 15:53 لَا تَوْجَلْ — and وَجِعَ يَوْجَعُ.
       mudari_malum: {
-        au: '1' + S + '2' + D + '3',
-        ai: '2' + K + '3',
-        aa: '2' + F + '3',
-        ia: '2' + F + '3',
-        uu: '1' + S + '2' + D + '3',
-        ii: '2' + K + '3'
+        au: '1' + S + '2' + D + '3',   // dammah — wow stays
+        ai: '2' + K + '3',             // kasra — wow drops: وَصَلَ يَصِلُ
+        aa: '2' + F + '3',             // opened kasra — wow drops: وَضَعَ يَضَعُ
+        ia: '1' + S + '2' + F + '3',   // original fatha — wow STAYS: وَجِلَ يَوْجَلُ // [SCHOLAR VERIFY]
+        uu: '1' + S + '2' + D + '3',   // dammah — wow stays: وَجُهَ يَوْجُهُ
+        ii: '2' + K + '3'              // kasra — wow drops: وَرِثَ يَرِثُ
       },
       // by the same logic, since mudari majhool the alamatul mudari has a dammah, it gives the wow space to be 
       // pronounced and so the wow is kept and trated identically across all the baabs 
