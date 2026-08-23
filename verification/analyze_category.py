@@ -8,6 +8,11 @@ Usage: python3 analyze_category.py <lexicon-type>
 
 Requires the `claude` CLI on PATH, logged in. Read-only: restricted to
 Read/Grep/Glob, so it diagnoses but never edits.
+
+Pinned to Opus 5 at max effort: this is the one step in the pipeline that has
+to find patterns across a whole category's mismatches and reason about root
+cause, so it gets the strongest model/effort combination available rather
+than whatever model the invoking user's CLI happens to be configured with.
 """
 import json
 import subprocess
@@ -87,7 +92,13 @@ def main():
     )
 
     result = subprocess.run(
-        ['claude', '-p', prompt, '--allowedTools', 'Read Grep Glob', '--output-format', 'text'],
+        [
+            'claude', '-p', prompt,
+            '--model', 'claude-opus-5',
+            '--effort', 'max',
+            '--allowedTools', 'Read Grep Glob',
+            '--output-format', 'text',
+        ],
         cwd=REPO_ROOT, capture_output=True, text=True,
     )
 

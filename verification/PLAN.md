@@ -185,10 +185,18 @@ rather than working around it.
 Decided during planning discussion, recorded here so the reasoning isn't
 lost: `analyze_category.py` shells out to `claude -p` rather than embedding
 the Claude Agent SDK — specifically:
-`claude -p "<prompt>" --allowedTools "Read Grep Glob" --output-format text`,
+`claude -p "<prompt>" --model claude-opus-5 --effort max --allowedTools "Read Grep Glob" --output-format text`,
 which runs non-interactively with no permission prompts (verified: those
 three tools are pre-authorized, nothing else is available, so the process
 can't hang waiting for approval and can't edit anything).
+
+Model and effort are pinned explicitly rather than left to the invoking
+user's own CLI default: this is the pattern-finding/root-cause stage of the
+pipeline, and the analysis quality shouldn't silently change depending on
+whose machine runs it or what `~/.claude/settings.json` happens to say.
+`claude-opus-5` (not the `opus` alias) so this stays pointed at this exact
+model even after an alias later moves to a newer Opus; `--effort max` is the
+headless-CLI equivalent of interactive "ultrathink."
 
 The SDK is the right tool when you need custom tools beyond file/shell access
 (e.g. handing the model a Python function that calls qutrub directly instead
