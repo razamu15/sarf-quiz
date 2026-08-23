@@ -7,7 +7,7 @@ import { MITHAL_STEMS, MITHAL_ENDINGS, DERIVED_NOUN_STEMS } from '../grammar/mit
 import { PREFIX_LETTERS, MUDARI_PREFIX_HARAKA } from '../grammar/shared-grammar.js';
 import { slotsFor } from '../vocabulary.js';
 import { babOf } from '../lexicon/root.js';
-import { fill, norm, joinEnding, amrOpening } from './templates.js';
+import { fill, norm, joinEnding, amrOpening, unmarkMaddLetters } from './templates.js';
 
 /**
  * get the stem string template and the endings needed for this spec
@@ -90,7 +90,14 @@ export const MithalConjugator = {
     if (spec.tense === 'amr') {
       result = amrOpening(spec.formId, stem, babOf(spec.root, spec.formId)) + result;
     }
-    return norm(result);
+
+    // Last, and after BOTH prefixes above, because the ḥaraka that decides
+    // whether a sākin و/ي is a long vowel or a consonant is the one in front of
+    // it — يَيْقَنُ keeps its sukūn, اِيقَنْ does not, off the same stem. Outside
+    // the two branches rather than inside them: Form IV's أُوجِبَ and Form X's
+    // اُسْتُوجِبَ are māḍī majhūl, so they take their ḍamma from the template and
+    // never touch a prefix at all.
+    return unmarkMaddLetters(norm(result));
   },
 
   /**
@@ -109,6 +116,6 @@ export const MithalConjugator = {
   /** One of DERIVED_NOUN_TYPES. Null when this form has no such noun. */
   derivedNoun(root, formId, nounType) {
     const template = DERIVED_NOUN_STEMS[formId]?.[nounType];
-    return template ? norm(fill(template, root.root)) : null;
+    return template ? unmarkMaddLetters(norm(fill(template, root.root))) : null;
   },
 };

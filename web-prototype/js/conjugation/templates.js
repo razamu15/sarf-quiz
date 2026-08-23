@@ -76,6 +76,46 @@ export function amrOpening(formId, stem, bab) {
 }
 
 /**
+ * Strip the sukūn off every madd letter in a fully assembled word.
+ *
+ * Called by: MithalConjugator, from the tail of conjugate() and derivedNoun() —
+ * the only engine whose stem tables write a sukūn on a letter that can turn out
+ * to be a long vowel. No other conjugator needs it: the ajwaf and nāqiṣ tables
+ * write their madd letters bare already (يَقُولُ، يَرْمِي), and the sound and
+ * muḍāʿaf ones have no weak letter to mark.
+ *
+ * THE RULE. A sākin و/ي/ا preceded by its OWN homogeneous ḥaraka is a madd
+ * letter — it IS the long vowel, not a consonant — and vocalized Arabic never
+ * marks a long vowel with a sukūn. The three pairs are the whole rule:
+ *
+ *   ḍamma + wāw  = ū    يُوصَلُ، أُوجِبَ، اُوجُهْ
+ *   kasra + yāʾ  = ī    اِيقَنْ، اِيمَنْ
+ *   fatḥa + alif = ā    (no template writes an alif with a sukūn today, so this
+ *                        pair fires on nothing — it is here because the rule has
+ *                        three members, not two, and the day a table writes one
+ *                        the reader should not have to rediscover why)
+ *
+ * Every OTHER pairing is a līn letter — a real consonant closing the syllable —
+ * and MUST keep its sukūn: يَيْقَنُ (fatḥa + yāʾ), يَوْجَلُ (fatḥa + wāw). يَيْقَنُ
+ * is the canary; if it ever loses its mark this function has overreached.
+ *
+ * WHY IT CANNOT LIVE IN A STEM TABLE. The deciding ḥaraka is the one in front of
+ * the letter, and for Form I that is supplied after the stem is chosen — the
+ * muḍāriʿ prefix, or the amr's waṣl hamza. One template serves both tenses:
+ * MITHAL_STEMS.I.mithal_ya.mudari_malum.ia gives يَيْقَنُ, where the sukūn is
+ * right, and اِيقَنْ, where it is wrong. Only the assembled word knows which.
+ */
+export function unmarkMaddLetters(word) {
+  // The three pairs above, in the same order, each ḥaraka with the letter it
+  // lengthens. Keep the group: the pair stays, only the sukūn after it goes.
+  const maddSukun = new RegExp(
+    `(${DAMMA}و|${KASRA}ي|${FATHA}ا)${SUKUN}`,
+    'g',
+  );
+  return word.replace(maddSukun, '$1');
+}
+
+/**
  * NFC normalisation, the last step of building any word.
  *
  * NFC puts ḥaraka/shadda combining marks in canonical order, so words compare

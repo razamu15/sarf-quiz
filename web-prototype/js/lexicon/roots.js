@@ -620,6 +620,32 @@ export const ROOTS = [
            en: { past: 'was fully certain of', pp: 'ascertained', pres3: 'is fully certain of', ing: 'being fully certain of' } },
     },
   },
+  {
+    root: ['ي', 'م', 'ن'], type: 'mithal_ya',
+    forms: {
+      I: { bab: 'ia', gloss: 'to be lucky / blessed', masdar: 'يُمْن', trans: true,
+           en: { past: 'was lucky', pres3: 'is lucky', ing: 'being lucky' } },
+      II: { gloss: 'to go to the right', trans: true,
+            en: { past: 'went to the right', pp: 'went to the right', pres3: 'goes to the right', ing: 'going to the right' } },
+      V: { gloss: 'to see a good omen', trans: false,
+           en: { past: 'saw a good omen', pres3: 'sees a good omen', ing: 'seeing a good omen' } },
+    },
+  },
+  {
+    root: ['ي', 'ق', 'ظ'], type: 'mithal_ya',
+    forms: {
+      // يَقُظَ يَيْقُظُ, bab كَرُمَ. The dictionaries also carry the doublet
+      // يَقِظَ يَيْقَظُ (bab ia, masdar يَقَظ) for the same meaning; only the
+      // damma form is listed, since a root entry holds one Form I.
+      I: { bab: 'ia', gloss: 'to be awake / vigilant', masdar: 'يَقَاظَة', trans: false },
+      IV: { gloss: 'to wake someone up', trans: true,
+            en: { past: 'woke up', pp: 'woken up', pres3: 'wakes up', ing: 'waking up' } },
+      V: { gloss: 'to become alert', trans: false,
+           en: { past: 'became alert', pres3: 'becomes alert', ing: 'becoming alert' } },
+      X: { gloss: 'to wake up', trans: false,
+           en: { past: 'woke up', pres3: 'wakes up', ing: 'waking up' } },
+    },
+  },
 
   // --- Ajwaf wāw · و as middle radical ---------------------------------------
   {

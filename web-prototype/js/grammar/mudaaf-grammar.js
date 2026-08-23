@@ -186,7 +186,7 @@ export const MUDAAF_ENDINGS = {
 
   mudari_nasb: SALIM_ENDINGS.mudari_nasb,  // mudaaf mudari endings are the same as salim endings
 
-  mudari_jazm: SALIM_ENDINGS.mudari_nasb, // mudaaf verbs do not take sukun on the 4 seegahs that usually take a jazm which makes the majzum table identical to the mansub table
+  mudari_jazm: SALIM_ENDINGS.mudari_nasb, // mudaaf verbs do not take sukun on the 5 seegahs that usually take a jazm which makes the majzum table identical to the mansub table
 };
 
 // ---------------------------------------------------------------------------
