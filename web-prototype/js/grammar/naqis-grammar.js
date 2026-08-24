@@ -13,7 +13,6 @@ import {
   FATHA as F, DAMMA as D, KASRA as K, SUKUN as S, SHADDA as SH,
 } from '../vocabulary.js';
 import { A } from './shared-grammar.js';
-import { SALIM_ENDINGS, SALIM_VERB_STEMS } from './salim-grammar.js';
 
 /** Stem templates, per form. Shape them for the nāqiṣ. */
 export const NAQIS_STEMS = {
@@ -37,7 +36,7 @@ export const NAQIS_STEMS = {
         // because of the kasrah on the ayn kalima, it makes the last weak letter ya pronounceable
         // for all other seegahs. so only this baab strays from the information recorded in NAQIS_DROPPING_SLOTS_MADI
         regular:  '1' + F + '2' + K + '3',
-        // another thing to note is that the ia means it should have dammah on the second radical, but
+        // another thing to note is that the ia means it should have kasrah on the second radical, but
         // because we drop the ya, the wow in the ending of the masculine plural would be preceeded by
         // a karsah which is not allowed to it is changed into a dammah to correspond to the wow [NOTE A1]
         thirdMascPlural: '1' + F + '2' + D
@@ -137,7 +136,7 @@ export const NAQIS_ENDINGS = {
     // and it doesnt take any haraka EXCEPT for the ia baab, which we have added a special case in the code for. [NOTE A1]
     '3ms': A('', ''),            '3md': A(F, 'ا'),                '3mp': A(D, 'وا'),
     '3fs': A(F, 'ت' + S),       '3fd': A(F, 'ت' + F + 'ا'),      '3fp': A(S, 'ن' + F),
-    '2ms': A(S, 'ت' + F),       '2md': A(S, 'ت' + D + 'م' + F + 'ا'), '2mp': A(S, 'ت' + D + 'م' + S),
+    '2ms': A(S, 'ت' + F),       '2md': A(S, 'ت' + D + 'م' + F + 'ا'), '2mp': A(S, 'ت' + D + 'م'),
     '2fs': A(S, 'ت' + K),       '2fd': A(S, 'ت' + D + 'م' + F + 'ا'), '2fp': A(S, 'ت' + D + 'ن' + SH + F),
     '1s':  A(S, 'ت' + D),       '1p':  A(S, 'ن' + F + 'ا'),
   },

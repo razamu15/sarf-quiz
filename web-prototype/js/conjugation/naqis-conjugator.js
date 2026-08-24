@@ -251,7 +251,7 @@ export const NaqisConjugator = {
       // so for dropping the noon we will do it via the grammar object as we have done for all the other verb types,
       // but the 5 endings we will do it here because they are dependant on our baabs and endings objects do not contain
       // baab info (this is just a convention we have.)
-      if (babOf(spec.root, spec.formId) === 'au' || babOf(spec.root, spec.formId) === 'ai') {
+      if ((babOf(spec.root, spec.formId) === 'au' || babOf(spec.root, spec.formId) === 'ai') && spec.voice !== 'majhul') {
         // the five endings get a fatha on the last letter which is also the last radical of the root
         // all the other seegahs proceed as normal, ie the noon gets dropped to show nasb
         if (MOOD_DISTINCT_SLOTS.includes(slot)) extraHaraka = FATHA;
