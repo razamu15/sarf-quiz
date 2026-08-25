@@ -65,7 +65,8 @@ import {
 } from '../grammar/naqis-grammar.js';
 import { PREFIX_LETTERS, MUDARI_PREFIX_HARAKA } from '../grammar/shared-grammar.js';
 import {
-  slotsFor, MOOD_DISTINCT_SLOTS, FATHA, DAMMA, KASRA, SUKUN, DERIVED_NOUN_TYPES,
+  slotsFor, MOOD_DISTINCT_SLOTS, FATHA, DAMMA, KASRA, SUKUN, SHADDA,
+  DERIVED_NOUN_TYPES,
 } from '../vocabulary.js';
 import { babOf } from '../lexicon/root.js';
 import { fill, norm, joinEnding, amrOpening } from './templates.js';
@@ -197,7 +198,19 @@ function naqisWeakLetterSwap(word) {
     // if the haraka before the word is a dammah, then the weak letter is written as wow
     // if the haraka before the word is a kasrah, then the weak letter is written as ي (with dots under)
     const weakLetter = word[word.length - 1];
-    const harakaBefore = word[word.length - 2];
+    // THE HARAKA before the weak letter, which is not always the CHARACTER
+    // before it. NFC sorts a shadda after the vowel sharing its letter
+    // (combining class 33 against 30), so on a form whose ayn carries a shadda
+    // — II and V, the only two — the character sitting against the weak letter
+    // is the shadda itself and the haraka is one further back:
+    //   بَقَّي  is  ب َ ق َ ّ ي
+    // Reading only one character back found the shadda, matched none of the
+    // three cases below, and returned the word untouched — so بَقَّى came out as
+    // بَقَّي. Invisible until a naqis root declared form II or V, which none did
+    // until بقي. The body keeps the shadda; only the final letter is replaced.
+    const harakaBefore = word[word.length - 2] === SHADDA
+      ? word[word.length - 3]
+      : word[word.length - 2];
     const body = word.slice(0, -1);
 
     // a waw after a fatha is written as a full alif, not alif maqsura: دَعَا

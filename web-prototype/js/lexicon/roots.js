@@ -325,6 +325,10 @@ export const ROOTS = [
       // رَبِّي), and a root entry holds one Form I.
       I: { bab: 'ai', gloss: 'to go astray', masdar: 'ضَلَال', trans: false,
            en: { past: 'went astray', pres3: 'goes astray', ing: 'going astray' } },
+      II: { gloss: 'to declare misguided', trans: true,
+            en: { past: 'declared misguided', pp: 'declared misguided', pres3: 'declares misguided', ing: 'declaring misguided' } },
+      IV: { gloss: 'to lead astray', trans: true,
+            en: { past: 'led astray', pp: 'led astray', pres3: 'leads astray', ing: 'leading astray' } },
     },
   },
 
@@ -387,6 +391,19 @@ export const ROOTS = [
           },
         },
       },
+      // The mazīd forms carry no fixtures and never did: manualTables were only
+      // ever a stand-in for a missing ENGINE, and the ajwaf engine has been
+      // authoring III–X for as long as it has existed. These go through it.
+      III: { gloss: 'to negotiate with', trans: true,
+             en: { past: 'negotiated with', pp: 'negotiated with', pres3: 'negotiates with', ing: 'negotiating with' } },
+      IV: { gloss: 'to release from a contract', trans: true,
+            en: { past: 'released', pp: 'released', pres3: 'releases', ing: 'releasing' } },
+      V: { gloss: 'to fabricate a saying against', trans: true,
+           en: { past: 'fabricated against', pp: 'fabricated against', pres3: 'fabricates against', ing: 'fabricating against' } },
+      VI: { gloss: 'to converse with one another', trans: false,
+            en: { past: 'conversed with one another', pres3: 'converse with one another', ing: 'conversing with one another' } },
+      X: { gloss: 'to resign', trans: false,
+           en: { past: 'resigned', pres3: 'resigns', ing: 'resigning' } },
     },
   },
   {
@@ -444,6 +461,12 @@ export const ROOTS = [
           },
         },
       },
+      // Form I is fixture-checked; VI and VIII are the naqis mazīd tables
+      // (ROADMAP B1) doing the work, same as قضي and رضي.
+      VI: { gloss: 'to shoot at one another', trans: false,
+            en: { past: 'shot at one another', pres3: 'shoot at one another', ing: 'shooting at one another' } },
+      VIII: { gloss: 'to fling oneself', trans: false,
+              en: { past: 'flung himself', pres3: 'flings himself', ing: 'flinging himself' } },
     },
   },
 
@@ -611,6 +634,18 @@ export const ROOTS = [
       // muḍāriʿ entirely — وَعَدَ يَعِدُ, no wāw left to see.
       I: { bab: 'ai', gloss: 'to promise', masdar: 'وَعْد', trans: true,
            en: { past: 'promised', pp: 'promised', pres3: 'promises', ing: 'promising' } },
+      III: { gloss: 'to make an appointment with', trans: true,
+             en: { past: 'made an appointment with', pp: 'appointed with', pres3: 'makes an appointment with', ing: 'making an appointment with' } },
+      IV: { gloss: 'to threaten', trans: true,
+            en: { past: 'threatened', pp: 'threatened', pres3: 'threatens', ing: 'threatening' } },
+      V: { gloss: 'to threaten repeatedly', trans: true,
+           en: { past: 'threatened', pp: 'threatened', pres3: 'threatens', ing: 'threatening' } },
+      VI: { gloss: 'to promise one another', trans: false,
+            en: { past: 'promised one another', pres3: 'promise one another', ing: 'promising one another' } },
+      // اِتَّعَدَ — the faa vanishes into the taa. This is the root that exercises
+      // MITHAL_STEMS.VIII, whose templates never mention radical 1.
+      VIII: { gloss: 'to accept a promise', trans: true,
+              en: { past: 'accepted a promise', pp: 'accepted', pres3: 'accepts a promise', ing: 'accepting a promise' } },
     },
   },
 
@@ -675,6 +710,10 @@ export const ROOTS = [
       // lām supplies it here. The first `aa` mithāl yāʾ in the lexicon.
       I: { bab: 'aa', gloss: 'to reach adolescence', masdar: 'يَفَاعَة', trans: false,
            en: { past: 'reached adolescence', pres3: 'reaches adolescence', ing: 'reaching adolescence' } },
+      // أَيْفَعَ is in fact the commoner of the two in use; form I is kept as the
+      // headword because the bab is what a sarf student is asked to name.
+      IV: { gloss: 'to come of age', trans: false,
+            en: { past: 'came of age', pres3: 'comes of age', ing: 'coming of age' } },
     },
   },
   {
@@ -684,6 +723,10 @@ export const ROOTS = [
       // يَتِمَ يَيْتَمُ (bab ia) and يَتَمَ يَيْتِمُ (bab ai) for the same meaning;
       // a root entry holds one Form I, and this is the ḍamma one.
       I: { bab: 'uu', gloss: 'to be orphaned', masdar: 'يُتْم', trans: false },
+      II: { gloss: 'to orphan', trans: true,
+            en: { past: 'orphaned', pp: 'orphaned', pres3: 'orphans', ing: 'orphaning' } },
+      IV: { gloss: 'to make an orphan of', trans: true,
+            en: { past: 'made an orphan of', pp: 'orphaned', pres3: 'makes an orphan of', ing: 'making an orphan of' } },
     },
   },
   {
@@ -693,6 +736,14 @@ export const ROOTS = [
       // يَيْسِرُ (bab ai) means rather "to gamble / draw lots"; different sense,
       // so this is not the same verb wearing another bab.
       I: { bab: 'ia', gloss: 'to be easy', masdar: 'يُسْر', trans: false },
+      II: { gloss: 'to make easy', trans: true,
+            en: { past: 'made easy', pp: 'made easy', pres3: 'makes easy', ing: 'making easy' } },
+      IV: { gloss: 'to become well off', trans: false,
+            en: { past: 'became well off', pres3: 'becomes well off', ing: 'becoming well off' } },
+      V: { gloss: 'to become easy', trans: false,
+           en: { past: 'became easy', pres3: 'becomes easy', ing: 'becoming easy' } },
+      X: { gloss: 'to be made easy', trans: false,
+           en: { past: 'was made easy', pres3: 'is made easy', ing: 'being made easy' } },
     },
   },
 
@@ -748,6 +799,18 @@ export const ROOTS = [
     },
   },
 
+  {
+    root: ['ص', 'و', 'م'], type: 'ajwaf_waw',
+    forms: {
+      // Form I only, and that is a finding rather than a gap: صَوَّمَ and أَصَامَ
+      // are both in the dictionaries but neither is in live use, and a mazīd
+      // form nobody says is a distractor a quiz would offer as a real word.
+      // صِيَام is the commoner NOUN; صَوْم is the maṣdar proper.
+      I: { bab: 'au', gloss: 'to fast', masdar: 'صَوْم', trans: false,
+           en: { past: 'fasted', pres3: 'fasts', ing: 'fasting' } },
+    },
+  },
+
   // --- Ajwaf yāʾ · ي as middle radical ---------------------------------------
   {
     root: ['س', 'ي', 'ر'], type: 'ajwaf_ya',
@@ -800,6 +863,10 @@ export const ROOTS = [
       // one place joinEnding()'s idghām fires for a non-muḍāʿaf root.
       I: { bab: 'ai', gloss: 'to spend the night', masdar: 'بَيْتُوتَة', trans: false,
            en: { past: 'spent the night', pres3: 'spends the night', ing: 'spending the night' } },
+      II: { gloss: 'to plot by night', trans: true,
+            en: { past: 'plotted by night', pp: 'plotted by night', pres3: 'plots by night', ing: 'plotting by night' } },
+      IV: { gloss: 'to lodge for the night', trans: true,
+            en: { past: 'lodged', pp: 'lodged', pres3: 'lodges', ing: 'lodging' } },
     },
   },
 
@@ -820,6 +887,20 @@ export const ROOTS = [
     forms: {
       I: { bab: 'au', gloss: 'to announce a death', masdar: 'نَعْي', trans: true,
            en: { past: 'announced the death of', pp: 'mourned', pres3: 'announces the death of', ing: 'announcing the death of' } },
+    },
+  },
+
+  {
+    root: ['ب', 'ه', 'و'], type: 'naqis_waw',
+    forms: {
+      // The third waw-lām root, and the first to reach the mazīd tables — where
+      // its wāw surfaces as a yāʾ (بَاهَى · تَبَاهَى), the rule NAQIS_STEMS'
+      // mazīd header states. دعو only ever gets there through VI and VIII.
+      I: { bab: 'au', gloss: 'to be splendid', masdar: 'بَهَاء', trans: false },
+      III: { gloss: 'to vie in glory with', trans: true,
+             en: { past: 'vied with', pp: 'vied with', pres3: 'vies with', ing: 'vying with' } },
+      VI: { gloss: 'to boast to one another', trans: false,
+            en: { past: 'boasted to one another', pres3: 'boast to one another', ing: 'boasting to one another' } },
     },
   },
 
@@ -861,6 +942,37 @@ export const ROOTS = [
             en: { past: 'reached mutual agreement', pres3: 'reach mutual agreement', ing: 'reaching mutual agreement' } },
       VIII: { gloss: 'to approve of', trans: true,
               en: { past: 'approved of', pp: 'approved of', pres3: 'approves of', ing: 'approving of' } },
+    },
+  },
+  {
+    root: ['ه', 'د', 'ي'], type: 'naqis_ya',
+    forms: {
+      I: { bab: 'ai', gloss: 'to guide', masdar: 'هُدًى', trans: true,
+           en: { past: 'guided', pp: 'guided', pres3: 'guides', ing: 'guiding' } },
+      IV: { gloss: 'to give as a gift', trans: true,
+            en: { past: 'gave as a gift', pp: 'given as a gift', pres3: 'gives as a gift', ing: 'giving as a gift' } },
+      VI: { gloss: 'to exchange gifts', trans: false,
+            en: { past: 'exchanged gifts', pres3: 'exchange gifts', ing: 'exchanging gifts' } },
+      VIII: { gloss: 'to be rightly guided', trans: false,
+              en: { past: 'was rightly guided', pres3: 'is rightly guided', ing: 'being rightly guided' } },
+      X: { gloss: 'to seek guidance', trans: false,
+           en: { past: 'sought guidance', pres3: 'seeks guidance', ing: 'seeking guidance' } },
+    },
+  },
+  {
+    root: ['ب', 'ق', 'ي'], type: 'naqis_ya',
+    forms: {
+      // bab سَمِعَ — the one nāqiṣ bab whose lām survives almost everywhere,
+      // because the kasra on the ʿayn makes the yāʾ pronounceable. Same shape
+      // as رَضِيَ, and the second root to exercise it.
+      I: { bab: 'ia', gloss: 'to remain', masdar: 'بَقَاء', trans: false,
+           en: { past: 'remained', pres3: 'remains', ing: 'remaining' } },
+      II: { gloss: 'to leave over', trans: true,
+            en: { past: 'left over', pp: 'left over', pres3: 'leaves over', ing: 'leaving over' } },
+      IV: { gloss: 'to spare', trans: true,
+            en: { past: 'spared', pp: 'spared', pres3: 'spares', ing: 'sparing' } },
+      X: { gloss: 'to keep alive', trans: true,
+           en: { past: 'kept alive', pp: 'kept alive', pres3: 'keeps alive', ing: 'keeping alive' } },
     },
   },
 ];
