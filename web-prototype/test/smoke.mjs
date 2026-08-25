@@ -130,12 +130,15 @@ const jamaa = byRoot('جمع');
 const qala = byRoot('قول');
 
 const cases = [
-  // Form I madi malum across the six abwāb + suffix behaviors
+  // Form I madi malum across the six abwāb + suffix behaviors.
+  // 2mp ends in a bare mīm (كَتَبْتُم, no sukūn) throughout this file — a
+  // deliberate convention, not a missing mark. See SHARED note in
+  // grammar/shared-grammar.js; do not "restore" the sukūn here.
   [conjugate(kataba, 'I', 'madi', 'malum', '3ms'), 'كَتَبَ'],
   [conjugate(kataba, 'I', 'madi', 'malum', '3mp'), 'كَتَبُوا'],
   [conjugate(kataba, 'I', 'madi', 'malum', '3fs'), 'كَتَبَتْ'],
   [conjugate(kataba, 'I', 'madi', 'malum', '3fp'), 'كَتَبْنَ'],
-  [conjugate(kataba, 'I', 'madi', 'malum', '2mp'), 'كَتَبْتُمْ'],
+  [conjugate(kataba, 'I', 'madi', 'malum', '2mp'), 'كَتَبْتُم'],
   [conjugate(kataba, 'I', 'madi', 'malum', '2fp'), 'كَتَبْتُنَّ'],
   [conjugate(kataba, 'I', 'madi', 'malum', '1p'), 'كَتَبْنَا'],
   [conjugate(samia, 'I', 'madi', 'malum', '3ms'), 'سَمِعَ'],
@@ -548,7 +551,7 @@ const parity = (root, formId, chartId, expected, label) => {
 parity(madd, 'I', 'madi_malum', {
   '3ms': 'مَدَّ',     '3md': 'مَدَّا',      '3mp': 'مَدُّوا',
   '3fs': 'مَدَّتْ',   '3fd': 'مَدَّتَا',    '3fp': 'مَدَدْنَ',
-  '2ms': 'مَدَدْتَ',  '2md': 'مَدَدْتُمَا', '2mp': 'مَدَدْتُمْ',
+  '2ms': 'مَدَدْتَ',  '2md': 'مَدَدْتُمَا', '2mp': 'مَدَدْتُم',
   '2fs': 'مَدَدْتِ',  '2fd': 'مَدَدْتُمَا', '2fp': 'مَدَدْتُنَّ',
   '1s': 'مَدَدْتُ',   '1p': 'مَدَدْنَا',
 }, 'مدّ I māḍī maʿlūm');
@@ -556,7 +559,7 @@ parity(madd, 'I', 'madi_malum', {
 parity(madd, 'I', 'madi_majhul', {
   '3ms': 'مُدَّ',     '3md': 'مُدَّا',      '3mp': 'مُدُّوا',
   '3fs': 'مُدَّتْ',   '3fd': 'مُدَّتَا',    '3fp': 'مُدِدْنَ',
-  '2ms': 'مُدِدْتَ',  '2md': 'مُدِدْتُمَا', '2mp': 'مُدِدْتُمْ',
+  '2ms': 'مُدِدْتَ',  '2md': 'مُدِدْتُمَا', '2mp': 'مُدِدْتُم',
   '2fs': 'مُدِدْتِ',  '2fd': 'مُدِدْتُمَا', '2fp': 'مُدِدْتُنَّ',
   '1s': 'مُدِدْتُ',   '1p': 'مُدِدْنَا',
 }, 'مدّ I māḍī majhūl');
@@ -612,7 +615,7 @@ parity(madd, 'I', 'amr_malum', {
 parity(zalla, 'I', 'madi_malum', {
   '3ms': 'ظَلَّ',     '3md': 'ظَلَّا',      '3mp': 'ظَلُّوا',
   '3fs': 'ظَلَّتْ',   '3fd': 'ظَلَّتَا',    '3fp': 'ظَلَلْنَ',
-  '2ms': 'ظَلَلْتَ',  '2md': 'ظَلَلْتُمَا', '2mp': 'ظَلَلْتُمْ',
+  '2ms': 'ظَلَلْتَ',  '2md': 'ظَلَلْتُمَا', '2mp': 'ظَلَلْتُم',
   '2fs': 'ظَلَلْتِ',  '2fd': 'ظَلَلْتُمَا', '2fp': 'ظَلَلْتُنَّ',
   '1s': 'ظَلَلْتُ',   '1p': 'ظَلَلْنَا',
 }, 'ظلّ I māḍī maʿlūm (bāb 2)');

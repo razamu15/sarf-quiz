@@ -14,10 +14,20 @@
 // Two different kinds of "shared" sit here for the same reason. Form facts are
 // true of a form no matter which verb type fills it: whether Form VII has a
 // passive doesn't change between sālim, muḍāʿaf and ajwaf. And the affixes wrap
-// a stem after the verb type has finished its work: the ending on 2mp is تُمْ
+// a stem after the verb type has finished its work: the ending on 2mp is تُم
 // whether the stem was merged, unfolded or hollowed, and the muḍāriʿ prefix is
 // يَ / تَ / أَ / نَ regardless. Written once here, they are one thing to check;
 // restated per verb type they would be six more chances to disagree.
+//
+// THE BARE MĪM ON 2mp (كَتَبْتُم, not كَتَبْتُمْ) — decided Aug 2026, and the one
+// fact in this file most likely to be "corrected" back by someone who has not
+// read this. Mīm al-jamāʿa is waṣl-dependent: it takes a sukūn in pause but a
+// ḍamma before a following hamzat waṣl (كَتَبْتُمُ الدَّرْسَ), so writing the sukūn
+// asserts a pausal reading the chart has no business asserting. libqutrub omits
+// it for the same reason (verb_const.py:130), and the qutrub cross-check in
+// verification/ reported it across all 8 lexicon types before the change.
+// The endings themselves live in each verb type's table — SALIM_ENDINGS.madi
+// and NAQIS_ENDINGS.madi — and both must keep saying the same thing.
 //
 // This file is data, not logic. The code that consumes it lives in the
 // conjugators (js/conjugation/); the stem tables it gets combined with live in

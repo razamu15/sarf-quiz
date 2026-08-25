@@ -29,7 +29,7 @@ export const NAQIS_STEMS = {
       },
       aa: {
         regular:  '1' + F + '2' + F + '3',
-        dropping: '1' + K + '2' + F
+        dropping: '1' + F + '2' + F
       },
       ia: {
         // for ia naqis verbs, the only seegah that is different is 3rd masc plural,
@@ -136,6 +136,7 @@ export const NAQIS_ENDINGS = {
     // and it doesnt take any haraka EXCEPT for the ia baab, which we have added a special case in the code for. [NOTE A1]
     '3ms': A('', ''),            '3md': A(F, 'ا'),                '3mp': A(D, 'وا'),
     '3fs': A(F, 'ت' + S),       '3fd': A(F, 'ت' + F + 'ا'),      '3fp': A(S, 'ن' + F),
+    // 2mp's mīm is bare on purpose (تُم, no sukūn) — see shared-grammar.js.
     '2ms': A(S, 'ت' + F),       '2md': A(S, 'ت' + D + 'م' + F + 'ا'), '2mp': A(S, 'ت' + D + 'م'),
     '2fs': A(S, 'ت' + K),       '2fd': A(S, 'ت' + D + 'م' + F + 'ا'), '2fp': A(S, 'ت' + D + 'ن' + SH + F),
     '1s':  A(S, 'ت' + D),       '1p':  A(S, 'ن' + F + 'ا'),
