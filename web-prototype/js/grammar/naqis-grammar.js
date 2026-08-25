@@ -11,6 +11,7 @@
 
 import {
   FATHA as F, DAMMA as D, KASRA as K, SUKUN as S, SHADDA as SH,
+  FATHA, KASRA,
 } from '../vocabulary.js';
 import { A } from './shared-grammar.js';
 
@@ -95,15 +96,245 @@ export const NAQIS_STEMS = {
       mascPlural: '1' + S + '2' + F 
     },
   },
-  II: {},
-  III: {},
-  IV: {},
-  V: {},
-  VI: {},
-  VII: {},
-  VIII: {},
+
+  // -------------------------------------------------------------------------
+  // THE MAZEED FORMS. Every one of them is easier than form 1, and for one
+  // reason: form 1 has abwab, and the mazeed forms do not. The baab is what
+  // made the form 1 tables above fan out six ways — it decides the haraka on
+  // the ayn, and the ayn's haraka is what decides everything the weak lam
+  // does. A mazeed form FIXES that haraka, so each one needs a single table.
+  //
+  // Which leaves exactly two shapes of mazeed form, told apart by the mudari:
+  //
+  //   ـِي forms   II · III · IV · VII · VIII · X
+  //               يُقَضِّي · يُقَاضِي · يُقْضِي · يَنْقَضِي · يَقْتَضِي · يَسْتَقْضِي
+  //               kasra on the ayn, so the lam is a real yaa. it behaves like
+  //               form 1's `ai` baab everywhere: it drops for 2fs (تَقْتَضِينَ),
+  //               turns to a damma before the plural waw (يَقْتَضُونَ), and it
+  //               can carry the fatha of نصب — لَنْ يَقْتَضِيَ.
+  //
+  //   ـَى forms   V · VI
+  //               يَتَقَضَّى · يَتَقَاضَى
+  //               fatha on the ayn, so the lam is an alif maqsura. it behaves
+  //               like form 1's `aa`/`ia` baabs: one shape for both dropping
+  //               slots, and نصب reads exactly like رفع, because an alif
+  //               maqsura cannot take a haraka. See NAQIS_MAZEED_MUDARI_AYN,
+  //               which is where the conjugator reads that fact.
+  //
+  // The MADI does not split at all. Every mazeed madi maroof ends in ـَى
+  // (اِقْتَضَى · تَقَاضَى · أَقْضَى) and every majhool in ـِي (اُقْتُضِيَ · تُقُوضِيَ),
+  // so all nine take the same two-entry shape as form 1's non-`ia` baabs.
+  //
+  // AND RADICAL 3 APPEARS IN NONE OF THEM — every template below writes a
+  // literal yaa where form 1 writes '3'. That is the rule that a waw falling
+  // FOURTH OR LATER with a fatha before it turns into a yaa, and no mazeed form
+  // is shorter than four letters. So دعو, a waw-lam root, conjugates its mazeed
+  // forms exactly as a yaa-lam root does: تَدَاعَيْتُ and not تَدَاعَوْتُ, ending
+  // تَدَاعَى with an alif maqsura rather than the full alif that form 1's دَعَا
+  // correctly takes. Hardcoding the letter is the move MITHAL_STEMS.IV makes
+  // for its waw and for the same reason: the letter is a fact about the SHAPE
+  // here, not about the root.
+  //
+  // The 2fs and plural slots never referred to radical 3 anyway — their endings
+  // supply the yaa and the waw (تَتَدَاعَيْنَ · يَتَدَاعَوْنَ). Which is why those
+  // slots came out right while the rest of دعو's paradigm did not.
+  //
+  // Radicals 1 and 2 are ordinary consonants throughout — the weak letter is
+  // the lam and nothing a mazeed form adds sits near it — so the prefixes and
+  // infixes below are exactly the sound ones (compare SALIM_VERB_STEMS).
+  // -------------------------------------------------------------------------
+
+  II: {
+    madi_malum: {
+      regular:  '1' + F + '2' + SH + F + 'ي',            // قَضَّى
+      dropping: '1' + F + '2' + SH + F,                  // قَضَّوْا · قَضَّتْ
+    },
+    madi_majhul: {
+      regular:  '1' + D + '2' + SH + K + 'ي',            // قُضِّيَ
+      thirdMascPlural: '1' + D + '2' + SH + D,           // قُضُّوا
+    },
+    mudari_malum: {
+      regular:  '1' + F + '2' + SH + K + 'ي',            // يُقَضِّي
+      femSingular: '1' + F + '2' + SH + K,               // تُقَضِّينَ
+      mascPlural: '1' + F + '2' + SH + D,                // يُقَضُّونَ
+    },
+    mudari_majhul: {
+      regular:  '1' + F + '2' + SH + F + 'ي',            // يُقَضَّى
+      femSingular: '1' + F + '2' + SH + F,               // تُقَضَّيْنَ
+      mascPlural: '1' + F + '2' + SH + F,                // يُقَضَّوْنَ
+    },
+  },
+
+  III: {
+    madi_malum: {
+      regular:  '1' + F + 'ا' + '2' + F + 'ي',           // قَاضَى
+      dropping: '1' + F + 'ا' + '2' + F,                 // قَاضَوْا
+    },
+    // فَاعَلَ's passive is فُوعِلَ — the alif becomes a waw, exactly as in the
+    // sound type (قُوتِلَ). Nothing to do with the weak lam.
+    madi_majhul: {
+      regular:  '1' + D + 'و' + '2' + K + 'ي',           // قُوضِيَ
+      thirdMascPlural: '1' + D + 'و' + '2' + D,          // قُوضُوا
+    },
+    mudari_malum: {
+      regular:  '1' + F + 'ا' + '2' + K + 'ي',           // يُقَاضِي
+      femSingular: '1' + F + 'ا' + '2' + K,              // تُقَاضِينَ
+      mascPlural: '1' + F + 'ا' + '2' + D,               // يُقَاضُونَ
+    },
+    mudari_majhul: {
+      regular:  '1' + F + 'ا' + '2' + F + 'ي',           // يُقَاضَى
+      femSingular: '1' + F + 'ا' + '2' + F,              // تُقَاضَيْنَ
+      mascPlural: '1' + F + 'ا' + '2' + F,               // يُقَاضَوْنَ
+    },
+  },
+
+  IV: {
+    madi_malum: {
+      regular:  'أ' + F + '1' + S + '2' + F + 'ي',       // أَقْضَى
+      dropping: 'أ' + F + '1' + S + '2' + F,             // أَقْضَوْا
+    },
+    madi_majhul: {
+      regular:  'أ' + D + '1' + S + '2' + K + 'ي',       // أُقْضِيَ
+      thirdMascPlural: 'أ' + D + '1' + S + '2' + D,      // أُقْضُوا
+    },
+    mudari_malum: {
+      regular:  '1' + S + '2' + K + 'ي',                 // يُقْضِي
+      femSingular: '1' + S + '2' + K,                    // تُقْضِينَ
+      mascPlural: '1' + S + '2' + D,                     // يُقْضُونَ
+    },
+    mudari_majhul: {
+      regular:  '1' + S + '2' + F + 'ي',                 // يُقْضَى
+      femSingular: '1' + S + '2' + F,                    // تُقْضَيْنَ
+      mascPlural: '1' + S + '2' + F,                     // يُقْضَوْنَ
+    },
+  },
+
+  V: {
+    madi_malum: {
+      regular:  'ت' + F + '1' + F + '2' + SH + F + 'ي',  // تَقَضَّى
+      dropping: 'ت' + F + '1' + F + '2' + SH + F,        // تَقَضَّوْا
+    },
+    madi_majhul: {
+      regular:  'ت' + D + '1' + D + '2' + SH + K + 'ي',  // تُقُضِّيَ
+      thirdMascPlural: 'ت' + D + '1' + D + '2' + SH + D, // تُقُضُّوا
+    },
+    // the first ـَى form: fatha on the ayn, one shape for both dropping slots.
+    mudari_malum: {
+      regular:  'ت' + F + '1' + F + '2' + SH + F + 'ي',  // يَتَقَضَّى
+      femSingular: 'ت' + F + '1' + F + '2' + SH + F,     // تَتَقَضَّيْنَ
+      mascPlural: 'ت' + F + '1' + F + '2' + SH + F,      // يَتَقَضَّوْنَ
+    },
+    mudari_majhul: {
+      regular:  'ت' + F + '1' + F + '2' + SH + F + 'ي',  // يُتَقَضَّى
+      femSingular: 'ت' + F + '1' + F + '2' + SH + F,     // تُتَقَضَّيْنَ
+      mascPlural: 'ت' + F + '1' + F + '2' + SH + F,      // يُتَقَضَّوْنَ
+    },
+  },
+
+  VI: {
+    madi_malum: {
+      regular:  'ت' + F + '1' + F + 'ا' + '2' + F + 'ي',  // تَقَاضَى
+      dropping: 'ت' + F + '1' + F + 'ا' + '2' + F,        // تَقَاضَوْا · تَدَاعَتْ
+    },
+    madi_majhul: {
+      regular:  'ت' + D + '1' + D + 'و' + '2' + K + 'ي',  // تُقُوضِيَ
+      thirdMascPlural: 'ت' + D + '1' + D + 'و' + '2' + D, // تُقُوضُوا
+    },
+    mudari_malum: {
+      regular:  'ت' + F + '1' + F + 'ا' + '2' + F + 'ي',  // يَتَقَاضَى
+      femSingular: 'ت' + F + '1' + F + 'ا' + '2' + F,     // تَتَقَاضَيْنَ
+      mascPlural: 'ت' + F + '1' + F + 'ا' + '2' + F,      // يَتَقَاضَوْنَ
+    },
+    mudari_majhul: {
+      regular:  'ت' + F + '1' + F + 'ا' + '2' + F + 'ي',  // يُتَقَاضَى
+      femSingular: 'ت' + F + '1' + F + 'ا' + '2' + F,     // تُتَقَاضَيْنَ
+      mascPlural: 'ت' + F + '1' + F + 'ا' + '2' + F,      // يُتَقَاضَوْنَ
+    },
+  },
+
+  VII: {
+    madi_malum: {
+      regular:  'ا' + K + 'ن' + S + '1' + F + '2' + F + 'ي',  // اِنْقَضَى
+      dropping: 'ا' + K + 'ن' + S + '1' + F + '2' + F,        // اِنْقَضَوْا · اِنْقَضَتْ
+    },
+    madi_majhul: null,                                        // lāzim — as in SALIM_VERB_STEMS.VII
+    mudari_malum: {
+      regular:  'ن' + S + '1' + F + '2' + K + 'ي',            // يَنْقَضِي
+      femSingular: 'ن' + S + '1' + F + '2' + K,               // تَنْقَضِينَ
+      mascPlural: 'ن' + S + '1' + F + '2' + D,                // يَنْقَضُونَ
+    },
+    mudari_majhul: null,
+  },
+
+  VIII: {
+    madi_malum: {
+      regular:  'ا' + K + '1' + S + 'ت' + F + '2' + F + 'ي',  // اِقْتَضَى
+      dropping: 'ا' + K + '1' + S + 'ت' + F + '2' + F,        // اِقْتَضَوْا
+    },
+    madi_majhul: {
+      regular:  'ا' + D + '1' + S + 'ت' + D + '2' + K + 'ي',  // اُقْتُضِيَ
+      thirdMascPlural: 'ا' + D + '1' + S + 'ت' + D + '2' + D, // اُقْتُضُوا
+    },
+    mudari_malum: {
+      regular:  '1' + S + 'ت' + F + '2' + K + 'ي',            // يَقْتَضِي
+      femSingular: '1' + S + 'ت' + F + '2' + K,               // تَقْتَضِينَ
+      mascPlural: '1' + S + 'ت' + F + '2' + D,                // يَقْتَضُونَ
+    },
+    mudari_majhul: {
+      regular:  '1' + S + 'ت' + F + '2' + F + 'ي',            // يُقْتَضَى
+      femSingular: '1' + S + 'ت' + F + '2' + F,               // تُقْتَضَيْنَ
+      mascPlural: '1' + S + 'ت' + F + '2' + F,                // يُقْتَضَوْنَ
+    },
+  },
+
+  // Form IX doubles the lam to name a colour or defect (اِحْمَرَّ), which needs a
+  // sound lam to double. No naqis verb takes it, so this is a domain absence
+  // rather than an unfilled table — and the conjugator reads both the same way.
   IX: {},
-  X: {}
+
+  X: {
+    madi_malum: {
+      regular:  'ا' + K + 'س' + S + 'ت' + F + '1' + S + '2' + F + 'ي',  // اِسْتَقْضَى
+      dropping: 'ا' + K + 'س' + S + 'ت' + F + '1' + S + '2' + F,        // اِسْتَقْضَوْا
+    },
+    madi_majhul: {
+      regular:  'ا' + D + 'س' + S + 'ت' + D + '1' + S + '2' + K + 'ي',  // اُسْتُقْضِيَ
+      thirdMascPlural: 'ا' + D + 'س' + S + 'ت' + D + '1' + S + '2' + D, // اُسْتُقْضُوا
+    },
+    mudari_malum: {
+      regular:  'س' + S + 'ت' + F + '1' + S + '2' + K + 'ي',            // يَسْتَقْضِي
+      femSingular: 'س' + S + 'ت' + F + '1' + S + '2' + K,               // تَسْتَقْضِينَ
+      mascPlural: 'س' + S + 'ت' + F + '1' + S + '2' + D,                // يَسْتَقْضُونَ
+    },
+    mudari_majhul: {
+      regular:  'س' + S + 'ت' + F + '1' + S + '2' + F + 'ي',            // يُسْتَقْضَى
+      femSingular: 'س' + S + 'ت' + F + '1' + S + '2' + F,               // تُسْتَقْضَيْنَ
+      mascPlural: 'س' + S + 'ت' + F + '1' + S + '2' + F,                // يُسْتَقْضَوْنَ
+    },
+  },
+};
+
+/**
+ * Which haraka the mazeed mudari puts on the ayn — the one fact form 1 reads
+ * off its baab and the mazeed forms have no baab to read.
+ *
+ * It matters for نصب. Nasb writes a fatha on the weak lam, but only where that
+ * lam is a real consonant able to carry one: لَنْ يَقْتَضِيَ, because a kasra
+ * leaves a true yaa there. A FATHA on the ayn makes the lam an alif maqsura,
+ * which is immovable — لَنْ يَتَقَاضَى is the same word as يَتَقَاضَى.
+ *
+ * Stored as the haraka itself rather than a boolean so it can be read straight
+ * against the stems above: every ـِي form's mudari_malum.regular ends in
+ * `K + 'ي'`, every ـَى form's in `F + 'ي'`, and this table says the same thing
+ * in one line per form.
+ *
+ * Called by: NaqisConjugator.conjugate(), for the نصب decision only. The
+ * majhool needs no entry — every naqis majhool mudari ends in ـَى whatever the
+ * form, so the conjugator rules it out before consulting this.
+ */
+export const NAQIS_MAZEED_MUDARI_AYN = {
+  II: KASRA, III: KASRA, IV: KASRA, V: FATHA, VI: FATHA,
+  VII: KASRA, VIII: KASRA, IX: null, X: KASRA,
 };
 
 // naqis has 3 specific seegah that drop the weak letter that do not correspond to a singular group.

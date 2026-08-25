@@ -1,7 +1,8 @@
 // The nāqiṣ engine: the lām is و or ي — دَعَا يَدْعُو، رَمَى يَرْمِي، رَضِيَ يَرْضَى.
 //
-// Form I is authored; the mazīd forms are still empty tables in
-// naqis-grammar.js and conjugate to nothing until they are filled.
+// All ten forms are authored. Form I fans out by bāb; the mazīd forms have no
+// bāb and so take one table each — see the header over the mazīd block in
+// naqis-grammar.js for the two shapes they fall into.
 //
 // This is the first engine whose STEM changes with the mood, so it is also the
 // first with real imperative work in conjugate() — see the mood blocks below.
@@ -60,6 +61,7 @@
 import {
   NAQIS_STEMS, NAQIS_ENDINGS, DERIVED_NOUN_STEMS,
   NAQIS_DROPPING_SLOTS_MADI, NAQIS_DROPPING_SLOTS_MUDARI,
+  NAQIS_MAZEED_MUDARI_AYN,
 } from '../grammar/naqis-grammar.js';
 import { PREFIX_LETTERS, MUDARI_PREFIX_HARAKA } from '../grammar/shared-grammar.js';
 import {
@@ -228,6 +230,31 @@ const derivedNounTemplate = (root, formId, nounType) => {
   return entry ?? null;
 };
 
+/**
+ * Can the mudari's weak lam carry the fatha that نصب writes on it?
+ *
+ * Only where the ayn's haraka leaves a real consonant there: a kasra gives a
+ * true yaa (يَرْمِي → لَنْ يَرْمِيَ) and a damma a true waw (يَدْعُو → لَنْ يَدْعُوَ),
+ * but a fatha makes it an alif maqsura, which is immovable — يَرْضَى and
+ * لَنْ يَرْضَى are the same word.
+ *
+ * Two places that haraka is written down, because form 1 and the mazeed forms
+ * record it differently: form 1 reads it off its BAAB, whose second letter IS
+ * the mudari ayn vowel, and the mazeed forms have no baab, so the FORM fixes it
+ * (NAQIS_MAZEED_MUDARI_AYN). The majhool short-circuits both — every naqis
+ * mudari majhool ends in ـَى whatever the form.
+ *
+ * Called by: conjugate(), for the نصب branch only.
+ */
+function weakLetterTakesNasbFatha(spec) {
+  if (spec.voice === 'majhul') return false;
+  if (spec.formId === 'I') {
+    const bab = babOf(spec.root, spec.formId);
+    return bab === 'au' || bab === 'ai';
+  }
+  return NAQIS_MAZEED_MUDARI_AYN[spec.formId] === KASRA;
+}
+
 export const NaqisConjugator = {
   handles: 'naqis',
 
@@ -272,12 +299,12 @@ export const NaqisConjugator = {
       // so for dropping the noon we will do it via the grammar object as we have done for all the other verb types,
       // but the 5 endings we will do it here because they are dependant on our baabs and endings objects do not contain
       // baab info (this is just a convention we have.)
-      if ((babOf(spec.root, spec.formId) === 'au' || babOf(spec.root, spec.formId) === 'ai') && spec.voice !== 'majhul') {
+      if (weakLetterTakesNasbFatha(spec)) {
         // the five endings get a fatha on the last letter which is also the last radical of the root
         // all the other seegahs proceed as normal, ie the noon gets dropped to show nasb
         if (MOOD_DISTINCT_SLOTS.includes(slot)) extraHaraka = FATHA;
       } else {
-        // baabs are aa and ia
+        // baabs are aa and ia, and every mazeed form whose ayn takes a fatha
         // no fatha is added for mansub, so the ending for the 5 forms (he, she, I, we); mansub == marfu
         // this makes sense because the AA sound is already there.
       }

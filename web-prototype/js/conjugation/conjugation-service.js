@@ -92,6 +92,12 @@ function chartExists(spec) {
   const meta = FORM_META[spec.formId];
   if (!meta?.conjugable) return false;
   if (spec.voice === 'majhul' && (!meta.hasMajhul || !usage.trans)) return false;
+  // Form VIII's infixed taa assimilates into certain faa letters — دعو makes
+  // اِدَّعَى, not اِدْتَعَى — and no engine performs that substitution yet. Every
+  // stem table would otherwise produce a whole well-formed paradigm of a verb
+  // nobody says. Declining is the honest answer until the rule is written;
+  // IFTIAAL_ASSIMILATING_FAA carries the rule and the plan.
+  if (spec.formId === 'VIII' && IFTIAAL_ASSIMILATING_FAA.has(spec.root.root[0])) return false;
 
   return true;
 }

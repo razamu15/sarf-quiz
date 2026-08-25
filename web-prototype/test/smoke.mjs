@@ -804,6 +804,128 @@ check(derivedNoun(byRoot('قضي'), 'VIII', 'ismFail') !== null,
     `every weak type produces an ism fāʿil — missing: ${missing.join(', ')}`);
 }
 
+// ---------------------------------------------------------------------------
+// Nāqiṣ mazīd, forms II–X (ROADMAP B1). Hand-typed against قضي (a yaa lām) and
+// دعو (a waw lām), which is the pairing that matters: in the mazīd forms they
+// must conjugate ALIKE, and before these tables landed دعو had no mazīd at all.
+// ---------------------------------------------------------------------------
+
+// A ـِي form, whole. Form VIII is the one that exercises everything at once —
+// a waṣl hamza, an infixed taa, and a kasra ayn that keeps the lām a real yaa.
+parity(byRoot('قضي'), 'VIII', 'madi_malum', {
+  '3ms': 'اِقْتَضَى',    '3md': 'اِقْتَضَيَا',      '3mp': 'اِقْتَضَوْا',
+  '3fs': 'اِقْتَضَتْ',   '3fd': 'اِقْتَضَتَا',      '3fp': 'اِقْتَضَيْنَ',
+  '2ms': 'اِقْتَضَيْتَ', '2md': 'اِقْتَضَيْتُمَا',  '2mp': 'اِقْتَضَيْتُم',
+  '2fs': 'اِقْتَضَيْتِ', '2fd': 'اِقْتَضَيْتُمَا',  '2fp': 'اِقْتَضَيْتُنَّ',
+  '1s': 'اِقْتَضَيْتُ',  '1p': 'اِقْتَضَيْنَا',
+}, 'قضي VIII māḍī maʿlūm');
+
+parity(byRoot('قضي'), 'VIII', 'mudari_malum_raf', {
+  '3ms': 'يَقْتَضِي',    '3md': 'يَقْتَضِيَانِ',    '3mp': 'يَقْتَضُونَ',
+  '3fs': 'تَقْتَضِي',    '3fd': 'تَقْتَضِيَانِ',    '3fp': 'يَقْتَضِينَ',
+  '2ms': 'تَقْتَضِي',    '2md': 'تَقْتَضِيَانِ',    '2mp': 'تَقْتَضُونَ',
+  '2fs': 'تَقْتَضِينَ',  '2fd': 'تَقْتَضِيَانِ',    '2fp': 'تَقْتَضِينَ',
+  '1s': 'أَقْتَضِي',     '1p': 'نَقْتَضِي',
+}, 'قضي VIII muḍāriʿ marfūʿ');
+
+parity(byRoot('قضي'), 'VIII', 'madi_majhul', {
+  '3ms': 'اُقْتُضِيَ',   '3md': 'اُقْتُضِيَا',      '3mp': 'اُقْتُضُوا',
+  '3fs': 'اُقْتُضِيَتْ', '3fd': 'اُقْتُضِيَتَا',    '3fp': 'اُقْتُضِينَ',
+  '2ms': 'اُقْتُضِيتَ',  '2md': 'اُقْتُضِيتُمَا',   '2mp': 'اُقْتُضِيتُم',
+  '2fs': 'اُقْتُضِيتِ',  '2fd': 'اُقْتُضِيتُمَا',   '2fp': 'اُقْتُضِيتُنَّ',
+  '1s': 'اُقْتُضِيتُ',   '1p': 'اُقْتُضِينَا',
+}, 'قضي VIII māḍī majhūl');
+
+// THE WAW LĀM, and the reason this block pairs دعو with قضي. A waw falling
+// fourth or later after a fatḥa becomes a yaa, so دعو's mazīd is yaa all
+// through — تَدَاعَيْتُ, and تَدَاعَى with alif maqṣūra. Writing radical 3 into
+// these templates instead of a literal yaa produced تَدَاعَوْتُ and تَدَاعَا:
+// well-formed, consistent, and not words. Form I is the control below.
+parity(byRoot('دعو'), 'VI', 'madi_malum', {
+  '3ms': 'تَدَاعَى',     '3md': 'تَدَاعَيَا',       '3mp': 'تَدَاعَوْا',
+  '3fs': 'تَدَاعَتْ',    '3fd': 'تَدَاعَتَا',       '3fp': 'تَدَاعَيْنَ',
+  '2ms': 'تَدَاعَيْتَ',  '2md': 'تَدَاعَيْتُمَا',   '2mp': 'تَدَاعَيْتُم',
+  '2fs': 'تَدَاعَيْتِ',  '2fd': 'تَدَاعَيْتُمَا',   '2fp': 'تَدَاعَيْتُنَّ',
+  '1s': 'تَدَاعَيْتُ',   '1p': 'تَدَاعَيْنَا',
+}, 'دعو VI māḍī maʿlūm — the waw lām turns yaa in the mazīd');
+
+// The control: in FORM I the same root keeps its waw, and its alif is the full
+// one. If the rule above ever leaks into form 1, this goes red.
+check(nfc(conjugateChart(byRoot('دعو'), 'I', 'madi_malum', '3ms')) === nfc('دَعَا'),
+  'form I keeps the waw lām — دَعَا with a full alif, not دَعَى');
+check(nfc(conjugateChart(byRoot('دعو'), 'I', 'madi_malum', '1s')) === nfc('دَعَوْتُ'),
+  'form I keeps the waw lām in the mutaḥarrik slots too — دَعَوْتُ');
+
+// A ـَى form: the mudari ends in an alif maqṣūra, so نصب reads exactly like رفع
+// while a ـِي form takes the fatḥa. This is the split NAQIS_MAZEED_MUDARI_AYN
+// exists for, and the mazīd forms have no bāb to read it off.
+{
+  const nasb = (rk, f) => nfc(conjugateChart(byRoot(rk), f, 'mudari_malum_nasb', '3ms'));
+  const raf = (rk, f) => nfc(conjugateChart(byRoot(rk), f, 'mudari_malum_raf', '3ms'));
+  check(nasb('قضي', 'VIII') === nfc('يَقْتَضِيَ'),
+    `a ـِي mazīd takes the naṣb fatḥa: got ${nasb('قضي', 'VIII')}`);
+  check(nasb('رضي', 'VI') === raf('رضي', 'VI'),
+    `a ـَى mazīd cannot: naṣb must equal rafʿ, got ${nasb('رضي', 'VI')} vs ${raf('رضي', 'VI')}`);
+  check(nasb('رضي', 'IV') === nfc('يُرْضِيَ'),
+    `form IV is a ـِي form: got ${nasb('رضي', 'IV')}`);
+}
+
+// Jazm and the amr drop the weak letter, in the mazīd exactly as in form I.
+{
+  const cases = [
+    ['قضي', 'VIII', 'mudari_malum_jazm', '3ms', 'يَقْتَضِ'],
+    ['قضي', 'VIII', 'amr_malum', '2ms', 'اِقْتَضِ'],
+    ['رضي', 'IV', 'amr_malum', '2ms', 'أَرْضِ'],          // form IV keeps its qaṭʿ hamza
+    ['رضي', 'VI', 'mudari_malum_jazm', '3ms', 'يَتَرَاضَ'],
+    ['سعي', 'X', 'amr_malum', '2ms', 'اِسْتَسْعِ'],
+    ['قضي', 'III', 'amr_malum', '2ms', 'قَاضِ'],           // opens on a vowel: no waṣl hamza
+  ];
+  for (const [rk, f, chart, slot, want] of cases) {
+    const got = conjugateChart(byRoot(rk), f, chart, slot);
+    check(nfc(got) === nfc(want), `${rk} ${f} ${chart} ${slot}: got ${got} want ${want}`);
+  }
+}
+
+// Form VII is lāzim and has no passive, exactly as the sound table says.
+check(fullTableChart(byRoot('قضي'), 'VII', 'madi_majhul') == null,
+  'nāqiṣ form VII has no majhūl chart');
+
+// Every nāqiṣ form the lexicon DECLARES now conjugates. This is the assertion
+// B1 exists to make true: before it, eleven declared forms produced nothing.
+{
+  const empty = [];
+  for (const root of LEXICON.filter((r) => r.type.startsWith('naqis'))) {
+    for (const formId of Object.keys(root.forms)) {
+      const any = CHART_IDS.some((chart) => fullTableChart(root, formId, chart));
+      if (!any) empty.push(`${root.root.join('')} ${formId}`);
+    }
+  }
+  // دعو VIII is the one deliberate hole: its taa would assimilate (اِدَّعَى) and
+  // no engine implements that yet, so the service declines rather than invent.
+  check(empty.length === 1 && empty[0] === 'دعو VIII',
+    `only دعو VIII should be empty, got: ${empty.join(', ') || '(none)'}`);
+}
+
+// Every nāqiṣ cell is clean NFC Arabic — no template digit survived into a word.
+{
+  let clean = true;
+  for (const root of LEXICON.filter((r) => r.type.startsWith('naqis'))) {
+    for (const formId of Object.keys(root.forms)) {
+      for (const chart of CHART_IDS) {
+        for (const slot of slotsFor(chart)) {
+          const w = conjugateChart(root, formId, chart, slot);
+          if (w == null) continue;
+          if (w !== w.normalize('NFC') || /[123]/.test(w) || !/^[ء-ٰٕ]+$/.test(w)) {
+            clean = false;
+            console.log(`  unclean: ${root.root.join('')} ${formId} ${chart} ${slot} → ${w}`);
+          }
+        }
+      }
+    }
+  }
+  check(clean, 'every nāqiṣ cell is clean NFC Arabic with no template digits');
+}
+
 // The engine, not a fixture table, is serving these roots.
 check(!madd.forms.I.manualTables && !radd.forms.I.manualTables,
   'muḍāʿaf roots carry no fixture tables — the engine is authoritative');
