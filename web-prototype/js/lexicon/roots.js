@@ -317,6 +317,17 @@ export const ROOTS = [
     },
   },
 
+  {
+    root: ['ض', 'ل', 'ل'], type: 'mudaaf',
+    forms: {
+      // ضَلَّ يَضِلُّ, bab ضَرَبَ. The doublet ضَلَّ يَضَلُّ (Ḥijāzī) is also
+      // classical; the kasra form is the one the Qurʾān reads (لَا يَضِلُّ
+      // رَبِّي), and a root entry holds one Form I.
+      I: { bab: 'ai', gloss: 'to go astray', masdar: 'ضَلَال', trans: false,
+           en: { past: 'went astray', pres3: 'goes astray', ing: 'going astray' } },
+    },
+  },
+
   // -------------------------------------------------------------------------
   // Hand-authored irregulars. manualTables override the engine; slots they
   // don't cover simply aren't quizzed.
@@ -593,6 +604,16 @@ export const ROOTS = [
     },
   },
 
+  {
+    root: ['و', 'ع', 'د'], type: 'mithal_waw',
+    forms: {
+      // The textbook mithāl: the kasra on the ʿayn crushes the wāw out of the
+      // muḍāriʿ entirely — وَعَدَ يَعِدُ, no wāw left to see.
+      I: { bab: 'ai', gloss: 'to promise', masdar: 'وَعْد', trans: true,
+           en: { past: 'promised', pp: 'promised', pres3: 'promises', ing: 'promising' } },
+    },
+  },
+
   // --- Mithāl yāʾ · ي as first radical ---------------------------------------
   // Both are also hamzated (يَئِسَ) or near it; classify() types them by their
   // weakness, which is the harder rule and the one that decides the engine.
@@ -623,7 +644,7 @@ export const ROOTS = [
   {
     root: ['ي', 'م', 'ن'], type: 'mithal_ya',
     forms: {
-      I: { bab: 'ia', gloss: 'to be lucky / blessed', masdar: 'يُمْن', trans: true,
+      I: { bab: 'aa', gloss: 'to be lucky / blessed', masdar: 'يُمْن', trans: true,
            en: { past: 'was lucky', pres3: 'is lucky', ing: 'being lucky' } },
       II: { gloss: 'to go to the right', trans: true,
             en: { past: 'went to the right', pp: 'went to the right', pres3: 'goes to the right', ing: 'going to the right' } },
@@ -644,6 +665,34 @@ export const ROOTS = [
            en: { past: 'became alert', pres3: 'becomes alert', ing: 'becoming alert' } },
       X: { gloss: 'to wake up', trans: false,
            en: { past: 'woke up', pres3: 'wakes up', ing: 'waking up' } },
+    },
+  },
+
+  {
+    root: ['ي', 'ف', 'ع'], type: 'mithal_ya',
+    forms: {
+      // bab فَتَحَ, which needs a ḥarf ḥalq to license the fatḥa — the ʿayn as
+      // lām supplies it here. The first `aa` mithāl yāʾ in the lexicon.
+      I: { bab: 'aa', gloss: 'to reach adolescence', masdar: 'يَفَاعَة', trans: false,
+           en: { past: 'reached adolescence', pres3: 'reaches adolescence', ing: 'reaching adolescence' } },
+    },
+  },
+  {
+    root: ['ي', 'ت', 'م'], type: 'mithal_ya',
+    forms: {
+      // يَتُمَ يَيْتُمُ, bab كَرُمَ — the form given here. Dictionaries also carry
+      // يَتِمَ يَيْتَمُ (bab ia) and يَتَمَ يَيْتِمُ (bab ai) for the same meaning;
+      // a root entry holds one Form I, and this is the ḍamma one.
+      I: { bab: 'uu', gloss: 'to be orphaned', masdar: 'يُتْم', trans: false },
+    },
+  },
+  {
+    root: ['ي', 'س', 'ر'], type: 'mithal_ya',
+    forms: {
+      // يَسِرَ يَيْسَرُ, bab سَمِعَ — the form given here. The doublet يَسَرَ
+      // يَيْسِرُ (bab ai) means rather "to gamble / draw lots"; different sense,
+      // so this is not the same verb wearing another bab.
+      I: { bab: 'ia', gloss: 'to be easy', masdar: 'يُسْر', trans: false },
     },
   },
 
@@ -740,6 +789,17 @@ export const ROOTS = [
            en: { past: 'held in awe', pp: 'held in awe', pres3: 'holds in awe', ing: 'holding in awe' } },
       V: { gloss: 'to dread', trans: true,
            en: { past: 'dreaded', pp: 'dreaded', pres3: 'dreads', ing: 'dreading' } },
+    },
+  },
+
+  {
+    root: ['ب', 'ي', 'ت'], type: 'ajwaf_ya',
+    forms: {
+      // The lām is تاء, which is what the 1s and 2nd-person endings open with —
+      // so the mutaḥarrik slots merge across the join (بِتُّ, not بِتْتُ), the
+      // one place joinEnding()'s idghām fires for a non-muḍāʿaf root.
+      I: { bab: 'ai', gloss: 'to spend the night', masdar: 'بَيْتُوتَة', trans: false,
+           en: { past: 'spent the night', pres3: 'spends the night', ing: 'spending the night' } },
     },
   },
 
