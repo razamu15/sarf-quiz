@@ -11,7 +11,7 @@ import {
   SLOTS, AMR_SLOTS, slotsFor as slotsForTense,
   FORM_IDS, BAB_IDS, DEFAULT_BAB, FATHA as FATHA_C, DAMMA as DAMMA_C,
   VERB_TYPE_IDS, VERB_TYPE_GROUP_IDS, groupOfVerbType, verbTypesInGroup,
-  CHART_SHAPES, isValidShape,
+  CHART_SHAPES, isValidShape, DERIVED_NOUN_TYPE_IDS,
 } from '../js/vocabulary.js';
 import { MUDARI_PREFIX_HARAKA } from '../js/grammar/shared-grammar.js';
 import { getConjugationData as salimData } from '../js/conjugation/salim-conjugator.js';
@@ -714,6 +714,94 @@ for (const [root, formId, kind, want] of derivedCases) {
   const got = derivedNoun(root, formId, kind);
   check(nfc(got) === nfc(want),
     `${root.root.join('')} ${formId} ${kind}: got ${got} want ${want}`);
+}
+
+// Derived nouns for the four weak types (ROADMAP B2). Hand-typed, and picked so
+// that every rule in the three new tables is pinned by at least one word:
+// mithāl's three ḥaraka rules, ajwaf's hamza and its dropped ayn, nāqiṣ's three
+// endings, and the two Form I ism mafʿūls that differ by lexicon type.
+const weakDerivedCases = [
+  // mithāl — fatḥa keeps the faa, ḍamma rewrites it to waw, kasra to yaa.
+  [byRoot('وصل'), 'I', 'ismFail', 'وَاصِل'],
+  [byRoot('وصل'), 'I', 'ismMaful', 'مَوْصُول'],     // fatḥa + waw stays a consonant
+  [byRoot('وصل'), 'IV', 'ismFail', 'مُوصِل'],       // ḍamma + waw is a madd letter
+  [byRoot('وصل'), 'IV', 'masdar', 'إِيصَال'],       // kasra rewrites it to a yaa
+  [byRoot('وصل'), 'VIII', 'ismFail', 'مُتَّصِل'],   // the faa vanishes into the taa
+  [byRoot('وصل'), 'VIII', 'masdar', 'اِتِّصَال'],
+  [byRoot('يقن'), 'IV', 'ismFail', 'مُوقِن'],       // a YAA faa written as a waw
+  [byRoot('يقن'), 'X', 'ismFail', 'مُسْتَيْقِن'],   // …but a fatḥa leaves it a yaa
+  [byRoot('يقن'), 'X', 'masdar', 'اِسْتِيقَان'],
+  [byRoot('يمن'), 'I', 'ismMaful', 'مَيْمُون'],
+
+  // ajwaf — hamza between the alif and the kasra; the ayn dropped elsewhere.
+  [byRoot('قول'), 'I', 'ismFail', 'قَائِل'],
+  [byRoot('بيع'), 'I', 'ismFail', 'بَائِع'],
+  [byRoot('قول'), 'I', 'ismMaful', 'مَقُول'],       // waw ayn ─┬ the ONE derived
+  [byRoot('بيع'), 'I', 'ismMaful', 'مَبِيع'],       // yaa ayn ─┘ noun they split on
+  [byRoot('خوف'), 'IV', 'ismFail', 'مُخِيف'],
+  [byRoot('خوف'), 'IV', 'masdar', 'إِخَافَة'],      // the ayn drops, a taa marbuuta pays
+  [byRoot('بيع'), 'VIII', 'ismFail', 'مُبْتَاع'],
+  [byRoot('بيع'), 'VIII', 'ismMaful', 'مُبْتَاع'],  // deliberately the same word
+  [byRoot('بيع'), 'VIII', 'masdar', 'اِبْتِيَاع'],
+  [byRoot('نوم'), 'X', 'masdar', 'اِسْتِنَامَة'],
+
+  // nāqiṣ — ـِي for the fāʿil, ـَى for the mafʿūl, ء on every ـَال maṣdar.
+  [byRoot('رمي'), 'I', 'ismFail', 'رَامِي'],
+  [byRoot('دعو'), 'I', 'ismFail', 'دَاعِي'],        // waw and yaa lāms agree here…
+  [byRoot('رمي'), 'I', 'ismMaful', 'مَرْمِيّ'],     // …and part here, for the same
+  [byRoot('دعو'), 'I', 'ismMaful', 'مَدْعُوّ'],     // reason as ajwaf's مَفْعُول
+  [byRoot('قضي'), 'VIII', 'ismFail', 'مُقْتَضِي'],
+  [byRoot('قضي'), 'VIII', 'ismMaful', 'مُقْتَضَى'],
+  [byRoot('قضي'), 'VIII', 'masdar', 'اِقْتِضَاء'],
+  [byRoot('قضي'), 'III', 'masdar', 'مُقَاضَاة'],    // the lām becomes an alif
+  [byRoot('رضي'), 'IV', 'masdar', 'إِرْضَاء'],
+  [byRoot('رضي'), 'VI', 'masdar', 'تَرَاضِي'],      // ḍamma → kasra before the yaa
+  [byRoot('سعي'), 'X', 'ismFail', 'مُسْتَسْعِي'],
+];
+for (const [root, formId, kind, want] of weakDerivedCases) {
+  const got = derivedNoun(root, formId, kind);
+  check(nfc(got) === nfc(want),
+    `${root.root.join('')} ${formId} ${kind}: got ${got} want ${want}`);
+}
+
+// Form VIII's infixed taa assimilates into a daal and no engine does that yet,
+// so دعو must DECLINE rather than hand back اِدْتِعَاء. The neighbouring root
+// proves the refusal is about the faa letter and not about Form VIII at large.
+check(DERIVED_NOUN_TYPE_IDS.every((k) => derivedNoun(byRoot('دعو'), 'VIII', k) === null),
+  'Form VIII declines where the taa would assimilate, rather than inventing a word');
+check(derivedNoun(byRoot('قضي'), 'VIII', 'ismFail') !== null,
+  'Form VIII still answers for a faa that does not assimilate');
+
+// Every weak derived noun is clean Arabic — no unreplaced 1/2/3 from a template
+// and nothing outside NFC. This is what catches a typo'd template that still
+// happens to produce a plausible-looking word.
+{
+  let clean = true;
+  const weak = ['mithal_waw', 'mithal_ya', 'ajwaf_waw', 'ajwaf_ya', 'naqis_waw', 'naqis_ya'];
+  for (const root of LEXICON.filter((r) => weak.includes(r.type))) {
+    for (const formId of Object.keys(root.forms)) {
+      for (const kind of DERIVED_NOUN_TYPE_IDS) {
+        const w = derivedNoun(root, formId, kind);
+        if (w == null) continue;
+        if (w !== w.normalize('NFC') || /[123]/.test(w) || !/^[ء-ٰٕ]+$/.test(w)) {
+          clean = false;
+          console.log(`  unclean derived: ${root.root.join('')} ${formId} ${kind} → ${w}`);
+        }
+      }
+    }
+  }
+  check(clean, 'every weak-verb derived noun is clean NFC Arabic with no template digits');
+}
+
+// The gap B2 closed: before it, these four types produced ONLY their per-root
+// Form I maṣādir. Pin that they now produce the other two kinds as well, so a
+// table quietly reverting to {} fails here rather than in a dry quiz.
+{
+  const weak = ['mithal_waw', 'mithal_ya', 'ajwaf_waw', 'ajwaf_ya', 'naqis_waw', 'naqis_ya'];
+  const missing = weak.filter((type) => !LEXICON.some((r) => r.type === type
+    && Object.keys(r.forms).some((f) => derivedNoun(r, f, 'ismFail'))));
+  check(missing.length === 0,
+    `every weak type produces an ism fāʿil — missing: ${missing.join(', ')}`);
 }
 
 // The engine, not a fixture table, is serving these roots.

@@ -32,7 +32,7 @@ import {
   DERIVED_NOUN_TYPES, slotsFor, groupOfVerbType, CHART_SHAPES, isValidShape,
 } from '../vocabulary.js';
 import {
-  FORM_META, PREFIX_LETTERS, MUDARI_PREFIX_HARAKA,
+  FORM_META, PREFIX_LETTERS, MUDARI_PREFIX_HARAKA, IFTIAAL_ASSIMILATING_FAA,
 } from '../grammar/shared-grammar.js';
 import { SALIM_ENDINGS } from '../grammar/salim-grammar.js';
 
@@ -201,6 +201,11 @@ export function derivedNoun(root, formId, nounType) {
   if (nounType === DERIVED_NOUN_TYPES.masdar && formId === 'I') {
     return norm(usage.masdar ?? null);
   }
+  // Form VIII's infixed taa assimilates into certain faa letters (اِدَّعَى, not
+  // اِدْتَعَى) and no engine performs that substitution yet. Refusing here is the
+  // whole point: every stem table would otherwise hand back a well-formed word
+  // that no one says. See IFTIAAL_ASSIMILATING_FAA for the rule and the plan.
+  if (formId === 'VIII' && IFTIAAL_ASSIMILATING_FAA.has(root.root[0])) return null;
   return engine.derivedNoun(root, formId, nounType);
 }
 

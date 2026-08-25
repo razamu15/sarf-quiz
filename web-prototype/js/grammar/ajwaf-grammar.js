@@ -174,5 +174,90 @@ export const AJWAF_ENDINGS = {
   mudari_jazm: SALIM_ENDINGS.mudari_jazm,
 };
 
-/** ism fāʿil / ism mafʿūl / maṣdar templates, per form. */
-export const DERIVED_NOUN_STEMS = {};
+// ---------------------------------------------------------------------------
+// Derived nouns, ajwaf. The weak letter is the AYN — the middle of the word —
+// so what decides each shape is what the pattern puts on either side of it:
+//
+//   between an alif and a kasra   neither waw nor yaa survives there and both
+//                                 become HAMZA. قَائِل · بَائِع · خَائِف · نَائِم
+//   a long vowel the ayn can BE   the ayn is simply written as that vowel and
+//                                 the root letter never appears — مُقِيم، مُقَام،
+//                                 مُخْتَار، مُسْتَقِيم all reach for ي or ا by the
+//                                 ḥaraka in front, not by what the root has
+//   a maṣdar that loses it        إِفْعَال and اِسْتِفْعَال cannot hold the ayn at
+//                                 all; it drops and a tāʾ marbūṭa compensates —
+//                                 إِقَامَة, اِسْتِقَامَة, NOT إِقْوَام
+//
+// Which is why radical 2 is absent from nearly every template here: unlike the
+// verb tables above, where the ayn at least chooses between a sākin and a
+// mutaḥarrik shape, a derived noun has already resolved it into a fixed letter.
+// ---------------------------------------------------------------------------
+export const DERIVED_NOUN_STEMS = {
+  I: {
+    // فَاعِل is the same word for both types — the hamza replaces the weak
+    // letter outright, so قول and بيع land on the same shape.
+    ismFail: '1' + F + 'ا' + 'ئ' + K + '3',                    // قَائِل · بَائِع
+    // مَفْعُول is THE ONE derived noun where the two ajwaf types part ways, and
+    // it parts on which letter the ayn actually is: a waw keeps a ḍamma before
+    // it, a yaa a kasra. Read by AjwafConjugator.derivedNoun(), which is the
+    // only place that has to know this entry is nested.
+    ismMaful: {
+      ajwaf_waw: 'م' + F + '1' + D + 'و' + '3',                // مَقُول · مَخُوف
+      ajwaf_ya: 'م' + F + '1' + K + 'ي' + '3',                 // مَبِيع · مَهِيب
+    },
+    masdar: null,                                               // samāʿī — per root
+  },
+
+  // II, III, V and VI never contract: the shadda in II and V and the alif in
+  // III and VI both leave the ayn a plain consonant, so radical 2 appears
+  // normally and the sound shapes are the answer. Same reason AJWAF_STEMS
+  // names SALIM_VERB_STEMS for those four.
+  II: {
+    ismFail: 'م' + D + '1' + F + '2' + SH + K + '3',           // مُقَوِّم · مُخَوِّف
+    ismMaful: 'م' + D + '1' + F + '2' + SH + F + '3',          // مُقَوَّم
+    masdar: 'ت' + F + '1' + S + '2' + K + 'ي' + '3',           // تَقْوِيم · تَخْوِيف
+  },
+  III: {
+    ismFail: 'م' + D + '1' + F + 'ا' + '2' + K + '3',          // مُقَاوِم · مُبَايِع
+    ismMaful: 'م' + D + '1' + F + 'ا' + '2' + F + '3',         // مُقَاوَم
+    masdar: 'م' + D + '1' + F + 'ا' + '2' + F + '3' + F + 'ة', // مُقَاوَمَة · مُبَايَعَة
+  },
+  IV: {
+    ismFail: 'م' + D + '1' + K + 'ي' + '3',                    // مُقِيم · مُنِيل
+    ismMaful: 'م' + D + '1' + F + 'ا' + '3',                   // مُقَام · مُنَال
+    masdar: 'إ' + K + '1' + F + 'ا' + '3' + F + 'ة',           // إِقَامَة · إِنَالَة
+  },
+  V: {
+    ismFail: 'م' + D + 'ت' + F + '1' + F + '2' + SH + K + '3',  // مُتَخَوِّف · مُتَهَيِّب
+    ismMaful: 'م' + D + 'ت' + F + '1' + F + '2' + SH + F + '3', // مُتَخَوَّف
+    masdar: 'ت' + F + '1' + F + '2' + SH + D + '3',             // تَخَوُّف · تَهَيُّب
+  },
+  VI: {
+    ismFail: 'م' + D + 'ت' + F + '1' + F + 'ا' + '2' + K + '3',  // مُتَزَاوِر · مُتَبَايِع
+    ismMaful: 'م' + D + 'ت' + F + '1' + F + 'ا' + '2' + F + '3', // مُتَبَايَع
+    masdar: 'ت' + F + '1' + F + 'ا' + '2' + D + '3',             // تَزَاوُر · تَبَايُع
+  },
+  VII: {
+    ismFail: 'م' + D + 'ن' + S + '1' + F + 'ا' + '3',            // مُنْقَاد
+    ismMaful: null,                                              // lāzim
+    // اِنْفِعَال's kasra cannot carry an alif, so the ayn surfaces as a yaa
+    // here rather than dropping: اِنْقِيَاد, and اِنْبِيَاع from a yaa root alike.
+    masdar: 'ا' + K + 'ن' + S + '1' + K + 'ي' + F + 'ا' + '3',   // اِنْقِيَاد
+  },
+  VIII: {
+    // fāʿil and mafʿūl are THE SAME WORD in this form — the alif absorbs the
+    // kasra/fatḥa that would have told them apart. Written out twice rather
+    // than aliased, so each entry can be read on its own line.
+    ismFail: 'م' + D + '1' + S + 'ت' + F + 'ا' + '3',            // مُخْتَار · مُبْتَاع
+    ismMaful: 'م' + D + '1' + S + 'ت' + F + 'ا' + '3',           // مُخْتَار · مُبْتَاع
+    masdar: 'ا' + K + '1' + S + 'ت' + K + 'ي' + F + 'ا' + '3',   // اِخْتِيَار · اِبْتِيَاع
+  },
+  // Form IX is a colour/defect pattern (اِحْمَرَّ) and needs a sound ayn to
+  // double. Null is the domain answer, not an unfilled gap.
+  IX: { ismFail: null, ismMaful: null, masdar: null },
+  X: {
+    ismFail: 'م' + D + 'س' + S + 'ت' + F + '1' + K + 'ي' + '3',         // مُسْتَقِيم
+    ismMaful: 'م' + D + 'س' + S + 'ت' + F + '1' + F + 'ا' + '3',        // مُسْتَقَام
+    masdar: 'ا' + K + 'س' + S + 'ت' + K + '1' + F + 'ا' + '3' + F + 'ة', // اِسْتِقَامَة
+  },
+};

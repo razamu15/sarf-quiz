@@ -5,6 +5,7 @@
 //   PREFIX_LETTERS        the muḍāriʿ prefix letter, per pronoun slot
 //   MUDARI_PREFIX_HARAKA  its ḥaraka, per form and voice
 //   A                     the row notation every ending table is written in
+//   IFTIAAL_ASSIMILATING_FAA  the letters that swallow Form VIII's infixed taa
 //
 // The ending TABLES are not here. They start from the sālim set and each verb
 // type keeps its own (see SALIM_ENDINGS, MUDAAF_ENDINGS), because a verb type
@@ -93,3 +94,25 @@ export const MUDARI_PREFIX_HARAKA = {
   X:    { malum: F, majhul: D },
 };
 
+
+// ---------------------------------------------------------------------------
+// Taa al-iftiʿāl — a Form VIII fact, and one that belongs to no single verb
+// type, which is why it sits here rather than in any one grammar file.
+//
+// Form VIII infixes a taa after the faa (نَظَرَ → اِنْتَظَرَ). When the faa is one
+// of these letters the taa cannot be pronounced beside it and assimilates:
+//
+//   د ذ ز   the taa becomes a DAAL   اِدَّعَى · اِذْدَكَرَ · اِزْدَحَمَ
+//   ص ض ط ظ the taa becomes a TAA    اِصْطَبَرَ · اِضْطَرَبَ
+//
+// NOT IMPLEMENTED — a named future fix, not an oversight. No engine performs
+// this substitution today, in any verb type: it never came up because no sound
+// or muḍāʿaf root in the lexicon declares Form VIII with such a faa. Authoring
+// the weak derived nouns changed that (دعو declares Form VIII), and the choice
+// there was between generating اِدْتِعَاء — a word that does not exist, handed to
+// a student as an answer — and declining to answer. conjugation-service's
+// derivedNoun() declines, reading this list. When the rule IS implemented, it
+// belongs in the same place: one substitution over the assembled word, shared
+// by every engine, and this guard comes out.
+// ---------------------------------------------------------------------------
+export const IFTIAAL_ASSIMILATING_FAA = new Set(['د', 'ذ', 'ز', 'ص', 'ض', 'ط', 'ظ']);

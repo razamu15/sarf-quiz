@@ -62,7 +62,9 @@ import {
   NAQIS_DROPPING_SLOTS_MADI, NAQIS_DROPPING_SLOTS_MUDARI,
 } from '../grammar/naqis-grammar.js';
 import { PREFIX_LETTERS, MUDARI_PREFIX_HARAKA } from '../grammar/shared-grammar.js';
-import { slotsFor, MOOD_DISTINCT_SLOTS, FATHA, DAMMA, KASRA, SUKUN } from '../vocabulary.js';
+import {
+  slotsFor, MOOD_DISTINCT_SLOTS, FATHA, DAMMA, KASRA, SUKUN, DERIVED_NOUN_TYPES,
+} from '../vocabulary.js';
 import { babOf } from '../lexicon/root.js';
 import { fill, norm, joinEnding, amrOpening } from './templates.js';
 
@@ -207,6 +209,25 @@ function naqisWeakLetterSwap(word) {
   return word;
 }
 
+/**
+ * The template behind one derived noun, resolving the ONE entry that is keyed
+ * by the root's own type.
+ *
+ * Form I's ism mafʿūl is that entry — مَدْعُوّ from a waw lām against مَرْمِيّ from a yaa — and every other cell in
+ * DERIVED_NOUN_STEMS is a single template serving naqis_waw and naqis_ya alike. The
+ * condition is spelled out rather than discovered from the value's shape,
+ * because "this entry is nested" is a fact about the grammar and not about the
+ * object: مَفْعُول is the only pattern that leaves the root's own weak letter
+ * visible, so it is the only one that can tell the two types apart.
+ */
+const derivedNounTemplate = (root, formId, nounType) => {
+  const entry = DERIVED_NOUN_STEMS[formId]?.[nounType];
+  if (formId === 'I' && nounType === DERIVED_NOUN_TYPES.ismMaful) {
+    return entry?.[root.type] ?? null;
+  }
+  return entry ?? null;
+};
+
 export const NaqisConjugator = {
   handles: 'naqis',
 
@@ -314,7 +335,7 @@ export const NaqisConjugator = {
 
   /** One of DERIVED_NOUN_TYPES. Null when this form has no such noun. */
   derivedNoun(root, formId, nounType) {
-    const template = DERIVED_NOUN_STEMS[formId]?.[nounType];
+    const template = derivedNounTemplate(root, formId, nounType);
     return template ? norm(fill(template, root.root)) : null;
   },
 };

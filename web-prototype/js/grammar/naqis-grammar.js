@@ -167,5 +167,93 @@ export const NAQIS_ENDINGS = {
   mudari_jazm: NAQIS_MUDARI_NON_RAFA_ENDINGS,
 };
 
-/** ism fāʿil / ism mafʿūl / maṣdar templates, per form. */
-export const DERIVED_NOUN_STEMS = {};
+// ---------------------------------------------------------------------------
+// Derived nouns, nāqiṣ. The weak letter is the LĀM — the last letter — which is
+// exactly where a derived noun's own ending lands, so radical 3 survives in
+// none of these templates. What replaces it is decided by the ḥaraka before it,
+// and there are only three answers:
+//
+//   kasra + lām   →  ـِي   every ism fāʿil, and the maṣdar of V and VI
+//                          رَامِي · مُقَاضِي · مُقْتَضِي · تَقَضِّي
+//   fatḥa + lām   →  ـَى   every mazīd ism mafʿūl
+//                          مُقَضَّى · مُقَاضَى · مُقْتَضَى · مُسْتَقْضَى
+//   long ā + lām  →  ء     every maṣdar built on ـَال
+//                          إِقْضَاء · اِنْقِضَاء · اِقْتِضَاء · اِسْتِقْضَاء
+//
+// A WAW LĀM AND A YAA LĀM AGREE everywhere above — دَاعِي and رَامِي are one
+// template — because each of those three endings is fixed by the pattern rather
+// than by the root. Form I's ism mafʿūl is the single exception, and the reason
+// is that مَفْعُول doubles the lām against the pattern's own waw instead of
+// replacing it, so which letter the root brought is suddenly visible again.
+//
+// THE MANQŪṢ DECISION (رَامِي, not رَامٍ). Every ism fāʿil here is an ism manqūṣ,
+// whose indefinite nominative drops the yaa for a tanwīn — رَامٍ. These tables
+// write the FULL form, because that is what every other derived noun in the app
+// shows: نَاصِر is displayed without its tanwīn too, and رَامِي is the same word
+// at the same stage. Adding iʿrāb to one verb type's nouns and not the others
+// would make the odd one out look like the irregular one.
+// ---------------------------------------------------------------------------
+export const DERIVED_NOUN_STEMS = {
+  I: {
+    ismFail: '1' + F + 'ا' + '2' + K + 'ي',                    // رَامِي · دَاعِي · قَاضِي
+    // مَفْعُول is the one place the two nāqiṣ types differ, because here the lām
+    // is DOUBLED against the pattern's waw rather than dissolved into it — so
+    // the root's own letter decides both the doubled letter and the ḥaraka in
+    // front of it. Read by NaqisConjugator.derivedNoun(), the only place that
+    // has to know this entry is nested.
+    ismMaful: {
+      naqis_waw: 'م' + F + '1' + S + '2' + D + 'و' + SH,       // مَدْعُوّ · مَنْعُوّ
+      naqis_ya: 'م' + F + '1' + S + '2' + K + 'ي' + SH,        // مَرْمِيّ · مَقْضِيّ
+    },
+    masdar: null,                                               // samāʿī — per root
+  },
+  II: {
+    ismFail: 'م' + D + '1' + F + '2' + SH + K + 'ي',           // مُقَضِّي
+    ismMaful: 'م' + D + '1' + F + '2' + SH + F + 'ى',          // مُقَضَّى
+    // تَفْعِيل has no room for the lām either, and a tāʾ marbūṭa closes the gap
+    // it leaves: تَسْمِيَة, تَرْبِيَة, تَقْضِيَة — never تَقْضِيد.
+    masdar: 'ت' + F + '1' + S + '2' + K + 'ي' + F + 'ة',       // تَقْضِيَة
+  },
+  III: {
+    ismFail: 'م' + D + '1' + F + 'ا' + '2' + K + 'ي',          // مُقَاضِي
+    ismMaful: 'م' + D + '1' + F + 'ا' + '2' + F + 'ى',         // مُقَاضَى
+    // مُفَاعَلَة's fatḥa turns the lām into an alif before the tāʾ — مُقَاضَاة,
+    // مُنَادَاة — where the sound type would have kept radical 3 (مُقَاتَلَة).
+    masdar: 'م' + D + '1' + F + 'ا' + '2' + F + 'ا' + 'ة',     // مُقَاضَاة
+  },
+  IV: {
+    ismFail: 'م' + D + '1' + S + '2' + K + 'ي',                // مُقْضِي
+    ismMaful: 'م' + D + '1' + S + '2' + F + 'ى',               // مُقْضَى
+    masdar: 'إ' + K + '1' + S + '2' + F + 'ا' + 'ء',           // إِقْضَاء · إِعْطَاء
+  },
+  V: {
+    ismFail: 'م' + D + 'ت' + F + '1' + F + '2' + SH + K + 'ي',  // مُتَقَضِّي
+    ismMaful: 'م' + D + 'ت' + F + '1' + F + '2' + SH + F + 'ى', // مُتَقَضَّى
+    // تَفَعُّل's ḍamma cannot stand in front of a yaa, so it becomes a kasra and
+    // the noun joins the manqūṣ set — تَمَنِّي, not تَمَنُّي.
+    masdar: 'ت' + F + '1' + F + '2' + SH + K + 'ي',            // تَقَضِّي
+  },
+  VI: {
+    ismFail: 'م' + D + 'ت' + F + '1' + F + 'ا' + '2' + K + 'ي',  // مُتَقَاضِي
+    ismMaful: 'م' + D + 'ت' + F + '1' + F + 'ا' + '2' + F + 'ى', // مُتَقَاضَى
+    masdar: 'ت' + F + '1' + F + 'ا' + '2' + K + 'ي',             // تَقَاضِي · تَدَاعِي
+  },
+  VII: {
+    ismFail: 'م' + D + 'ن' + S + '1' + F + '2' + K + 'ي',        // مُنْقَضِي
+    ismMaful: null,                                              // lāzim
+    masdar: 'ا' + K + 'ن' + S + '1' + K + '2' + F + 'ا' + 'ء',   // اِنْقِضَاء
+  },
+  VIII: {
+    ismFail: 'م' + D + '1' + S + 'ت' + F + '2' + K + 'ي',        // مُقْتَضِي
+    ismMaful: 'م' + D + '1' + S + 'ت' + F + '2' + F + 'ى',       // مُقْتَضَى
+    masdar: 'ا' + K + '1' + S + 'ت' + K + '2' + F + 'ا' + 'ء',   // اِقْتِضَاء
+  },
+  // Form IX is a colour/defect pattern (اِحْمَرَّ) built on doubling a sound lām.
+  // Null is the domain answer, not an unfilled gap.
+  IX: { ismFail: null, ismMaful: null, masdar: null },
+  X: {
+    ismFail: 'م' + D + 'س' + S + 'ت' + F + '1' + S + '2' + K + 'ي',      // مُسْتَقْضِي
+    ismMaful: 'م' + D + 'س' + S + 'ت' + F + '1' + S + '2' + F + 'ى',     // مُسْتَقْضَى
+    masdar: 'ا' + K + 'س' + S + 'ت' + K + '1' + S + '2' + F + 'ا' + 'ء', // اِسْتِقْضَاء
+  },
+};

@@ -120,5 +120,85 @@ export const MITHAL_ENDINGS = {
   mudari_jazm: SALIM_ENDINGS.mudari_jazm,
 };
 
-/** ism fāʿil / ism mafʿūl / maṣdar templates, per form. */
-export const DERIVED_NOUN_STEMS = {};
+// ---------------------------------------------------------------------------
+// Derived nouns, mithāl. The weak faa sits at the FRONT of every one of these,
+// so the only thing that decides its shape is the ḥaraka the pattern puts in
+// FRONT of it — the same three rules the verb tables above run on:
+//
+//   fatḥa + faa   a liin letter, a real consonant. stays exactly as written,
+//                 and radical 1 carries whichever letter the root has.
+//                 مَوْعُود · تَوْعِيد · مُسْتَوْعِد · مُسْتَيْقِن
+//   ḍamma + faa   a madd letter, and a YAA faa is rewritten as a waw — the
+//                 letter follows the ḥaraka, not the root. مُوعِد · مُوقِن
+//   kasra + faa   the same rewrite the other way: a sākin waw after a kasra
+//                 becomes a yaa, which is what a yaa faa already was.
+//                 إِيعَاد · إِيقَان · اِسْتِيعَاد · اِسْتِيقَان
+//
+// So the ḍamma and kasra rows hardcode their letter and never mention radical 1
+// — exactly as MITHAL_STEMS.IV and .X do for the verb — while the fatḥa rows
+// keep it. The sukūn on a madd letter is written here and stripped on the way
+// out by unmarkMaddLetters(), which is why MithalConjugator.derivedNoun() calls
+// it and no other engine's does.
+// ---------------------------------------------------------------------------
+export const DERIVED_NOUN_STEMS = {
+  I: {
+    ismFail: '1' + F + 'ا' + '2' + K + '3',                    // وَاعِد · يَاقِن
+    ismMaful: 'م' + F + '1' + S + '2' + D + 'و' + '3',         // مَوْعُود · مَيْمُون
+    masdar: null,                                               // samāʿī — per root
+  },
+
+  // II, III, V, VI and VII put a vowel on the faa or a prefix in front of it,
+  // so it is a plain consonant and the sound shapes are the answer — the same
+  // reason MITHAL_STEMS names SALIM_VERB_STEMS for those forms.
+  II: {
+    ismFail: 'م' + D + '1' + F + '2' + SH + K + '3',           // مُوَعِّد
+    ismMaful: 'م' + D + '1' + F + '2' + SH + F + '3',          // مُوَعَّد
+    masdar: 'ت' + F + '1' + S + '2' + K + 'ي' + '3',           // تَوْعِيد
+  },
+  III: {
+    ismFail: 'م' + D + '1' + F + 'ا' + '2' + K + '3',          // مُوَاعِد
+    ismMaful: 'م' + D + '1' + F + 'ا' + '2' + F + '3',         // مُوَاعَد
+    masdar: 'م' + D + '1' + F + 'ا' + '2' + F + '3' + F + 'ة', // مُوَاعَدَة
+  },
+  IV: {
+    // ḍamma in front of the faa — waw whatever the root's own letter is.
+    ismFail: 'م' + D + 'و' + S + '2' + K + '3',                // مُوعِد · مُوقِن
+    ismMaful: 'م' + D + 'و' + S + '2' + F + '3',               // مُوعَد · مُوقَن
+    // kasra in front of it — yaa, for the same reason and in the same way.
+    masdar: 'إ' + K + 'ي' + S + '2' + F + 'ا' + '3',           // إِيعَاد · إِيقَان
+  },
+  V: {
+    ismFail: 'م' + D + 'ت' + F + '1' + F + '2' + SH + K + '3',  // مُتَوَعِّد
+    ismMaful: 'م' + D + 'ت' + F + '1' + F + '2' + SH + F + '3', // مُتَوَعَّد
+    masdar: 'ت' + F + '1' + F + '2' + SH + D + '3',             // تَوَعُّد
+  },
+  VI: {
+    ismFail: 'م' + D + 'ت' + F + '1' + F + 'ا' + '2' + K + '3',  // مُتَوَاعِد
+    ismMaful: 'م' + D + 'ت' + F + '1' + F + 'ا' + '2' + F + '3', // مُتَوَاعَد
+    masdar: 'ت' + F + '1' + F + 'ا' + '2' + D + '3',             // تَوَاعُد
+  },
+  VII: {
+    // The one kasra that changes nothing: here the faa carries the kasra
+    // ITSELF rather than sitting sākin after one, so it is pronounceable as it
+    // stands and no rewrite applies — اِنْوِعَاد, never اِنْيِعَاد.
+    ismFail: 'م' + D + 'ن' + S + '1' + F + '2' + K + '3',        // مُنْوَعِد
+    ismMaful: null,                                              // lāzim
+    masdar: 'ا' + K + 'ن' + S + '1' + K + '2' + F + 'ا' + '3',   // اِنْوِعَاد
+  },
+  VIII: {
+    // The faa assimilates into the taa outright and disappears as a letter, so
+    // radical 1 appears in none of these — اِوْتَعَدَ became اِتَّعَدَ, and a yaa faa
+    // does the very same (اِيتَسَرَ → اِتَّسَرَ). Same reasoning as MITHAL_STEMS.VIII.
+    ismFail: 'م' + D + 'ت' + SH + F + '2' + K + '3',             // مُتَّعِد
+    ismMaful: 'م' + D + 'ت' + SH + F + '2' + F + '3',            // مُتَّعَد
+    masdar: 'ا' + K + 'ت' + SH + K + '2' + F + 'ا' + '3',        // اِتِّعَاد
+  },
+  // Form IX is a colour/defect pattern (اِحْمَرَّ) and no mithāl takes it. Null
+  // is the domain answer here, not a gap waiting to be filled.
+  IX: { ismFail: null, ismMaful: null, masdar: null },
+  X: {
+    ismFail: 'م' + D + 'س' + S + 'ت' + F + '1' + S + '2' + K + '3',      // مُسْتَوْعِد · مُسْتَيْقِن
+    ismMaful: 'م' + D + 'س' + S + 'ت' + F + '1' + S + '2' + F + '3',     // مُسْتَوْعَد
+    masdar: 'ا' + K + 'س' + S + 'ت' + K + 'ي' + S + '2' + F + 'ا' + '3', // اِسْتِيعَاد · اِسْتِيقَان
+  },
+};
