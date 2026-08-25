@@ -36,6 +36,7 @@ import { relevance, possibleQuestions, IDENTIFY_CATEGORIES } from '../js/quiz/re
 import { questionStream } from '../js/quiz/quiz-run.js';
 import { grade } from '../js/quiz/grading.js';
 import { isMultiSelect } from '../js/quiz/question.js';
+import { voiceQuestion } from '../js/quiz/builders/identify.js';
 import { clusters } from '../js/arabic-text.js';
 import {
   buildDrill, DRILL_PRESETS, mazeedPreset, mazeedPresetAvailable,
@@ -489,6 +490,43 @@ check(availableCharts(qala, 'I').length === 9,
   }
   check(allConsistent, 'every doer correct option really conjugates to the shown word');
   check(sawMulti, 'multi-select doer questions occur (identical forms become extra answers)');
+}
+
+// Voice questions where both voices render the SAME word must mark BOTH correct.
+// Two independent causes, one per verb type, so both are pinned: the muḍāʿaf's
+// idghām swallows the ʿayn vowel (يُمَاسُّ) and the ajwaf's māḍī drops the ʿayn
+// (خِفْتَ). A sound root must be unaffected and keep its single answer.
+{
+  const voiceQ = (rootKey, formId, tense, voice, mood, slot) => {
+    const spec = { root: byRoot(rootKey), formId, tense, voice, mood };
+    return voiceQuestion({ spec, slot, word: conjugateSpec(spec, slot) });
+  };
+
+  const collapsed = [
+    voiceQ('مسس', 'III', 'mudari', 'malum', 'raf', '3ms'),
+    voiceQ('خوف', 'I', 'madi', 'malum', null, '2ms'),
+    voiceQ('بيع', 'I', 'madi', 'majhul', null, '2ms'),
+  ];
+  check(collapsed.every((q) => isMultiSelect(q) && q.response.correct.length === 2),
+    'a word written alike in both voices marks both voices correct');
+  check(collapsed.every((q) => q.response.options.length === 2
+    && q.response.options.every((o) => q.response.correct.includes(o.valueKey))),
+    'the collapsed voice question offers exactly the two voices, both of them right');
+  check(collapsed.every((q) => /Select all that apply/.test(q.prompt.ask)),
+    'the collapsed voice question asks for every applicable answer');
+  // Provenance survives: the stored identity still names the cell drawn, even
+  // though the other voice grades correct too.
+  check(collapsed[2].identity.voice === 'majhul',
+    'a collapsed voice question still records the voice it was drawn from');
+
+  const distinct = [
+    voiceQ('نصر', 'I', 'madi', 'malum', null, '3ms'),
+    voiceQ('نصر', 'I', 'mudari', 'majhul', 'raf', '3ms'),
+  ];
+  check(distinct.every((q) => !isMultiSelect(q) && q.response.correct.length === 1),
+    'a word whose voices differ keeps exactly one right answer');
+  check(distinct.every((q) => !/Select all that apply/.test(q.prompt.ask)),
+    'the ordinary voice question does not ask for multiple answers');
 }
 
 // Drill shape: N words, each carrying the question kinds it can support.

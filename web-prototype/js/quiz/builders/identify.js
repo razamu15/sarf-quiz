@@ -47,21 +47,58 @@ export function tenseQuestion(drawn) {
   });
 }
 
+/**
+ * Multi-select WHERE THE TWO VOICES RENDER THE SAME WORD, single-select otherwise.
+ *
+ * Both readings are defensible when the written form is shared, so offering one
+ * correct answer there marks a right answer wrong. Two unrelated causes produce
+ * it, and neither is rare: the muḍāʿaf's idghām swallows the ʿayn vowel that
+ * carries the voice (يُمَاسُّ is Form III maʿlūm AND majhūl), and the ajwaf's
+ * māḍī drops the ʿayn entirely, leaving the same compensating kasra either way
+ * (خِفْتَ, بِعْتَ). 72 cells of the current lexicon, and until this they could all
+ * be served as single-correct.
+ *
+ * Same treatment doerQuestion gives تَكْتُبُ serving "she" and "you (m)": the
+ * collapse is the lesson rather than something to dodge (PRODUCT_SPEC §5.2).
+ */
 export function voiceQuestion(drawn) {
   const p = partsOf(drawn);
   const { voice } = drawn.spec;
-  const correct = { ...VOICE_LABELS[voice], valueKey: voice };
   const other = voice === 'malum' ? 'majhul' : 'malum';
+  const drawnOption = { ...VOICE_LABELS[voice], valueKey: voice };
+  const otherOption = { ...VOICE_LABELS[other], valueKey: other };
+  // Reads the opposite voice rather than trusting the caller's draw, because
+  // both callers only promise the opposite EXISTS — drawVoicePair checks it
+  // conjugates, drills sets hasVoicePair the same way. Neither looks at what it
+  // renders. A null here (no opposite at all) simply is not equal to the word,
+  // so the single-correct branch stays correct without a guard of its own.
+  const collapses = conjugate({ ...drawn.spec, voice: other }, drawn.slot) === p.word;
   // The wazn is a sound pattern by definition, so it is only quotable for a
   // sound root; DEFAULT_BAB is a display fallback and never reaches the engine.
   const bab = drawn.spec.root.forms[drawn.spec.formId].bab ?? DEFAULT_BAB;
   const waznWord = drawn.spec.root.type === 'salim' ? waznOf(drawn.spec, drawn.slot, bab) : null;
   return question({
-    quizType: p.quizType, category: 'voice', identity: p.identity,
-    prompt: wordPrompt('Is the doer known or unknown?', p.word, p.gloss),
-    response: singleCorrect(correct, [{ ...VOICE_LABELS[other], valueKey: other }]),
-    feedback: feedbackOf(p.meaning,
-      `${p.word} is ${correct.ar}${waznWord ? ` — on the pattern ${waznWord}` : ''}.`),
+    quizType: p.quizType, category: 'voice',
+    // identity names the cell that was DRAWN, not every reading the written form
+    // admits — the same split doerQuestion makes, where the shown slot is stored
+    // while several slots grade correct. Provenance and defensibility are two
+    // different facts and a stored answer keeps both.
+    identity: p.identity,
+    prompt: wordPrompt(
+      collapses
+        ? 'Is the doer known or unknown? Select all that apply.'
+        : 'Is the doer known or unknown?',
+      p.word, p.gloss),
+    response: collapses
+      ? choiceResponse(shuffle([drawnOption, otherOption]), [voice, other])
+      : singleCorrect(drawnOption, [otherOption]),
+    feedback: feedbackOf(p.meaning, collapses
+      // States the collapse without explaining it: WHY the vowel is gone differs
+      // by verb type and belongs to recognition tips (ROADMAP A3), which is the
+      // layer that gets to see what the user actually picked.
+      ? `${p.word} is written the same in both voices — ${drawnOption.ar} and `
+        + `${otherOption.ar} fall together here, so only context tells them apart.`
+      : `${p.word} is ${drawnOption.ar}${waznWord ? ` — on the pattern ${waznWord}` : ''}.`),
   });
 }
 
@@ -177,6 +214,11 @@ export function babQuestion(pool) {
 /**
  * Only words whose opposite voice also exists — both answers must be live, or
  * the choice of chart gives the voice question away.
+ *
+ * Existing is all this checks. Whether the two voices RENDER differently is
+ * voiceQuestion's business, because the answer to that is not "skip the word"
+ * but "mark both options correct" — a word that reads either way is worth
+ * asking about, just not as a single-correct question.
  */
 export function drawVoicePair(pool) {
   const voiced = pool.charts.filter((c) => c.tense !== 'amr');
