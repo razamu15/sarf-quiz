@@ -31,18 +31,34 @@ export function getConjugationData(spec, slot) {
   // lam merges or unfolds.
   const seegahType = SEEGAH_TYPES[tense][slot]
 
-  let endingSet;
+  // WHICH ending table this chart wants. the amr asks for the majzum's, being
+  // the majzum with its prefix dropped — which is what carries the override
+  // below into ظَلِّلْ without the amr having to know about it separately.
+  let endingTableName;
   switch(spec.tense) {
     case "madi":
-      endingSet = MUDAAF_ENDINGS["madi"];
+      endingTableName = "madi";
       break;
     case "mudari":
-      endingSet = MUDAAF_ENDINGS[`mudari_${spec.mood}`];
+      endingTableName = `mudari_${spec.mood}`;
       break;
     case "amr":
-      endingSet = MUDAAF_ENDINGS[`mudari_jazm`];
+      endingTableName = "mudari_jazm";
       break;
   }
+
+  // and then WHICH VERSION of that table this form gets. MUDAAF_ENDINGS holds
+  // the verb type's own rule at its top level, plus a per-form override beside
+  // it keyed by form id, so a form that departs from the rule says so in one
+  // place instead of the code carrying a second list of which forms those are.
+  //
+  // Forms II and V are the departure, and it is the same fact NEVER_MERGES
+  // states for the stems: their own shadda sits between the ayn and the lam, so
+  // the lam is a free letter and can take a sukoon like any sound verb's —
+  // يُظَلِّلْ, not يُظَلِّلَ. The endings needed telling separately because they
+  // are a separate table, not because it is a separate fact.
+  const endingSet = MUDAAF_ENDINGS[spec.formId]?.[endingTableName]
+    ?? MUDAAF_ENDINGS[endingTableName];
 
   // forms II and V never merge, so their table is the salim one: flat, with no
   // seegah split to make and no baab

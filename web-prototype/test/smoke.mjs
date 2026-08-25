@@ -618,10 +618,12 @@ parity(madd, 'I', 'mudari_malum_nasb', {
   '1s': 'أَمُدَّ',    '1p': 'نَمُدَّ',
 }, 'مدّ I muḍāriʿ maʿlūm naṣb');
 
-// The muḍāʿaf does not put a sukūn on its lām in the majzūm: MUDAAF_ENDINGS
-// gives the jazm the manṣūb row, so لَمْ يَمُدَّ rather than لَمْ يَمْدُدْ. Both
-// are classical; this is the reading the engine commits to, which makes the
-// majzūm table identical to the manṣūb one except for what governs it.
+// A MERGING form puts no sukūn on its lām in the majzūm: MUDAAF_ENDINGS gives
+// the jazm the manṣūb row, so لَمْ يَمُدَّ rather than لَمْ يَمْدُدْ. Both are
+// classical; this is the reading the engine commits to, which makes the majzūm
+// table identical to the manṣūb one except for what governs it.
+// Forms II and V are NOT merging forms and do take the sukūn — see the block
+// below this root's charts.
 parity(madd, 'I', 'mudari_malum_jazm', {
   '3ms': 'يَمُدَّ',   '3md': 'يَمُدَّا',    '3mp': 'يَمُدُّوا',
   '3fs': 'تَمُدَّ',   '3fd': 'تَمُدَّا',    '3fp': 'يَمْدُدْنَ',
@@ -638,8 +640,8 @@ parity(madd, 'I', 'mudari_majhul_raf', {
   '1s': 'أُمَدُّ',    '1p': 'نُمَدُّ',
 }, 'مدّ I muḍāriʿ majhūl rafʿ');
 
-// The amr IS the majzūm muḍāriʿ minus its prefix, so the muḍāʿaf amr follows
-// the muḍāʿaf majzūm: merged with a fatḥa (مُدَّ) rather than unfolded on a
+// The amr IS the majzūm muḍāriʿ minus its prefix, so a merging form's amr
+// follows its majzūm: merged with a fatḥa (مُدَّ) rather than unfolded on a
 // sukūn (اُمْدُدْ). Both are classical; this is the reading MUDAAF_ENDINGS
 // commits to. 2fp still unfolds — nūn al-niswa, exactly as in تَمْدُدْنَ — and
 // takes back the hamzat al-waṣl its sākin opening needs.
@@ -657,6 +659,56 @@ parity(zalla, 'I', 'madi_malum', {
   '2fs': 'ظَلَلْتِ',  '2fd': 'ظَلَلْتُمَا', '2fp': 'ظَلَلْتُنَّ',
   '1s': 'ظَلَلْتُ',   '1p': 'ظَلَلْنَا',
 }, 'ظلّ I māḍī maʿlūm (bāb 2)');
+
+// ---------------------------------------------------------------------------
+// Forms II and V take the sukūn the merging forms refuse.
+//
+// MUDAAF_ENDINGS gives the jazm the manṣūb row because a merged lām cannot
+// carry a sukūn — but II and V never merge: their own shadda sits between the
+// ʿayn and the lām (مُظَلِّل, مُتَرَدِّد), leaving the lām a free letter that
+// takes a sukūn like any sound verb's. The endings carry a per-form override
+// for exactly those two, and the amr inherits it by reading the majzūm row.
+//
+// Found by the qutrub cross-check at form II (verification/PLAN.md); 40 cells
+// across five roots were writing a fatḥa where a sukūn belongs.
+// ---------------------------------------------------------------------------
+{
+  const jazm = (rk, f, voice) =>
+    conjugateChart(byRoot(rk), f, `mudari_${voice}_jazm`, '3ms');
+  const amr = (rk, f) => conjugateChart(byRoot(rk), f, 'amr_malum', '2ms');
+
+  const takesSukun = [
+    [jazm('ظلل', 'II', 'malum'), 'يُظَلِّلْ'],
+    [jazm('ظلل', 'II', 'majhul'), 'يُظَلَّلْ'],
+    [amr('ظلل', 'II'), 'ظَلِّلْ'],
+    [jazm('مرر', 'II', 'malum'), 'يُمَرِّرْ'],
+    [jazm('ردد', 'V', 'malum'), 'يَتَرَدَّدْ'],
+    [amr('ردد', 'V'), 'تَرَدَّدْ'],
+    [jazm('حبب', 'V', 'malum'), 'يَتَحَبَّبْ'],
+  ];
+  for (const [got, want] of takesSukun) {
+    check(nfc(got) === nfc(want),
+      `a non-merging muḍāʿaf form takes the sukūn: got ${got} want ${want}`);
+  }
+
+  // The merging forms must be untouched by that override — this is the half a
+  // fix like this breaks silently, since both readings look plausible in
+  // isolation. Every form the lexicon declares except II and V.
+  const keepsFatha = [
+    [jazm('مدد', 'I', 'malum'), 'يَمُدَّ'],
+    [amr('مدد', 'I'), 'مُدَّ'],
+    [jazm('مدد', 'IV', 'malum'), 'يُمِدَّ'],
+    [jazm('مدد', 'VIII', 'malum'), 'يَمْتَدَّ'],
+    [jazm('مدد', 'X', 'malum'), 'يَسْتَمِدَّ'],
+    [jazm('مسس', 'III', 'malum'), 'يُمَاسَّ'],
+    [jazm('حبب', 'VI', 'malum'), 'يَتَحَابَّ'],
+    [jazm('قدد', 'VII', 'malum'), 'يَنْقَدَّ'],
+  ];
+  for (const [got, want] of keepsFatha) {
+    check(nfc(got) === nfc(want),
+      `a merging muḍāʿaf form keeps the fatḥa: got ${got} want ${want}`);
+  }
+}
 
 parity(zalla, 'I', 'mudari_malum_raf', {
   '3ms': 'يَظِلُّ',   '3md': 'يَظِلَّانِ',  '3mp': 'يَظِلُّونَ',
