@@ -13,6 +13,7 @@ implementation; the Swift app is a port that happens once, later.
 | [docs/PRODUCT_SPEC.md](docs/PRODUCT_SPEC.md) | What the app is for and how each screen behaves. |
 | [docs/TECHNICAL_PLAN.md](docs/TECHNICAL_PLAN.md) | The **target iOS app**: stack, module layout, persistence, monetization, AI Explain, testing gates. Does not describe the prototype. |
 | [docs/PORT_INVENTORY.md](docs/PORT_INVENTORY.md) | JS → Swift: every discrepancy and what it costs. Read when the port starts, not before. |
+| [docs/KNOWN_CONJUGATION_ERRORS.md](docs/KNOWN_CONJUGATION_ERRORS.md) | **Every cell the engine gets wrong today**, with the code responsible — plus the differences that only look like errors. Read before touching a conjugator, and before trusting a mismatch report. |
 
 Each doc owns one thing and they do not overlap: **ARCHITECTURE** is what is
 built, **TECHNICAL_PLAN** is what gets built in Swift, **PORT_INVENTORY** is how
