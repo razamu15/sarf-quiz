@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-"""Hands one category's mismatch report to headless Claude Code for pattern
+"""Hands one batch's mismatch report to headless Claude Code for pattern
 analysis and root-cause investigation against the engine source. See
 PLAN.md — this is the "intelligent" stage, run only after compare.py has
-exhausted a category.
+exhausted a type+form batch.
 
-Usage: python3 analyze_category.py <lexicon-type>
+Usage: python3 analyze_category.py <lexicon-type> [form]
 
 Requires the `claude` CLI on PATH, logged in. Read-only: restricted to
 Read/Grep/Glob, so it diagnoses but never edits.
@@ -24,9 +24,14 @@ REPO_ROOT = VERIFICATION_DIR.parent
 OUTPUT_DIR = VERIFICATION_DIR / 'output'
 
 PROMPT_TEMPLATE = """You are investigating Arabic verb conjugation discrepancies for the lexicon
-type `{lexicon_type}` in this project's grammar engine.
+type `{lexicon_type}` at FORM {form} in this project's grammar engine.
 
-`verification/output/{lexicon_type}_mismatches.json` holds {count} mismatches
+Every mismatch in this batch is form {form}, so a pattern you find here is a
+statement about that form's stem templates and the code path they take — not
+about the verb type at large. Form I and the mazeed forms are deliberately
+separate batches for that reason.
+
+`verification/output/{lexicon_type}_{form}_mismatches.json` holds {count} mismatches
 between this project's engine (the `sarf_quiz_app` field on each entry) and
 libqutrub, an independent reference Arabic conjugator (the `qutrub` field).
 libqutrub is a reference for comparison, not assumed correct — a difference
@@ -70,23 +75,25 @@ Do not edit any files — this is a diagnosis pass only."""
 
 
 def main():
-    if len(sys.argv) != 2:
-        print('Usage: analyze_category.py <lexicon-type>', file=sys.stderr)
+    if len(sys.argv) not in (2, 3):
+        print('Usage: analyze_category.py <lexicon-type> [form]', file=sys.stderr)
         sys.exit(1)
     lexicon_type = sys.argv[1]
+    form = sys.argv[2] if len(sys.argv) == 3 else 'I'
 
-    mismatches_path = OUTPUT_DIR / f'{lexicon_type}_mismatches.json'
+    mismatches_path = OUTPUT_DIR / f'{lexicon_type}_{form}_mismatches.json'
     if not mismatches_path.exists():
         print(f'{mismatches_path} does not exist — run compare.py first', file=sys.stderr)
         sys.exit(1)
 
     report = json.loads(mismatches_path.read_text(encoding='utf-8'))
     if not report['mismatches']:
-        print(f'{lexicon_type}: no mismatches, nothing to analyze')
+        print(f'{lexicon_type} form {form}: no mismatches, nothing to analyze')
         return
 
     prompt = PROMPT_TEMPLATE.format(
         lexicon_type=lexicon_type,
+        form=form,
         count=len(report['mismatches']),
         source_files=', '.join(report['engine_source_files']),
     )
@@ -106,9 +113,9 @@ def main():
         print(f'claude exited {result.returncode}:\n{result.stderr}', file=sys.stderr)
         sys.exit(result.returncode)
 
-    analysis_path = OUTPUT_DIR / f'{lexicon_type}_analysis.md'
+    analysis_path = OUTPUT_DIR / f'{lexicon_type}_{form}_analysis.md'
     analysis_path.write_text(result.stdout, encoding='utf-8')
-    print(f'{lexicon_type}: analysis written to {analysis_path}')
+    print(f'{lexicon_type} form {form}: analysis written to {analysis_path}')
 
 
 if __name__ == '__main__':

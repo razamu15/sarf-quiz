@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
-"""Compares this project's Form I engine output against libqutrub, for one
-lexicon `type`. See PLAN.md for the pipeline this is one stage of.
+"""Compares this project's engine output against libqutrub, for one lexicon
+`type` at one form. See PLAN.md for the pipeline this is one stage of.
 
-Usage: .venv/bin/python compare.py <lexicon-type>
-    e.g. .venv/bin/python compare.py naqis_ya
+Usage: .venv/bin/python compare.py <lexicon-type> [form]
+    e.g. .venv/bin/python compare.py naqis_ya        (form defaults to I)
+         .venv/bin/python compare.py mithal_waw II
 """
 import json
 import subprocess
@@ -45,8 +46,25 @@ SHARED_SOURCE_FILES = [
     'web-prototype/js/vocabulary.js',
 ]
 
-# bab's second letter (the muḍāriʿ ʿayn vowel) -> qutrub's future_type param
+# bab's second letter (the muḍāriʿ ʿayn vowel) -> qutrub's future_type param.
+# Form I only: the bab IS where that vowel is recorded for a thulaathi mujarrad.
 BAB_TO_FUTURE_TYPE = {'a': 'فتحة', 'i': 'كسرة', 'u': 'ضمة'}
+
+# The same vowel for the mazeed forms, which have no bab — the FORM fixes it
+# (yu3allimu, yataqaadaa). Mirrors NAQIS_MAZEED_MUDARI_AYN in naqis-grammar.js,
+# which states the fact for the one engine that needs it in JS.
+#
+# libqutrub IGNORES this parameter for a mazeed seed — verified: 3allama returns
+# an identical paradigm under all three values, because the pattern is already
+# legible in the surface form. Passed correctly anyway, so that a future
+# libqutrub which does consult it gets the right answer rather than a
+# placeholder that happened to work. See PLAN.md.
+MAZEED_FUTURE_TYPE = {
+    'II': 'كسرة', 'III': 'كسرة', 'IV': 'كسرة', 'V': 'فتحة', 'VI': 'فتحة',
+    'VII': 'كسرة', 'VIII': 'كسرة', 'IX': 'كسرة', 'X': 'كسرة',
+}
+
+FORM_IDS = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X']
 
 CHART_KEY_TO_ARABIC = {
     'madi_malum': 'الماضي المعلوم',
@@ -79,25 +97,43 @@ def normalize(word):
     return unicodedata.normalize('NFC', word).strip()
 
 
-def dump_engine(lexicon_type):
+def dump_engine(lexicon_type, form):
     result = subprocess.run(
-        ['node', str(VERIFICATION_DIR / 'dump_engine.mjs'), lexicon_type],
+        ['node', str(VERIFICATION_DIR / 'dump_engine.mjs'), lexicon_type, form],
         cwd=VERIFICATION_DIR, capture_output=True, text=True, check=True,
     )
     return json.loads(result.stdout)
 
 
-def qutrub_tables(root_entry):
-    """This root's full qutrub paradigm, seeded from the engine's own
-    madi_malum/3ms. Returns (tables, error) — error is set when the seed word
-    is unusable and no comparison can happen for this root."""
+def future_type_for(root_entry, form):
+    """qutrub's future_type: the mudaari ayn vowel. Read off the bab for form I,
+    off the FORM for everything else — see the two tables above. Returns
+    (value, error); error is set when form I's bab is missing or unreadable,
+    which would otherwise silently pick a paradigm at random."""
+    if form != 'I':
+        return MAZEED_FUTURE_TYPE[form], None
+    bab = root_entry['bab']
+    if not bab:
+        return None, 'form I root with no bab recorded — cannot pick a mudaari vowel'
+    value = BAB_TO_FUTURE_TYPE.get(bab[1])
+    if not value:
+        return None, f"unrecognized bab '{bab}'"
+    return value, None
+
+
+def qutrub_tables(root_entry, form):
+    """This root's full qutrub paradigm at this form, seeded from the engine's
+    own madi_malum/3ms FOR THAT FORM — 3allama for II, not 3alima. libqutrub
+    reads the pattern off the surface form, so that one word is the whole hint
+    it needs. Returns (tables, error); error is set when the seed word is
+    unusable and no comparison can happen for this root."""
     seed_word = root_entry['charts'].get(SEED_CHART, {}).get(SEED_SLOT)
     if not seed_word:
         return None, "no madi_malum 3ms in this project's own output to seed qutrub with"
 
-    future_type = BAB_TO_FUTURE_TYPE.get(root_entry['bab'][1])
-    if not future_type:
-        return None, f"unrecognized bab '{root_entry['bab']}'"
+    future_type, error = future_type_for(root_entry, form)
+    if error:
+        return None, error
 
     try:
         tables = conjugate(
@@ -109,11 +145,11 @@ def qutrub_tables(root_entry):
     return tables, None
 
 
-def compare_root(root_entry):
-    qutrub_result, error = qutrub_tables(root_entry)
+def compare_root(root_entry, form):
+    qutrub_result, error = qutrub_tables(root_entry, form)
     if error:
         return [{
-            'root': root_entry['root'], 'form': 'I', 'chart': None, 'slot': None,
+            'root': root_entry['root'], 'form': form, 'chart': None, 'slot': None,
             'sarf_quiz_app': {'value': None}, 'qutrub': {'value': None},
             'note': error,
         }]
@@ -127,7 +163,7 @@ def compare_root(root_entry):
 
             qutrub_word = qutrub_chart.get(SLOT_TO_PERSON_LABEL[slot]) or None
             entry = {
-                'root': root_entry['root'], 'form': 'I',
+                'root': root_entry['root'], 'form': form,
                 'chart': chart_key, 'slot': slot,
                 'sarf_quiz_app': {'value': engine_word},
                 'qutrub': {'value': qutrub_word},
@@ -141,16 +177,27 @@ def compare_root(root_entry):
 
 
 def main():
-    if len(sys.argv) != 2:
-        print('Usage: compare.py <lexicon-type>', file=sys.stderr)
+    if len(sys.argv) not in (2, 3):
+        print('Usage: compare.py <lexicon-type> [form]', file=sys.stderr)
         sys.exit(1)
     lexicon_type = sys.argv[1]
+    form = sys.argv[2] if len(sys.argv) == 3 else 'I'
+    if form not in FORM_IDS:
+        print(f"Unknown form '{form}' — expected one of {' '.join(FORM_IDS)}", file=sys.stderr)
+        sys.exit(1)
 
-    dump = dump_engine(lexicon_type)
-    mismatches = [m for root_entry in dump['roots'] for m in compare_root(root_entry)]
+    dump = dump_engine(lexicon_type, form)
+    # No roots is not a clean run, and must not be written as one: an empty
+    # report here would be indistinguishable from "checked, nothing wrong".
+    if not dump['roots']:
+        print(f'{lexicon_type} form {form}: no roots declare this form — nothing to check, no report written')
+        return
+
+    mismatches = [m for root_entry in dump['roots'] for m in compare_root(root_entry, form)]
 
     report = {
         'type': lexicon_type,
+        'form': form,
         'engine_group': ENGINE_GROUP.get(lexicon_type),
         'engine_source_files': ENGINE_SOURCE_FILES.get(lexicon_type, []) + SHARED_SOURCE_FILES,
         'seed_slot_excluded': f'{SEED_CHART}.{SEED_SLOT} — used as the word fed to qutrub, not independently compared',
@@ -160,10 +207,11 @@ def main():
     }
 
     OUTPUT_DIR.mkdir(exist_ok=True)
-    out_path = OUTPUT_DIR / f'{lexicon_type}_mismatches.json'
+    out_path = OUTPUT_DIR / f'{lexicon_type}_{form}_mismatches.json'
     out_path.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding='utf-8')
 
-    print(f"{lexicon_type}: {len(mismatches)} mismatch(es) across {report['roots_checked']} root(s) -> {out_path}")
+    print(f"{lexicon_type} form {form}: {len(mismatches)} mismatch(es) "
+          f"across {report['roots_checked']} root(s) -> {out_path.name}")
 
 
 if __name__ == '__main__':

@@ -1,74 +1,107 @@
 # Qutrub cross-check — plan
 
-Status: v1 implemented and validated against all 8 lexicon types currently in
-`roots.js`. This is the current/living version — when it's next revised,
-rename this to `PLAN_v1.md` and write a new `PLAN.md`, per project convention.
+Status: **v2, form-aware.** v1 checked Form I only; this version takes a form
+alongside the lexicon type, so any of I–X can be cross-checked. Form I and
+Form II have both been run across every type that has roots for them.
+
+[PLAN_v1.md](PLAN_v1.md) is the previous version, kept for traceability. Read
+**this** file; v1 is only there to show what changed and why. When this is next
+revised, rename it `PLAN_v2.md` and write a new `PLAN.md`, per project
+convention.
 
 ## How to run
 
 ```
-verification/.venv/bin/python verification/compare.py <lexicon-type>
-verification/.venv/bin/python verification/analyze_category.py <lexicon-type>
+verification/.venv/bin/python verification/compare.py <lexicon-type> [form]
+verification/.venv/bin/python verification/analyze_category.py <lexicon-type> [form]
 ```
 
 `<lexicon-type>` is one of: `salim`, `mudaaf`, `mithal_waw`, `mithal_ya`,
-`ajwaf_waw`, `ajwaf_ya`, `naqis_waw`, `naqis_ya`. `.venv` (created via
-`python3 -m venv .venv && .venv/bin/pip install -r requirements.txt`) and
-`output/` are both gitignored — regenerable, not source.
+`ajwaf_waw`, `ajwaf_ya`, `naqis_waw`, `naqis_ya`. `[form]` is a roman numeral
+`I`–`X` and **defaults to `I`**, so v1's invocations still mean what they meant.
+`.venv` (created via `python3 -m venv .venv && .venv/bin/pip install -r
+requirements.txt`) and `output/` are both gitignored — regenerable, not source.
+
+A type/form pair with no roots is not an error: `compare.py` says so and writes
+nothing, because a report for a form nobody declares would be indistinguishable
+from a clean run.
+
+## What changed from v1, and why
+
+**v1 was Form I only** — `dump_engine.mjs` hardcoded `formId: 'I'` and filtered
+roots on `r.forms.I`. That was the right scope at the time: the mazīd stem
+tables were largely unwritten, so there was nothing to check. That is no longer
+true (ROADMAP B1 filled the last of them), and the mazīd forms are now the part
+of the engine with the least independent verification behind it.
+
+Three things had to become form-aware:
+
+1. **Root selection.** `r.forms[form]`, not `r.forms.I`. Most roots declare a
+   handful of forms and no root declares all ten, so each form checks a
+   different, smaller set of roots than Form I did.
+
+2. **The seed word.** Still `madi_malum`/`3ms`, but of the form being checked —
+   `عَلَّمَ` for Form II, not `عَلِمَ`. libqutrub reads the pattern off the surface
+   form, so a Form II seed produces a Form II paradigm with no other hint.
+
+3. **`future_type`.** For Form I this is the bāb's second letter, the muḍāriʿ
+   ʿayn vowel. The mazīd forms have no bāb — the FORM fixes that vowel — so
+   `MAZEED_FUTURE_TYPE` states it per form. **Verified empirically that
+   libqutrub ignores the parameter entirely for a mazīd seed**: `عَلَّمَ` returns
+   the same paradigm under all three values. It is passed correctly anyway, so
+   that a future libqutrub which does consult it finds the right answer rather
+   than a placeholder that happened to work.
+
+**Output filenames now carry the form**: `<type>_<form>_mismatches.json`, e.g.
+`salim_II_mismatches.json`. v1's `<type>_mismatches.json` files were left in
+place by the rename and are stale — regenerate or delete them; nothing reads
+them any more.
 
 ## Goal
 
-For every root in the lexicon ([roots.js](../web-prototype/js/lexicon/roots.js)),
-compare this project's Form I conjugation output against
+For every root in the lexicon ([roots.js](../web-prototype/js/lexicon/roots.js))
+that declares the form being checked, compare this project's output against
 [qutrub](https://github.com/linuxscout/qutrub) (Python, run locally as a
 library — no scraping, no network dependency). Flag mismatches, save them for
-review, and — once all roots of one lexicon `type` have been checked — hand
-the batch of mismatches for that type to Claude Code (headless) to look for
+review, and hand a non-empty batch to Claude Code (headless) to look for
 patterns and investigate the engine source.
-
-Scope for v1: **Form I only**, matching the current ask. Extending to mazīd
-forms is a later decision, not part of this plan.
 
 ## Why this is a two-language pipeline
 
 Qutrub is a Python library; this project's engine is JS (ESM), called through
 [`fullTable()`](../web-prototype/js/conjugation/conjugation-service.js). There's
-no way around calling both runtimes. The design below keeps each side doing
-only what it's good at: Node dumps this project's own output as data, Python
-owns iteration, the qutrub call, comparison, and the trigger into Claude Code.
+no way around calling both runtimes. The design keeps each side doing only what
+it is good at: Node dumps this project's own output as data, Python owns
+iteration, the qutrub call, comparison, and the trigger into Claude Code.
 
 ## Folder layout
 
 ```
 verification/
   PLAN.md                 # this file
-  dump_engine.mjs          # Node: dumps this project's Form I tables to JSON
-  compare.py                # Python: loads the dump, calls qutrub, diffs, writes reports
-  analyze_category.py       # Python: shells out to `claude -p` per exhausted category
-  requirements.txt          # qutrub + whatever else compare.py needs
-  output/                   # generated reports — gitignored, regenerable
-    <type>_mismatches.json
-    <type>_analysis.md
+  PLAN_v1.md              # the Form-I-only version, for traceability
+  dump_engine.mjs         # Node: dumps this project's tables for one type+form
+  compare.py              # Python: loads the dump, calls qutrub, diffs, reports
+  analyze_category.py     # Python: shells out to `claude -p` per exhausted batch
+  requirements.txt        # qutrub + whatever else compare.py needs
+  output/                 # generated reports — gitignored, regenerable
+    <type>_<form>_mismatches.json
+    <type>_<form>_analysis.md
 ```
 
-## The category axis: lexicon `type`, not engine group
+## The category axis: lexicon `type` × form
 
-This matters and is easy to get wrong. The engine is grouped coarsely —
-`naqis-conjugator.js` handles both `naqis_waw` and `naqis_ya`
-(`groupOfVerbType` in [vocabulary.js](../web-prototype/js/vocabulary.js)) — but
-the **triage batch** should be the finer lexicon `type` field
-(`naqis_ya`, `naqis_waw`, `ajwaf_waw`, `ajwaf_ya`, `mithal_waw`, `mithal_ya`,
-`mudaaf`, `salim` — the eight types currently present in `roots.js`).
+v1's reasoning for batching on the finer lexicon `type` rather than the coarser
+engine group is unchanged and still right: the engine handles `naqis_waw` and
+`naqis_ya` in one file, but batching their mismatches together would dilute a
+bug specific to the weak-yāʾ branch. Keeping the distinction the data already
+makes is what lets the analysis step see the pattern.
 
-Reason: if a bug is specific to the weak-yā branch of naqis conjugation,
-batching `naqis_waw` and `naqis_ya` mismatches together would dilute or mask
-that pattern. Keeping the domain distinction that's already in the data (per
-this project's own modeling convention — distinct types, shared engine) is
-exactly what makes the pattern visible to the analysis step.
-
-The **engine source file(s)** pointed at during analysis are resolved
-separately, via the type → group → engine mapping that already exists in the
-codebase:
+**The form is a second axis of the same kind, for the same reason.** A mazīd
+form is a different set of stem templates from Form I — often a different code
+path through the conjugator — so its mismatches are a separate population.
+Mixing Form I's 67 sukūn-notation diffs into a Form II batch would bury whatever
+Form II has to say.
 
 | lexicon `type`  | engine group | engine file |
 |---|---|---|
@@ -80,69 +113,49 @@ codebase:
 
 Every category's engine file also routes through shared modules
 (`conjugation-service.js`, `templates.js`, `shared-grammar.js`,
-`vocabulary.js`) — those get included as "also worth reading" context in the
-analysis prompt rather than assumed to be the culprit, since a bug could live
-in either place.
+`vocabulary.js`) — included as "also worth reading" context rather than assumed
+innocent, since a bug could live in either place.
 
 ## Pipeline
 
-**1. `dump_engine.mjs`** — takes a lexicon `type` as an argument, finds every
-root of that type in `roots.js` that defines Form I, calls `fullTable()` for
-every Form I chart, and prints one JSON blob for the whole category. One
-process spawn per category, not per root — a full type's worth of roots is
-cheap to compute in a single Node invocation.
+**1. `dump_engine.mjs <type> [form]`** — finds every root of that type declaring
+that form, calls `fullTable()` for each of its charts, prints one JSON blob. One
+process spawn per type+form, not per root.
 
-**2. `compare.py`** — for each category:
-  - runs `dump_engine.mjs` for that type and loads its JSON output
+**2. `compare.py <type> [form]`** —
+  - runs `dump_engine.mjs` and loads its JSON
   - calls qutrub in-process (no subprocess, no network) for the same
     root/slot combinations
-  - compares both sides via plain NFC-normalized exact match — no diacritic
-    tolerance; see "Still open" below for why that's deliberate
-  - writes `output/<type>_mismatches.json` — see schema below
-  - writes an empty-but-present file even when there are zero mismatches, so
+  - compares via plain NFC-normalized exact match — no diacritic tolerance;
+    see "Still open"
+  - writes `output/<type>_<form>_mismatches.json`, present even when empty, so
     a missing file always means "not run yet," never "no bugs found"
 
-**3. `analyze_category.py`** — after `compare.py` finishes a category, if its
-mismatch file is non-empty, invoke Claude Code headless
-(`claude -p ...`) with:
-  - the path to `output/<type>_mismatches.json`
-  - the category's engine file(s) from the table above, plus the shared
-    modules, as suggested starting points (not the only files it may read)
-  - read-only tool access (`--allowedTools "Read Grep Glob"`) — this step
-    diagnoses, it doesn't patch, until the harness has proven itself
-  - instructions to, per pattern: name it, classify it (engine bug /
-    notation difference / qutrub limitation) with reasoning, name the
-    responsible file and logic when it's a bug, give a minimal by-hand
-    reproduction recipe (specific root + chart + slot, what to notice,
-    pointed at the exact mismatches-JSON entry), and say which specific
-    cells should flip once a fix lands — so re-running `compare.py` after a
-    fix is a real pass/fail check, not just "fewer mismatches"
-
-Output goes to `output/<type>_analysis.md`, saved next to the raw diff so
-both are reviewable together.
+**3. `analyze_category.py <type> [form]`** — if the batch is non-empty, invokes
+`claude -p` with the mismatch file, the engine sources, and read-only tools
+(`Read Grep Glob`), asking it per pattern to name it, classify it (engine bug /
+notation difference / qutrub limitation) with reasoning, name the responsible
+file and logic, give a by-hand reproduction recipe, and say which cells should
+flip once a fix lands. Output: `output/<type>_<form>_analysis.md`.
 
 ## Mismatch JSON schema
 
-The requirement driving this: Claude's analysis step must never have to guess
-which side is this project's engine and which side is the reference. No
-`expected`/`actual` framing either — qutrub isn't assumed correct, that's part
-of what's being checked.
+The requirement driving this: the analysis step must never have to guess which
+side is this project's engine and which is the reference. No `expected`/`actual`
+framing either — qutrub isn't assumed correct, that's part of what's checked.
 
 ```json
 {
   "type": "naqis_ya",
+  "form": "VIII",
   "engine_group": "naqis",
-  "engine_source_files": [
-    "web-prototype/js/conjugation/naqis-conjugator.js",
-    "web-prototype/js/conjugation/conjugation-service.js",
-    "web-prototype/js/conjugation/templates.js",
-    "web-prototype/js/grammar/shared-grammar.js"
-  ],
-  "generated_at": "2026-08-20T00:00:00Z",
+  "engine_source_files": ["web-prototype/js/conjugation/naqis-conjugator.js", "..."],
+  "generated_at": "2026-08-25T00:00:00Z",
+  "roots_checked": 2,
   "mismatches": [
     {
-      "root": "د ع و",
-      "form": "I",
+      "root": "ق ض ي",
+      "form": "VIII",
       "chart": "mudari_malum_jazm",
       "slot": "huwa",
       "sarf_quiz_app": { "value": "..." },
@@ -152,96 +165,61 @@ of what's being checked.
 }
 ```
 
-`sarf_quiz_app` and `qutrub` are always present as sibling keys on every
-mismatch entry, always in this order, always these exact names — so the
-analysis prompt can say "the `sarf_quiz_app` side is the code you're
-investigating" once, up front, instead of per-entry.
+`sarf_quiz_app` and `qutrub` are always present as sibling keys, always in this
+order, always these exact names — so the analysis prompt can say "the
+`sarf_quiz_app` side is the code you're investigating" once, up front.
 
 ### The seed-slot blind spot
 
-libqutrub has no notion of a "root" — it conjugates from a single vocalized
-word (`conjugate(word, future_type, ...)` in `libqutrub.conjugator`). There is
-no way to ask it "conjugate the root و ص ل" independently; it has to be handed
-an already-correct Form I māḍī 3ms surface form to work from. That form has to
-come from somewhere, and the only source available is this project's own
-engine — so `compare.py` reads it off `charts.madi_malum['3ms']` in the
-engine's own dump and hands it to qutrub as the seed.
+libqutrub has no notion of a root: it conjugates from a single vocalized word,
+so it must be handed an already-correct māḍī 3ms to work from. That word can
+only come from this project's own engine, so `compare.py` reads it off
+`charts.madi_malum['3ms']` and hands it over as the seed.
 
-That makes `madi_malum`/`3ms` structurally unable to fail: it's qutrub echoing
-back the exact string it was given, not an independent computation. `compare.py`
-excludes that one cell from the diff loop rather than let it sit in the report
-looking like a check that happened to pass. Practical consequence: **a bug
-that lives specifically in the Form I māḍī 3ms cell is invisible to this
-tool** for that root — everything downstream is only checked for consistency
-*with that seed*, not against ground truth independent of it. If that cell
-were wrong in a way that still produces a well-formed word qutrub can parse,
-the rest of the table would be compared against a paradigm qutrub built from
-the wrong seed, and could still line up. Worth knowing before treating a clean
-report as a full clearance for a root's Form I. Not solved in v1 — flagging it
-rather than working around it.
+That makes `madi_malum`/`3ms` **structurally unable to fail** — it is qutrub
+echoing back its own input. `compare.py` excludes that cell from the diff rather
+than let it sit in the report looking like a check that passed. Practical
+consequence: **a bug living specifically in that cell is invisible to this tool**
+for that root, and everything downstream is only checked for consistency *with
+that seed*.
+
+**This matters more per-form than it did in v1**, and in opposite directions.
+For Form I the seed is a short word whose bāb the tool cannot see. For a mazīd
+form the seed IS the citation form — `عَلَّمَ`, `اِقْتَضَى` — the single easiest
+cell in the paradigm to check against a dictionary by eye, and the one a reader
+of the Tables browser sees first. So the blind spot is easier to cover by hand
+in the mazīd forms, but it is still a blind spot, and a clean report is not a
+full clearance. Not solved in v2 — flagged, as in v1.
 
 ## Claude Code invocation: headless CLI, not the Agent SDK
 
-Decided during planning discussion, recorded here so the reasoning isn't
-lost: `analyze_category.py` shells out to `claude -p` rather than embedding
-the Claude Agent SDK — specifically:
-`claude -p "<prompt>" --model claude-opus-5 --effort max --allowedTools "Read Grep Glob" --output-format text`,
-which runs non-interactively with no permission prompts (verified: those
-three tools are pre-authorized, nothing else is available, so the process
-can't hang waiting for approval and can't edit anything).
-
-Model and effort are pinned explicitly rather than left to the invoking
-user's own CLI default: this is the pattern-finding/root-cause stage of the
-pipeline, and the analysis quality shouldn't silently change depending on
-whose machine runs it or what `~/.claude/settings.json` happens to say.
-`claude-opus-5` (not the `opus` alias) so this stays pointed at this exact
-model even after an alias later moves to a newer Opus; `--effort max` is the
-headless-CLI equivalent of interactive "ultrathink."
-
-The SDK is the right tool when you need custom tools beyond file/shell access
-(e.g. handing the model a Python function that calls qutrub directly instead
-of pre-computing the diff), structured access to intermediate tool-call
-events (not just final output), or long-running/resumable sessions embedded
-in a live application. None of that applies here — this is a one-shot "here's
-a batch of diffs, investigate and report back" call with read-only file
-access, which is exactly what headless Claude Code already does with zero
-extra integration code. Reaching for the SDK here would mean owning more
-harness code (constructing the client, handling its event stream, writing
-results to disk yourself) to get a result the CLI already hands back as
-plain text.
+Unchanged from v1, and the reasoning there still holds: this is a one-shot
+"here's a batch of diffs, investigate and report back" call with read-only file
+access, which is exactly what headless Claude Code already does with no
+integration code. `claude -p "<prompt>" --model claude-opus-5 --effort max
+--allowedTools "Read Grep Glob" --output-format text`. Model and effort are
+pinned explicitly so analysis quality does not depend on whose machine runs it.
 
 ## Resolved during implementation
 
 - **qutrub's exact API.** The PyPI package is `libqutrub` (not `qutrub`), by
   Taha Zerrouki. `libqutrub.conjugator.conjugate(word, future_type,
-  alltense=True, transitive=<bool>, display_format='DICT')` returns a dict
-  keyed by Arabic chart names (`'الماضي المعلوم'`, `'المضارع المجهول'`, etc.,
-  see `CHART_KEY_TO_ARABIC` in `compare.py`), each holding a dict keyed by
-  Arabic pronoun labels (`'هو'`, `'أنتِ'`, etc., see `SLOT_TO_PERSON_LABEL`).
-  `word` must be the vocalized Form I māḍī 3ms surface form (see the seed-slot
-  note above); `future_type` is one of `فتحة`/`كسرة`/`ضمة` — the muḍāriʿ ʿayn
-  vowel, i.e. the second letter of this project's own `bab` code
-  (`BAB_TO_FUTURE_TYPE` in `compare.py`). Verified empirically against one
-  root of each of the 8 lexicon types present in `roots.js`, including every
-  weak category (mudaaf, mithal, ajwaf, naqis) — libqutrub correctly
-  auto-detects verb class from the surface form alone in every case tried.
-- **`output/` and git** — gitignored (`verification/.gitignore`). Regenerable
-  reports, not source.
+  alltense=True, transitive=<bool>, display_format='DICT')` returns a dict keyed
+  by Arabic chart names (`CHART_KEY_TO_ARABIC` in `compare.py`), each holding a
+  dict keyed by Arabic pronoun labels (`SLOT_TO_PERSON_LABEL`).
+- **libqutrub auto-detects the verb class from the surface form alone** —
+  verified for all 8 lexicon types at Form I (v1) and for every type that has
+  Form II roots (v2: sound, muḍāʿaf, mithāl wāw and yāʾ, ajwaf wāw and yāʾ).
+- **`future_type` is ignored for a mazīd seed** — see "What changed" above.
+- **`output/` and git** — gitignored. Regenerable reports, not source.
 
 ## Still open
 
-- **Diacritic normalization strictness.** `compare.py` deliberately does
-  *plain* NFC-normalized exact-string comparison in v1 — no tolerance for
-  diacritic placement differences, even though a real run immediately surfaced
-  two recurring patterns that aren't engine bugs: (1) qutrub omits sukūn on a
-  word-final consonant where this project's engine writes it explicitly
-  (`كَتَبْتُمْ` vs `كَتَبْتُم`), and (2) at least one case where the opposite
-  looks more likely to be *this project's* issue — the engine writing a sukūn
-  on a wāw functioning as a long vowel, where standard orthography (and
-  qutrub) leaves it bare (`يُوْصَلُ` vs `يُوصَلُ`, mithal_waw). Deliberately
-  not hardcoding tolerance for either pattern into the comparator: silently
-  normalizing away "probably style" differences risks masking a real future
-  regression in diacritic output. Left for `analyze_category.py`'s LLM pass to
-  classify per-category instead, which is exactly the "pattern vs bug" triage
-  it exists to do. Revisit if a category's report ends up dominated by
-  clearly-cosmetic noise that drowns out real findings.
+- **Diacritic normalization strictness.** `compare.py` does *plain* NFC exact
+  matching, with no tolerance for diacritic placement, and that is deliberate:
+  silently normalizing away "probably style" differences risks masking a real
+  future regression in diacritic output. The classification of style-vs-bug is
+  `analyze_category.py`'s job instead. Revisit only if a batch ends up dominated
+  by clearly-cosmetic noise that drowns out real findings.
+- **Forms III–X are not yet run.** v2 makes them one command each; nothing
+  blocks them but the running.

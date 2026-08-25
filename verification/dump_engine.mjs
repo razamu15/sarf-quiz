@@ -1,11 +1,17 @@
-// Dumps this project's Form I engine output for one lexicon `type`, as JSON
-// on stdout. Called by compare.py once per category — see PLAN.md.
+// Dumps this project's engine output for one lexicon `type` at one FORM, as
+// JSON on stdout. Called by compare.py once per type+form — see PLAN.md.
 //
-// Usage: node dump_engine.mjs <lexicon-type>
-//   e.g. node dump_engine.mjs naqis_ya
+// Usage: node dump_engine.mjs <lexicon-type> [form]
+//   e.g. node dump_engine.mjs naqis_ya          (form defaults to I)
+//        node dump_engine.mjs mithal_waw II
+//
+// v1 of this script was Form I only and hardcoded it in three places: the root
+// filter, the spec, and the report. The form is now a parameter because the
+// mazīd stem tables have since been authored (ROADMAP B1/B2) and are the part
+// of the engine with the least independent verification behind it.
 
 import { ROOTS } from '../web-prototype/js/lexicon/roots.js';
-import { CHART_SHAPES } from '../web-prototype/js/vocabulary.js';
+import { CHART_SHAPES, FORM_IDS } from '../web-prototype/js/vocabulary.js';
 import { fullTable } from '../web-prototype/js/conjugation/conjugation-service.js';
 
 // VERIFICATION-LOCAL chart-id shim. Production has no chartKey() any more
@@ -22,27 +28,34 @@ const chartKey = ({ tense, voice, mood }) => (
       : `madi_${voice}`);
 
 const type = process.argv[2];
+const formId = process.argv[3] ?? 'I';
 if (!type) {
-  process.stderr.write('Usage: node dump_engine.mjs <lexicon-type>\n');
+  process.stderr.write('Usage: node dump_engine.mjs <lexicon-type> [form]\n');
+  process.exit(1);
+}
+if (!FORM_IDS.includes(formId)) {
+  process.stderr.write(`Unknown form '${formId}' — expected one of ${FORM_IDS.join(' ')}\n`);
   process.exit(1);
 }
 
-const roots = ROOTS.filter((r) => r.type === type && r.forms.I);
+const roots = ROOTS.filter((r) => r.type === type && r.forms[formId]);
 
 const dump = {
   type,
+  formId,
   generatedAt: new Date().toISOString(),
   roots: roots.map((root) => {
-    const usage = root.forms.I;
+    const usage = root.forms[formId];
     const charts = {};
     for (const shape of CHART_SHAPES) {
-      const spec = { root, formId: 'I', ...shape };
-      const table = fullTable(spec);
+      const table = fullTable({ root, formId, ...shape });
       if (table) charts[chartKey(shape)] = table;
     }
     return {
       root: root.root.join(''),
-      bab: usage.bab,
+      // null for every mazīd form — they have no bāb, and compare.py reads the
+      // muḍāriʿ vowel off the FORM there instead. An absence, not a default.
+      bab: usage.bab ?? null,
       trans: !!usage.trans,
       charts,
     };
