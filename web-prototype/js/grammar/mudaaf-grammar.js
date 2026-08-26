@@ -72,19 +72,21 @@ export const MUDAAF_STEMS = {
   III: {
     madi_malum: {
       sakin: '1' + F + 'ا' + '2' + SH,                    // مَادَّ
-      mutaharrik: SALIM_VERB_STEMS.III.madi_malum,        // مَادَدْتُ
+      mutaharrik: '1' + F + 'ا' + '2' + F + '3',        // مَادَدْتُ
     },
     madi_majhul: {
-      sakin: '1' + D + 'و' + '2' + SH,                    // مُودَّ
-      mutaharrik: SALIM_VERB_STEMS.III.madi_majhul,
+      // mudaaf form 3 madi majhul, all seegahs have the letter separate, so the stem is actually
+      // identical for both of the below, fields, we only keep them separate for consistency
+      sakin: '1' + D + 'و' + '2' + K + '3',                    // مُودَّ
+      mutaharrik: '1' + D + 'و' + '2' + K + '3',
     },
     mudari_malum: {
       murab: '1' + F + 'ا' + '2' + SH,                    // يُمَادُّ
-      mabni: SALIM_VERB_STEMS.III.mudari_malum,
+      mabni: '1' + F + 'ا' + '2' + K + '3',
     },
     mudari_majhul: {
       murab: '1' + F + 'ا' + '2' + SH,
-      mabni: SALIM_VERB_STEMS.III.mudari_majhul,
+      mabni: '1' + F + 'ا' + '2' + F + '3',
     },
   },
 

@@ -50,7 +50,7 @@ export const SETTINGS_SPEC = [
     note: 'CONTENT gate — no engine and no roots yet' },
   { id: 'lafifVerbs', audience: 'dev', default: false,
     label: 'Lafīf verbs',
-    note: 'CONTENT gate — no engine and no roots yet' },
+    note: 'CONTENT gate — roots are stocked (mafrūq and maqrūn both), no engine yet' },
 
   // A2. audience 'user' ON PURPOSE: the point is to switch layouts at runtime and
   // live with each for a while, which an edit-and-reload defeats. `options` is

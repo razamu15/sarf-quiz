@@ -40,7 +40,7 @@ export const DRILL_PRESETS = [
   {
     id: 'mutall', title: 'Weak verbs', ar: 'مُعْتَلّ',
     desc: 'Hollow, defective, assimilated and doubly-weak, mixed.',
-    groups: ['ajwaf', 'naqis', 'mithal', 'lafif'], forms: ['I'],
+    groups: ['ajwaf', 'naqis', 'mithal', 'lafif_mafruq', 'lafif_maqrun'], forms: ['I'],
   },
   {
     id: 'mazeed', title: 'Mazīd fīhi', ar: 'مَزِيد فِيه',

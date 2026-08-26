@@ -64,7 +64,14 @@ export const byRoot = (letters) => LEXICON.find((r) => r.root.join('') === lette
  * Keyed by display GROUP, because that is the unit a student picks and the unit
  * a feature flag is written in.
  */
-const CONTENT_FLAG = { mahmuz: 'mahmuzVerbs', lafif: 'lafifVerbs' };
+// Both lafīf groups share ONE flag: they are two names to a student but one
+// body of content waiting on one engine effort, and turning half of it on
+// would be a state nobody wants. Split the flag when the engines split.
+const CONTENT_FLAG = {
+  mahmuz: 'mahmuzVerbs',
+  lafif_mafruq: 'lafifVerbs',
+  lafif_maqrun: 'lafifVerbs',
+};
 
 const contentEnabled = (type) => {
   const flag = CONTENT_FLAG[groupOfVerbType(type)];

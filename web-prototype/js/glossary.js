@@ -140,7 +140,11 @@ export const VERB_TYPE_INFO = {
   mithal: { ar: 'مِثَال',    en: 'weak 1st radical', group: 'muʿtall' },
   ajwaf:  { ar: 'أَجْوَف',   en: 'weak middle radical (hollow)', group: 'muʿtall' },
   naqis:  { ar: 'نَاقِص',    en: 'weak final radical (defective)', group: 'muʿtall' },
-  lafif:  { ar: 'لَفِيف',    en: 'two weak radicals', group: 'muʿtall' },
+  // The two lafīf types are named separately because a student picks between
+  // them, unlike the wāw/yāʾ splits which never surface. The English says where
+  // the weak letters sit, since that IS the discriminator.
+  lafif_mafruq: { ar: 'لَفِيف مَفْرُوق', en: 'two weak radicals, separated (1st and 3rd)', group: 'muʿtall' },
+  lafif_maqrun: { ar: 'لَفِيف مَقْرُون', en: 'two weak radicals, adjacent (2nd and 3rd)', group: 'muʿtall' },
 };
 
 /** One entry per live question category (vocabulary.js CATEGORY_IDS). */

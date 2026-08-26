@@ -153,14 +153,17 @@ export const MAZEED_IDS = FORM_IDS.slice(1);
 // māḍī but unfold to نُمْتُ vs بِعْتُ. One conjugator per split type is the only
 // way those stay table-driven instead of becoming if-branches.
 //
-// USER layer: students learn six type names, not nine. The split is invisible
-// above the engine — Practice shows one "Ajwaf" chip, and it selects both.
-// glossary.js keys its labels by GROUP for exactly this reason.
+// USER layer: the waw/ya split is invisible above the engine — Practice shows
+// one "Ajwaf" chip and it selects both. glossary.js keys its labels by GROUP
+// for exactly this reason.
 //
-// Lafīf splits on its own axis rather than waw/ya, because it has two weak
-// letters and what matters is where they sit: mafrūq ("separated" — fāʾ and lām
-// weak with a sound ʿayn between, وَقَى) versus maqrūn ("joined" — the two weak
-// letters adjacent, طَوَى). Same principle, different discriminator.
+// LAFĪF IS THE EXCEPTION, and deliberately so. It splits on where the two weak
+// letters sit rather than on which letter they are: mafrūq ("separated" — fāʾ
+// and lām weak with a sound ʿayn between, وَقَى) versus maqrūn ("joined" — the
+// two weak letters adjacent, طَوَى). Unlike wāw-vs-yāʾ, that distinction is one
+// students are taught by name and asked to tell apart, so it stays visible in
+// the UI: two chips, and type === group for both. Whether one engine or two
+// ends up serving them is a separate question the engine layer will answer.
 // ---------------------------------------------------------------------------
 export const VERB_TYPE_IDS = [
   'salim', 'mahmuz', 'mudaaf',
@@ -172,7 +175,8 @@ export const VERB_TYPE_IDS = [
 
 /** What the user picks from — one per traditional type name. */
 export const VERB_TYPE_GROUP_IDS = [
-  'salim', 'mahmuz', 'mudaaf', 'mithal', 'ajwaf', 'naqis', 'lafif',
+  'salim', 'mahmuz', 'mudaaf', 'mithal', 'ajwaf', 'naqis',
+  'lafif_mafruq', 'lafif_maqrun',
 ];
 
 const VERB_TYPE_GROUP = {
@@ -180,7 +184,7 @@ const VERB_TYPE_GROUP = {
   mithal_waw: 'mithal', mithal_ya: 'mithal',
   ajwaf_waw: 'ajwaf', ajwaf_ya: 'ajwaf',
   naqis_waw: 'naqis', naqis_ya: 'naqis',
-  lafif_mafruq: 'lafif', lafif_maqrun: 'lafif',
+  lafif_mafruq: 'lafif_mafruq', lafif_maqrun: 'lafif_maqrun',
 };
 
 /** Engine type → the name the user sees. */

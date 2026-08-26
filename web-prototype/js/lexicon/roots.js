@@ -1171,7 +1171,7 @@ export const ROOTS = [
       "ي",
       "ي"
     ],
-    "type": "naqis_ya",
+    "type": "lafif_maqrun",
     "reverso": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%AD%D9%8A%D9%91%D8%A7.html",
     "note": "Technically lafīf maqrūn (ʿayn and lām both yāʾ); Form II is written حَيَّا with alif.",
     "forms": {
@@ -1226,7 +1226,7 @@ export const ROOTS = [
       "و",
       "ي"
     ],
-    "type": "naqis_ya",
+    "type": "lafif_maqrun",
     "reverso": "https://conjugator.reverso.net/conjugation-arabic-verb-%D9%82%D9%88%D9%91%D9%89.html",
     "note": "Lafīf maqrūn root; the doubled ʿayn in Form II makes it conjugate as plain nāqiṣ.",
     "forms": {
@@ -1280,7 +1280,7 @@ export const ROOTS = [
       "و",
       "ي"
     ],
-    "type": "naqis_ya",
+    "type": "lafif_maqrun",
     "reverso": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%B3%D9%88%D9%91%D9%89.html",
     "note": "Lafīf maqrūn root; Form II conjugates as plain nāqiṣ.",
     "forms": {
@@ -1649,7 +1649,7 @@ export const ROOTS = [
       "ل",
       "ي"
     ],
-    "type": "naqis_ya",
+    "type": "lafif_mafruq",
     "reverso": "https://conjugator.reverso.net/conjugation-arabic-verb-%D9%88%D9%84%D9%91%D9%89.html",
     "note": "Lafīf mafrūq (mithāl wāw + nāqiṣ yāʾ); Form I drops the wāw: وَلِيَ / يَلِي.",
     "forms": {
@@ -1910,7 +1910,7 @@ export const ROOTS = [
       "ص",
       "ي"
     ],
-    "type": "naqis_ya",
+    "type": "lafif_mafruq",
     "reverso": "https://conjugator.reverso.net/conjugation-arabic-verb-%D9%88%D8%B5%D9%91%D9%89.html",
     "note": "Lafīf mafrūq (mithāl wāw + nāqiṣ yāʾ); Form I is archaic in MSA.",
     "forms": {
@@ -2008,7 +2008,7 @@ export const ROOTS = [
       "ر",
       "ي"
     ],
-    "type": "naqis_ya",
+    "type": "lafif_mafruq",
     "reverso": "https://conjugator.reverso.net/conjugation-arabic-verb-%D9%88%D8%B1%D9%91%D9%89.html",
     "note": "Lafīf mafrūq (mithāl wāw + nāqiṣ yāʾ).",
     "forms": {
@@ -2348,7 +2348,7 @@ export const ROOTS = [
       "ف",
       "ي"
     ],
-    "type": "naqis_ya",
+    "type": "lafif_mafruq",
     "reverso": "https://conjugator.reverso.net/conjugation-arabic-verb-%D9%88%D9%8E%D9%81%D9%8E%D9%91%D9%89.html",
     "note": "Type this one fully vocalized as وَفَّى — bare وفّى returns the Form I paradigm. Lafīf mafrūq root.",
     "forms": {

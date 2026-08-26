@@ -402,17 +402,22 @@ check(classify(['و', 'ق', 'ي']) === 'lafif_mafruq', 'classify lafīf mafrūq 
 check(classify(['و', 'ف', 'ي']) === 'lafif_mafruq', 'وفى is mafrūq');
 check(classify(['ط', 'و', 'ي']) === 'lafif_maqrun', 'classify lafīf maqrūn — the weak letters adjacent');
 check(classify(['ر', 'و', 'ي']) === 'lafif_maqrun', 'روى is maqrūn');
-check(groupOfVerbType('lafif_mafruq') === 'lafif' && groupOfVerbType('lafif_maqrun') === 'lafif',
-  'both lafīf variants present as one name to the user');
-check(verbTypesInGroup('lafif').join() === 'lafif_mafruq,lafif_maqrun',
-  'lafīf covers both placements');
+// ...and unlike wāw/yāʾ, this split is one the STUDENT sees: mafrūq and maqrūn
+// are named separately in the traditional grammar and told apart by name, so
+// each is its own display group rather than folding into a shared "lafīf" chip.
+check(groupOfVerbType('lafif_mafruq') === 'lafif_mafruq'
+   && groupOfVerbType('lafif_maqrun') === 'lafif_maqrun',
+  'the lafīf variants are their own display groups — the split reaches the user');
+check(verbTypesInGroup('lafif_mafruq').join() === 'lafif_mafruq'
+   && verbTypesInGroup('lafif_maqrun').join() === 'lafif_maqrun',
+  'each lafīf group covers exactly its own engine type');
 
 // The split is an ENGINE fact. Every split type folds back to the one name the
 // user sees, and every group covers at least one engine type.
 check(groupOfVerbType('ajwaf_waw') === 'ajwaf' && groupOfVerbType('ajwaf_ya') === 'ajwaf',
   'both ajwaf engine types present as "ajwaf" to the user');
 check(groupOfVerbType('salim') === 'salim', 'unsplit types are their own group');
-check(VERB_TYPE_GROUP_IDS.length === 7, 'the user still chooses between seven type names');
+check(VERB_TYPE_GROUP_IDS.length === 8, 'the user chooses between eight type names — lafīf counts twice');
 check(VERB_TYPE_IDS.every((t) => VERB_TYPE_GROUP_IDS.includes(groupOfVerbType(t))),
   'every engine type maps to a real display group');
 check(VERB_TYPE_GROUP_IDS.every((g) => verbTypesInGroup(g).length >= 1),
@@ -443,12 +448,14 @@ check(conjugate(byRoot('وجه'), 'I', 'mudari', 'malum', '3ms') === 'يَوْج
   'mithāl wāw bāb uu keeps its wāw — وَجُهَ يَوْجُهُ');
 // Every type the lexicon stocks now has an engine behind it — the holding
 // state mithāl, ajwaf and nāqiṣ each passed through has been cleared.
-check(stockedTypes().every((t) => availableTypes().includes(t)),
-  'every stocked verb type is playable — five engines cover all of them');
-// The gate itself still works: mahmūz and lafīf have no engine, and would stay
-// out of every quiz the moment the lexicon stocked one.
-check(!enginedGroups().includes('mahmuz') && !enginedGroups().includes('lafif'),
-  'mahmūz and lafīf are still engine-less, and nothing pretends otherwise');
+// Stocked-but-unplayable is now a REAL state, not a hypothetical: the lexicon
+// carries lafīf roots and no LafifConjugator exists, so the two facts have
+// come apart and the gate is doing live work rather than standing by.
+const ENGINELESS = ['lafif_mafruq', 'lafif_maqrun'];
+check(stockedTypes().filter((t) => !availableTypes().includes(t)).sort().join() === ENGINELESS.join(),
+  'exactly the lafīf types are stocked but unplayable — every other stocked type has an engine');
+check(ENGINELESS.every((g) => !enginedGroups().includes(g)) && !enginedGroups().includes('mahmuz'),
+  'mahmūz and both lafīf types are still engine-less, and nothing pretends otherwise');
 check(availableTypes().includes('ajwaf_waw') && availableTypes().includes('ajwaf_ya'),
   'ajwaf is playable — AjwafConjugator landed, and it serves both weak letters');
 
