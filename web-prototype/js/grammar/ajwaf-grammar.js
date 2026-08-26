@@ -60,7 +60,7 @@ export const AJWAF_STEMS = {
           // we need to encapsulate that we drop the middle weak letter in 2 separate cases
           // when its majzum. 1. when its mabni (fem plural) and 2. when its the 4 forms of jazm
           // and so because there is no single grammatical category that combines the 2, we have
-          // to kinda this unorthodox shit here.
+          // to kinda do this unorthodox shit here.
           wo_sukun: '1' + D + 'و' + '3',
           with_sukun: '1' + D + '3'
         },

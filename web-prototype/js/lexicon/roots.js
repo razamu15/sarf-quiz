@@ -702,6 +702,19 @@ export const ROOTS = [
            en: { past: 'woke up', pres3: 'wakes up', ing: 'waking up' } },
     },
   },
+  {
+    root: ['ي', 'ب', 'س'], type: 'mithal_ya',
+    forms: {
+      // يَبِسَ يَيْبَسُ, bab سَمِعَ — the stative فَعِلَ pattern, so the fatha on the
+      // mudari ayn is its own and the ya stays. The doublet يَبَسَ يَيْبِسُ (bab
+      // ai) is also attested; only the kasra form is listed.
+      I: { bab: 'ia', gloss: 'to be dry', masdar: 'يُبْس', trans: false },
+      II: { gloss: 'to dry something out', trans: true,
+            en: { past: 'dried out', pp: 'dried out', pres3: 'dries out', ing: 'drying out' } },
+      IV: { gloss: 'to dry up / wither', trans: true,
+            en: { past: 'dried up', pp: 'dried up', pres3: 'dries up', ing: 'drying up' } },
+    },
+  },
 
   {
     root: ['ي', 'ف', 'ع'], type: 'mithal_ya',
@@ -808,6 +821,21 @@ export const ROOTS = [
       // صِيَام is the commoner NOUN; صَوْم is the maṣdar proper.
       I: { bab: 'au', gloss: 'to fast', masdar: 'صَوْم', trans: false,
            en: { past: 'fasted', pres3: 'fasts', ing: 'fasting' } },
+    },
+  },
+
+  {
+    root: ['ق', 'و', 'م'], type: 'ajwaf_waw',
+    forms: {
+      I: { bab: 'au', gloss: 'to stand / rise', masdar: 'قِيَام', trans: false,
+           en: { past: 'stood', pres3: 'stands', ing: 'standing' } },
+      II: { gloss: 'to straighten / evaluate', trans: true,
+            en: { past: 'evaluated', pp: 'evaluated', pres3: 'evaluates', ing: 'evaluating' } },
+      III: { gloss: 'to resist / withstand', trans: true,
+             en: { past: 'resisted', pp: 'resisted', pres3: 'resists', ing: 'resisting' } },
+      IV: { gloss: 'to establish / perform', trans: true,
+            en: { past: 'established', pp: 'established', pres3: 'establishes', ing: 'establishing' } },
+      X: { gloss: 'to be upright / straight', trans: false },
     },
   },
 
