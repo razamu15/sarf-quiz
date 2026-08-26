@@ -13,6 +13,7 @@ import { state } from '../ui/state.js';
 import { isMultiSelect } from '../quiz/question.js';
 import { clusters } from '../arabic-text.js';
 import { endSession } from '../history/store.js';
+import { tipsFor } from '../tips/tips.js';
 import { renderResults } from './results.js';
 
 let app;
@@ -171,6 +172,20 @@ function feedbackBox(q, answer) {
     ${q.feedback.meaning ? `<div class="meaning">“${q.feedback.meaning}”</div>` : ''}
     ${diff}<b>${answer.correct ? 'Correct!' : 'Not quite.'}</b> ${q.feedback.explanation}
   </div>`);
+
+  // The rule behind the miss, under the explanation of this particular word.
+  // tipsFor() answers nothing on a correct answer and nothing when no tip
+  // matches the confusion, so there is no filler branch here — an empty list
+  // renders an empty box, which is the honest result.
+  //
+  // Two at most: a third is no longer the thing you just got wrong, and the
+  // point of the slot is that it is short enough to read before tapping Next.
+  const tips = tipsFor(q, answer);
+  if (tips.length) {
+    fb.append(el(`<div class="tips">${tips.slice(0, 2).map((t) => `
+      <div class="tip"><span class="tip-mark">✦</span><span>${t.en}${
+        t.ar ? ` <span class="ar">${t.ar}</span>` : ''}</span></div>`).join('')}</div>`));
+  }
 
   // Free, and it turns a wrong answer into study — shown either way. Only for
   // questions that name a chart: a derived noun and a citation have none.

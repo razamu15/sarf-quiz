@@ -37,6 +37,8 @@ import { questionStream } from '../js/quiz/quiz-run.js';
 import { grade } from '../js/quiz/grading.js';
 import { isMultiSelect } from '../js/quiz/question.js';
 import { voiceQuestion } from '../js/quiz/builders/identify.js';
+import { TIPS, tipsFor } from '../js/tips/tips.js';
+import { QUESTION_RULES } from '../js/quiz/relevance.js';
 import { clusters } from '../js/arabic-text.js';
 import {
   buildDrill, DRILL_PRESETS, mazeedPreset, mazeedPresetAvailable,
@@ -1512,6 +1514,118 @@ check(chartKeysFor({ tenses: ['madi'], voices: ['majhul'], moods: [] }) === 'mad
   resetPracticeFlow();
   check(state.practice.step === 'type' && state.practice.sample === null,
     'A2: resetPracticeFlow sends the wizard back to page one and drops its memo');
+}
+
+// ---------------------------------------------------------------------------
+// Recognition tips (ROADMAP A3). The exit criteria are the assertions: a tip
+// for every category, no tip on a correct answer, and pure functions of
+// (question, answer).
+// ---------------------------------------------------------------------------
+{
+  // The table itself: every entry complete, every id unique, every category real.
+  const ids = TIPS.map((t) => t.id);
+  check(new Set(ids).size === ids.length, 'every tip id is unique');
+  check(TIPS.every((t) => t.id && t.category && typeof t.when === 'function'
+    && typeof t.en === 'string' && t.en.length > 0),
+  'every tip carries an id, a category, a when() and an en');
+
+  const categories = QUESTION_RULES.map((r) => r.id);
+  const stray = [...new Set(TIPS.map((t) => t.category))].filter((c) => !categories.includes(c));
+  check(stray.length === 0, `tips name only real question categories — stray: ${stray.join(', ')}`);
+
+  // EXIT CRITERION 1 — at least one tip registered for every category.
+  const uncovered = categories.filter((c) => !TIPS.some((t) => t.category === c));
+  check(uncovered.length === 0,
+    `every question category has a tip — missing: ${uncovered.join(', ')}`);
+
+  // Drive real quizzes and answer every question every possible wrong way. This
+  // is the assertion that matters: a tip whose when() never matches is coverage
+  // on paper only, and only a real answer stream can tell the difference.
+  const plans = [
+    { quizType: 'identify', tenses: ['madi', 'mudari', 'amr'], voices: ['malum', 'majhul'],
+      moods: ['raf', 'nasb', 'jazm'], forms: ['I', 'II', 'IV', 'VIII', 'X'],
+      types: ['salim', 'mudaaf', 'ajwaf_waw', 'naqis_ya', 'mithal_waw'], count: 10 },
+    { quizType: 'derived', tenses: ['madi', 'mudari'], voices: ['malum'], moods: ['raf'],
+      forms: ['I', 'II', 'IV', 'VIII', 'X'], types: ['salim', 'mudaaf'], count: 10 },
+    { quizType: 'produce', tenses: ['madi', 'mudari'], voices: ['malum', 'majhul'],
+      moods: ['raf', 'nasb', 'jazm'], forms: ['I', 'IV'], types: ['salim', 'naqis_ya'], count: 10 },
+    { quizType: 'fromMeaning', tenses: ['madi', 'mudari'], voices: ['malum', 'majhul'],
+      moods: ['raf', 'nasb', 'jazm'], forms: ['I', 'II'], types: ['salim'], count: 10 },
+  ];
+
+  const seenByCategory = {};
+  let wrongAnswers = 0;
+  let wrongWithoutTip = 0;
+  let tipsAfterCorrect = 0;
+  let impure = 0;
+
+  for (const plan of plans) {
+    const pool = wordPool(quizPlan(plan));
+    let n = 0;
+    for (const q of questionStream(pool)) {
+      if (++n > 300) break;
+      const wrongs = q.response.mode === 'choice'
+        ? q.response.options.map((o) => o.valueKey)
+          .filter((k) => !q.response.correct.includes(k)).map((k) => [k])
+        : [['خطأ']];
+
+      for (const given of wrongs) {
+        const answer = grade(q, given);
+        const tips = tipsFor(q, answer);
+        wrongAnswers++;
+        if (!tips.length) wrongWithoutTip++;
+        for (const t of tips) seenByCategory[t.category] = true;
+        // Pure: the same pair must answer the same list, every time.
+        if (JSON.stringify(tips.map((t) => t.id))
+          !== JSON.stringify(tipsFor(q, answer).map((t) => t.id))) impure++;
+      }
+
+      const right = grade(q, q.response.mode === 'choice'
+        ? [...q.response.correct] : [q.response.accepted[0]]);
+      if (right.correct && tipsFor(q, right).length) tipsAfterCorrect++;
+    }
+  }
+
+  // EXIT CRITERION 2 — no tip fires on a correct answer, ever.
+  check(tipsAfterCorrect === 0,
+    `no tip fires on a correct answer — ${tipsAfterCorrect} did`);
+
+  // EXIT CRITERION 3 — pure functions of (question, answer): no clock, no
+  // randomness, no network. Called twice, they answer the same.
+  check(impure === 0, `tipsFor is pure — ${impure} call(s) differed on a repeat`);
+
+  // Every category not merely covered in the table, but actually reached.
+  const neverFired = categories.filter((c) => !seenByCategory[c]);
+  check(neverFired.length === 0,
+    `every category fires a tip on a real wrong answer — silent: ${neverFired.join(', ')}`);
+
+  // A wrong answer with no tip renders an empty slot. That is allowed by
+  // design, but it should stay rare enough to notice if it regresses.
+  check(wrongAnswers > 500, `the tip sweep exercised a real stream — ${wrongAnswers} wrong answers`);
+  check(wrongWithoutTip === 0,
+    `every wrong answer gets a tip — ${wrongWithoutTip} of ${wrongAnswers} got none`);
+}
+
+// A tip is about the confusion, not the word: the SAME question answered two
+// different wrong ways should be able to produce different advice. This is the
+// property that separates A3 from a per-category lookup table.
+{
+  const pool = wordPool(quizPlan({
+    quizType: 'identify', tenses: ['mudari'], voices: ['malum', 'majhul'], moods: ['raf'],
+    forms: ['I'], types: ['salim'], count: 10,
+  }));
+  let differed = false;
+  let n = 0;
+  for (const q of questionStream(pool)) {
+    if (++n > 200 || differed) break;
+    if (q.category !== 'doer' || q.response.options.length < 3) continue;
+    const wrongs = q.response.options.map((o) => o.valueKey)
+      .filter((k) => !q.response.correct.includes(k));
+    const sets = wrongs.map((k) => tipsFor(q, grade(q, [k])).map((t) => t.id).join());
+    if (new Set(sets).size > 1) differed = true;
+  }
+  check(differed,
+    'one question answered two different wrong ways can yield different tips');
 }
 
 console.log(`\nTOTAL: ${pass} passed, ${fail} failed`);

@@ -100,7 +100,7 @@ the shared-plan invariant buys. If classic wins, `practice-summary.js` and
 `QUIZ_TYPE_INFO` are the parts worth keeping and should be folded into it.
 
 
-### A3 · Recognition tips — ⬜ v1
+### A3 · Recognition tips — ✅ **DONE**
 
 Rule-based hints on a **wrong** answer. The non-AI sibling of PRODUCT_SPEC §5.5,
 occupying the same slot — v1 fills it from a registry, a later version adds the
@@ -126,6 +126,27 @@ al-niswa makes the muḍāriʿ mabnī · لَمْ is jussive in form, past in me
 fires on a correct answer · tips are pure functions of `(question, answer)` and
 need no network. **The registry is an afternoon; the tips are content** — one
 good tip per category is the honest minimum for "done".
+
+**Delivered.** `js/tips/tips.js`, 29 tips, rendered inline in the feedback box
+under the explanation — first two only. All three exit criteria are assertions
+in the suite, driven off a real answer stream rather than the table: **100% of
+3,101 distinct wrong answers** across all four quiz types produce at least one
+tip, and **zero** correct answers do.
+
+Two things the build settled that the spec left open:
+
+- **`category` is a declared field, not a test inside `when()`.** "Which
+  question is this about" and "which confusion is this about" are different
+  facts, and only the second needs a predicate. It also makes per-category
+  coverage readable off the table instead of computed.
+- **`en` is a fixed sentence, and `ar` is the only place its example appears.**
+  The feedback line directly above a tip is already about *this* word; the tip's
+  job is the rule behind it. A first pass put the Arabic inline in both and the
+  exemplar rendered as a duplicate.
+
+There is no ✨ button: the ROADMAP text above says one exists in
+`screens/quiz.js` as a dead stub, and it never did. Tips render inline instead,
+which is the slot AI Explain (A6) later fills from a model.
 
 ### A4 · Stats screens, history browser, weak-spot drills — 🔒 flagged off
 

@@ -245,6 +245,27 @@ h1 .ar { font-family: var(--arabic); font-size: 30px; margin-inline-start: 8px; 
   border-bottom: 1px solid rgba(147, 160, 180, 0.2);
 }
 .feedback .meaning .ar { font-size: 24px; }
+
+/* Recognition tips (ROADMAP A3) — the rule behind the miss. Set apart from the
+   explanation above it, because that one is about THIS word and these are not. */
+.feedback .tips {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(147, 160, 180, 0.2);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.feedback .tip {
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: var(--ink-dim);
+}
+.feedback .tip-mark { color: var(--accent); flex: none; }
+.feedback .tip .ar { font-size: 17px; color: var(--ink); }
 .review .item.vocab { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
 
 /* --- results --- */
