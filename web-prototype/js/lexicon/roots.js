@@ -975,4 +975,1661 @@ export const ROOTS = [
            en: { past: 'kept alive', pp: 'kept alive', pres3: 'keeps alive', ing: 'keeping alive' } },
     },
   },
-];
+  {
+    "root": [
+      "س",
+      "م",
+      "و"
+    ],
+    "type": "naqis_waw",
+    "reverso": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%B3%D9%85%D9%91%D9%89.html",
+    "forms": {
+      "I": {
+        "bab": "au",
+        "gloss": "to be high / to rise",
+        "masdar": "سُمُوّ",
+        "trans": false,
+        "en": {
+          "past": "rose",
+          "pres3": "rises",
+          "ing": "rising"
+        }
+      },
+      "II": {
+        "gloss": "to name / to call",
+        "masdar": "تَسْمِيَة",
+        "trans": true,
+        "en": {
+          "past": "named",
+          "pp": "named",
+          "pres3": "names",
+          "ing": "naming"
+        }
+      },
+      "III": {
+        "gloss": "to vie with in glory",
+        "masdar": "مُسَامَاة",
+        "trans": true,
+        "en": {
+          "past": "vied with",
+          "pp": "vied with",
+          "pres3": "vies with",
+          "ing": "vying with"
+        }
+      },
+      "IV": {
+        "gloss": "to elevate / to raise up",
+        "masdar": "إِسْمَاء",
+        "trans": true,
+        "en": {
+          "past": "elevated",
+          "pp": "elevated",
+          "pres3": "elevates",
+          "ing": "elevating"
+        }
+      },
+      "V": {
+        "gloss": "to be named / to go by the name of",
+        "masdar": "تَسَمٍّ",
+        "trans": false,
+        "en": {
+          "past": "was named",
+          "pres3": "is named",
+          "ing": "being named"
+        }
+      },
+      "VI": {
+        "gloss": "to rise high / to vie with one another",
+        "masdar": "تَسَامٍ",
+        "trans": false,
+        "en": {
+          "past": "rose high",
+          "pres3": "rises high",
+          "ing": "rising high"
+        }
+      }
+    }
+  },
+  {
+    "root": [
+      "ر",
+      "ب",
+      "و"
+    ],
+    "type": "naqis_waw",
+    "reverso": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%B1%D8%A8%D9%91%D9%89.html",
+    "forms": {
+      "I": {
+        "bab": "au",
+        "gloss": "to grow / to increase",
+        "masdar": "رُبُوّ",
+        "trans": false,
+        "en": {
+          "past": "grew",
+          "pres3": "grows",
+          "ing": "growing"
+        }
+      },
+      "II": {
+        "gloss": "to raise / to bring up / to educate",
+        "masdar": "تَرْبِيَة",
+        "trans": true,
+        "en": {
+          "past": "raised",
+          "pp": "raised",
+          "pres3": "raises",
+          "ing": "raising"
+        }
+      },
+      "III": {
+        "gloss": "to practise usury with",
+        "masdar": "مُرَابَاة",
+        "trans": true,
+        "en": {
+          "past": "lent at interest to",
+          "pp": "lent at interest to",
+          "pres3": "lends at interest to",
+          "ing": "lending at interest to"
+        }
+      },
+      "IV": {
+        "gloss": "to exceed / to surpass",
+        "masdar": "إِرْبَاء",
+        "trans": false,
+        "en": {
+          "past": "exceeded",
+          "pres3": "exceeds",
+          "ing": "exceeding"
+        }
+      },
+      "V": {
+        "gloss": "to be brought up / to be reared",
+        "masdar": "تَرَبٍّ",
+        "trans": false,
+        "en": {
+          "past": "was raised",
+          "pres3": "is raised",
+          "ing": "being raised"
+        }
+      }
+    }
+  },
+  {
+    "root": [
+      "ل",
+      "ب",
+      "ي"
+    ],
+    "type": "naqis_ya",
+    "reverso": "https://conjugator.reverso.net/conjugation-arabic-verb-%D9%84%D8%A8%D9%91%D9%89.html",
+    "note": "Form I is archaic; in MSA this root is effectively Form II only.",
+    "forms": {
+      "II": {
+        "gloss": "to comply with / to answer (a call) / to meet (a need)",
+        "masdar": "تَلْبِيَة",
+        "trans": true,
+        "en": {
+          "past": "complied with",
+          "pp": "complied with",
+          "pres3": "complies with",
+          "ing": "complying with"
+        }
+      }
+    }
+  },
+  {
+    "root": [
+      "ح",
+      "ي",
+      "ي"
+    ],
+    "type": "naqis_ya",
+    "reverso": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%AD%D9%8A%D9%91%D8%A7.html",
+    "note": "Technically lafīf maqrūn (ʿayn and lām both yāʾ); Form II is written حَيَّا with alif.",
+    "forms": {
+      "I": {
+        "bab": "ia",
+        "gloss": "to live",
+        "masdar": "حَيَاة",
+        "trans": false,
+        "en": {
+          "past": "lived",
+          "pres3": "lives",
+          "ing": "living"
+        }
+      },
+      "II": {
+        "gloss": "to greet / to salute",
+        "masdar": "تَحِيَّة",
+        "trans": true,
+        "en": {
+          "past": "greeted",
+          "pp": "greeted",
+          "pres3": "greets",
+          "ing": "greeting"
+        }
+      },
+      "IV": {
+        "gloss": "to bring to life / to revive",
+        "masdar": "إِحْيَاء",
+        "trans": true,
+        "en": {
+          "past": "revived",
+          "pp": "revived",
+          "pres3": "revives",
+          "ing": "reviving"
+        }
+      },
+      "X": {
+        "gloss": "to be ashamed / to feel shy",
+        "masdar": "اِسْتِحْيَاء",
+        "trans": false,
+        "en": {
+          "past": "was ashamed",
+          "pres3": "is ashamed",
+          "ing": "being ashamed"
+        }
+      }
+    }
+  },
+  {
+    "root": [
+      "ق",
+      "و",
+      "ي"
+    ],
+    "type": "naqis_ya",
+    "reverso": "https://conjugator.reverso.net/conjugation-arabic-verb-%D9%82%D9%88%D9%91%D9%89.html",
+    "note": "Lafīf maqrūn root; the doubled ʿayn in Form II makes it conjugate as plain nāqiṣ.",
+    "forms": {
+      "I": {
+        "bab": "ia",
+        "gloss": "to be strong",
+        "masdar": "قُوَّة",
+        "trans": false,
+        "en": {
+          "past": "was strong",
+          "pres3": "is strong",
+          "ing": "being strong"
+        }
+      },
+      "II": {
+        "gloss": "to strengthen / to reinforce",
+        "masdar": "تَقْوِيَة",
+        "trans": true,
+        "en": {
+          "past": "strengthened",
+          "pp": "strengthened",
+          "pres3": "strengthens",
+          "ing": "strengthening"
+        }
+      },
+      "V": {
+        "gloss": "to grow strong / to gain strength",
+        "masdar": "تَقَوٍّ",
+        "trans": false,
+        "en": {
+          "past": "grew strong",
+          "pres3": "grows strong",
+          "ing": "growing strong"
+        }
+      },
+      "X": {
+        "gloss": "to become strong / to gather strength",
+        "masdar": "اِسْتِقْوَاء",
+        "trans": false,
+        "en": {
+          "past": "became strong",
+          "pres3": "becomes strong",
+          "ing": "becoming strong"
+        }
+      }
+    }
+  },
+  {
+    "root": [
+      "س",
+      "و",
+      "ي"
+    ],
+    "type": "naqis_ya",
+    "reverso": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%B3%D9%88%D9%91%D9%89.html",
+    "note": "Lafīf maqrūn root; Form II conjugates as plain nāqiṣ.",
+    "forms": {
+      "I": {
+        "bab": "ia",
+        "gloss": "to be worth / to be equal to",
+        "masdar": "سِوًى",
+        "trans": true,
+        "en": {
+          "past": "was worth",
+          "pp": "worth",
+          "pres3": "is worth",
+          "ing": "being worth"
+        }
+      },
+      "II": {
+        "gloss": "to level / to settle / to make equal",
+        "masdar": "تَسْوِيَة",
+        "trans": true,
+        "en": {
+          "past": "levelled",
+          "pp": "levelled",
+          "pres3": "levels",
+          "ing": "levelling"
+        }
+      },
+      "III": {
+        "gloss": "to equal / to be worth",
+        "masdar": "مُسَاوَاة",
+        "trans": true,
+        "en": {
+          "past": "equalled",
+          "pp": "equalled",
+          "pres3": "equals",
+          "ing": "equalling"
+        }
+      },
+      "VI": {
+        "gloss": "to be equal to one another",
+        "masdar": "تَسَاوٍ",
+        "trans": false,
+        "en": {
+          "past": "were equal",
+          "pres3": "are equal",
+          "ing": "being equal"
+        }
+      },
+      "VIII": {
+        "gloss": "to be level / to be even / to settle upon",
+        "masdar": "اِسْتِوَاء",
+        "trans": false,
+        "en": {
+          "past": "was level",
+          "pres3": "is level",
+          "ing": "being level"
+        }
+      }
+    }
+  },
+  {
+    "root": [
+      "ع",
+      "ز",
+      "ي"
+    ],
+    "type": "naqis_ya",
+    "reverso": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%B9%D8%B2%D9%91%D9%89.html",
+    "forms": {
+      "I": {
+        "bab": "ia",
+        "gloss": "to be patient / to bear with fortitude",
+        "masdar": "عَزَاء",
+        "trans": false,
+        "en": {
+          "past": "bore patiently",
+          "pres3": "bears patiently",
+          "ing": "bearing patiently"
+        }
+      },
+      "II": {
+        "gloss": "to console / to offer condolences to",
+        "masdar": "تَعْزِيَة",
+        "trans": true,
+        "en": {
+          "past": "consoled",
+          "pp": "consoled",
+          "pres3": "consoles",
+          "ing": "consoling"
+        }
+      },
+      "V": {
+        "gloss": "to be consoled / to take comfort",
+        "masdar": "تَعَزٍّ",
+        "trans": false,
+        "en": {
+          "past": "took comfort",
+          "pres3": "takes comfort",
+          "ing": "taking comfort"
+        }
+      }
+    }
+  },
+  {
+    "root": [
+      "غ",
+      "ذ",
+      "و"
+    ],
+    "type": "naqis_waw",
+    "reverso": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%BA%D8%B0%D9%91%D9%89.html",
+    "forms": {
+      "I": {
+        "bab": "au",
+        "gloss": "to feed / to nourish",
+        "masdar": "غَذْو",
+        "trans": true,
+        "en": {
+          "past": "fed",
+          "pp": "fed",
+          "pres3": "feeds",
+          "ing": "feeding"
+        }
+      },
+      "II": {
+        "gloss": "to nourish / to nurture / to feed",
+        "masdar": "تَغْذِيَة",
+        "trans": true,
+        "en": {
+          "past": "nourished",
+          "pp": "nourished",
+          "pres3": "nourishes",
+          "ing": "nourishing"
+        }
+      },
+      "V": {
+        "gloss": "to be nourished / to feed on / to eat",
+        "masdar": "تَغَذٍّ",
+        "trans": false,
+        "en": {
+          "past": "fed on",
+          "pres3": "feeds on",
+          "ing": "feeding on"
+        }
+      },
+      "VIII": {
+        "gloss": "to be nourished / to subsist on",
+        "masdar": "اِغْتِذَاء",
+        "trans": false,
+        "en": {
+          "past": "subsisted on",
+          "pres3": "subsists on",
+          "ing": "subsisting on"
+        }
+      }
+    }
+  },
+  {
+    "root": [
+      "أ",
+      "د",
+      "ي"
+    ],
+    "type": "naqis_ya",
+    "reverso": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%A3%D8%AF%D9%91%D9%89.html",
+    "note": "Also mahmūz al-fāʾ, so the hamza carries its own spelling rules.",
+    "forms": {
+      "II": {
+        "gloss": "to carry out / to perform / to pay",
+        "masdar": "تَأْدِيَة",
+        "trans": true,
+        "en": {
+          "past": "carried out",
+          "pp": "carried out",
+          "pres3": "carries out",
+          "ing": "carrying out"
+        }
+      },
+      "V": {
+        "gloss": "to lead to / to result in",
+        "masdar": "تَأَدٍّ",
+        "trans": false,
+        "en": {
+          "past": "led to",
+          "pres3": "leads to",
+          "ing": "leading to"
+        }
+      }
+    }
+  },
+  {
+    "root": [
+      "ح",
+      "ل",
+      "و"
+    ],
+    "type": "naqis_waw",
+    "reverso": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%AD%D9%84%D9%91%D9%89.html",
+    "forms": {
+      "I": {
+        "bab": "au",
+        "gloss": "to be sweet / to be pleasant",
+        "masdar": "حَلَاوَة",
+        "trans": false,
+        "en": {
+          "past": "was sweet",
+          "pres3": "is sweet",
+          "ing": "being sweet"
+        }
+      },
+      "II": {
+        "gloss": "to sweeten / to adorn / to decorate",
+        "masdar": "تَحْلِيَة",
+        "trans": true,
+        "en": {
+          "past": "sweetened",
+          "pp": "sweetened",
+          "pres3": "sweetens",
+          "ing": "sweetening"
+        }
+      },
+      "IV": {
+        "gloss": "to sweeten / to make pleasant",
+        "masdar": "إِحْلَاء",
+        "trans": true,
+        "en": {
+          "past": "sweetened",
+          "pp": "sweetened",
+          "pres3": "sweetens",
+          "ing": "sweetening"
+        }
+      },
+      "V": {
+        "gloss": "to be adorned with / to be endowed with",
+        "masdar": "تَحَلٍّ",
+        "trans": false,
+        "en": {
+          "past": "was adorned with",
+          "pres3": "is adorned with",
+          "ing": "being adorned with"
+        }
+      },
+      "X": {
+        "gloss": "to find sweet / to relish",
+        "masdar": "اِسْتِحْلَاء",
+        "trans": true,
+        "en": {
+          "past": "relished",
+          "pp": "relished",
+          "pres3": "relishes",
+          "ing": "relishing"
+        }
+      }
+    }
+  },
+  {
+    "root": [
+      "غ",
+      "ط",
+      "و"
+    ],
+    "type": "naqis_waw",
+    "reverso": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%BA%D8%B7%D9%91%D9%89.html",
+    "forms": {
+      "I": {
+        "bab": "au",
+        "gloss": "to cover / to overspread",
+        "masdar": "غَطْو",
+        "trans": true,
+        "en": {
+          "past": "covered",
+          "pp": "covered",
+          "pres3": "covers",
+          "ing": "covering"
+        }
+      },
+      "II": {
+        "gloss": "to cover / to conceal / to cover (costs, a story)",
+        "masdar": "تَغْطِيَة",
+        "trans": true,
+        "en": {
+          "past": "covered",
+          "pp": "covered",
+          "pres3": "covers",
+          "ing": "covering"
+        }
+      },
+      "V": {
+        "gloss": "to be covered / to cover oneself",
+        "masdar": "تَغَطٍّ",
+        "trans": false,
+        "en": {
+          "past": "covered up",
+          "pres3": "covers up",
+          "ing": "covering up"
+        }
+      }
+    }
+  },
+  {
+    "root": [
+      "خ",
+      "ل",
+      "و"
+    ],
+    "type": "naqis_waw",
+    "reverso": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%AE%D9%84%D9%91%D9%89.html",
+    "forms": {
+      "I": {
+        "bab": "au",
+        "gloss": "to be empty / to be free of",
+        "masdar": "خُلُوّ",
+        "trans": false,
+        "en": {
+          "past": "was empty",
+          "pres3": "is empty",
+          "ing": "being empty"
+        }
+      },
+      "II": {
+        "gloss": "to leave / to let be / to vacate",
+        "masdar": "تَخْلِيَة",
+        "trans": true,
+        "en": {
+          "past": "left alone",
+          "pp": "left alone",
+          "pres3": "leaves alone",
+          "ing": "leaving alone"
+        }
+      },
+      "IV": {
+        "gloss": "to empty / to evacuate / to release",
+        "masdar": "إِخْلَاء",
+        "trans": true,
+        "en": {
+          "past": "evacuated",
+          "pp": "evacuated",
+          "pres3": "evacuates",
+          "ing": "evacuating"
+        }
+      },
+      "V": {
+        "gloss": "to give up / to renounce / to abandon",
+        "masdar": "تَخَلٍّ",
+        "trans": false,
+        "en": {
+          "past": "gave up",
+          "pres3": "gives up",
+          "ing": "giving up"
+        }
+      },
+      "X": {
+        "gloss": "to seek privacy / to be alone with",
+        "masdar": "اِسْتِخْلَاء",
+        "trans": false,
+        "en": {
+          "past": "withdrew in private",
+          "pres3": "withdraws in private",
+          "ing": "withdrawing in private"
+        }
+      }
+    }
+  },
+  {
+    "root": [
+      "و",
+      "ل",
+      "ي"
+    ],
+    "type": "naqis_ya",
+    "reverso": "https://conjugator.reverso.net/conjugation-arabic-verb-%D9%88%D9%84%D9%91%D9%89.html",
+    "note": "Lafīf mafrūq (mithāl wāw + nāqiṣ yāʾ); Form I drops the wāw: وَلِيَ / يَلِي.",
+    "forms": {
+      "I": {
+        "bab": "ii",
+        "gloss": "to follow / to be adjacent to / to be in charge of",
+        "masdar": "وِلَايَة",
+        "trans": true,
+        "en": {
+          "past": "followed",
+          "pp": "followed",
+          "pres3": "follows",
+          "ing": "following"
+        }
+      },
+      "II": {
+        "gloss": "to turn away / to appoint / to put in charge",
+        "masdar": "تَوْلِيَة",
+        "trans": true,
+        "en": {
+          "past": "appointed",
+          "pp": "appointed",
+          "pres3": "appoints",
+          "ing": "appointing"
+        }
+      },
+      "III": {
+        "gloss": "to befriend / to follow in succession",
+        "masdar": "مُوَالَاة",
+        "trans": true,
+        "en": {
+          "past": "allied with",
+          "pp": "allied with",
+          "pres3": "allies with",
+          "ing": "allying with"
+        }
+      },
+      "IV": {
+        "gloss": "to grant / to accord / to give (attention)",
+        "masdar": "إِيلَاء",
+        "trans": true,
+        "en": {
+          "past": "accorded",
+          "pp": "accorded",
+          "pres3": "accords",
+          "ing": "according"
+        }
+      },
+      "V": {
+        "gloss": "to take charge of / to assume / to turn away",
+        "masdar": "تَوَلٍّ",
+        "trans": true,
+        "en": {
+          "past": "took charge of",
+          "pp": "taken charge of",
+          "pres3": "takes charge of",
+          "ing": "taking charge of"
+        }
+      },
+      "VI": {
+        "gloss": "to follow one another in succession",
+        "masdar": "تَوَالٍ",
+        "trans": false,
+        "en": {
+          "past": "followed in succession",
+          "pres3": "follows in succession",
+          "ing": "following in succession"
+        }
+      },
+      "X": {
+        "gloss": "to take possession of / to seize",
+        "masdar": "اِسْتِيلَاء",
+        "trans": false,
+        "en": {
+          "past": "seized control of",
+          "pres3": "seizes control of",
+          "ing": "seizing control of"
+        }
+      }
+    }
+  },
+  {
+    "root": [
+      "غ",
+      "ن",
+      "ي"
+    ],
+    "type": "naqis_ya",
+    "reverso": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%BA%D9%86%D9%91%D9%89.html",
+    "forms": {
+      "I": {
+        "bab": "ia",
+        "gloss": "to be rich / to do without",
+        "masdar": "غِنًى",
+        "trans": false,
+        "en": {
+          "past": "was rich",
+          "pres3": "is rich",
+          "ing": "being rich"
+        }
+      },
+      "II": {
+        "gloss": "to sing",
+        "masdar": "تَغْنِيَة",
+        "trans": true,
+        "en": {
+          "past": "sang",
+          "pp": "sung",
+          "pres3": "sings",
+          "ing": "singing"
+        }
+      },
+      "IV": {
+        "gloss": "to enrich / to suffice / to avail",
+        "masdar": "إِغْنَاء",
+        "trans": true,
+        "en": {
+          "past": "enriched",
+          "pp": "enriched",
+          "pres3": "enriches",
+          "ing": "enriching"
+        }
+      },
+      "V": {
+        "gloss": "to sing / to extol",
+        "masdar": "تَغَنٍّ",
+        "trans": false,
+        "en": {
+          "past": "sang of",
+          "pres3": "sings of",
+          "ing": "singing of"
+        }
+      },
+      "VIII": {
+        "gloss": "to become rich",
+        "masdar": "اِغْتِنَاء",
+        "trans": false,
+        "en": {
+          "past": "became rich",
+          "pres3": "becomes rich",
+          "ing": "becoming rich"
+        }
+      },
+      "X": {
+        "gloss": "to do without / to dispense with",
+        "masdar": "اِسْتِغْنَاء",
+        "trans": false,
+        "en": {
+          "past": "did without",
+          "pres3": "does without",
+          "ing": "doing without"
+        }
+      }
+    }
+  },
+  {
+    "root": [
+      "س",
+      "ل",
+      "و"
+    ],
+    "type": "naqis_waw",
+    "reverso": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%B3%D9%84%D9%91%D9%89.html",
+    "forms": {
+      "I": {
+        "bab": "au",
+        "gloss": "to forget / to be consoled",
+        "masdar": "سُلُوّ",
+        "trans": false,
+        "en": {
+          "past": "got over",
+          "pres3": "gets over",
+          "ing": "getting over"
+        }
+      },
+      "II": {
+        "gloss": "to comfort / to divert / to entertain",
+        "masdar": "تَسْلِيَة",
+        "trans": true,
+        "en": {
+          "past": "entertained",
+          "pp": "entertained",
+          "pres3": "entertains",
+          "ing": "entertaining"
+        }
+      },
+      "IV": {
+        "gloss": "to console / to make forget",
+        "masdar": "إِسْلَاء",
+        "trans": true,
+        "en": {
+          "past": "consoled",
+          "pp": "consoled",
+          "pres3": "consoles",
+          "ing": "consoling"
+        }
+      },
+      "V": {
+        "gloss": "to amuse oneself / to be entertained",
+        "masdar": "تَسَلٍّ",
+        "trans": false,
+        "en": {
+          "past": "was amused",
+          "pres3": "is amused",
+          "ing": "being amused"
+        }
+      }
+    }
+  },
+  {
+    "root": [
+      "م",
+      "ن",
+      "ي"
+    ],
+    "type": "naqis_ya",
+    "reverso": "https://conjugator.reverso.net/conjugation-arabic-verb-%D9%85%D9%86%D9%91%D9%89.html",
+    "forms": {
+      "I": {
+        "bab": "ai",
+        "gloss": "to destine / to afflict (with)",
+        "masdar": "مَنْي",
+        "trans": true,
+        "en": {
+          "past": "destined",
+          "pp": "destined",
+          "pres3": "destines",
+          "ing": "destining"
+        }
+      },
+      "II": {
+        "gloss": "to raise the hopes of / to make (someone) wish",
+        "masdar": "تَمْنِيَة",
+        "trans": true,
+        "en": {
+          "past": "raised hopes of",
+          "pp": "given hope",
+          "pres3": "raises hopes of",
+          "ing": "raising hopes of"
+        }
+      },
+      "V": {
+        "gloss": "to wish / to desire",
+        "masdar": "تَمَنٍّ",
+        "trans": true,
+        "en": {
+          "past": "wished",
+          "pp": "wished for",
+          "pres3": "wishes",
+          "ing": "wishing"
+        }
+      }
+    }
+  },
+  {
+    "root": [
+      "و",
+      "ص",
+      "ي"
+    ],
+    "type": "naqis_ya",
+    "reverso": "https://conjugator.reverso.net/conjugation-arabic-verb-%D9%88%D8%B5%D9%91%D9%89.html",
+    "note": "Lafīf mafrūq (mithāl wāw + nāqiṣ yāʾ); Form I is archaic in MSA.",
+    "forms": {
+      "II": {
+        "gloss": "to enjoin / to instruct / to bequeath to",
+        "masdar": "تَوْصِيَة",
+        "trans": true,
+        "en": {
+          "past": "instructed",
+          "pp": "instructed",
+          "pres3": "instructs",
+          "ing": "instructing"
+        }
+      },
+      "IV": {
+        "gloss": "to enjoin / to recommend / to bequeath",
+        "masdar": "إِيصَاء",
+        "trans": true,
+        "en": {
+          "past": "bequeathed",
+          "pp": "bequeathed",
+          "pres3": "bequeaths",
+          "ing": "bequeathing"
+        }
+      },
+      "VI": {
+        "gloss": "to enjoin one another",
+        "masdar": "تَوَاصٍ",
+        "trans": false,
+        "en": {
+          "past": "enjoined one another",
+          "pres3": "enjoin one another",
+          "ing": "enjoining one another"
+        }
+      },
+      "X": {
+        "gloss": "to ask for advice / to accept a recommendation",
+        "masdar": "اِسْتِيصَاء",
+        "trans": false,
+        "en": {
+          "past": "sought counsel",
+          "pres3": "seeks counsel",
+          "ing": "seeking counsel"
+        }
+      }
+    }
+  },
+  {
+    "root": [
+      "ك",
+      "ن",
+      "ي"
+    ],
+    "type": "naqis_ya",
+    "reverso": "https://conjugator.reverso.net/conjugation-arabic-verb-%D9%83%D9%86%D9%91%D9%89.html",
+    "note": "Reverso uses كَنَّى as the model verb for this whole Form II nāqiṣ class.",
+    "forms": {
+      "I": {
+        "bab": "ai",
+        "gloss": "to allude to / to speak indirectly of",
+        "masdar": "كِنَايَة",
+        "trans": false,
+        "en": {
+          "past": "alluded to",
+          "pres3": "alludes to",
+          "ing": "alluding to"
+        }
+      },
+      "II": {
+        "gloss": "to give a kunya to / to nickname",
+        "masdar": "تَكْنِيَة",
+        "trans": true,
+        "en": {
+          "past": "nicknamed",
+          "pp": "nicknamed",
+          "pres3": "nicknames",
+          "ing": "nicknaming"
+        }
+      },
+      "V": {
+        "gloss": "to be nicknamed / to take a kunya",
+        "masdar": "تَكَنٍّ",
+        "trans": false,
+        "en": {
+          "past": "was nicknamed",
+          "pres3": "is nicknamed",
+          "ing": "being nicknamed"
+        }
+      }
+    }
+  },
+  {
+    "root": [
+      "و",
+      "ر",
+      "ي"
+    ],
+    "type": "naqis_ya",
+    "reverso": "https://conjugator.reverso.net/conjugation-arabic-verb-%D9%88%D8%B1%D9%91%D9%89.html",
+    "note": "Lafīf mafrūq (mithāl wāw + nāqiṣ yāʾ).",
+    "forms": {
+      "II": {
+        "gloss": "to conceal / to allude indirectly / to insinuate",
+        "masdar": "تَوْرِيَة",
+        "trans": true,
+        "en": {
+          "past": "concealed",
+          "pp": "concealed",
+          "pres3": "conceals",
+          "ing": "concealing"
+        }
+      },
+      "III": {
+        "gloss": "to hide / to cover up",
+        "masdar": "مُوَارَاة",
+        "trans": true,
+        "en": {
+          "past": "hid",
+          "pp": "hidden",
+          "pres3": "hides",
+          "ing": "hiding"
+        }
+      },
+      "IV": {
+        "gloss": "to kindle / to strike (fire)",
+        "masdar": "إِيرَاء",
+        "trans": true,
+        "en": {
+          "past": "kindled",
+          "pp": "kindled",
+          "pres3": "kindles",
+          "ing": "kindling"
+        }
+      },
+      "VI": {
+        "gloss": "to hide oneself / to disappear from view",
+        "masdar": "تَوَارٍ",
+        "trans": false,
+        "en": {
+          "past": "disappeared",
+          "pres3": "disappears",
+          "ing": "disappearing"
+        }
+      }
+    }
+  },
+  {
+    "root": [
+      "ع",
+      "د",
+      "و"
+    ],
+    "type": "naqis_waw",
+    "reverso": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%B9%D8%AF%D9%91%D9%89.html",
+    "forms": {
+      "I": {
+        "bab": "au",
+        "gloss": "to run / to pass by / to exceed",
+        "masdar": "عَدْو",
+        "trans": false,
+        "en": {
+          "past": "ran",
+          "pres3": "runs",
+          "ing": "running"
+        }
+      },
+      "II": {
+        "gloss": "to make pass / to take across / to transfer",
+        "masdar": "تَعْدِيَة",
+        "trans": true,
+        "en": {
+          "past": "took across",
+          "pp": "taken across",
+          "pres3": "takes across",
+          "ing": "taking across"
+        }
+      },
+      "III": {
+        "gloss": "to be hostile to / to treat as an enemy",
+        "masdar": "مُعَادَاة",
+        "trans": true,
+        "en": {
+          "past": "opposed",
+          "pp": "opposed",
+          "pres3": "opposes",
+          "ing": "opposing"
+        }
+      },
+      "IV": {
+        "gloss": "to infect / to contaminate",
+        "masdar": "إِعْدَاء",
+        "trans": true,
+        "en": {
+          "past": "infected",
+          "pp": "infected",
+          "pres3": "infects",
+          "ing": "infecting"
+        }
+      },
+      "V": {
+        "gloss": "to exceed / to transgress / to encroach on",
+        "masdar": "تَعَدٍّ",
+        "trans": true,
+        "en": {
+          "past": "exceeded",
+          "pp": "exceeded",
+          "pres3": "exceeds",
+          "ing": "exceeding"
+        }
+      },
+      "VI": {
+        "gloss": "to be mutually hostile",
+        "masdar": "تَعَادٍ",
+        "trans": false,
+        "en": {
+          "past": "were at odds",
+          "pres3": "are at odds",
+          "ing": "being at odds"
+        }
+      },
+      "VIII": {
+        "gloss": "to attack / to assault / to infringe on",
+        "masdar": "اِعْتِدَاء",
+        "trans": false,
+        "en": {
+          "past": "attacked",
+          "pres3": "attacks",
+          "ing": "attacking"
+        }
+      },
+      "X": {
+        "gloss": "to seek redress against / to incite against",
+        "masdar": "اِسْتِعْدَاء",
+        "trans": true,
+        "en": {
+          "past": "incited against",
+          "pp": "incited against",
+          "pres3": "incites against",
+          "ing": "inciting against"
+        }
+      }
+    }
+  },
+  {
+    "root": [
+      "ق",
+      "ف",
+      "و"
+    ],
+    "type": "naqis_waw",
+    "reverso": "https://conjugator.reverso.net/conjugation-arabic-verb-%D9%82%D9%81%D9%91%D9%89.html",
+    "forms": {
+      "I": {
+        "bab": "au",
+        "gloss": "to follow / to trail",
+        "masdar": "قَفْو",
+        "trans": true,
+        "en": {
+          "past": "trailed",
+          "pp": "trailed",
+          "pres3": "trails",
+          "ing": "trailing"
+        }
+      },
+      "II": {
+        "gloss": "to make follow / to send after / to rhyme",
+        "masdar": "تَقْفِيَة",
+        "trans": true,
+        "en": {
+          "past": "sent after",
+          "pp": "sent after",
+          "pres3": "sends after",
+          "ing": "sending after"
+        }
+      },
+      "VIII": {
+        "gloss": "to follow / to track / to trace",
+        "masdar": "اِقْتِفَاء",
+        "trans": true,
+        "en": {
+          "past": "tracked",
+          "pp": "tracked",
+          "pres3": "tracks",
+          "ing": "tracking"
+        }
+      }
+    }
+  },
+  {
+    "root": [
+      "ن",
+      "ق",
+      "ي"
+    ],
+    "type": "naqis_ya",
+    "reverso": "https://conjugator.reverso.net/conjugation-arabic-verb-%D9%86%D9%82%D9%91%D9%89.html",
+    "forms": {
+      "I": {
+        "bab": "ia",
+        "gloss": "to be clean / to be pure",
+        "masdar": "نَقَاء",
+        "trans": false,
+        "en": {
+          "past": "was clean",
+          "pres3": "is clean",
+          "ing": "being clean"
+        }
+      },
+      "II": {
+        "gloss": "to clean / to purify / to sift",
+        "masdar": "تَنْقِيَة",
+        "trans": true,
+        "en": {
+          "past": "purified",
+          "pp": "purified",
+          "pres3": "purifies",
+          "ing": "purifying"
+        }
+      },
+      "V": {
+        "gloss": "to be cleaned / to be purified",
+        "masdar": "تَنَقٍّ",
+        "trans": false,
+        "en": {
+          "past": "was purified",
+          "pres3": "is purified",
+          "ing": "being purified"
+        }
+      },
+      "VIII": {
+        "gloss": "to select / to pick out",
+        "masdar": "اِنْتِقَاء",
+        "trans": true,
+        "en": {
+          "past": "selected",
+          "pp": "selected",
+          "pres3": "selects",
+          "ing": "selecting"
+        }
+      }
+    }
+  },
+  {
+    "root": [
+      "ن",
+      "س",
+      "ي"
+    ],
+    "type": "naqis_ya",
+    "reverso": "https://conjugator.reverso.net/conjugation-arabic-verb-%D9%86%D8%B3%D9%91%D9%89.html",
+    "forms": {
+      "I": {
+        "bab": "ia",
+        "gloss": "to forget",
+        "masdar": "نِسْيَان",
+        "trans": true,
+        "en": {
+          "past": "forgot",
+          "pp": "forgotten",
+          "pres3": "forgets",
+          "ing": "forgetting"
+        }
+      },
+      "II": {
+        "gloss": "to make (someone) forget",
+        "masdar": "تَنْسِيَة",
+        "trans": true,
+        "en": {
+          "past": "made forget",
+          "pp": "made to forget",
+          "pres3": "makes forget",
+          "ing": "making forget"
+        }
+      },
+      "IV": {
+        "gloss": "to make forget / to cause to forget",
+        "masdar": "إِنْسَاء",
+        "trans": true,
+        "en": {
+          "past": "made forget",
+          "pp": "made to forget",
+          "pres3": "makes forget",
+          "ing": "making forget"
+        }
+      },
+      "V": {
+        "gloss": "to try to forget / to put out of mind",
+        "masdar": "تَنَسٍّ",
+        "trans": true,
+        "en": {
+          "past": "put out of mind",
+          "pp": "put out of mind",
+          "pres3": "puts out of mind",
+          "ing": "putting out of mind"
+        }
+      },
+      "VI": {
+        "gloss": "to feign forgetfulness / to deliberately ignore",
+        "masdar": "تَنَاسٍ",
+        "trans": true,
+        "en": {
+          "past": "deliberately ignored",
+          "pp": "deliberately ignored",
+          "pres3": "deliberately ignores",
+          "ing": "deliberately ignoring"
+        }
+      }
+    }
+  },
+  {
+    "root": [
+      "ص",
+      "ل",
+      "و"
+    ],
+    "type": "naqis_waw",
+    "reverso": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%B5%D9%8E%D9%84%D9%8E%D9%91%D9%89.html",
+    "note": "Reverso only resolves this correctly when typed fully vocalized as صَلَّى. Form I of ص-ل-و is archaic; the homographic root ص-ل-ي means \"to roast, burn\".",
+    "forms": {
+      "II": {
+        "gloss": "to pray / to perform the ṣalāh / to invoke blessing upon",
+        "masdar": "صَلَاة",
+        "trans": false,
+        "en": {
+          "past": "prayed",
+          "pres3": "prays",
+          "ing": "praying"
+        }
+      }
+    }
+  },
+  {
+    "root": [
+      "و",
+      "ف",
+      "ي"
+    ],
+    "type": "naqis_ya",
+    "reverso": "https://conjugator.reverso.net/conjugation-arabic-verb-%D9%88%D9%8E%D9%81%D9%8E%D9%91%D9%89.html",
+    "note": "Type this one fully vocalized as وَفَّى — bare وفّى returns the Form I paradigm. Lafīf mafrūq root.",
+    "forms": {
+      "I": {
+        "bab": "ai",
+        "gloss": "to be faithful / to keep (a promise)",
+        "masdar": "وَفَاء",
+        "trans": false,
+        "en": {
+          "past": "kept faith",
+          "pres3": "keeps faith",
+          "ing": "keeping faith"
+        }
+      },
+      "II": {
+        "gloss": "to fulfil in full / to pay in full",
+        "masdar": "تَوْفِيَة",
+        "trans": true,
+        "en": {
+          "past": "paid in full",
+          "pp": "paid in full",
+          "pres3": "pays in full",
+          "ing": "paying in full"
+        }
+      },
+      "III": {
+        "gloss": "to arrive at / to come to / to supply",
+        "masdar": "مُوَافَاة",
+        "trans": true,
+        "en": {
+          "past": "supplied",
+          "pp": "supplied",
+          "pres3": "supplies",
+          "ing": "supplying"
+        }
+      },
+      "IV": {
+        "gloss": "to fulfil / to pay in full / to be ample",
+        "masdar": "إِيفَاء",
+        "trans": true,
+        "en": {
+          "past": "fulfilled",
+          "pp": "fulfilled",
+          "pres3": "fulfils",
+          "ing": "fulfilling"
+        }
+      },
+      "V": {
+        "gloss": "to take in full; (passive تُوُفِّيَ) to pass away",
+        "masdar": "تَوَفٍّ",
+        "trans": true,
+        "en": {
+          "past": "took in full",
+          "pp": "taken in full",
+          "pres3": "takes in full",
+          "ing": "taking in full"
+        }
+      },
+      "X": {
+        "gloss": "to collect in full / to exhaust / to satisfy",
+        "masdar": "اِسْتِيفَاء",
+        "trans": true,
+        "en": {
+          "past": "collected in full",
+          "pp": "collected in full",
+          "pres3": "collects in full",
+          "ing": "collecting in full"
+        }
+      }
+    }
+  },
+  {
+    "root": [
+      "ن",
+      "م",
+      "و"
+    ],
+    "type": "naqis_waw",
+    "reverso": "https://conjugator.reverso.net/conjugation-arabic-verb-%D9%86%D9%8E%D9%85%D9%8E%D9%91%D9%89.html",
+    "note": "Type this one fully vocalized as نَمَّى — bare نمّى returns the Form I paradigm.",
+    "forms": {
+      "I": {
+        "bab": "au",
+        "gloss": "to grow / to increase",
+        "masdar": "نُمُوّ",
+        "trans": false,
+        "en": {
+          "past": "grew",
+          "pres3": "grows",
+          "ing": "growing"
+        }
+      },
+      "II": {
+        "gloss": "to develop / to cultivate / to make grow",
+        "masdar": "تَنْمِيَة",
+        "trans": true,
+        "en": {
+          "past": "developed",
+          "pp": "developed",
+          "pres3": "develops",
+          "ing": "developing"
+        }
+      },
+      "IV": {
+        "gloss": "to make grow / to increase",
+        "masdar": "إِنْمَاء",
+        "trans": true,
+        "en": {
+          "past": "increased",
+          "pp": "increased",
+          "pres3": "increases",
+          "ing": "increasing"
+        }
+      },
+      "V": {
+        "gloss": "to grow / to develop",
+        "masdar": "تَنَمٍّ",
+        "trans": false,
+        "en": {
+          "past": "developed",
+          "pres3": "develops",
+          "ing": "developing"
+        }
+      },
+      "VIII": {
+        "gloss": "to belong to / to be affiliated with",
+        "masdar": "اِنْتِمَاء",
+        "trans": false,
+        "en": {
+          "past": "belonged to",
+          "pres3": "belongs to",
+          "ing": "belonging to"
+        }
+      }
+    }
+  },
+  {
+    "root": [
+      "ر",
+      "ق",
+      "ي"
+    ],
+    "type": "naqis_ya",
+    "reverso": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%B1%D9%8E%D9%82%D9%8E%D9%91%D9%89.html",
+    "note": "Type this one fully vocalized as رَقَّى — bare رقّى returns the Form I paradigm.",
+    "forms": {
+      "I": {
+        "bab": "ia",
+        "gloss": "to ascend / to climb / to rise",
+        "masdar": "رُقِيّ",
+        "trans": false,
+        "en": {
+          "past": "ascended",
+          "pres3": "ascends",
+          "ing": "ascending"
+        }
+      },
+      "II": {
+        "gloss": "to promote / to advance / to elevate",
+        "masdar": "تَرْقِيَة",
+        "trans": true,
+        "en": {
+          "past": "promoted",
+          "pp": "promoted",
+          "pres3": "promotes",
+          "ing": "promoting"
+        }
+      },
+      "V": {
+        "gloss": "to rise / to be promoted / to advance",
+        "masdar": "تَرَقٍّ",
+        "trans": false,
+        "en": {
+          "past": "was promoted",
+          "pres3": "is promoted",
+          "ing": "being promoted"
+        }
+      },
+      "VIII": {
+        "gloss": "to ascend / to rise to",
+        "masdar": "اِرْتِقَاء",
+        "trans": false,
+        "en": {
+          "past": "rose to",
+          "pres3": "rises to",
+          "ing": "rising to"
+        }
+      }
+    }
+  },
+  {
+    "root": [
+      "غ",
+      "ل",
+      "ي"
+    ],
+    "type": "naqis_ya",
+    "reverso": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%BA%D9%8E%D9%84%D9%8E%D9%91%D9%89.html",
+    "note": "Type this one fully vocalized as غَلَّى — bare غلّى returns the Form I paradigm. Do not confuse with غ-ل-و \"to be excessive / expensive\".",
+    "forms": {
+      "I": {
+        "bab": "ai",
+        "gloss": "to boil / to come to a boil",
+        "masdar": "غَلَيَان",
+        "trans": false,
+        "en": {
+          "past": "boiled",
+          "pres3": "boils",
+          "ing": "boiling"
+        }
+      },
+      "II": {
+        "gloss": "to bring to a boil / to make boil",
+        "masdar": "تَغْلِيَة",
+        "trans": true,
+        "en": {
+          "past": "boiled",
+          "pp": "boiled",
+          "pres3": "boils",
+          "ing": "boiling"
+        }
+      },
+      "IV": {
+        "gloss": "to bring to a boil",
+        "masdar": "إِغْلَاء",
+        "trans": true,
+        "en": {
+          "past": "brought to a boil",
+          "pp": "brought to a boil",
+          "pres3": "brings to a boil",
+          "ing": "bringing to a boil"
+        }
+      }
+    }
+  },
+  {
+    "root": [
+      "ث",
+      "ن",
+      "ي"
+    ],
+    "type": "naqis_ya",
+    "reverso": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%AB%D9%8E%D9%86%D9%8E%D9%91%D9%89.html",
+    "note": "Type this one fully vocalized as ثَنَّى — bare ثنّى returns the Form I paradigm.",
+    "forms": {
+      "I": {
+        "bab": "ai",
+        "gloss": "to fold / to bend / to turn away",
+        "masdar": "ثَنْي",
+        "trans": true,
+        "en": {
+          "past": "folded",
+          "pp": "folded",
+          "pres3": "folds",
+          "ing": "folding"
+        }
+      },
+      "II": {
+        "gloss": "to double / to do twice / to make dual",
+        "masdar": "تَثْنِيَة",
+        "trans": true,
+        "en": {
+          "past": "doubled",
+          "pp": "doubled",
+          "pres3": "doubles",
+          "ing": "doubling"
+        }
+      },
+      "IV": {
+        "gloss": "to praise / to commend",
+        "masdar": "ثَنَاء",
+        "trans": false,
+        "en": {
+          "past": "praised",
+          "pres3": "praises",
+          "ing": "praising"
+        }
+      },
+      "V": {
+        "gloss": "to be doubled / to sway / to bend",
+        "masdar": "تَثَنٍّ",
+        "trans": false,
+        "en": {
+          "past": "swayed",
+          "pres3": "sways",
+          "ing": "swaying"
+        }
+      },
+      "VII": {
+        "gloss": "to be bent / to bend / to turn away",
+        "masdar": "اِنْثِنَاء",
+        "trans": false,
+        "en": {
+          "past": "bent",
+          "pres3": "bends",
+          "ing": "bending"
+        }
+      },
+      "X": {
+        "gloss": "to except / to exclude",
+        "masdar": "اِسْتِثْنَاء",
+        "trans": true,
+        "en": {
+          "past": "excluded",
+          "pp": "excluded",
+          "pres3": "excludes",
+          "ing": "excluding"
+        }
+      }
+    }
+  }
+]
