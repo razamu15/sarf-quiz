@@ -66,9 +66,7 @@ export const MUDAAF_STEMS = {
 
   // The mazīd forms that DO merge. Each carries the merged template it is known
   // by, plus the unfolded one for the ṣīghahs that force the lām open — which
-  // is always that form's sound stem (اِمْتَدَّ but اِمْتَدَدْتُ, أَحَبَّ but
-  // أَحْبَبْتُ). Naming the sound table beats re-typing fifty literals that
-  // could drift away from it silently.
+  // is always that form's sound stem
   III: {
     madi_malum: {
       sakin: '1' + F + 'ا' + '2' + SH,                    // مَادَّ
@@ -77,7 +75,7 @@ export const MUDAAF_STEMS = {
     madi_majhul: {
       // mudaaf form 3 madi majhul, all seegahs have the letter separate, so the stem is actually
       // identical for both of the below, fields, we only keep them separate for consistency
-      sakin: '1' + D + 'و' + '2' + K + '3',                    // مُودَّ
+      sakin: '1' + D + 'و' + '2' + K + '3',
       mutaharrik: '1' + D + 'و' + '2' + K + '3',
     },
     mudari_malum: {

@@ -43,8 +43,8 @@ export const MITHAL_STEMS = {
         uu: '1' + S + '2' + D + '3',   // dammah — wow stays: وَجُهَ يَوْجُهُ
         ii: '2' + K + '3'              // kasra — wow drops: وَرِثَ يَرِثُ
       },
-      // by the same logic, since mudari majhool the alamatul mudari has a dammah, it gives the wow space to be 
-      // pronounced and so the wow is kept and trated identically across all the baabs 
+      // by the same logic, since in mudari majhool, the alamatul mudari has a dammah, it gives the wow space to be 
+      // pronounced and so the wow is kept and treated identically across all the baabs 
       mudari_majhul: '1' + S + '2' + F + '3'
     },
     mithal_ya: {

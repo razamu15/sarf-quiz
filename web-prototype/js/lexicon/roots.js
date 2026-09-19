@@ -665,6 +665,7 @@ export const ROOTS = [
   },
   {
     root: ['ي', 'ق', 'ن'], type: 'mithal_ya',
+    reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%A3%D9%8A%D9%82%D9%86.html',
     forms: {
       I: { bab: 'ia', gloss: 'to be certain', masdar: 'يَقِين', trans: false,
            en: { past: 'was certain', pres3: 'is certain', ing: 'being certain' } },
@@ -689,6 +690,7 @@ export const ROOTS = [
   },
   {
     root: ['ي', 'ق', 'ظ'], type: 'mithal_ya',
+    reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%A3%D9%8A%D9%82%D8%B8.html',
     forms: {
       // يَقُظَ يَيْقُظُ, bab كَرُمَ. The dictionaries also carry the doublet
       // يَقِظَ يَيْقَظُ (bab ia, masdar يَقَظ) for the same meaning; only the
