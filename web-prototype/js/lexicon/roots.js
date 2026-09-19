@@ -16,199 +16,248 @@
 //                 Glosses starting with "to be …" are auto-conjugated (was/is/are)
 //                 and need no en block.
 // forms.I.masdar is samāʿī (per-root); mazīd maṣādir come from templates.
+// forms.*.reverso → the Reverso Conjugator page for THIS form's verb, used by
+//                 hand to cross-check the engine. Nothing in the app reads it.
+//                 Present only when Reverso's own headword was verified to be
+//                 this form (it silently redirects unknown mazīd forms to a
+//                 sibling, e.g. أَيْبَسَ → يَبِسَ); absent means "not on Reverso",
+//                 never "not checked" — every form was probed on 2026-09-18.
 
 export const ROOTS = [
   {
     root: ['ك', 'ت', 'ب'], type: 'salim',
     forms: {
       I: { bab: 'au', gloss: 'to write', masdar: 'كِتَابَة', trans: true,
-           en: { past: 'wrote', pp: 'written', pres3: 'writes', ing: 'writing' } },
+           en: { past: 'wrote', pp: 'written', pres3: 'writes', ing: 'writing' },
+           reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D9%83%D9%8E%D8%AA%D9%8E%D8%A8%D9%8E.html' },
     },
   },
   {
     root: ['ن', 'ص', 'ر'], type: 'salim',
     forms: {
       I: { bab: 'au', gloss: 'to help', masdar: 'نَصْر', trans: true,
-           en: { past: 'helped', pp: 'helped', pres3: 'helps', ing: 'helping' } },
+           en: { past: 'helped', pp: 'helped', pres3: 'helps', ing: 'helping' },
+           reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D9%86%D9%8E%D8%B5%D9%8E%D8%B1%D9%8E.html' },
     },
   },
   {
     root: ['خ', 'ر', 'ج'], type: 'salim',
     forms: {
       I: { bab: 'au', gloss: 'to go out', masdar: 'خُرُوج', trans: false,
-           en: { past: 'went out', pres3: 'goes out', ing: 'going out' } },
+           en: { past: 'went out', pres3: 'goes out', ing: 'going out' },
+           reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%AE%D9%8E%D8%B1%D9%8E%D8%AC%D9%8E.html' },
       IV: { gloss: 'to expel / bring out', trans: true,
-            en: { past: 'expelled', pp: 'expelled', pres3: 'expels', ing: 'expelling' } },
+            en: { past: 'expelled', pp: 'expelled', pres3: 'expels', ing: 'expelling' },
+            reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%A3%D9%8E%D8%AE%D9%92%D8%B1%D9%8E%D8%AC%D9%8E.html' },
       X: { gloss: 'to extract', trans: true,
-           en: { past: 'extracted', pp: 'extracted', pres3: 'extracts', ing: 'extracting' } },
+           en: { past: 'extracted', pp: 'extracted', pres3: 'extracts', ing: 'extracting' },
+           reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%A7%D9%90%D8%B3%D9%92%D8%AA%D9%8E%D8%AE%D9%92%D8%B1%D9%8E%D8%AC%D9%8E.html' },
     },
   },
   {
     root: ['ن', 'ظ', 'ر'], type: 'salim',
     forms: {
       I: { bab: 'au', gloss: 'to look', masdar: 'نَظَر', trans: true,
-           en: { past: 'looked', pp: 'looked at', pres3: 'looks', ing: 'looking' } },
+           en: { past: 'looked', pp: 'looked at', pres3: 'looks', ing: 'looking' },
+           reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D9%86%D9%8E%D8%B8%D9%8E%D8%B1%D9%8E.html' },
       VIII: { gloss: 'to wait for', trans: true,
-              en: { past: 'waited for', pp: 'waited for', pres3: 'waits for', ing: 'waiting for' } },
+              en: { past: 'waited for', pp: 'waited for', pres3: 'waits for', ing: 'waiting for' },
+              reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%A7%D9%90%D9%86%D9%92%D8%AA%D9%8E%D8%B8%D9%8E%D8%B1%D9%8E.html' },
     },
   },
   {
     root: ['ق', 'ت', 'ل'], type: 'salim',
     forms: {
       I: { bab: 'au', gloss: 'to kill', masdar: 'قَتْل', trans: true,
-           en: { past: 'killed', pp: 'killed', pres3: 'kills', ing: 'killing' } },
+           en: { past: 'killed', pp: 'killed', pres3: 'kills', ing: 'killing' },
+           reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D9%82%D9%8E%D8%AA%D9%8E%D9%84%D9%8E.html' },
       III: { gloss: 'to fight', trans: true,
-             en: { past: 'fought', pp: 'fought', pres3: 'fights', ing: 'fighting' } },
+             en: { past: 'fought', pp: 'fought', pres3: 'fights', ing: 'fighting' },
+             reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D9%82%D9%8E%D8%A7%D8%AA%D9%8E%D9%84%D9%8E.html' },
     },
   },
   {
     root: ['ض', 'ر', 'ب'], type: 'salim',
     forms: {
       I: { bab: 'ai', gloss: 'to hit', masdar: 'ضَرْب', trans: true,
-           en: { past: 'hit', pp: 'hit', pres3: 'hits', ing: 'hitting' } },
+           en: { past: 'hit', pp: 'hit', pres3: 'hits', ing: 'hitting' },
+           reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%B6%D9%8E%D8%B1%D9%8E%D8%A8%D9%8E.html' },
     },
   },
   {
     root: ['ج', 'ل', 'س'], type: 'salim',
     forms: {
       I: { bab: 'ai', gloss: 'to sit', masdar: 'جُلُوس', trans: false,
-           en: { past: 'sat', pres3: 'sits', ing: 'sitting' } },
+           en: { past: 'sat', pres3: 'sits', ing: 'sitting' },
+           reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%AC%D9%8E%D9%84%D9%8E%D8%B3%D9%8E.html' },
     },
   },
   {
     root: ['ك', 'س', 'ر'], type: 'salim',
     forms: {
       I: { bab: 'ai', gloss: 'to break', masdar: 'كَسْر', trans: true,
-           en: { past: 'broke', pp: 'broken', pres3: 'breaks', ing: 'breaking' } },
+           en: { past: 'broke', pp: 'broken', pres3: 'breaks', ing: 'breaking' },
+           reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D9%83%D9%8E%D8%B3%D9%8E%D8%B1%D9%8E.html' },
       II: { gloss: 'to smash to pieces', trans: true,
-            en: { past: 'smashed', pp: 'smashed', pres3: 'smashes', ing: 'smashing' } },
+            en: { past: 'smashed', pp: 'smashed', pres3: 'smashes', ing: 'smashing' },
+            reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D9%83%D9%8E%D8%B3%D9%91%D9%8E%D8%B1%D9%8E.html' },
       VII: { gloss: 'to get broken', trans: false,
-             en: { past: 'got broken', pres3: 'gets broken', ing: 'getting broken' } },
+             en: { past: 'got broken', pres3: 'gets broken', ing: 'getting broken' },
+             reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%A7%D9%90%D9%86%D9%92%D9%83%D9%8E%D8%B3%D9%8E%D8%B1%D9%8E.html' },
     },
   },
   {
     root: ['غ', 'ف', 'ر'], type: 'salim',
     forms: {
       I: { bab: 'ai', gloss: 'to forgive', masdar: 'مَغْفِرَة', trans: true,
-           en: { past: 'forgave', pp: 'forgiven', pres3: 'forgives', ing: 'forgiving' } },
+           en: { past: 'forgave', pp: 'forgiven', pres3: 'forgives', ing: 'forgiving' },
+           reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%BA%D9%8E%D9%81%D9%8E%D8%B1%D9%8E.html' },
       X: { gloss: 'to seek forgiveness', trans: true,
-           en: { past: 'sought forgiveness', pp: 'asked for forgiveness', pres3: 'seeks forgiveness', ing: 'seeking forgiveness' } },
+           en: { past: 'sought forgiveness', pp: 'asked for forgiveness', pres3: 'seeks forgiveness', ing: 'seeking forgiveness' },
+           reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%A7%D9%90%D8%B3%D9%92%D8%AA%D9%8E%D8%BA%D9%92%D9%81%D9%8E%D8%B1%D9%8E.html' },
     },
   },
   {
     root: ['ف', 'ت', 'ح'], type: 'salim',
     forms: {
       I: { bab: 'aa', gloss: 'to open', masdar: 'فَتْح', trans: true,
-           en: { past: 'opened', pp: 'opened', pres3: 'opens', ing: 'opening' } },
+           en: { past: 'opened', pp: 'opened', pres3: 'opens', ing: 'opening' },
+           reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D9%81%D9%8E%D8%AA%D9%8E%D8%AD%D9%8E.html' },
     },
   },
   {
     root: ['ج', 'م', 'ع'], type: 'salim',
     forms: {
       I: { bab: 'aa', gloss: 'to gather', masdar: 'جَمْع', trans: true,
-           en: { past: 'gathered', pp: 'gathered', pres3: 'gathers', ing: 'gathering' } },
+           en: { past: 'gathered', pp: 'gathered', pres3: 'gathers', ing: 'gathering' },
+           reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%AC%D9%8E%D9%85%D9%8E%D8%B9%D9%8E.html' },
       VIII: { gloss: 'to assemble / meet', trans: false,
-              en: { past: 'assembled', pres3: 'assembles', ing: 'assembling' } },
+              en: { past: 'assembled', pres3: 'assembles', ing: 'assembling' },
+              reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%A7%D9%90%D8%AC%D9%92%D8%AA%D9%8E%D9%85%D9%8E%D8%B9%D9%8E.html' },
     },
   },
   {
     root: ['ظ', 'ه', 'ر'], type: 'salim',
     forms: {
       I: { bab: 'aa', gloss: 'to appear', masdar: 'ظُهُور', trans: false,
-           en: { past: 'appeared', pres3: 'appears', ing: 'appearing' } },
+           en: { past: 'appeared', pres3: 'appears', ing: 'appearing' },
+           reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%B8%D9%8E%D9%87%D9%8E%D8%B1%D9%8E.html' },
       IV: { gloss: 'to reveal', trans: true,
-            en: { past: 'revealed', pp: 'revealed', pres3: 'reveals', ing: 'revealing' } },
+            en: { past: 'revealed', pp: 'revealed', pres3: 'reveals', ing: 'revealing' },
+            reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%A3%D9%8E%D8%B8%D9%92%D9%87%D9%8E%D8%B1%D9%8E.html' },
       VI: { gloss: 'to pretend / demonstrate', trans: false,
-            en: { past: 'pretended', pres3: 'pretends', ing: 'pretending' } },
+            en: { past: 'pretended', pres3: 'pretends', ing: 'pretending' },
+            reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%AA%D9%8E%D8%B8%D9%8E%D8%A7%D9%87%D9%8E%D8%B1%D9%8E.html' },
     },
   },
   {
     root: ['س', 'م', 'ع'], type: 'salim',
     forms: {
       I: { bab: 'ia', gloss: 'to hear', masdar: 'سَمْع', trans: true,
-           en: { past: 'heard', pp: 'heard', pres3: 'hears', ing: 'hearing' } },
+           en: { past: 'heard', pp: 'heard', pres3: 'hears', ing: 'hearing' },
+           reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%B3%D9%8E%D9%85%D9%90%D8%B9%D9%8E.html' },
       VIII: { gloss: 'to listen', trans: false,
-              en: { past: 'listened', pres3: 'listens', ing: 'listening' } },
+              en: { past: 'listened', pres3: 'listens', ing: 'listening' },
+              reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%A7%D9%90%D8%B3%D9%92%D8%AA%D9%8E%D9%85%D9%8E%D8%B9%D9%8E.html' },
     },
   },
   {
     root: ['ش', 'ر', 'ب'], type: 'salim',
     forms: {
       I: { bab: 'ia', gloss: 'to drink', masdar: 'شُرْب', trans: true,
-           en: { past: 'drank', pp: 'drunk', pres3: 'drinks', ing: 'drinking' } },
+           en: { past: 'drank', pp: 'drunk', pres3: 'drinks', ing: 'drinking' },
+           reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%B4%D9%8E%D8%B1%D9%90%D8%A8%D9%8E.html' },
     },
   },
   {
     root: ['ع', 'ل', 'م'], type: 'salim',
     forms: {
       I: { bab: 'ia', gloss: 'to know', masdar: 'عِلْم', trans: true,
-           en: { past: 'knew', pp: 'known', pres3: 'knows', ing: 'knowing' } },
+           en: { past: 'knew', pp: 'known', pres3: 'knows', ing: 'knowing' },
+           reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%B9%D9%8E%D9%84%D9%90%D9%85%D9%8E.html' },
       II: { gloss: 'to teach', trans: true,
-            en: { past: 'taught', pp: 'taught', pres3: 'teaches', ing: 'teaching' } },
+            en: { past: 'taught', pp: 'taught', pres3: 'teaches', ing: 'teaching' },
+            reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%B9%D9%8E%D9%84%D9%91%D9%8E%D9%85%D9%8E.html' },
       V: { gloss: 'to learn', trans: false,
-           en: { past: 'learned', pres3: 'learns', ing: 'learning' } },
+           en: { past: 'learned', pres3: 'learns', ing: 'learning' },
+           reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%AA%D9%8E%D8%B9%D9%8E%D9%84%D9%91%D9%8E%D9%85%D9%8E.html' },
       X: { gloss: 'to inquire', trans: true,
-           en: { past: 'inquired', pp: 'inquired about', pres3: 'inquires', ing: 'inquiring' } },
+           en: { past: 'inquired', pp: 'inquired about', pres3: 'inquires', ing: 'inquiring' },
+           reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%A7%D9%90%D8%B3%D9%92%D8%AA%D9%8E%D8%B9%D9%92%D9%84%D9%8E%D9%85%D9%8E.html' },
     },
   },
   {
     root: ['س', 'ل', 'م'], type: 'salim',
     forms: {
-      I: { bab: 'ia', gloss: 'to be safe', masdar: 'سَلَامَة', trans: false },
+      I: { bab: 'ia', gloss: 'to be safe', masdar: 'سَلَامَة', trans: false,
+           reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%B3%D9%8E%D9%84%D9%90%D9%85%D9%8E.html' },
       II: { gloss: 'to greet / hand over', trans: true,
-            en: { past: 'greeted', pp: 'greeted', pres3: 'greets', ing: 'greeting' } },
+            en: { past: 'greeted', pp: 'greeted', pres3: 'greets', ing: 'greeting' },
+            reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%B3%D9%8E%D9%84%D9%91%D9%8E%D9%85%D9%8E.html' },
       IV: { gloss: 'to submit (Islam)', trans: false,
-            en: { past: 'submitted', pres3: 'submits', ing: 'submitting' } },
+            en: { past: 'submitted', pres3: 'submits', ing: 'submitting' },
+            reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%A3%D9%8E%D8%B3%D9%92%D9%84%D9%8E%D9%85%D9%8E.html' },
       X: { gloss: 'to surrender', trans: false,
-           en: { past: 'surrendered', pres3: 'surrenders', ing: 'surrendering' } },
+           en: { past: 'surrendered', pres3: 'surrenders', ing: 'surrendering' },
+           reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%A7%D9%90%D8%B3%D9%92%D8%AA%D9%8E%D8%B3%D9%92%D9%84%D9%8E%D9%85%D9%8E.html' },
     },
   },
   {
     root: ['ك', 'ر', 'م'], type: 'salim',
     forms: {
-      I: { bab: 'uu', gloss: 'to be noble', masdar: 'كَرَم', trans: false },
+      I: { bab: 'uu', gloss: 'to be noble', masdar: 'كَرَم', trans: false,
+           reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D9%83%D9%8E%D8%B1%D9%8F%D9%85%D9%8E.html' },
       IV: { gloss: 'to honor', trans: true,
-            en: { past: 'honored', pp: 'honored', pres3: 'honors', ing: 'honoring' } },
+            en: { past: 'honored', pp: 'honored', pres3: 'honors', ing: 'honoring' },
+            reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%A3%D9%8E%D9%83%D9%92%D8%B1%D9%8E%D9%85%D9%8E.html' },
     },
   },
   {
     root: ['ق', 'د', 'م'], type: 'salim',
     forms: {
-      I: { bab: 'uu', gloss: 'to be old / ancient', masdar: 'قِدَم', trans: false },
+      I: { bab: 'uu', gloss: 'to be old / ancient', masdar: 'قِدَم', trans: false,
+           reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D9%82%D9%8E%D8%AF%D9%8F%D9%85%D9%8E.html' },
       II: { gloss: 'to present / offer', trans: true,
-            en: { past: 'presented', pp: 'presented', pres3: 'presents', ing: 'presenting' } },
+            en: { past: 'presented', pp: 'presented', pres3: 'presents', ing: 'presenting' },
+            reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D9%82%D9%8E%D8%AF%D9%91%D9%8E%D9%85%D9%8E.html' },
       V: { gloss: 'to advance', trans: false,
-           en: { past: 'advanced', pres3: 'advances', ing: 'advancing' } },
+           en: { past: 'advanced', pres3: 'advances', ing: 'advancing' },
+           reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%AA%D9%8E%D9%82%D9%8E%D8%AF%D9%91%D9%8E%D9%85%D9%8E.html' },
     },
   },
   {
     root: ['ح', 'س', 'ب'], type: 'salim',
     forms: {
       I: { bab: 'ii', gloss: 'to deem / suppose', masdar: 'حُسْبَان', trans: true,
-           en: { past: 'deemed', pp: 'deemed', pres3: 'deems', ing: 'deeming' } },
+           en: { past: 'deemed', pp: 'deemed', pres3: 'deems', ing: 'deeming' },
+           reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%AD%D9%8E%D8%B3%D9%90%D8%A8%D9%8E.html' },
     },
   },
   {
     root: ['ش', 'ر', 'ك'], type: 'salim',
     forms: {
       III: { gloss: 'to partner with', trans: true,
-             en: { past: 'partnered with', pp: 'partnered with', pres3: 'partners with', ing: 'partnering with' } },
+             en: { past: 'partnered with', pp: 'partnered with', pres3: 'partners with', ing: 'partnering with' },
+             reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%B4%D9%8E%D8%A7%D8%B1%D9%8E%D9%83%D9%8E.html' },
       VIII: { gloss: 'to participate', trans: false,
-              en: { past: 'participated', pres3: 'participates', ing: 'participating' } },
+              en: { past: 'participated', pres3: 'participates', ing: 'participating' },
+              reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%A7%D9%90%D8%B4%D9%92%D8%AA%D9%8E%D8%B1%D9%8E%D9%83%D9%8E.html' },
     },
   },
   {
     root: ['ح', 'م', 'ر'], type: 'salim',
     forms: {
       IX: { gloss: 'to turn red', trans: false,
-            en: { past: 'turned red', pres3: 'turns red', ing: 'turning red' } },
+            en: { past: 'turned red', pres3: 'turns red', ing: 'turning red' },
+            reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%A7%D9%90%D8%AD%D9%92%D9%85%D9%8E%D8%B1%D9%91%D9%8E.html' },
     },
   },
   {
     root: ['ص', 'ف', 'ر'], type: 'salim',
     forms: {
       IX: { gloss: 'to turn yellow', trans: false,
-            en: { past: 'turned yellow', pres3: 'turns yellow', ing: 'turning yellow' } },
+            en: { past: 'turned yellow', pres3: 'turns yellow', ing: 'turning yellow' },
+            reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%A7%D9%90%D8%B5%D9%92%D9%81%D9%8E%D8%B1%D9%91%D9%8E.html' },
     },
   },
 
@@ -221,41 +270,54 @@ export const ROOTS = [
     root: ['م', 'د', 'د'], type: 'mudaaf',
     forms: {
       I: { bab: 'au', gloss: 'to stretch out / extend', masdar: 'مَدّ', trans: true,
-           en: { past: 'stretched out', pp: 'stretched out', pres3: 'stretches out', ing: 'stretching out' } },
+           en: { past: 'stretched out', pp: 'stretched out', pres3: 'stretches out', ing: 'stretching out' },
+           reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D9%85%D9%8E%D8%AF%D9%91%D9%8E.html' },
       IV: { gloss: 'to supply / reinforce', trans: true,
-            en: { past: 'supplied', pp: 'supplied', pres3: 'supplies', ing: 'supplying' } },
+            en: { past: 'supplied', pp: 'supplied', pres3: 'supplies', ing: 'supplying' },
+            reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%A3%D9%8E%D9%85%D9%8E%D8%AF%D9%91%D9%8E.html' },
       VIII: { gloss: 'to extend / stretch', trans: false,
-              en: { past: 'extended', pres3: 'extends', ing: 'extending' } },
+              en: { past: 'extended', pres3: 'extends', ing: 'extending' },
+              reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%A7%D9%90%D9%85%D9%92%D8%AA%D9%8E%D8%AF%D9%91%D9%8E.html' },
       X: { gloss: 'to seek help / draw from', trans: true,
-           en: { past: 'drew on', pp: 'drawn on', pres3: 'draws on', ing: 'drawing on' } },
+           en: { past: 'drew on', pp: 'drawn on', pres3: 'draws on', ing: 'drawing on' },
+           reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%A7%D9%90%D8%B3%D9%92%D8%AA%D9%8E%D9%85%D9%8E%D8%AF%D9%91%D9%8E.html' },
     },
   },
   {
     root: ['ر', 'د', 'د'], type: 'mudaaf',
     forms: {
       I: { bab: 'au', gloss: 'to return / send back', masdar: 'رَدّ', trans: true,
-           en: { past: 'returned', pp: 'returned', pres3: 'returns', ing: 'returning' } },
+           en: { past: 'returned', pp: 'returned', pres3: 'returns', ing: 'returning' },
+           reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%B1%D9%8E%D8%AF%D9%91%D9%8E.html' },
       V: { gloss: 'to hesitate / frequent', trans: false,
-           en: { past: 'hesitated', pres3: 'hesitates', ing: 'hesitating' } },
+           en: { past: 'hesitated', pres3: 'hesitates', ing: 'hesitating' },
+           reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%AA%D9%8E%D8%B1%D9%8E%D8%AF%D9%91%D9%8E%D8%AF%D9%8E.html' },
       VIII: { gloss: 'to turn back', trans: false,
-              en: { past: 'turned back', pres3: 'turns back', ing: 'turning back' } },
+              en: { past: 'turned back', pres3: 'turns back', ing: 'turning back' },
+              reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%A7%D9%90%D8%B1%D9%92%D8%AA%D9%8E%D8%AF%D9%91%D9%8E.html' },
       X: { gloss: 'to reclaim / get back', trans: true,
-           en: { past: 'reclaimed', pp: 'reclaimed', pres3: 'reclaims', ing: 'reclaiming' } },
+           en: { past: 'reclaimed', pp: 'reclaimed', pres3: 'reclaims', ing: 'reclaiming' },
+           reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%A7%D9%90%D8%B3%D9%92%D8%AA%D9%8E%D8%B1%D9%8E%D8%AF%D9%91%D9%8E.html' },
     },
   },
   {
     root: ['ح', 'ب', 'ب'], type: 'mudaaf',
     forms: {
       I: { bab: 'ai', gloss: 'to love', masdar: 'حُبّ', trans: true,
-           en: { past: 'loved', pp: 'loved', pres3: 'loves', ing: 'loving' } },
+           en: { past: 'loved', pp: 'loved', pres3: 'loves', ing: 'loving' },
+           reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%AD%D9%8E%D8%A8%D9%91%D9%8E.html' },
       IV: { gloss: 'to love', trans: true,
-            en: { past: 'loved', pp: 'loved', pres3: 'loves', ing: 'loving' } },
+            en: { past: 'loved', pp: 'loved', pres3: 'loves', ing: 'loving' },
+            reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%A3%D9%8E%D8%AD%D9%8E%D8%A8%D9%91%D9%8E.html' },
       V: { gloss: 'to endear oneself', trans: false,
-           en: { past: 'endeared himself', pres3: 'endears himself', ing: 'endearing himself' } },
+           en: { past: 'endeared himself', pres3: 'endears himself', ing: 'endearing himself' },
+           reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%AA%D9%8E%D8%AD%D9%8E%D8%A8%D9%91%D9%8E%D8%A8%D9%8E.html' },
       VI: { gloss: 'to love one another', trans: false,
-            en: { past: 'loved one another', pres3: 'love one another', ing: 'loving one another' } },
+            en: { past: 'loved one another', pres3: 'love one another', ing: 'loving one another' },
+            reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%AA%D9%8E%D8%AD%D9%8E%D8%A7%D8%A8%D9%91%D9%8E.html' },
       X: { gloss: 'to consider desirable', trans: true,
-           en: { past: 'considered desirable', pp: 'considered desirable', pres3: 'considers desirable', ing: 'considering desirable' } },
+           en: { past: 'considered desirable', pp: 'considered desirable', pres3: 'considers desirable', ing: 'considering desirable' },
+           reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%A7%D9%90%D8%B3%D9%92%D8%AA%D9%8E%D8%AD%D9%8E%D8%A8%D9%91%D9%8E.html' },
     },
   },
   {
@@ -264,9 +326,11 @@ export const ROOTS = [
       // bāb ai — the muḍāriʿ keeps the ʿayn's kasra: يَظِلُّ، and the
       // unfolded past shows the fatḥa the merge hid: ظَلَلْتُ
       I: { bab: 'ai', gloss: 'to remain / keep doing', masdar: 'ظُلُول', trans: false,
-           en: { past: 'remained', pres3: 'remains', ing: 'remaining' } },
+           en: { past: 'remained', pres3: 'remains', ing: 'remaining' },
+           reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%B8%D9%8E%D9%84%D9%91%D9%8E.html' },
       II: { gloss: 'to shade / overshadow', trans: true,
-            en: { past: 'shaded', pp: 'shaded', pres3: 'shades', ing: 'shading' } },
+            en: { past: 'shaded', pp: 'shaded', pres3: 'shades', ing: 'shading' },
+            reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%B8%D9%8E%D9%84%D9%91%D9%8E%D9%84%D9%8E.html' },
       IV: { gloss: 'to shade / loom over', trans: true,
             en: { past: 'loomed over', pp: 'loomed over', pres3: 'looms over', ing: 'looming over' } },
       X: { gloss: 'to seek shade', trans: false,
@@ -277,19 +341,23 @@ export const ROOTS = [
     root: ['م', 'ر', 'ر'], type: 'mudaaf',
     forms: {
       I: { bab: 'au', gloss: 'to pass by', masdar: 'مُرُور', trans: false,
-           en: { past: 'passed by', pres3: 'passes by', ing: 'passing by' } },
+           en: { past: 'passed by', pres3: 'passes by', ing: 'passing by' },
+           reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D9%85%D9%8E%D8%B1%D9%91%D9%8E.html' },
       II: { gloss: 'to let pass / pass through', trans: true,
-            en: { past: 'passed through', pp: 'passed through', pres3: 'passes through', ing: 'passing through' } },
+            en: { past: 'passed through', pp: 'passed through', pres3: 'passes through', ing: 'passing through' },
+            reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D9%85%D9%8E%D8%B1%D9%91%D9%8E%D8%B1%D9%8E.html' },
       IV: { gloss: 'to make bitter', trans: true,
             en: { past: 'embittered', pp: 'embittered', pres3: 'embitters', ing: 'embittering' } },
       X: { gloss: 'to continue / persist', trans: false,
-           en: { past: 'continued', pres3: 'continues', ing: 'continuing' } },
+           en: { past: 'continued', pres3: 'continues', ing: 'continuing' },
+           reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%A7%D9%90%D8%B3%D9%92%D8%AA%D9%8E%D9%85%D9%8E%D8%B1%D9%91%D9%8E.html' },
     },
   },
   {
     root: ['ع', 'ف', 'ف'], type: 'mudaaf',
     forms: {
-      I: { bab: 'ai', gloss: 'to be chaste', masdar: 'عِفَّة', trans: false },
+      I: { bab: 'ai', gloss: 'to be chaste', masdar: 'عِفَّة', trans: false,
+           reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%B9%D9%8E%D9%81%D9%91%D9%8E.html' },
       V: { gloss: 'to restrain oneself', trans: false,
            en: { past: 'restrained himself', pres3: 'restrains himself', ing: 'restraining himself' } },
       X: { gloss: 'to ask to be excused', trans: false,
@@ -300,7 +368,8 @@ export const ROOTS = [
     root: ['ق', 'د', 'د'], type: 'mudaaf',
     forms: {
       I: { bab: 'ai', gloss: 'to cut lengthwise', masdar: 'قَدّ', trans: true,
-           en: { past: 'cut', pp: 'cut', pres3: 'cuts', ing: 'cutting' } },
+           en: { past: 'cut', pp: 'cut', pres3: 'cuts', ing: 'cutting' },
+           reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D9%82%D9%8E%D8%AF%D9%91%D9%8E.html' },
       VII: { gloss: 'to be split apart', trans: false,
              en: { past: 'was split apart', pres3: 'gets split apart', ing: 'getting split apart' } },
     },
@@ -309,11 +378,14 @@ export const ROOTS = [
     root: ['م', 'س', 'س'], type: 'mudaaf',
     forms: {
       I: { bab: 'aa', gloss: 'to touch', masdar: 'مَسّ', trans: true,
-           en: { past: 'touched', pp: 'touched', pres3: 'touches', ing: 'touching' } },
+           en: { past: 'touched', pp: 'touched', pres3: 'touches', ing: 'touching' },
+           reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D9%85%D9%8E%D8%B3%D9%91%D9%8E.html' },
       III: { gloss: 'to be in contact with', trans: true,
-             en: { past: 'adjoined', pp: 'adjoined', pres3: 'adjoins', ing: 'adjoining' } },
+             en: { past: 'adjoined', pp: 'adjoined', pres3: 'adjoins', ing: 'adjoining' },
+             reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D9%85%D9%8E%D8%A7%D8%B3%D9%91%D9%8E.html' },
       VI: { gloss: 'to touch each other', trans: false,
-            en: { past: 'touched each other', pres3: 'touch each other', ing: 'touching each other' } },
+            en: { past: 'touched each other', pres3: 'touch each other', ing: 'touching each other' },
+            reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%AA%D9%8E%D9%85%D9%8E%D8%A7%D8%B3%D9%91%D9%8E.html' },
     },
   },
 
@@ -324,9 +396,11 @@ export const ROOTS = [
       // classical; the kasra form is the one the Qurʾān reads (لَا يَضِلُّ
       // رَبِّي), and a root entry holds one Form I.
       I: { bab: 'ai', gloss: 'to go astray', masdar: 'ضَلَال', trans: false,
-           en: { past: 'went astray', pres3: 'goes astray', ing: 'going astray' } },
+           en: { past: 'went astray', pres3: 'goes astray', ing: 'going astray' },
+           reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%B6%D9%8E%D9%84%D9%91%D9%8E.html' },
       II: { gloss: 'to declare misguided', trans: true,
-            en: { past: 'declared misguided', pp: 'declared misguided', pres3: 'declares misguided', ing: 'declaring misguided' } },
+            en: { past: 'declared misguided', pp: 'declared misguided', pres3: 'declares misguided', ing: 'declaring misguided' },
+            reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%B6%D9%8E%D9%84%D9%91%D9%8E%D9%84%D9%8E.html' },
       IV: { gloss: 'to lead astray', trans: true,
             en: { past: 'led astray', pp: 'led astray', pres3: 'leads astray', ing: 'leading astray' } },
     },
@@ -390,6 +464,7 @@ export const ROOTS = [
             '2fs': 'قُولِي', '2fd': 'قُولَا', '2fp': 'قُلْنَ',
           },
         },
+        reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D9%82%D9%8E%D8%A7%D9%84%D9%8E.html',
       },
       // The mazīd forms carry no fixtures and never did: manualTables were only
       // ever a stand-in for a missing ENGINE, and the ajwaf engine has been
@@ -397,13 +472,16 @@ export const ROOTS = [
       III: { gloss: 'to negotiate with', trans: true,
              en: { past: 'negotiated with', pp: 'negotiated with', pres3: 'negotiates with', ing: 'negotiating with' } },
       IV: { gloss: 'to release from a contract', trans: true,
-            en: { past: 'released', pp: 'released', pres3: 'releases', ing: 'releasing' } },
+            en: { past: 'released', pp: 'released', pres3: 'releases', ing: 'releasing' },
+            reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%A3%D9%8E%D9%82%D9%8E%D8%A7%D9%84%D9%8E.html' },
       V: { gloss: 'to fabricate a saying against', trans: true,
-           en: { past: 'fabricated against', pp: 'fabricated against', pres3: 'fabricates against', ing: 'fabricating against' } },
+           en: { past: 'fabricated against', pp: 'fabricated against', pres3: 'fabricates against', ing: 'fabricating against' },
+           reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%AA%D9%8E%D9%82%D9%8E%D9%88%D9%91%D9%8E%D9%84%D9%8E.html' },
       VI: { gloss: 'to converse with one another', trans: false,
             en: { past: 'conversed with one another', pres3: 'converse with one another', ing: 'conversing with one another' } },
       X: { gloss: 'to resign', trans: false,
-           en: { past: 'resigned', pres3: 'resigns', ing: 'resigning' } },
+           en: { past: 'resigned', pres3: 'resigns', ing: 'resigning' },
+           reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%A7%D9%90%D8%B3%D9%92%D8%AA%D9%8E%D9%82%D9%8E%D8%A7%D9%84%D9%8E.html' },
     },
   },
   {
@@ -460,6 +538,7 @@ export const ROOTS = [
             '2fs': 'اِرْمِي', '2fd': 'اِرْمِيَا', '2fp': 'اِرْمِينَ',
           },
         },
+        reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%B1%D9%8E%D9%85%D9%8E%D9%89.html',
       },
       // Form I is fixture-checked; VI and VIII are the naqis mazīd tables
       // (ROADMAP B1) doing the work, same as قضي and رضي.
@@ -488,52 +567,68 @@ export const ROOTS = [
     root: ['و', 'ج', 'ب'], type: 'mithal_waw',
     forms: {
       I: { bab: 'ai', gloss: 'to be obligatory', masdar: 'وُجُوب', trans: false,
-           en: { past: 'became obligatory', pres3: 'becomes obligatory', ing: 'becoming obligatory' } },
+           en: { past: 'became obligatory', pres3: 'becomes obligatory', ing: 'becoming obligatory' },
+           reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D9%88%D9%8E%D8%AC%D9%8E%D8%A8%D9%8E.html' },
       IV: { gloss: 'to make obligatory', trans: true,
-            en: { past: 'obligated', pp: 'obligated', pres3: 'obligates', ing: 'obligating' } },
+            en: { past: 'obligated', pp: 'obligated', pres3: 'obligates', ing: 'obligating' },
+            reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%A3%D9%8E%D9%88%D9%92%D8%AC%D9%8E%D8%A8%D9%8E.html' },
       X: { gloss: 'to deserve / merit', trans: true,
-           en: { past: 'deserved', pp: 'deserved', pres3: 'deserves', ing: 'deserving' } },
+           en: { past: 'deserved', pp: 'deserved', pres3: 'deserves', ing: 'deserving' },
+           reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%A7%D9%90%D8%B3%D9%92%D8%AA%D9%8E%D9%88%D9%92%D8%AC%D9%8E%D8%A8%D9%8E.html' },
     },
   },
   {
     root: ['و', 'ص', 'ل'], type: 'mithal_waw',
     forms: {
       I: { bab: 'ai', gloss: 'to reach / connect', masdar: 'وُصُول', trans: true,
-           en: { past: 'reached', pp: 'reached', pres3: 'reaches', ing: 'reaching' } },
+           en: { past: 'reached', pp: 'reached', pres3: 'reaches', ing: 'reaching' },
+           reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D9%88%D9%8E%D8%B5%D9%8E%D9%84%D9%8E.html' },
       II: { gloss: 'to connect / deliver', trans: true,
-            en: { past: 'connected', pp: 'connected', pres3: 'connects', ing: 'connecting' } },
+            en: { past: 'connected', pp: 'connected', pres3: 'connects', ing: 'connecting' },
+            reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D9%88%D9%8E%D8%B5%D9%91%D9%8E%D9%84%D9%8E.html' },
       III: { gloss: 'to keep in touch with', trans: true,
-             en: { past: 'kept in touch with', pp: 'kept in touch with', pres3: 'keeps in touch with', ing: 'keeping in touch with' } },
+             en: { past: 'kept in touch with', pp: 'kept in touch with', pres3: 'keeps in touch with', ing: 'keeping in touch with' },
+             reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D9%88%D9%8E%D8%A7%D8%B5%D9%8E%D9%84%D9%8E.html' },
       IV: { gloss: 'to deliver / bring to', trans: true,
-            en: { past: 'delivered', pp: 'delivered', pres3: 'delivers', ing: 'delivering' } },
+            en: { past: 'delivered', pp: 'delivered', pres3: 'delivers', ing: 'delivering' },
+            reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%A3%D9%8E%D9%88%D9%92%D8%B5%D9%8E%D9%84%D9%8E.html' },
       V: { gloss: 'to arrive at a result', trans: false,
-           en: { past: 'arrived at', pres3: 'arrives at', ing: 'arriving at' } },
+           en: { past: 'arrived at', pres3: 'arrives at', ing: 'arriving at' },
+           reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%AA%D9%8E%D9%88%D9%8E%D8%B5%D9%91%D9%8E%D9%84%D9%8E.html' },
       VI: { gloss: 'to stay in touch', trans: false,
-            en: { past: 'stayed in touch', pres3: 'stays in touch', ing: 'staying in touch' } },
+            en: { past: 'stayed in touch', pres3: 'stays in touch', ing: 'staying in touch' },
+            reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%AA%D9%8E%D9%88%D9%8E%D8%A7%D8%B5%D9%8E%D9%84%D9%8E.html' },
       VIII: { gloss: 'to contact / call', trans: true,
-              en: { past: 'contacted', pp: 'contacted', pres3: 'contacts', ing: 'contacting' } },
+              en: { past: 'contacted', pp: 'contacted', pres3: 'contacts', ing: 'contacting' },
+              reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%A7%D9%90%D8%AA%D9%91%D9%8E%D8%B5%D9%8E%D9%84%D9%8E.html' },
     },
   },
   {
     root: ['و', 'ج', 'د'], type: 'mithal_waw',
     forms: {
       I: { bab: 'ai', gloss: 'to find', masdar: 'وُجُود', trans: true,
-           en: { past: 'found', pp: 'found', pres3: 'finds', ing: 'finding' } },
+           en: { past: 'found', pp: 'found', pres3: 'finds', ing: 'finding' },
+           reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D9%88%D9%8E%D8%AC%D9%8E%D8%AF%D9%8E.html' },
       IV: { gloss: 'to bring into existence', trans: true,
-            en: { past: 'created', pp: 'created', pres3: 'creates', ing: 'creating' } },
+            en: { past: 'created', pp: 'created', pres3: 'creates', ing: 'creating' },
+            reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%A3%D9%8E%D9%88%D9%92%D8%AC%D9%8E%D8%AF%D9%8E.html' },
     },
   },
   {
     root: ['و', 'ق', 'ع'], type: 'mithal_waw',
     forms: {
       I: { bab: 'aa', gloss: 'to fall / happen', masdar: 'وُقُوع', trans: false,
-           en: { past: 'happened', pres3: 'happens', ing: 'happening' } },
+           en: { past: 'happened', pres3: 'happens', ing: 'happening' },
+           reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D9%88%D9%8E%D9%82%D9%8E%D8%B9%D9%8E.html' },
       II: { gloss: 'to sign', trans: true,
-            en: { past: 'signed', pp: 'signed', pres3: 'signs', ing: 'signing' } },
+            en: { past: 'signed', pp: 'signed', pres3: 'signs', ing: 'signing' },
+            reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D9%88%D9%8E%D9%82%D9%91%D9%8E%D8%B9%D9%8E.html' },
       III: { gloss: 'to confront / engage with', trans: true,
-             en: { past: 'confronted', pp: 'confronted', pres3: 'confronts', ing: 'confronting' } },
+             en: { past: 'confronted', pp: 'confronted', pres3: 'confronts', ing: 'confronting' },
+             reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D9%88%D9%8E%D8%A7%D9%82%D9%8E%D8%B9%D9%8E.html' },
       IV: { gloss: 'to inflict / cause to fall', trans: true,
-            en: { past: 'inflicted', pp: 'inflicted', pres3: 'inflicts', ing: 'inflicting' } },
+            en: { past: 'inflicted', pp: 'inflicted', pres3: 'inflicts', ing: 'inflicting' },
+            reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%A3%D9%8E%D9%88%D9%92%D9%82%D9%8E%D8%B9%D9%8E.html' },
       VI: { gloss: 'to clash with one another', trans: false,
             en: { past: 'clashed', pres3: 'clash', ing: 'clashing' } },
     },
@@ -542,11 +637,13 @@ export const ROOTS = [
     root: ['و', 'ض', 'ع'], type: 'mithal_waw',
     forms: {
       I: { bab: 'aa', gloss: 'to put / place', masdar: 'وَضْع', trans: true,
-           en: { past: 'put', pp: 'put', pres3: 'puts', ing: 'putting' } },
+           en: { past: 'put', pp: 'put', pres3: 'puts', ing: 'putting' },
+           reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D9%88%D9%8E%D8%B6%D9%8E%D8%B9%D9%8E.html' },
       III: { gloss: 'to compose together', trans: true,
              en: { past: 'drafted together', pp: 'drafted together', pres3: 'drafts together', ing: 'drafting together' } },
       VI: { gloss: 'to be humble', trans: false,
-            en: { past: 'was humble', pres3: 'is humble', ing: 'being humble' } },
+            en: { past: 'was humble', pres3: 'is humble', ing: 'being humble' },
+            reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%AA%D9%8E%D9%88%D9%8E%D8%A7%D8%B6%D9%8E%D8%B9%D9%8E.html' },
       VIII: { gloss: 'to be lowered / humbled', trans: false,
               en: { past: 'was humbled', pres3: 'gets humbled', ing: 'getting humbled' } },
     },
@@ -555,7 +652,8 @@ export const ROOTS = [
     root: ['و', 'ه', 'ب'], type: 'mithal_waw',
     forms: {
       I: { bab: 'aa', gloss: 'to grant / bestow', masdar: 'هِبَة', trans: true,
-           en: { past: 'granted', pp: 'granted', pres3: 'grants', ing: 'granting' } },
+           en: { past: 'granted', pp: 'granted', pres3: 'grants', ing: 'granting' },
+           reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D9%88%D9%8E%D9%87%D9%8E%D8%A8%D9%8E.html' },
       X: { gloss: 'to ask for a gift', trans: true,
            en: { past: 'asked for a gift', pp: 'asked of', pres3: 'asks for a gift', ing: 'asking for a gift' } },
     },
@@ -564,7 +662,8 @@ export const ROOTS = [
     root: ['و', 'ج', 'ل'], type: 'mithal_waw',
     forms: {
       I: { bab: 'ia', gloss: 'to fear / be afraid', masdar: 'وَجَل', trans: false,
-           en: { past: 'feared', pres3: 'fears', ing: 'fearing' } },
+           en: { past: 'feared', pres3: 'fears', ing: 'fearing' },
+           reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D9%88%D9%8E%D8%AC%D9%90%D9%84%D9%8E.html' },
       IV: { gloss: 'to frighten', trans: true,
             en: { past: 'frightened', pp: 'frightened', pres3: 'frightens', ing: 'frightening' } },
     },
@@ -573,7 +672,8 @@ export const ROOTS = [
     root: ['و', 'ج', 'ع'], type: 'mithal_waw',
     forms: {
       I: { bab: 'ia', gloss: 'to hurt / feel pain', masdar: 'وَجَع', trans: false,
-           en: { past: 'hurt', pres3: 'hurts', ing: 'hurting' } },
+           en: { past: 'hurt', pres3: 'hurts', ing: 'hurting' },
+           reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D9%88%D9%8E%D8%AC%D9%90%D8%B9%D9%8E.html' },
       IV: { gloss: 'to cause pain to', trans: true,
             en: { past: 'caused pain to', pp: 'pained', pres3: 'causes pain to', ing: 'causing pain to' } },
     },
@@ -582,11 +682,14 @@ export const ROOTS = [
     root: ['و', 'ث', 'ق'], type: 'mithal_waw',
     forms: {
       I: { bab: 'ai', gloss: 'to trust', masdar: 'ثِقَة', trans: false,
-           en: { past: 'trusted', pres3: 'trusts', ing: 'trusting' } },
+           en: { past: 'trusted', pres3: 'trusts', ing: 'trusting' },
+           reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D9%88%D9%8E%D8%AB%D9%90%D9%82%D9%8E.html' },
       II: { gloss: 'to document / verify', trans: true,
-            en: { past: 'documented', pp: 'documented', pres3: 'documents', ing: 'documenting' } },
+            en: { past: 'documented', pp: 'documented', pres3: 'documents', ing: 'documenting' },
+            reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D9%88%D9%8E%D8%AB%D9%91%D9%8E%D9%82%D9%8E.html' },
       III: { gloss: 'to make a covenant with', trans: true,
-             en: { past: 'made a pact with', pp: 'covenanted with', pres3: 'makes a pact with', ing: 'making a pact with' } },
+             en: { past: 'made a pact with', pp: 'covenanted with', pres3: 'makes a pact with', ing: 'making a pact with' },
+             reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D9%88%D9%8E%D8%A7%D8%AB%D9%8E%D9%82%D9%8E.html' },
       IV: { gloss: 'to bind firmly', trans: true,
             en: { past: 'bound firmly', pp: 'bound firmly', pres3: 'binds firmly', ing: 'binding firmly' } },
       V: { gloss: 'to make sure / verify', trans: false,
@@ -598,15 +701,20 @@ export const ROOTS = [
   {
     root: ['و', 'ج', 'ه'], type: 'mithal_waw',
     forms: {
-      I: { bab: 'uu', gloss: 'to be distinguished', masdar: 'وَجَاهَة', trans: false },
+      I: { bab: 'uu', gloss: 'to be distinguished', masdar: 'وَجَاهَة', trans: false,
+           reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D9%88%D9%8E%D8%AC%D9%8F%D9%87%D9%8E.html' },
       II: { gloss: 'to direct / orient', trans: true,
-            en: { past: 'directed', pp: 'directed', pres3: 'directs', ing: 'directing' } },
+            en: { past: 'directed', pp: 'directed', pres3: 'directs', ing: 'directing' },
+            reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D9%88%D9%8E%D8%AC%D9%91%D9%8E%D9%87%D9%8E.html' },
       III: { gloss: 'to face / confront', trans: true,
-             en: { past: 'faced', pp: 'faced', pres3: 'faces', ing: 'facing' } },
+             en: { past: 'faced', pp: 'faced', pres3: 'faces', ing: 'facing' },
+             reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D9%88%D9%8E%D8%A7%D8%AC%D9%8E%D9%87%D9%8E.html' },
       V: { gloss: 'to head towards', trans: false,
-           en: { past: 'headed towards', pres3: 'heads towards', ing: 'heading towards' } },
+           en: { past: 'headed towards', pres3: 'heads towards', ing: 'heading towards' },
+           reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%AA%D9%8E%D9%88%D9%8E%D8%AC%D9%91%D9%8E%D9%87%D9%8E.html' },
       VI: { gloss: 'to face one another', trans: false,
-            en: { past: 'faced one another', pres3: 'face one another', ing: 'facing one another' } },
+            en: { past: 'faced one another', pres3: 'face one another', ing: 'facing one another' },
+            reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%AA%D9%8E%D9%88%D9%8E%D8%A7%D8%AC%D9%8E%D9%87%D9%8E.html' },
     },
   },
   {
@@ -615,11 +723,13 @@ export const ROOTS = [
       // Source notes read "abb" for the vowel pair, which is not one of the six
       // — وَرِثَ يَرِثُ is kasra/kasra, so `ii`. Flagged for your check.
       I: { bab: 'ii', gloss: 'to inherit', masdar: 'إِرْث', trans: true,
-           en: { past: 'inherited', pp: 'inherited', pres3: 'inherits', ing: 'inheriting' } },
+           en: { past: 'inherited', pp: 'inherited', pres3: 'inherits', ing: 'inheriting' },
+           reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D9%88%D9%8E%D8%B1%D9%90%D8%AB%D9%8E.html' },
       II: { gloss: 'to bequeath / pass down', trans: true,
             en: { past: 'bequeathed', pp: 'bequeathed', pres3: 'bequeaths', ing: 'bequeathing' } },
       IV: { gloss: 'to cause to inherit', trans: true,
-            en: { past: 'passed on', pp: 'passed on', pres3: 'passes on', ing: 'passing on' } },
+            en: { past: 'passed on', pp: 'passed on', pres3: 'passes on', ing: 'passing on' },
+            reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%A3%D9%8E%D9%88%D9%92%D8%B1%D9%8E%D8%AB%D9%8E.html' },
       V: { gloss: 'to be inherited', trans: false,
            en: { past: 'was inherited', pres3: 'gets inherited', ing: 'getting inherited' } },
       VI: { gloss: 'to inherit from one another', trans: false,
@@ -633,19 +743,25 @@ export const ROOTS = [
       // The textbook mithāl: the kasra on the ʿayn crushes the wāw out of the
       // muḍāriʿ entirely — وَعَدَ يَعِدُ, no wāw left to see.
       I: { bab: 'ai', gloss: 'to promise', masdar: 'وَعْد', trans: true,
-           en: { past: 'promised', pp: 'promised', pres3: 'promises', ing: 'promising' } },
+           en: { past: 'promised', pp: 'promised', pres3: 'promises', ing: 'promising' },
+           reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D9%88%D9%8E%D8%B9%D9%8E%D8%AF%D9%8E.html' },
       III: { gloss: 'to make an appointment with', trans: true,
-             en: { past: 'made an appointment with', pp: 'appointed with', pres3: 'makes an appointment with', ing: 'making an appointment with' } },
+             en: { past: 'made an appointment with', pp: 'appointed with', pres3: 'makes an appointment with', ing: 'making an appointment with' },
+             reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D9%88%D9%8E%D8%A7%D8%B9%D9%8E%D8%AF%D9%8E.html' },
       IV: { gloss: 'to threaten', trans: true,
-            en: { past: 'threatened', pp: 'threatened', pres3: 'threatens', ing: 'threatening' } },
+            en: { past: 'threatened', pp: 'threatened', pres3: 'threatens', ing: 'threatening' },
+            reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%A3%D9%8E%D9%88%D9%92%D8%B9%D9%8E%D8%AF%D9%8E.html' },
       V: { gloss: 'to threaten repeatedly', trans: true,
-           en: { past: 'threatened', pp: 'threatened', pres3: 'threatens', ing: 'threatening' } },
+           en: { past: 'threatened', pp: 'threatened', pres3: 'threatens', ing: 'threatening' },
+           reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%AA%D9%8E%D9%88%D9%8E%D8%B9%D9%91%D9%8E%D8%AF%D9%8E.html' },
       VI: { gloss: 'to promise one another', trans: false,
-            en: { past: 'promised one another', pres3: 'promise one another', ing: 'promising one another' } },
+            en: { past: 'promised one another', pres3: 'promise one another', ing: 'promising one another' },
+            reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%AA%D9%8E%D9%88%D9%8E%D8%A7%D8%B9%D9%8E%D8%AF%D9%8E.html' },
       // اِتَّعَدَ — the faa vanishes into the taa. This is the root that exercises
       // MITHAL_STEMS.VIII, whose templates never mention radical 1.
       VIII: { gloss: 'to accept a promise', trans: true,
-              en: { past: 'accepted a promise', pp: 'accepted', pres3: 'accepts a promise', ing: 'accepting a promise' } },
+              en: { past: 'accepted a promise', pp: 'accepted', pres3: 'accepts a promise', ing: 'accepting a promise' },
+              reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%A7%D9%90%D8%AA%D9%91%D9%8E%D8%B9%D9%8E%D8%AF%D9%8E.html' },
     },
   },
 
@@ -656,7 +772,8 @@ export const ROOTS = [
     root: ['ي', 'ء', 'س'], type: 'mithal_ya',
     forms: {
       I: { bab: 'ia', gloss: 'to despair', masdar: 'يَأْس', trans: false,
-           en: { past: 'despaired', pres3: 'despairs', ing: 'despairing' } },
+           en: { past: 'despaired', pres3: 'despairs', ing: 'despairing' },
+           reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D9%8A%D9%8E%D8%A6%D9%90%D8%B3%D9%8E.html' },
       IV: { gloss: 'to cause to despair', trans: true,
             en: { past: 'drove to despair', pp: 'driven to despair', pres3: 'drives to despair', ing: 'driving to despair' } },
       X: { gloss: 'to give up all hope', trans: false,
@@ -665,12 +782,12 @@ export const ROOTS = [
   },
   {
     root: ['ي', 'ق', 'ن'], type: 'mithal_ya',
-    reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%A3%D9%8A%D9%82%D9%86.html',
     forms: {
       I: { bab: 'ia', gloss: 'to be certain', masdar: 'يَقِين', trans: false,
            en: { past: 'was certain', pres3: 'is certain', ing: 'being certain' } },
       IV: { gloss: 'to ascertain', trans: true,
-            en: { past: 'ascertained', pp: 'ascertained', pres3: 'ascertains', ing: 'ascertaining' } },
+            en: { past: 'ascertained', pp: 'ascertained', pres3: 'ascertains', ing: 'ascertaining' },
+            reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%A3%D9%8E%D9%8A%D9%92%D9%82%D9%8E%D9%86%D9%8E.html' },
       V: { gloss: 'to make sure', trans: false,
            en: { past: 'made sure', pres3: 'makes sure', ing: 'making sure' } },
       X: { gloss: 'to be fully certain of', trans: true,
@@ -681,27 +798,31 @@ export const ROOTS = [
     root: ['ي', 'م', 'ن'], type: 'mithal_ya',
     forms: {
       I: { bab: 'aa', gloss: 'to be lucky / blessed', masdar: 'يُمْن', trans: true,
-           en: { past: 'was lucky', pres3: 'is lucky', ing: 'being lucky' } },
+           en: { past: 'was lucky', pres3: 'is lucky', ing: 'being lucky' },
+           reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D9%8A%D9%8E%D9%85%D9%8E%D9%86%D9%8E.html' },
       II: { gloss: 'to go to the right', trans: true,
-            en: { past: 'went to the right', pp: 'went to the right', pres3: 'goes to the right', ing: 'going to the right' } },
+            en: { past: 'went to the right', pp: 'went to the right', pres3: 'goes to the right', ing: 'going to the right' },
+            reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D9%8A%D9%8E%D9%85%D9%91%D9%8E%D9%86%D9%8E.html' },
       V: { gloss: 'to see a good omen', trans: false,
            en: { past: 'saw a good omen', pres3: 'sees a good omen', ing: 'seeing a good omen' } },
     },
   },
   {
     root: ['ي', 'ق', 'ظ'], type: 'mithal_ya',
-    reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%A3%D9%8A%D9%82%D8%B8.html',
     forms: {
       // يَقُظَ يَيْقُظُ, bab كَرُمَ. The dictionaries also carry the doublet
       // يَقِظَ يَيْقَظُ (bab ia, masdar يَقَظ) for the same meaning; only the
       // damma form is listed, since a root entry holds one Form I.
-      I: { bab: 'ia', gloss: 'to be awake / vigilant', masdar: 'يَقَاظَة', trans: false },
+      I: { bab: 'ia', gloss: 'to be awake / vigilant', masdar: 'يَقَاظَة', trans: false,
+           reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D9%8A%D9%8E%D9%82%D9%8F%D8%B8%D9%8E.html' },
       IV: { gloss: 'to wake someone up', trans: true,
-            en: { past: 'woke up', pp: 'woken up', pres3: 'wakes up', ing: 'waking up' } },
+            en: { past: 'woke up', pp: 'woken up', pres3: 'wakes up', ing: 'waking up' },
+            reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%A3%D9%8E%D9%8A%D9%92%D9%82%D9%8E%D8%B8%D9%8E.html' },
       V: { gloss: 'to become alert', trans: false,
            en: { past: 'became alert', pres3: 'becomes alert', ing: 'becoming alert' } },
       X: { gloss: 'to wake up', trans: false,
-           en: { past: 'woke up', pres3: 'wakes up', ing: 'waking up' } },
+           en: { past: 'woke up', pres3: 'wakes up', ing: 'waking up' },
+           reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%A7%D9%90%D8%B3%D9%92%D8%AA%D9%8E%D9%8A%D9%92%D9%82%D9%8E%D8%B8%D9%8E.html' },
     },
   },
   {
@@ -710,9 +831,11 @@ export const ROOTS = [
       // يَبِسَ يَيْبَسُ, bab سَمِعَ — the stative فَعِلَ pattern, so the fatha on the
       // mudari ayn is its own and the ya stays. The doublet يَبَسَ يَيْبِسُ (bab
       // ai) is also attested; only the kasra form is listed.
-      I: { bab: 'ia', gloss: 'to be dry', masdar: 'يُبْس', trans: false },
+      I: { bab: 'ia', gloss: 'to be dry', masdar: 'يُبْس', trans: false,
+           reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D9%8A%D9%8E%D8%A8%D9%90%D8%B3%D9%8E.html' },
       II: { gloss: 'to dry something out', trans: true,
-            en: { past: 'dried out', pp: 'dried out', pres3: 'dries out', ing: 'drying out' } },
+            en: { past: 'dried out', pp: 'dried out', pres3: 'dries out', ing: 'drying out' },
+            reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D9%8A%D9%8E%D8%A8%D9%91%D9%8E%D8%B3%D9%8E.html' },
       IV: { gloss: 'to dry up / wither', trans: true,
             en: { past: 'dried up', pp: 'dried up', pres3: 'dries up', ing: 'drying up' } },
     },
@@ -724,7 +847,8 @@ export const ROOTS = [
       // bab فَتَحَ, which needs a ḥarf ḥalq to license the fatḥa — the ʿayn as
       // lām supplies it here. The first `aa` mithāl yāʾ in the lexicon.
       I: { bab: 'aa', gloss: 'to reach adolescence', masdar: 'يَفَاعَة', trans: false,
-           en: { past: 'reached adolescence', pres3: 'reaches adolescence', ing: 'reaching adolescence' } },
+           en: { past: 'reached adolescence', pres3: 'reaches adolescence', ing: 'reaching adolescence' },
+           reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D9%8A%D9%8E%D9%81%D9%8E%D8%B9%D9%8E.html' },
       // أَيْفَعَ is in fact the commoner of the two in use; form I is kept as the
       // headword because the bab is what a sarf student is asked to name.
       IV: { gloss: 'to come of age', trans: false,
@@ -737,9 +861,11 @@ export const ROOTS = [
       // يَتُمَ يَيْتُمُ, bab كَرُمَ — the form given here. Dictionaries also carry
       // يَتِمَ يَيْتَمُ (bab ia) and يَتَمَ يَيْتِمُ (bab ai) for the same meaning;
       // a root entry holds one Form I, and this is the ḍamma one.
-      I: { bab: 'uu', gloss: 'to be orphaned', masdar: 'يُتْم', trans: false },
+      I: { bab: 'uu', gloss: 'to be orphaned', masdar: 'يُتْم', trans: false,
+           reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D9%8A%D9%8E%D8%AA%D9%8F%D9%85%D9%8E.html' },
       II: { gloss: 'to orphan', trans: true,
-            en: { past: 'orphaned', pp: 'orphaned', pres3: 'orphans', ing: 'orphaning' } },
+            en: { past: 'orphaned', pp: 'orphaned', pres3: 'orphans', ing: 'orphaning' },
+            reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D9%8A%D9%8E%D8%AA%D9%91%D9%8E%D9%85%D9%8E.html' },
       IV: { gloss: 'to make an orphan of', trans: true,
             en: { past: 'made an orphan of', pp: 'orphaned', pres3: 'makes an orphan of', ing: 'making an orphan of' } },
     },
@@ -750,13 +876,16 @@ export const ROOTS = [
       // يَسِرَ يَيْسَرُ, bab سَمِعَ — the form given here. The doublet يَسَرَ
       // يَيْسِرُ (bab ai) means rather "to gamble / draw lots"; different sense,
       // so this is not the same verb wearing another bab.
-      I: { bab: 'ia', gloss: 'to be easy', masdar: 'يُسْر', trans: false },
+      I: { bab: 'ia', gloss: 'to be easy', masdar: 'يُسْر', trans: false,
+           reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D9%8A%D9%8E%D8%B3%D9%8F%D8%B1%D9%8E.html' },
       II: { gloss: 'to make easy', trans: true,
-            en: { past: 'made easy', pp: 'made easy', pres3: 'makes easy', ing: 'making easy' } },
+            en: { past: 'made easy', pp: 'made easy', pres3: 'makes easy', ing: 'making easy' },
+            reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D9%8A%D9%8E%D8%B3%D9%91%D9%8E%D8%B1%D9%8E.html' },
       IV: { gloss: 'to become well off', trans: false,
             en: { past: 'became well off', pres3: 'becomes well off', ing: 'becoming well off' } },
       V: { gloss: 'to become easy', trans: false,
-           en: { past: 'became easy', pres3: 'becomes easy', ing: 'becoming easy' } },
+           en: { past: 'became easy', pres3: 'becomes easy', ing: 'becoming easy' },
+           reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%AA%D9%8E%D9%8A%D9%8E%D8%B3%D9%91%D9%8E%D8%B1%D9%8E.html' },
       X: { gloss: 'to be made easy', trans: false,
            en: { past: 'was made easy', pres3: 'is made easy', ing: 'being made easy' } },
     },
@@ -767,11 +896,14 @@ export const ROOTS = [
     root: ['ن', 'و', 'م'], type: 'ajwaf_waw',
     forms: {
       I: { bab: 'aa', gloss: 'to sleep', masdar: 'نَوْم', trans: false,
-           en: { past: 'slept', pres3: 'sleeps', ing: 'sleeping' } },
+           en: { past: 'slept', pres3: 'sleeps', ing: 'sleeping' },
+           reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D9%86%D9%8E%D8%A7%D9%85%D9%8E.html' },
       II: { gloss: 'to put to sleep', trans: true,
-            en: { past: 'put to sleep', pp: 'put to sleep', pres3: 'puts to sleep', ing: 'putting to sleep' } },
+            en: { past: 'put to sleep', pp: 'put to sleep', pres3: 'puts to sleep', ing: 'putting to sleep' },
+            reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D9%86%D9%8E%D9%88%D9%91%D9%8E%D9%85%D9%8E.html' },
       IV: { gloss: 'to lay down / put to sleep', trans: true,
-            en: { past: 'laid down', pp: 'laid down', pres3: 'lays down', ing: 'laying down' } },
+            en: { past: 'laid down', pp: 'laid down', pres3: 'lays down', ing: 'laying down' },
+            reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%A3%D9%8E%D9%86%D9%8E%D8%A7%D9%85%D9%8E.html' },
       X: { gloss: 'to feel at ease', trans: false,
            en: { past: 'felt at ease', pres3: 'feels at ease', ing: 'feeling at ease' } },
     },
@@ -780,35 +912,44 @@ export const ROOTS = [
     root: ['خ', 'و', 'ف'], type: 'ajwaf_waw',
     forms: {
       I: { bab: 'aa', gloss: 'to fear', masdar: 'خَوْف', trans: true,
-           en: { past: 'feared', pp: 'feared', pres3: 'fears', ing: 'fearing' } },
+           en: { past: 'feared', pp: 'feared', pres3: 'fears', ing: 'fearing' },
+           reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%AE%D9%8E%D8%A7%D9%81%D9%8E.html' },
       II: { gloss: 'to frighten / intimidate', trans: true,
-            en: { past: 'frightened', pp: 'frightened', pres3: 'frightens', ing: 'frightening' } },
+            en: { past: 'frightened', pp: 'frightened', pres3: 'frightens', ing: 'frightening' },
+            reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%AE%D9%8E%D9%88%D9%91%D9%8E%D9%81%D9%8E.html' },
       IV: { gloss: 'to scare', trans: true,
-            en: { past: 'scared', pp: 'scared', pres3: 'scares', ing: 'scaring' } },
+            en: { past: 'scared', pp: 'scared', pres3: 'scares', ing: 'scaring' },
+            reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%A3%D9%8E%D8%AE%D9%8E%D8%A7%D9%81%D9%8E.html' },
       V: { gloss: 'to be apprehensive', trans: false,
-           en: { past: 'was apprehensive', pres3: 'is apprehensive', ing: 'being apprehensive' } },
+           en: { past: 'was apprehensive', pres3: 'is apprehensive', ing: 'being apprehensive' },
+           reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%AA%D9%8E%D8%AE%D9%8E%D9%88%D9%91%D9%8E%D9%81%D9%8E.html' },
     },
   },
   {
     root: ['م', 'و', 'ت'], type: 'ajwaf_waw',
     forms: {
       I: { bab: 'au', gloss: 'to die', masdar: 'مَوْت', trans: false,
-           en: { past: 'died', pres3: 'dies', ing: 'dying' } },
+           en: { past: 'died', pres3: 'dies', ing: 'dying' },
+           reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D9%85%D9%8E%D8%A7%D8%AA%D9%8E.html' },
       IV: { gloss: 'to cause to die', trans: true,
-            en: { past: 'put to death', pp: 'put to death', pres3: 'puts to death', ing: 'putting to death' } },
+            en: { past: 'put to death', pp: 'put to death', pres3: 'puts to death', ing: 'putting to death' },
+            reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%A3%D9%8E%D9%85%D9%8E%D8%A7%D8%AA%D9%8E.html' },
       V: { gloss: 'to feign death', trans: false,
            en: { past: 'feigned death', pres3: 'feigns death', ing: 'feigning death' } },
       X: { gloss: 'to fight to the death', trans: false,
-           en: { past: 'fought to the death', pres3: 'fights to the death', ing: 'fighting to the death' } },
+           en: { past: 'fought to the death', pres3: 'fights to the death', ing: 'fighting to the death' },
+           reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%A7%D9%90%D8%B3%D9%92%D8%AA%D9%8E%D9%85%D9%8E%D8%A7%D8%AA%D9%8E.html' },
     },
   },
   {
     root: ['ز', 'و', 'ر'], type: 'ajwaf_waw',
     forms: {
       I: { bab: 'au', gloss: 'to visit', masdar: 'زِيَارَة', trans: true,
-           en: { past: 'visited', pp: 'visited', pres3: 'visits', ing: 'visiting' } },
+           en: { past: 'visited', pp: 'visited', pres3: 'visits', ing: 'visiting' },
+           reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%B2%D9%8E%D8%A7%D8%B1%D9%8E.html' },
       II: { gloss: 'to forge / falsify', trans: true,
-            en: { past: 'forged', pp: 'forged', pres3: 'forges', ing: 'forging' } },
+            en: { past: 'forged', pp: 'forged', pres3: 'forges', ing: 'forging' },
+            reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%B2%D9%8E%D9%88%D9%91%D9%8E%D8%B1%D9%8E.html' },
       VI: { gloss: 'to visit one another', trans: false,
             en: { past: 'visited one another', pres3: 'visit one another', ing: 'visiting one another' } },
     },
@@ -822,7 +963,8 @@ export const ROOTS = [
       // form nobody says is a distractor a quiz would offer as a real word.
       // صِيَام is the commoner NOUN; صَوْم is the maṣdar proper.
       I: { bab: 'au', gloss: 'to fast', masdar: 'صَوْم', trans: false,
-           en: { past: 'fasted', pres3: 'fasts', ing: 'fasting' } },
+           en: { past: 'fasted', pres3: 'fasts', ing: 'fasting' },
+           reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%B5%D9%8E%D8%A7%D9%85%D9%8E.html' },
     },
   },
 
@@ -830,14 +972,19 @@ export const ROOTS = [
     root: ['ق', 'و', 'م'], type: 'ajwaf_waw',
     forms: {
       I: { bab: 'au', gloss: 'to stand / rise', masdar: 'قِيَام', trans: false,
-           en: { past: 'stood', pres3: 'stands', ing: 'standing' } },
+           en: { past: 'stood', pres3: 'stands', ing: 'standing' },
+           reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D9%82%D9%8E%D8%A7%D9%85%D9%8E.html' },
       II: { gloss: 'to straighten / evaluate', trans: true,
-            en: { past: 'evaluated', pp: 'evaluated', pres3: 'evaluates', ing: 'evaluating' } },
+            en: { past: 'evaluated', pp: 'evaluated', pres3: 'evaluates', ing: 'evaluating' },
+            reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D9%82%D9%8E%D9%88%D9%91%D9%8E%D9%85%D9%8E.html' },
       III: { gloss: 'to resist / withstand', trans: true,
-             en: { past: 'resisted', pp: 'resisted', pres3: 'resists', ing: 'resisting' } },
+             en: { past: 'resisted', pp: 'resisted', pres3: 'resists', ing: 'resisting' },
+             reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D9%82%D9%8E%D8%A7%D9%88%D9%8E%D9%85%D9%8E.html' },
       IV: { gloss: 'to establish / perform', trans: true,
-            en: { past: 'established', pp: 'established', pres3: 'establishes', ing: 'establishing' } },
-      X: { gloss: 'to be upright / straight', trans: false },
+            en: { past: 'established', pp: 'established', pres3: 'establishes', ing: 'establishing' },
+            reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%A3%D9%8E%D9%82%D9%8E%D8%A7%D9%85%D9%8E.html' },
+      X: { gloss: 'to be upright / straight', trans: false,
+           reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%A7%D9%90%D8%B3%D9%92%D8%AA%D9%8E%D9%82%D9%8E%D8%A7%D9%85%D9%8E.html' },
     },
   },
 
@@ -846,7 +993,8 @@ export const ROOTS = [
     root: ['س', 'ي', 'ر'], type: 'ajwaf_ya',
     forms: {
       I: { bab: 'ai', gloss: 'to travel / journey', masdar: 'سَيْر', trans: false,
-           en: { past: 'travelled', pres3: 'travels', ing: 'travelling' } },
+           en: { past: 'travelled', pres3: 'travels', ing: 'travelling' },
+           reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%B3%D9%8E%D8%A7%D8%B1%D9%8E.html' },
       II: { gloss: 'to set in motion', trans: true,
             en: { past: 'set in motion', pp: 'set in motion', pres3: 'sets in motion', ing: 'setting in motion' } },
       III: { gloss: 'to keep pace with', trans: true,
@@ -857,20 +1005,23 @@ export const ROOTS = [
     root: ['ب', 'ي', 'ع'], type: 'ajwaf_ya',
     forms: {
       I: { bab: 'ai', gloss: 'to sell', masdar: 'بَيْع', trans: true,
-           en: { past: 'sold', pp: 'sold', pres3: 'sells', ing: 'selling' } },
+           en: { past: 'sold', pp: 'sold', pres3: 'sells', ing: 'selling' },
+           reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%A8%D9%8E%D8%A7%D8%B9%D9%8E.html' },
       III: { gloss: 'to pledge allegiance to', trans: true,
              en: { past: 'pledged allegiance to', pp: 'pledged allegiance to', pres3: 'pledges allegiance to', ing: 'pledging allegiance to' } },
       VI: { gloss: 'to trade with each other', trans: false,
             en: { past: 'traded with each other', pres3: 'trade with each other', ing: 'trading with each other' } },
       VIII: { gloss: 'to buy / purchase', trans: true,
-              en: { past: 'bought', pp: 'bought', pres3: 'buys', ing: 'buying' } },
+              en: { past: 'bought', pp: 'bought', pres3: 'buys', ing: 'buying' },
+              reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%A7%D9%90%D8%A8%D9%92%D8%AA%D9%8E%D8%A7%D8%B9%D9%8E.html' },
     },
   },
   {
     root: ['ن', 'ي', 'ل'], type: 'ajwaf_ya',
     forms: {
       I: { bab: 'aa', gloss: 'to obtain / attain', masdar: 'نَيْل', trans: true,
-           en: { past: 'obtained', pp: 'obtained', pres3: 'obtains', ing: 'obtaining' } },
+           en: { past: 'obtained', pp: 'obtained', pres3: 'obtains', ing: 'obtaining' },
+           reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D9%86%D9%8E%D8%A7%D9%84%D9%8E.html' },
       IV: { gloss: 'to grant', trans: true,
             en: { past: 'granted', pp: 'granted', pres3: 'grants', ing: 'granting' } },
     },
@@ -892,9 +1043,11 @@ export const ROOTS = [
       // so the mutaḥarrik slots merge across the join (بِتُّ, not بِتْتُ), the
       // one place joinEnding()'s idghām fires for a non-muḍāʿaf root.
       I: { bab: 'ai', gloss: 'to spend the night', masdar: 'بَيْتُوتَة', trans: false,
-           en: { past: 'spent the night', pres3: 'spends the night', ing: 'spending the night' } },
+           en: { past: 'spent the night', pres3: 'spends the night', ing: 'spending the night' },
+           reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%A8%D9%8E%D8%A7%D8%AA%D9%8E.html' },
       II: { gloss: 'to plot by night', trans: true,
-            en: { past: 'plotted by night', pp: 'plotted by night', pres3: 'plots by night', ing: 'plotting by night' } },
+            en: { past: 'plotted by night', pp: 'plotted by night', pres3: 'plots by night', ing: 'plotting by night' },
+            reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%A8%D9%8E%D9%8A%D9%91%D9%8E%D8%AA%D9%8E.html' },
       IV: { gloss: 'to lodge for the night', trans: true,
             en: { past: 'lodged', pp: 'lodged', pres3: 'lodges', ing: 'lodging' } },
     },
@@ -905,11 +1058,14 @@ export const ROOTS = [
     root: ['د', 'ع', 'و'], type: 'naqis_waw',
     forms: {
       I: { bab: 'au', gloss: 'to call / invite', masdar: 'دَعْوَة', trans: true,
-           en: { past: 'called', pp: 'called', pres3: 'calls', ing: 'calling' } },
+           en: { past: 'called', pp: 'called', pres3: 'calls', ing: 'calling' },
+           reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%AF%D9%8E%D8%B9%D9%8E%D8%A7.html' },
       VI: { gloss: 'to call on one another', trans: false,
-            en: { past: 'called on one another', pres3: 'call on one another', ing: 'calling on one another' } },
+            en: { past: 'called on one another', pres3: 'call on one another', ing: 'calling on one another' },
+            reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%AA%D9%8E%D8%AF%D9%8E%D8%A7%D8%B9%D9%8E%D9%89.html' },
       VIII: { gloss: 'to claim / allege', trans: true,
-              en: { past: 'claimed', pp: 'claimed', pres3: 'claims', ing: 'claiming' } },
+              en: { past: 'claimed', pp: 'claimed', pres3: 'claims', ing: 'claiming' },
+              reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%A7%D9%90%D8%AF%D9%91%D9%8E%D8%B9%D9%8E%D9%89.html' },
     },
   },
   {
@@ -926,11 +1082,13 @@ export const ROOTS = [
       // The third waw-lām root, and the first to reach the mazīd tables — where
       // its wāw surfaces as a yāʾ (بَاهَى · تَبَاهَى), the rule NAQIS_STEMS'
       // mazīd header states. دعو only ever gets there through VI and VIII.
-      I: { bab: 'au', gloss: 'to be splendid', masdar: 'بَهَاء', trans: false },
+      I: { bab: 'au', gloss: 'to be splendid', masdar: 'بَهَاء', trans: false,
+           reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%A8%D9%8E%D9%87%D9%8E%D8%A7.html' },
       III: { gloss: 'to vie in glory with', trans: true,
              en: { past: 'vied with', pp: 'vied with', pres3: 'vies with', ing: 'vying with' } },
       VI: { gloss: 'to boast to one another', trans: false,
-            en: { past: 'boasted to one another', pres3: 'boast to one another', ing: 'boasting to one another' } },
+            en: { past: 'boasted to one another', pres3: 'boast to one another', ing: 'boasting to one another' },
+            reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%AA%D9%8E%D8%A8%D9%8E%D8%A7%D9%87%D9%8E%D9%89.html' },
     },
   },
 
@@ -939,22 +1097,27 @@ export const ROOTS = [
     root: ['ق', 'ض', 'ي'], type: 'naqis_ya',
     forms: {
       I: { bab: 'ai', gloss: 'to decide / judge', masdar: 'قَضَاء', trans: true,
-           en: { past: 'judged', pp: 'judged', pres3: 'judges', ing: 'judging' } },
+           en: { past: 'judged', pp: 'judged', pres3: 'judges', ing: 'judging' },
+           reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D9%82%D9%8E%D8%B6%D9%8E%D9%89.html' },
       III: { gloss: 'to take to court', trans: true,
-             en: { past: 'sued', pp: 'sued', pres3: 'sues', ing: 'suing' } },
+             en: { past: 'sued', pp: 'sued', pres3: 'sues', ing: 'suing' },
+             reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D9%82%D9%8E%D8%A7%D8%B6%D9%8E%D9%89.html' },
       VI: { gloss: 'to sue each other', trans: false,
             en: { past: 'sued each other', pres3: 'sue each other', ing: 'suing each other' } },
       VII: { gloss: 'to elapse / come to an end', trans: false,
-             en: { past: 'elapsed', pres3: 'elapses', ing: 'elapsing' } },
+             en: { past: 'elapsed', pres3: 'elapses', ing: 'elapsing' },
+             reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%A7%D9%90%D9%86%D9%92%D9%82%D9%8E%D8%B6%D9%8E%D9%89.html' },
       VIII: { gloss: 'to require / necessitate', trans: true,
-              en: { past: 'required', pp: 'required', pres3: 'requires', ing: 'requiring' } },
+              en: { past: 'required', pp: 'required', pres3: 'requires', ing: 'requiring' },
+              reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%A7%D9%90%D9%82%D9%92%D8%AA%D9%8E%D8%B6%D9%8E%D9%89.html' },
     },
   },
   {
     root: ['س', 'ع', 'ي'], type: 'naqis_ya',
     forms: {
       I: { bab: 'aa', gloss: 'to strive / endeavour', masdar: 'سَعْي', trans: false,
-           en: { past: 'strove', pres3: 'strives', ing: 'striving' } },
+           en: { past: 'strove', pres3: 'strives', ing: 'striving' },
+           reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%B3%D9%8E%D8%B9%D9%8E%D9%89.html' },
       X: { gloss: 'to ask someone to make an effort', trans: true,
            en: { past: 'asked to make an effort', pp: 'called upon', pres3: 'asks to make an effort', ing: 'asking to make an effort' } },
     },
@@ -963,11 +1126,13 @@ export const ROOTS = [
     root: ['ر', 'ض', 'ي'], type: 'naqis_ya',
     forms: {
       I: { bab: 'ia', gloss: 'to be pleased / content', masdar: 'رِضًا', trans: false,
-           en: { past: 'was pleased', pres3: 'is pleased', ing: 'being pleased' } },
+           en: { past: 'was pleased', pres3: 'is pleased', ing: 'being pleased' },
+           reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%B1%D9%8E%D8%B6%D9%90%D9%8A%D9%8E.html' },
       III: { gloss: 'to appease', trans: true,
              en: { past: 'appeased', pp: 'appeased', pres3: 'appeases', ing: 'appeasing' } },
       IV: { gloss: 'to satisfy / please', trans: true,
-            en: { past: 'satisfied', pp: 'satisfied', pres3: 'satisfies', ing: 'satisfying' } },
+            en: { past: 'satisfied', pp: 'satisfied', pres3: 'satisfies', ing: 'satisfying' },
+            reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%A3%D9%8E%D8%B1%D9%92%D8%B6%D9%8E%D9%89.html' },
       VI: { gloss: 'to reach mutual agreement', trans: false,
             en: { past: 'reached mutual agreement', pres3: 'reach mutual agreement', ing: 'reaching mutual agreement' } },
       VIII: { gloss: 'to approve of', trans: true,
@@ -978,13 +1143,16 @@ export const ROOTS = [
     root: ['ه', 'د', 'ي'], type: 'naqis_ya',
     forms: {
       I: { bab: 'ai', gloss: 'to guide', masdar: 'هُدًى', trans: true,
-           en: { past: 'guided', pp: 'guided', pres3: 'guides', ing: 'guiding' } },
+           en: { past: 'guided', pp: 'guided', pres3: 'guides', ing: 'guiding' },
+           reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D9%87%D9%8E%D8%AF%D9%8E%D9%89.html' },
       IV: { gloss: 'to give as a gift', trans: true,
-            en: { past: 'gave as a gift', pp: 'given as a gift', pres3: 'gives as a gift', ing: 'giving as a gift' } },
+            en: { past: 'gave as a gift', pp: 'given as a gift', pres3: 'gives as a gift', ing: 'giving as a gift' },
+            reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%A3%D9%8E%D9%87%D9%92%D8%AF%D9%8E%D9%89.html' },
       VI: { gloss: 'to exchange gifts', trans: false,
             en: { past: 'exchanged gifts', pres3: 'exchange gifts', ing: 'exchanging gifts' } },
       VIII: { gloss: 'to be rightly guided', trans: false,
-              en: { past: 'was rightly guided', pres3: 'is rightly guided', ing: 'being rightly guided' } },
+              en: { past: 'was rightly guided', pres3: 'is rightly guided', ing: 'being rightly guided' },
+              reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%A7%D9%90%D9%87%D9%92%D8%AA%D9%8E%D8%AF%D9%8E%D9%89.html' },
       X: { gloss: 'to seek guidance', trans: false,
            en: { past: 'sought guidance', pres3: 'seeks guidance', ing: 'seeking guidance' } },
     },
@@ -996,11 +1164,13 @@ export const ROOTS = [
       // because the kasra on the ʿayn makes the yāʾ pronounceable. Same shape
       // as رَضِيَ, and the second root to exercise it.
       I: { bab: 'ia', gloss: 'to remain', masdar: 'بَقَاء', trans: false,
-           en: { past: 'remained', pres3: 'remains', ing: 'remaining' } },
+           en: { past: 'remained', pres3: 'remains', ing: 'remaining' },
+           reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%A8%D9%8E%D9%82%D9%90%D9%8A%D9%8E.html' },
       II: { gloss: 'to leave over', trans: true,
             en: { past: 'left over', pp: 'left over', pres3: 'leaves over', ing: 'leaving over' } },
       IV: { gloss: 'to spare', trans: true,
-            en: { past: 'spared', pp: 'spared', pres3: 'spares', ing: 'sparing' } },
+            en: { past: 'spared', pp: 'spared', pres3: 'spares', ing: 'sparing' },
+            reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%A3%D9%8E%D8%A8%D9%92%D9%82%D9%8E%D9%89.html' },
       X: { gloss: 'to keep alive', trans: true,
            en: { past: 'kept alive', pp: 'kept alive', pres3: 'keeps alive', ing: 'keeping alive' } },
     },
@@ -1012,7 +1182,6 @@ export const ROOTS = [
       "و"
     ],
     "type": "naqis_waw",
-    "reverso": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%B3%D9%85%D9%91%D9%89.html",
     "forms": {
       "I": {
         "bab": "au",
@@ -1023,7 +1192,8 @@ export const ROOTS = [
           "past": "rose",
           "pres3": "rises",
           "ing": "rising"
-        }
+        },
+        "reverso": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%B3%D9%8E%D9%85%D9%8E%D8%A7.html"
       },
       "II": {
         "gloss": "to name / to call",
@@ -1034,7 +1204,8 @@ export const ROOTS = [
           "pp": "named",
           "pres3": "names",
           "ing": "naming"
-        }
+        },
+        "reverso": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%B3%D9%8E%D9%85%D9%91%D9%8E%D9%89.html"
       },
       "III": {
         "gloss": "to vie with in glory",
@@ -1056,7 +1227,8 @@ export const ROOTS = [
           "pp": "elevated",
           "pres3": "elevates",
           "ing": "elevating"
-        }
+        },
+        "reverso": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%A3%D9%8E%D8%B3%D9%92%D9%85%D9%8E%D9%89.html"
       },
       "V": {
         "gloss": "to be named / to go by the name of",
@@ -1066,7 +1238,8 @@ export const ROOTS = [
           "past": "was named",
           "pres3": "is named",
           "ing": "being named"
-        }
+        },
+        "reverso": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%AA%D9%8E%D8%B3%D9%8E%D9%85%D9%91%D9%8E%D9%89.html"
       },
       "VI": {
         "gloss": "to rise high / to vie with one another",
@@ -1087,7 +1260,6 @@ export const ROOTS = [
       "و"
     ],
     "type": "naqis_waw",
-    "reverso": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%B1%D8%A8%D9%91%D9%89.html",
     "forms": {
       "I": {
         "bab": "au",
@@ -1098,7 +1270,8 @@ export const ROOTS = [
           "past": "grew",
           "pres3": "grows",
           "ing": "growing"
-        }
+        },
+        "reverso": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%B1%D9%8E%D8%A8%D9%8E%D8%A7.html"
       },
       "II": {
         "gloss": "to raise / to bring up / to educate",
@@ -1109,7 +1282,8 @@ export const ROOTS = [
           "pp": "raised",
           "pres3": "raises",
           "ing": "raising"
-        }
+        },
+        "reverso": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%B1%D9%8E%D8%A8%D9%91%D9%8E%D9%89.html"
       },
       "III": {
         "gloss": "to practise usury with",
@@ -1151,7 +1325,6 @@ export const ROOTS = [
       "ي"
     ],
     "type": "naqis_ya",
-    "reverso": "https://conjugator.reverso.net/conjugation-arabic-verb-%D9%84%D8%A8%D9%91%D9%89.html",
     "note": "Form I is archaic; in MSA this root is effectively Form II only.",
     "forms": {
       "II": {
@@ -1163,7 +1336,8 @@ export const ROOTS = [
           "pp": "complied with",
           "pres3": "complies with",
           "ing": "complying with"
-        }
+        },
+        "reverso": "https://conjugator.reverso.net/conjugation-arabic-verb-%D9%84%D9%8E%D8%A8%D9%91%D9%8E%D9%89.html"
       }
     }
   },
@@ -1174,7 +1348,6 @@ export const ROOTS = [
       "ي"
     ],
     "type": "lafif_maqrun",
-    "reverso": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%AD%D9%8A%D9%91%D8%A7.html",
     "note": "Technically lafīf maqrūn (ʿayn and lām both yāʾ); Form II is written حَيَّا with alif.",
     "forms": {
       "I": {
@@ -1186,7 +1359,8 @@ export const ROOTS = [
           "past": "lived",
           "pres3": "lives",
           "ing": "living"
-        }
+        },
+        "reverso": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%AD%D9%8E%D9%8A%D9%90%D9%8A%D9%8E.html"
       },
       "II": {
         "gloss": "to greet / to salute",
@@ -1197,7 +1371,8 @@ export const ROOTS = [
           "pp": "greeted",
           "pres3": "greets",
           "ing": "greeting"
-        }
+        },
+        "reverso": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%AD%D9%8E%D9%8A%D9%91%D9%8E%D8%A7.html"
       },
       "IV": {
         "gloss": "to bring to life / to revive",
@@ -1208,7 +1383,8 @@ export const ROOTS = [
           "pp": "revived",
           "pres3": "revives",
           "ing": "reviving"
-        }
+        },
+        "reverso": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%A3%D9%8E%D8%AD%D9%92%D9%8A%D9%8E%D8%A7.html"
       },
       "X": {
         "gloss": "to be ashamed / to feel shy",
@@ -1218,7 +1394,8 @@ export const ROOTS = [
           "past": "was ashamed",
           "pres3": "is ashamed",
           "ing": "being ashamed"
-        }
+        },
+        "reverso": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%A7%D9%90%D8%B3%D9%92%D8%AA%D9%8E%D8%AD%D9%92%D9%8A%D9%8E%D8%A7.html"
       }
     }
   },
@@ -1229,7 +1406,6 @@ export const ROOTS = [
       "ي"
     ],
     "type": "lafif_maqrun",
-    "reverso": "https://conjugator.reverso.net/conjugation-arabic-verb-%D9%82%D9%88%D9%91%D9%89.html",
     "note": "Lafīf maqrūn root; the doubled ʿayn in Form II makes it conjugate as plain nāqiṣ.",
     "forms": {
       "I": {
@@ -1241,7 +1417,8 @@ export const ROOTS = [
           "past": "was strong",
           "pres3": "is strong",
           "ing": "being strong"
-        }
+        },
+        "reverso": "https://conjugator.reverso.net/conjugation-arabic-verb-%D9%82%D9%8E%D9%88%D9%90%D9%8A%D9%8E.html"
       },
       "II": {
         "gloss": "to strengthen / to reinforce",
@@ -1252,7 +1429,8 @@ export const ROOTS = [
           "pp": "strengthened",
           "pres3": "strengthens",
           "ing": "strengthening"
-        }
+        },
+        "reverso": "https://conjugator.reverso.net/conjugation-arabic-verb-%D9%82%D9%8E%D9%88%D9%91%D9%8E%D9%89.html"
       },
       "V": {
         "gloss": "to grow strong / to gain strength",
@@ -1283,7 +1461,6 @@ export const ROOTS = [
       "ي"
     ],
     "type": "lafif_maqrun",
-    "reverso": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%B3%D9%88%D9%91%D9%89.html",
     "note": "Lafīf maqrūn root; Form II conjugates as plain nāqiṣ.",
     "forms": {
       "I": {
@@ -1296,7 +1473,8 @@ export const ROOTS = [
           "pp": "worth",
           "pres3": "is worth",
           "ing": "being worth"
-        }
+        },
+        "reverso": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%B3%D9%8E%D9%88%D9%90%D9%8A%D9%8E.html"
       },
       "II": {
         "gloss": "to level / to settle / to make equal",
@@ -1307,7 +1485,8 @@ export const ROOTS = [
           "pp": "levelled",
           "pres3": "levels",
           "ing": "levelling"
-        }
+        },
+        "reverso": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%B3%D9%8E%D9%88%D9%91%D9%8E%D9%89.html"
       },
       "III": {
         "gloss": "to equal / to be worth",
@@ -1318,7 +1497,8 @@ export const ROOTS = [
           "pp": "equalled",
           "pres3": "equals",
           "ing": "equalling"
-        }
+        },
+        "reverso": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%B3%D9%8E%D8%A7%D9%88%D9%8E%D9%89.html"
       },
       "VI": {
         "gloss": "to be equal to one another",
@@ -1328,7 +1508,8 @@ export const ROOTS = [
           "past": "were equal",
           "pres3": "are equal",
           "ing": "being equal"
-        }
+        },
+        "reverso": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%AA%D9%8E%D8%B3%D9%8E%D8%A7%D9%88%D9%8E%D9%89.html"
       },
       "VIII": {
         "gloss": "to be level / to be even / to settle upon",
@@ -1338,7 +1519,8 @@ export const ROOTS = [
           "past": "was level",
           "pres3": "is level",
           "ing": "being level"
-        }
+        },
+        "reverso": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%A7%D9%90%D8%B3%D9%92%D8%AA%D9%8E%D9%88%D9%8E%D9%89.html"
       }
     }
   },
@@ -1349,7 +1531,6 @@ export const ROOTS = [
       "ي"
     ],
     "type": "naqis_ya",
-    "reverso": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%B9%D8%B2%D9%91%D9%89.html",
     "forms": {
       "I": {
         "bab": "ia",
@@ -1360,7 +1541,8 @@ export const ROOTS = [
           "past": "bore patiently",
           "pres3": "bears patiently",
           "ing": "bearing patiently"
-        }
+        },
+        "reverso": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%B9%D9%8E%D8%B2%D9%90%D9%8A%D9%8E.html"
       },
       "II": {
         "gloss": "to console / to offer condolences to",
@@ -1371,7 +1553,8 @@ export const ROOTS = [
           "pp": "consoled",
           "pres3": "consoles",
           "ing": "consoling"
-        }
+        },
+        "reverso": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%B9%D9%8E%D8%B2%D9%91%D9%8E%D9%89.html"
       },
       "V": {
         "gloss": "to be consoled / to take comfort",
@@ -1392,7 +1575,6 @@ export const ROOTS = [
       "و"
     ],
     "type": "naqis_waw",
-    "reverso": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%BA%D8%B0%D9%91%D9%89.html",
     "forms": {
       "I": {
         "bab": "au",
@@ -1404,7 +1586,8 @@ export const ROOTS = [
           "pp": "fed",
           "pres3": "feeds",
           "ing": "feeding"
-        }
+        },
+        "reverso": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%BA%D9%8E%D8%B0%D9%8E%D8%A7.html"
       },
       "II": {
         "gloss": "to nourish / to nurture / to feed",
@@ -1415,7 +1598,8 @@ export const ROOTS = [
           "pp": "nourished",
           "pres3": "nourishes",
           "ing": "nourishing"
-        }
+        },
+        "reverso": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%BA%D9%8E%D8%B0%D9%91%D9%8E%D9%89.html"
       },
       "V": {
         "gloss": "to be nourished / to feed on / to eat",
@@ -1446,7 +1630,6 @@ export const ROOTS = [
       "ي"
     ],
     "type": "naqis_ya",
-    "reverso": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%A3%D8%AF%D9%91%D9%89.html",
     "note": "Also mahmūz al-fāʾ, so the hamza carries its own spelling rules.",
     "forms": {
       "II": {
@@ -1458,7 +1641,8 @@ export const ROOTS = [
           "pp": "carried out",
           "pres3": "carries out",
           "ing": "carrying out"
-        }
+        },
+        "reverso": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%A3%D9%8E%D8%AF%D9%91%D9%8E%D9%89.html"
       },
       "V": {
         "gloss": "to lead to / to result in",
@@ -1479,7 +1663,6 @@ export const ROOTS = [
       "و"
     ],
     "type": "naqis_waw",
-    "reverso": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%AD%D9%84%D9%91%D9%89.html",
     "forms": {
       "I": {
         "bab": "au",
@@ -1490,7 +1673,8 @@ export const ROOTS = [
           "past": "was sweet",
           "pres3": "is sweet",
           "ing": "being sweet"
-        }
+        },
+        "reverso": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%AD%D9%8E%D9%84%D9%8E%D8%A7.html"
       },
       "II": {
         "gloss": "to sweeten / to adorn / to decorate",
@@ -1501,7 +1685,8 @@ export const ROOTS = [
           "pp": "sweetened",
           "pres3": "sweetens",
           "ing": "sweetening"
-        }
+        },
+        "reverso": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%AD%D9%8E%D9%84%D9%91%D9%8E%D9%89.html"
       },
       "IV": {
         "gloss": "to sweeten / to make pleasant",
@@ -1544,7 +1729,6 @@ export const ROOTS = [
       "و"
     ],
     "type": "naqis_waw",
-    "reverso": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%BA%D8%B7%D9%91%D9%89.html",
     "forms": {
       "I": {
         "bab": "au",
@@ -1567,7 +1751,8 @@ export const ROOTS = [
           "pp": "covered",
           "pres3": "covers",
           "ing": "covering"
-        }
+        },
+        "reverso": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%BA%D9%8E%D8%B7%D9%91%D9%8E%D9%89.html"
       },
       "V": {
         "gloss": "to be covered / to cover oneself",
@@ -1588,7 +1773,6 @@ export const ROOTS = [
       "و"
     ],
     "type": "naqis_waw",
-    "reverso": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%AE%D9%84%D9%91%D9%89.html",
     "forms": {
       "I": {
         "bab": "au",
@@ -1599,7 +1783,8 @@ export const ROOTS = [
           "past": "was empty",
           "pres3": "is empty",
           "ing": "being empty"
-        }
+        },
+        "reverso": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%AE%D9%8E%D9%84%D9%8E%D8%A7.html"
       },
       "II": {
         "gloss": "to leave / to let be / to vacate",
@@ -1610,7 +1795,8 @@ export const ROOTS = [
           "pp": "left alone",
           "pres3": "leaves alone",
           "ing": "leaving alone"
-        }
+        },
+        "reverso": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%AE%D9%8E%D9%84%D9%91%D9%8E%D9%89.html"
       },
       "IV": {
         "gloss": "to empty / to evacuate / to release",
@@ -1621,7 +1807,8 @@ export const ROOTS = [
           "pp": "evacuated",
           "pres3": "evacuates",
           "ing": "evacuating"
-        }
+        },
+        "reverso": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%A3%D9%8E%D8%AE%D9%92%D9%84%D9%8E%D9%89.html"
       },
       "V": {
         "gloss": "to give up / to renounce / to abandon",
@@ -1631,7 +1818,8 @@ export const ROOTS = [
           "past": "gave up",
           "pres3": "gives up",
           "ing": "giving up"
-        }
+        },
+        "reverso": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%AA%D9%8E%D8%AE%D9%8E%D9%84%D9%91%D9%8E%D9%89.html"
       },
       "X": {
         "gloss": "to seek privacy / to be alone with",
@@ -1652,7 +1840,6 @@ export const ROOTS = [
       "ي"
     ],
     "type": "lafif_mafruq",
-    "reverso": "https://conjugator.reverso.net/conjugation-arabic-verb-%D9%88%D9%84%D9%91%D9%89.html",
     "note": "Lafīf mafrūq (mithāl wāw + nāqiṣ yāʾ); Form I drops the wāw: وَلِيَ / يَلِي.",
     "forms": {
       "I": {
@@ -1665,7 +1852,8 @@ export const ROOTS = [
           "pp": "followed",
           "pres3": "follows",
           "ing": "following"
-        }
+        },
+        "reverso": "https://conjugator.reverso.net/conjugation-arabic-verb-%D9%88%D9%8E%D9%84%D9%90%D9%8A%D9%8E.html"
       },
       "II": {
         "gloss": "to turn away / to appoint / to put in charge",
@@ -1676,7 +1864,8 @@ export const ROOTS = [
           "pp": "appointed",
           "pres3": "appoints",
           "ing": "appointing"
-        }
+        },
+        "reverso": "https://conjugator.reverso.net/conjugation-arabic-verb-%D9%88%D9%8E%D9%84%D9%91%D9%8E%D9%89.html"
       },
       "III": {
         "gloss": "to befriend / to follow in succession",
@@ -1687,7 +1876,8 @@ export const ROOTS = [
           "pp": "allied with",
           "pres3": "allies with",
           "ing": "allying with"
-        }
+        },
+        "reverso": "https://conjugator.reverso.net/conjugation-arabic-verb-%D9%88%D9%8E%D8%A7%D9%84%D9%8E%D9%89.html"
       },
       "IV": {
         "gloss": "to grant / to accord / to give (attention)",
@@ -1698,7 +1888,8 @@ export const ROOTS = [
           "pp": "accorded",
           "pres3": "accords",
           "ing": "according"
-        }
+        },
+        "reverso": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%A3%D9%8E%D9%88%D9%92%D9%84%D9%8E%D9%89.html"
       },
       "V": {
         "gloss": "to take charge of / to assume / to turn away",
@@ -1709,7 +1900,8 @@ export const ROOTS = [
           "pp": "taken charge of",
           "pres3": "takes charge of",
           "ing": "taking charge of"
-        }
+        },
+        "reverso": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%AA%D9%8E%D9%88%D9%8E%D9%84%D9%91%D9%8E%D9%89.html"
       },
       "VI": {
         "gloss": "to follow one another in succession",
@@ -1719,7 +1911,8 @@ export const ROOTS = [
           "past": "followed in succession",
           "pres3": "follows in succession",
           "ing": "following in succession"
-        }
+        },
+        "reverso": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%AA%D9%8E%D9%88%D9%8E%D8%A7%D9%84%D9%8E%D9%89.html"
       },
       "X": {
         "gloss": "to take possession of / to seize",
@@ -1729,7 +1922,8 @@ export const ROOTS = [
           "past": "seized control of",
           "pres3": "seizes control of",
           "ing": "seizing control of"
-        }
+        },
+        "reverso": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%A7%D9%90%D8%B3%D9%92%D8%AA%D9%8E%D9%88%D9%92%D9%84%D9%8E%D9%89.html"
       }
     }
   },
@@ -1740,7 +1934,6 @@ export const ROOTS = [
       "ي"
     ],
     "type": "naqis_ya",
-    "reverso": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%BA%D9%86%D9%91%D9%89.html",
     "forms": {
       "I": {
         "bab": "ia",
@@ -1762,7 +1955,8 @@ export const ROOTS = [
           "pp": "sung",
           "pres3": "sings",
           "ing": "singing"
-        }
+        },
+        "reverso": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%BA%D9%8E%D9%86%D9%91%D9%8E%D9%89.html"
       },
       "IV": {
         "gloss": "to enrich / to suffice / to avail",
@@ -1814,7 +2008,6 @@ export const ROOTS = [
       "و"
     ],
     "type": "naqis_waw",
-    "reverso": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%B3%D9%84%D9%91%D9%89.html",
     "forms": {
       "I": {
         "bab": "au",
@@ -1825,7 +2018,8 @@ export const ROOTS = [
           "past": "got over",
           "pres3": "gets over",
           "ing": "getting over"
-        }
+        },
+        "reverso": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%B3%D9%8E%D9%84%D9%8E%D8%A7.html"
       },
       "II": {
         "gloss": "to comfort / to divert / to entertain",
@@ -1836,7 +2030,8 @@ export const ROOTS = [
           "pp": "entertained",
           "pres3": "entertains",
           "ing": "entertaining"
-        }
+        },
+        "reverso": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%B3%D9%8E%D9%84%D9%91%D9%8E%D9%89.html"
       },
       "IV": {
         "gloss": "to console / to make forget",
@@ -1857,7 +2052,8 @@ export const ROOTS = [
           "past": "was amused",
           "pres3": "is amused",
           "ing": "being amused"
-        }
+        },
+        "reverso": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%AA%D9%8E%D8%B3%D9%8E%D9%84%D9%91%D9%8E%D9%89.html"
       }
     }
   },
@@ -1868,7 +2064,6 @@ export const ROOTS = [
       "ي"
     ],
     "type": "naqis_ya",
-    "reverso": "https://conjugator.reverso.net/conjugation-arabic-verb-%D9%85%D9%86%D9%91%D9%89.html",
     "forms": {
       "I": {
         "bab": "ai",
@@ -1891,7 +2086,8 @@ export const ROOTS = [
           "pp": "given hope",
           "pres3": "raises hopes of",
           "ing": "raising hopes of"
-        }
+        },
+        "reverso": "https://conjugator.reverso.net/conjugation-arabic-verb-%D9%85%D9%8E%D9%86%D9%91%D9%8E%D9%89.html"
       },
       "V": {
         "gloss": "to wish / to desire",
@@ -1902,7 +2098,8 @@ export const ROOTS = [
           "pp": "wished for",
           "pres3": "wishes",
           "ing": "wishing"
-        }
+        },
+        "reverso": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%AA%D9%8E%D9%85%D9%8E%D9%86%D9%91%D9%8E%D9%89.html"
       }
     }
   },
@@ -1913,7 +2110,6 @@ export const ROOTS = [
       "ي"
     ],
     "type": "lafif_mafruq",
-    "reverso": "https://conjugator.reverso.net/conjugation-arabic-verb-%D9%88%D8%B5%D9%91%D9%89.html",
     "note": "Lafīf mafrūq (mithāl wāw + nāqiṣ yāʾ); Form I is archaic in MSA.",
     "forms": {
       "II": {
@@ -1925,7 +2121,8 @@ export const ROOTS = [
           "pp": "instructed",
           "pres3": "instructs",
           "ing": "instructing"
-        }
+        },
+        "reverso": "https://conjugator.reverso.net/conjugation-arabic-verb-%D9%88%D9%8E%D8%B5%D9%91%D9%8E%D9%89.html"
       },
       "IV": {
         "gloss": "to enjoin / to recommend / to bequeath",
@@ -1936,7 +2133,8 @@ export const ROOTS = [
           "pp": "bequeathed",
           "pres3": "bequeaths",
           "ing": "bequeathing"
-        }
+        },
+        "reverso": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%A3%D9%8E%D9%88%D9%92%D8%B5%D9%8E%D9%89.html"
       },
       "VI": {
         "gloss": "to enjoin one another",
@@ -1946,7 +2144,8 @@ export const ROOTS = [
           "past": "enjoined one another",
           "pres3": "enjoin one another",
           "ing": "enjoining one another"
-        }
+        },
+        "reverso": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%AA%D9%8E%D9%88%D9%8E%D8%A7%D8%B5%D9%8E%D9%89.html"
       },
       "X": {
         "gloss": "to ask for advice / to accept a recommendation",
@@ -1967,7 +2166,6 @@ export const ROOTS = [
       "ي"
     ],
     "type": "naqis_ya",
-    "reverso": "https://conjugator.reverso.net/conjugation-arabic-verb-%D9%83%D9%86%D9%91%D9%89.html",
     "note": "Reverso uses كَنَّى as the model verb for this whole Form II nāqiṣ class.",
     "forms": {
       "I": {
@@ -1990,7 +2188,8 @@ export const ROOTS = [
           "pp": "nicknamed",
           "pres3": "nicknames",
           "ing": "nicknaming"
-        }
+        },
+        "reverso": "https://conjugator.reverso.net/conjugation-arabic-verb-%D9%83%D9%8E%D9%86%D9%91%D9%8E%D9%89.html"
       },
       "V": {
         "gloss": "to be nicknamed / to take a kunya",
@@ -2011,7 +2210,6 @@ export const ROOTS = [
       "ي"
     ],
     "type": "lafif_mafruq",
-    "reverso": "https://conjugator.reverso.net/conjugation-arabic-verb-%D9%88%D8%B1%D9%91%D9%89.html",
     "note": "Lafīf mafrūq (mithāl wāw + nāqiṣ yāʾ).",
     "forms": {
       "II": {
@@ -2023,7 +2221,8 @@ export const ROOTS = [
           "pp": "concealed",
           "pres3": "conceals",
           "ing": "concealing"
-        }
+        },
+        "reverso": "https://conjugator.reverso.net/conjugation-arabic-verb-%D9%88%D9%8E%D8%B1%D9%91%D9%8E%D9%89.html"
       },
       "III": {
         "gloss": "to hide / to cover up",
@@ -2045,7 +2244,8 @@ export const ROOTS = [
           "pp": "kindled",
           "pres3": "kindles",
           "ing": "kindling"
-        }
+        },
+        "reverso": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%A3%D9%8E%D9%88%D9%92%D8%B1%D9%8E%D9%89.html"
       },
       "VI": {
         "gloss": "to hide oneself / to disappear from view",
@@ -2066,7 +2266,6 @@ export const ROOTS = [
       "و"
     ],
     "type": "naqis_waw",
-    "reverso": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%B9%D8%AF%D9%91%D9%89.html",
     "forms": {
       "I": {
         "bab": "au",
@@ -2077,7 +2276,8 @@ export const ROOTS = [
           "past": "ran",
           "pres3": "runs",
           "ing": "running"
-        }
+        },
+        "reverso": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%B9%D9%8E%D8%AF%D9%8E%D8%A7.html"
       },
       "II": {
         "gloss": "to make pass / to take across / to transfer",
@@ -2088,7 +2288,8 @@ export const ROOTS = [
           "pp": "taken across",
           "pres3": "takes across",
           "ing": "taking across"
-        }
+        },
+        "reverso": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%B9%D9%8E%D8%AF%D9%91%D9%8E%D9%89.html"
       },
       "III": {
         "gloss": "to be hostile to / to treat as an enemy",
@@ -2121,7 +2322,8 @@ export const ROOTS = [
           "pp": "exceeded",
           "pres3": "exceeds",
           "ing": "exceeding"
-        }
+        },
+        "reverso": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%AA%D9%8E%D8%B9%D9%8E%D8%AF%D9%91%D9%8E%D9%89.html"
       },
       "VI": {
         "gloss": "to be mutually hostile",
@@ -2141,7 +2343,8 @@ export const ROOTS = [
           "past": "attacked",
           "pres3": "attacks",
           "ing": "attacking"
-        }
+        },
+        "reverso": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%A7%D9%90%D8%B9%D9%92%D8%AA%D9%8E%D8%AF%D9%8E%D9%89.html"
       },
       "X": {
         "gloss": "to seek redress against / to incite against",
@@ -2163,7 +2366,6 @@ export const ROOTS = [
       "و"
     ],
     "type": "naqis_waw",
-    "reverso": "https://conjugator.reverso.net/conjugation-arabic-verb-%D9%82%D9%81%D9%91%D9%89.html",
     "forms": {
       "I": {
         "bab": "au",
@@ -2186,7 +2388,8 @@ export const ROOTS = [
           "pp": "sent after",
           "pres3": "sends after",
           "ing": "sending after"
-        }
+        },
+        "reverso": "https://conjugator.reverso.net/conjugation-arabic-verb-%D9%82%D9%8E%D9%81%D9%91%D9%8E%D9%89.html"
       },
       "VIII": {
         "gloss": "to follow / to track / to trace",
@@ -2208,7 +2411,6 @@ export const ROOTS = [
       "ي"
     ],
     "type": "naqis_ya",
-    "reverso": "https://conjugator.reverso.net/conjugation-arabic-verb-%D9%86%D9%82%D9%91%D9%89.html",
     "forms": {
       "I": {
         "bab": "ia",
@@ -2219,7 +2421,8 @@ export const ROOTS = [
           "past": "was clean",
           "pres3": "is clean",
           "ing": "being clean"
-        }
+        },
+        "reverso": "https://conjugator.reverso.net/conjugation-arabic-verb-%D9%86%D9%8E%D9%82%D9%90%D9%8A%D9%8E.html"
       },
       "II": {
         "gloss": "to clean / to purify / to sift",
@@ -2230,7 +2433,8 @@ export const ROOTS = [
           "pp": "purified",
           "pres3": "purifies",
           "ing": "purifying"
-        }
+        },
+        "reverso": "https://conjugator.reverso.net/conjugation-arabic-verb-%D9%86%D9%8E%D9%82%D9%91%D9%8E%D9%89.html"
       },
       "V": {
         "gloss": "to be cleaned / to be purified",
@@ -2262,7 +2466,6 @@ export const ROOTS = [
       "ي"
     ],
     "type": "naqis_ya",
-    "reverso": "https://conjugator.reverso.net/conjugation-arabic-verb-%D9%86%D8%B3%D9%91%D9%89.html",
     "forms": {
       "I": {
         "bab": "ia",
@@ -2274,7 +2477,8 @@ export const ROOTS = [
           "pp": "forgotten",
           "pres3": "forgets",
           "ing": "forgetting"
-        }
+        },
+        "reverso": "https://conjugator.reverso.net/conjugation-arabic-verb-%D9%86%D9%8E%D8%B3%D9%90%D9%8A%D9%8E.html"
       },
       "II": {
         "gloss": "to make (someone) forget",
@@ -2285,7 +2489,8 @@ export const ROOTS = [
           "pp": "made to forget",
           "pres3": "makes forget",
           "ing": "making forget"
-        }
+        },
+        "reverso": "https://conjugator.reverso.net/conjugation-arabic-verb-%D9%86%D9%8E%D8%B3%D9%91%D9%8E%D9%89.html"
       },
       "IV": {
         "gloss": "to make forget / to cause to forget",
@@ -2329,7 +2534,6 @@ export const ROOTS = [
       "و"
     ],
     "type": "naqis_waw",
-    "reverso": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%B5%D9%8E%D9%84%D9%8E%D9%91%D9%89.html",
     "note": "Reverso only resolves this correctly when typed fully vocalized as صَلَّى. Form I of ص-ل-و is archaic; the homographic root ص-ل-ي means \"to roast, burn\".",
     "forms": {
       "II": {
@@ -2340,7 +2544,8 @@ export const ROOTS = [
           "past": "prayed",
           "pres3": "prays",
           "ing": "praying"
-        }
+        },
+        "reverso": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%B5%D9%8E%D9%84%D9%91%D9%8E%D9%89.html"
       }
     }
   },
@@ -2351,7 +2556,6 @@ export const ROOTS = [
       "ي"
     ],
     "type": "lafif_mafruq",
-    "reverso": "https://conjugator.reverso.net/conjugation-arabic-verb-%D9%88%D9%8E%D9%81%D9%8E%D9%91%D9%89.html",
     "note": "Type this one fully vocalized as وَفَّى — bare وفّى returns the Form I paradigm. Lafīf mafrūq root.",
     "forms": {
       "I": {
@@ -2363,7 +2567,8 @@ export const ROOTS = [
           "past": "kept faith",
           "pres3": "keeps faith",
           "ing": "keeping faith"
-        }
+        },
+        "reverso": "https://conjugator.reverso.net/conjugation-arabic-verb-%D9%88%D9%8E%D9%81%D9%8E%D9%89.html"
       },
       "II": {
         "gloss": "to fulfil in full / to pay in full",
@@ -2374,7 +2579,8 @@ export const ROOTS = [
           "pp": "paid in full",
           "pres3": "pays in full",
           "ing": "paying in full"
-        }
+        },
+        "reverso": "https://conjugator.reverso.net/conjugation-arabic-verb-%D9%88%D9%8E%D9%81%D9%91%D9%8E%D9%89.html"
       },
       "III": {
         "gloss": "to arrive at / to come to / to supply",
@@ -2385,7 +2591,8 @@ export const ROOTS = [
           "pp": "supplied",
           "pres3": "supplies",
           "ing": "supplying"
-        }
+        },
+        "reverso": "https://conjugator.reverso.net/conjugation-arabic-verb-%D9%88%D9%8E%D8%A7%D9%81%D9%8E%D9%89.html"
       },
       "IV": {
         "gloss": "to fulfil / to pay in full / to be ample",
@@ -2396,7 +2603,8 @@ export const ROOTS = [
           "pp": "fulfilled",
           "pres3": "fulfils",
           "ing": "fulfilling"
-        }
+        },
+        "reverso": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%A3%D9%8E%D9%88%D9%92%D9%81%D9%8E%D9%89.html"
       },
       "V": {
         "gloss": "to take in full; (passive تُوُفِّيَ) to pass away",
@@ -2407,7 +2615,8 @@ export const ROOTS = [
           "pp": "taken in full",
           "pres3": "takes in full",
           "ing": "taking in full"
-        }
+        },
+        "reverso": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%AA%D9%8E%D9%88%D9%8E%D9%81%D9%91%D9%8E%D9%89.html"
       },
       "X": {
         "gloss": "to collect in full / to exhaust / to satisfy",
@@ -2418,7 +2627,8 @@ export const ROOTS = [
           "pp": "collected in full",
           "pres3": "collects in full",
           "ing": "collecting in full"
-        }
+        },
+        "reverso": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%A7%D9%90%D8%B3%D9%92%D8%AA%D9%8E%D9%88%D9%92%D9%81%D9%8E%D9%89.html"
       }
     }
   },
@@ -2429,7 +2639,6 @@ export const ROOTS = [
       "و"
     ],
     "type": "naqis_waw",
-    "reverso": "https://conjugator.reverso.net/conjugation-arabic-verb-%D9%86%D9%8E%D9%85%D9%8E%D9%91%D9%89.html",
     "note": "Type this one fully vocalized as نَمَّى — bare نمّى returns the Form I paradigm.",
     "forms": {
       "I": {
@@ -2441,7 +2650,8 @@ export const ROOTS = [
           "past": "grew",
           "pres3": "grows",
           "ing": "growing"
-        }
+        },
+        "reverso": "https://conjugator.reverso.net/conjugation-arabic-verb-%D9%86%D9%8E%D9%85%D9%8E%D8%A7.html"
       },
       "II": {
         "gloss": "to develop / to cultivate / to make grow",
@@ -2452,7 +2662,8 @@ export const ROOTS = [
           "pp": "developed",
           "pres3": "develops",
           "ing": "developing"
-        }
+        },
+        "reverso": "https://conjugator.reverso.net/conjugation-arabic-verb-%D9%86%D9%8E%D9%85%D9%91%D9%8E%D9%89.html"
       },
       "IV": {
         "gloss": "to make grow / to increase",
@@ -2483,7 +2694,8 @@ export const ROOTS = [
           "past": "belonged to",
           "pres3": "belongs to",
           "ing": "belonging to"
-        }
+        },
+        "reverso": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%A7%D9%90%D9%86%D9%92%D8%AA%D9%8E%D9%85%D9%8E%D9%89.html"
       }
     }
   },
@@ -2494,7 +2706,6 @@ export const ROOTS = [
       "ي"
     ],
     "type": "naqis_ya",
-    "reverso": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%B1%D9%8E%D9%82%D9%8E%D9%91%D9%89.html",
     "note": "Type this one fully vocalized as رَقَّى — bare رقّى returns the Form I paradigm.",
     "forms": {
       "I": {
@@ -2506,7 +2717,8 @@ export const ROOTS = [
           "past": "ascended",
           "pres3": "ascends",
           "ing": "ascending"
-        }
+        },
+        "reverso": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%B1%D9%8E%D9%82%D9%90%D9%8A%D9%8E.html"
       },
       "II": {
         "gloss": "to promote / to advance / to elevate",
@@ -2517,7 +2729,8 @@ export const ROOTS = [
           "pp": "promoted",
           "pres3": "promotes",
           "ing": "promoting"
-        }
+        },
+        "reverso": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%B1%D9%8E%D9%82%D9%91%D9%8E%D9%89.html"
       },
       "V": {
         "gloss": "to rise / to be promoted / to advance",
@@ -2527,7 +2740,8 @@ export const ROOTS = [
           "past": "was promoted",
           "pres3": "is promoted",
           "ing": "being promoted"
-        }
+        },
+        "reverso": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%AA%D9%8E%D8%B1%D9%8E%D9%82%D9%91%D9%8E%D9%89.html"
       },
       "VIII": {
         "gloss": "to ascend / to rise to",
@@ -2548,7 +2762,6 @@ export const ROOTS = [
       "ي"
     ],
     "type": "naqis_ya",
-    "reverso": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%BA%D9%8E%D9%84%D9%8E%D9%91%D9%89.html",
     "note": "Type this one fully vocalized as غَلَّى — bare غلّى returns the Form I paradigm. Do not confuse with غ-ل-و \"to be excessive / expensive\".",
     "forms": {
       "I": {
@@ -2560,7 +2773,8 @@ export const ROOTS = [
           "past": "boiled",
           "pres3": "boils",
           "ing": "boiling"
-        }
+        },
+        "reverso": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%BA%D9%8E%D9%84%D9%8E%D9%89.html"
       },
       "II": {
         "gloss": "to bring to a boil / to make boil",
@@ -2571,7 +2785,8 @@ export const ROOTS = [
           "pp": "boiled",
           "pres3": "boils",
           "ing": "boiling"
-        }
+        },
+        "reverso": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%BA%D9%8E%D9%84%D9%91%D9%8E%D9%89.html"
       },
       "IV": {
         "gloss": "to bring to a boil",
@@ -2593,7 +2808,6 @@ export const ROOTS = [
       "ي"
     ],
     "type": "naqis_ya",
-    "reverso": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%AB%D9%8E%D9%86%D9%8E%D9%91%D9%89.html",
     "note": "Type this one fully vocalized as ثَنَّى — bare ثنّى returns the Form I paradigm.",
     "forms": {
       "I": {
@@ -2606,7 +2820,8 @@ export const ROOTS = [
           "pp": "folded",
           "pres3": "folds",
           "ing": "folding"
-        }
+        },
+        "reverso": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%AB%D9%8E%D9%86%D9%8E%D9%89.html"
       },
       "II": {
         "gloss": "to double / to do twice / to make dual",
@@ -2617,7 +2832,8 @@ export const ROOTS = [
           "pp": "doubled",
           "pres3": "doubles",
           "ing": "doubling"
-        }
+        },
+        "reverso": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%AB%D9%8E%D9%86%D9%91%D9%8E%D9%89.html"
       },
       "IV": {
         "gloss": "to praise / to commend",
@@ -2627,7 +2843,8 @@ export const ROOTS = [
           "past": "praised",
           "pres3": "praises",
           "ing": "praising"
-        }
+        },
+        "reverso": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%A3%D9%8E%D8%AB%D9%92%D9%86%D9%8E%D9%89.html"
       },
       "V": {
         "gloss": "to be doubled / to sway / to bend",
@@ -2637,7 +2854,8 @@ export const ROOTS = [
           "past": "swayed",
           "pres3": "sways",
           "ing": "swaying"
-        }
+        },
+        "reverso": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%AA%D9%8E%D8%AB%D9%8E%D9%86%D9%91%D9%8E%D9%89.html"
       },
       "VII": {
         "gloss": "to be bent / to bend / to turn away",
@@ -2647,7 +2865,8 @@ export const ROOTS = [
           "past": "bent",
           "pres3": "bends",
           "ing": "bending"
-        }
+        },
+        "reverso": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%A7%D9%90%D9%86%D9%92%D8%AB%D9%8E%D9%86%D9%8E%D9%89.html"
       },
       "X": {
         "gloss": "to except / to exclude",
@@ -2658,7 +2877,8 @@ export const ROOTS = [
           "pp": "excluded",
           "pres3": "excludes",
           "ing": "excluding"
-        }
+        },
+        "reverso": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%A7%D9%90%D8%B3%D9%92%D8%AA%D9%8E%D8%AB%D9%92%D9%86%D9%8E%D9%89.html"
       }
     }
   }
