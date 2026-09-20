@@ -121,7 +121,7 @@ export const SALIM_ROOTS = [
   {
     root: ['ظ', 'ه', 'ر'], type: 'salim',
     forms: {
-      I: { bab: 'aa', gloss: 'to appear', masdar: 'ظُهُور', trans: false,
+      I: { bab: 'aa', gloss: 'to appear', masdar: 'ظُهُور', trans: true,
            en: { past: 'appeared', pres3: 'appears', ing: 'appearing' },
            reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%B8%D9%8E%D9%87%D9%8E%D8%B1%D9%8E.html' },
       IV: { gloss: 'to reveal', trans: true,
@@ -138,7 +138,7 @@ export const SALIM_ROOTS = [
       I: { bab: 'ia', gloss: 'to hear', masdar: 'سَمْع', trans: true,
            en: { past: 'heard', pp: 'heard', pres3: 'hears', ing: 'hearing' },
            reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%B3%D9%8E%D9%85%D9%90%D8%B9%D9%8E.html' },
-      VIII: { gloss: 'to listen', trans: false,
+      VIII: { gloss: 'to listen', trans: true,
               en: { past: 'listened', pres3: 'listens', ing: 'listening' },
               reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%A7%D9%90%D8%B3%D9%92%D8%AA%D9%8E%D9%85%D9%8E%D8%B9%D9%8E.html' },
     },
@@ -160,7 +160,7 @@ export const SALIM_ROOTS = [
       II: { gloss: 'to teach', trans: true,
             en: { past: 'taught', pp: 'taught', pres3: 'teaches', ing: 'teaching' },
             reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%B9%D9%8E%D9%84%D9%91%D9%8E%D9%85%D9%8E.html' },
-      V: { gloss: 'to learn', trans: false,
+      V: { gloss: 'to learn', trans: true,
            en: { past: 'learned', pres3: 'learns', ing: 'learning' },
            reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%AA%D9%8E%D8%B9%D9%8E%D9%84%D9%91%D9%8E%D9%85%D9%8E.html' },
       X: { gloss: 'to inquire', trans: true,

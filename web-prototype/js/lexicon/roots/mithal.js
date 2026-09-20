@@ -119,7 +119,7 @@ export const MITHAL_ROOTS = [
   {
     root: ['و', 'ج', 'ع'], type: 'mithal_waw',
     forms: {
-      I: { bab: 'ia', gloss: 'to hurt / feel pain', masdar: 'وَجَع', trans: false,
+      I: { bab: 'ia', gloss: 'to hurt / feel pain', masdar: 'وَجَع', trans: true,
            en: { past: 'hurt', pres3: 'hurts', ing: 'hurting' },
            reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D9%88%D9%8E%D8%AC%D9%90%D8%B9%D9%8E.html' },
       IV: { gloss: 'to cause pain to', trans: true,
@@ -267,7 +267,7 @@ export const MITHAL_ROOTS = [
             reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%A3%D9%8E%D9%8A%D9%92%D9%82%D9%8E%D8%B8%D9%8E.html' },
       V: { gloss: 'to become alert', trans: false,
            en: { past: 'became alert', pres3: 'becomes alert', ing: 'becoming alert' } },
-      X: { gloss: 'to wake up', trans: false,
+      X: { gloss: 'to wake up', trans: true,
            en: { past: 'woke up', pres3: 'wakes up', ing: 'waking up' },
            reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%A7%D9%90%D8%B3%D9%92%D8%AA%D9%8E%D9%8A%D9%92%D9%82%D9%8E%D8%B8%D9%8E.html' },
     },

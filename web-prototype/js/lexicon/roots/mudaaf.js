@@ -91,7 +91,7 @@ export const MUDAAF_ROOTS = [
             reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D9%85%D9%8E%D8%B1%D9%91%D9%8E%D8%B1%D9%8E.html' },
       IV: { gloss: 'to make bitter', trans: true,
             en: { past: 'embittered', pp: 'embittered', pres3: 'embitters', ing: 'embittering' } },
-      X: { gloss: 'to continue / persist', trans: false,
+      X: { gloss: 'to continue / persist', trans: true,
            en: { past: 'continued', pres3: 'continues', ing: 'continuing' },
            reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%A7%D9%90%D8%B3%D9%92%D8%AA%D9%8E%D9%85%D9%8E%D8%B1%D9%91%D9%8E.html' },
     },
