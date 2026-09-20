@@ -114,8 +114,23 @@ export function verbPhrase(spec, word, particleId = null) {
 
 /** English verb pieces for a form usage, with regular-verb fallbacks. */
 function enForms(usage) {
-  const base = (usage.gloss ?? '').replace(/^to /, '');
-  if (base.startsWith('be ')) return { be: base.slice(3) }; // stative: "be safe"
+  const full = (usage.gloss ?? '').replace(/^to /, '');
+  // Stative: "to be safe" → the renderer supplies was/is/are and we hand back
+  // only "safe". A MULTI-SENSE stative repeats the infinitive on each
+  // alternative — "to be empty / to be free of" — and only the first one is
+  // consumed by that was/is/are, so the rest have to be stripped too or the
+  // tail renders unconjugated: "he was empty / to be free of". Alternatives
+  // survive here because a stative lists adjectives, and "he was empty / free"
+  // is good English.
+  if (full.startsWith('be ')) {
+    return { be: full.slice(3).split(' / ').map((s) => s.replace(/^to be /, '')).join(' / ') };
+  }
+  // An ACTIVE gloss cannot keep its alternatives. The renderer drops `base`
+  // into slots that need exactly one verb — "will <base>", "<base>! (you)" —
+  // so "to slaughter / to massacre" came out as
+  // "he massacres / will slaughter / to massacre". Only the first sense
+  // builds the English; the full gloss is still shown by the prompt itself.
+  const base = full.split(' / ')[0];
   const e = usage.en ?? {};
   return {
     base,

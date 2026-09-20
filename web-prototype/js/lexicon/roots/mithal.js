@@ -17,6 +17,8 @@ export const MITHAL_ROOTS = [
       I: { bab: 'ai', gloss: 'to be obligatory', masdar: 'وُجُوب', trans: false,
            en: { past: 'became obligatory', pres3: 'becomes obligatory', ing: 'becoming obligatory' },
            reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D9%88%D9%8E%D8%AC%D9%8E%D8%A8%D9%8E.html' },
+      II: { gloss: 'to impose on', trans: true,
+            en: { past: 'imposed on', pp: 'imposed on', pres3: 'imposes on', ing: 'imposing on' } },
       IV: { gloss: 'to make obligatory', trans: true,
             en: { past: 'obligated', pp: 'obligated', pres3: 'obligates', ing: 'obligating' },
             reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%A3%D9%8E%D9%88%D9%92%D8%AC%D9%8E%D8%A8%D9%8E.html' },
@@ -60,6 +62,7 @@ export const MITHAL_ROOTS = [
       IV: { gloss: 'to bring into existence', trans: true,
             en: { past: 'created', pp: 'created', pres3: 'creates', ing: 'creating' },
             reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%A3%D9%8E%D9%88%D9%92%D8%AC%D9%8E%D8%AF%D9%8E.html' },
+      V: { gloss: 'to be deeply in love', trans: false },
     },
   },
   {
@@ -77,6 +80,8 @@ export const MITHAL_ROOTS = [
       IV: { gloss: 'to inflict / cause to fall', trans: true,
             en: { past: 'inflicted', pp: 'inflicted', pres3: 'inflicts', ing: 'inflicting' },
             reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%A3%D9%8E%D9%88%D9%92%D9%82%D9%8E%D8%B9%D9%8E.html' },
+      V: { gloss: 'to expect / to anticipate', trans: true,
+           en: { past: 'expected', pp: 'expected', pres3: 'expects', ing: 'expecting' } },
       VI: { gloss: 'to clash with one another', trans: false,
             en: { past: 'clashed', pres3: 'clash', ing: 'clashing' } },
     },
@@ -102,6 +107,8 @@ export const MITHAL_ROOTS = [
       I: { bab: 'aa', gloss: 'to grant / bestow', masdar: 'هِبَة', trans: true,
            en: { past: 'granted', pp: 'granted', pres3: 'grants', ing: 'granting' },
            reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D9%88%D9%8E%D9%87%D9%8E%D8%A8%D9%8E.html' },
+      IV: { gloss: 'to give as a gift', trans: true,
+            en: { past: 'gave as a gift', pp: 'given as a gift', pres3: 'gives as a gift', ing: 'giving as a gift' } },
       X: { gloss: 'to ask for a gift', trans: true,
            en: { past: 'asked for a gift', pp: 'asked of', pres3: 'asks for a gift', ing: 'asking for a gift' } },
     },
@@ -120,7 +127,7 @@ export const MITHAL_ROOTS = [
     root: ['و', 'ج', 'ع'], type: 'mithal_waw',
     forms: {
       I: { bab: 'ia', gloss: 'to hurt / feel pain', masdar: 'وَجَع', trans: true,
-           en: { past: 'hurt', pres3: 'hurts', ing: 'hurting' },
+           en: { past: 'hurt', pp: 'hurt', pres3: 'hurts', ing: 'hurting' },
            reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D9%88%D9%8E%D8%AC%D9%90%D8%B9%D9%8E.html' },
       IV: { gloss: 'to cause pain to', trans: true,
             en: { past: 'caused pain to', pp: 'pained', pres3: 'causes pain to', ing: 'causing pain to' } },
@@ -163,6 +170,8 @@ export const MITHAL_ROOTS = [
       VI: { gloss: 'to face one another', trans: false,
             en: { past: 'faced one another', pres3: 'face one another', ing: 'facing one another' },
             reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%AA%D9%8E%D9%88%D9%8E%D8%A7%D8%AC%D9%8E%D9%87%D9%8E.html' },
+      VIII: { gloss: 'to head towards / to be oriented', trans: false,
+              en: { past: 'headed towards', pres3: 'heads towards', ing: 'heading towards' } },
     },
   },
   {
@@ -221,6 +230,8 @@ export const MITHAL_ROOTS = [
       I: { bab: 'ia', gloss: 'to despair', masdar: 'يَأْس', trans: false,
            en: { past: 'despaired', pres3: 'despairs', ing: 'despairing' },
            reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D9%8A%D9%8E%D8%A6%D9%90%D8%B3%D9%8E.html' },
+      II: { gloss: 'to drive to despair', trans: true,
+            en: { past: 'drove to despair', pp: 'driven to despair', pres3: 'drives to despair', ing: 'driving to despair' } },
       IV: { gloss: 'to cause to despair', trans: true,
             en: { past: 'drove to despair', pp: 'driven to despair', pres3: 'drives to despair', ing: 'driving to despair' } },
       X: { gloss: 'to give up all hope', trans: false,
@@ -260,15 +271,20 @@ export const MITHAL_ROOTS = [
       // يَقُظَ يَيْقُظُ, bab كَرُمَ. The dictionaries also carry the doublet
       // يَقِظَ يَيْقَظُ (bab ia, masdar يَقَظ) for the same meaning; only the
       // damma form is listed, since a root entry holds one Form I.
-      I: { bab: 'ia', gloss: 'to be awake / vigilant', masdar: 'يَقَاظَة', trans: false,
+      // This field read `ia` until 2026-09-20 — the one case where the data
+      // contradicted its own comment, its Reverso link AND the dictionaries,
+      // so the engine was emitting the doublet the comment rules out.
+      I: { bab: 'uu', gloss: 'to be awake / vigilant', masdar: 'يَقَاظَة', trans: false,
            reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D9%8A%D9%8E%D9%82%D9%8F%D8%B8%D9%8E.html' },
+      II: { gloss: 'to wake (someone) up', trans: true,
+            en: { past: 'woke up', pp: 'woken up', pres3: 'wakes up', ing: 'waking up' } },
       IV: { gloss: 'to wake someone up', trans: true,
             en: { past: 'woke up', pp: 'woken up', pres3: 'wakes up', ing: 'waking up' },
             reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%A3%D9%8E%D9%8A%D9%92%D9%82%D9%8E%D8%B8%D9%8E.html' },
       V: { gloss: 'to become alert', trans: false,
            en: { past: 'became alert', pres3: 'becomes alert', ing: 'becoming alert' } },
       X: { gloss: 'to wake up', trans: true,
-           en: { past: 'woke up', pres3: 'wakes up', ing: 'waking up' },
+           en: { past: 'woke up', pp: 'woken up', pres3: 'wakes up', ing: 'waking up' },
            reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%A7%D9%90%D8%B3%D9%92%D8%AA%D9%8E%D9%8A%D9%92%D9%82%D9%8E%D8%B8%D9%8E.html' },
     },
   },
@@ -285,6 +301,8 @@ export const MITHAL_ROOTS = [
             reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D9%8A%D9%8E%D8%A8%D9%91%D9%8E%D8%B3%D9%8E.html' },
       IV: { gloss: 'to dry up / wither', trans: true,
             en: { past: 'dried up', pp: 'dried up', pres3: 'dries up', ing: 'drying up' } },
+      V: { gloss: 'to dry up', trans: false,
+           en: { past: 'dried up', pres3: 'dries up', ing: 'drying up' } },
     },
   },
   {
