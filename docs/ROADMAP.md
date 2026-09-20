@@ -4,7 +4,7 @@
 > This file is the build order. [PRODUCT_SPEC.md](PRODUCT_SPEC.md) is what the
 > app is for; [TECHNICAL_PLAN.md](TECHNICAL_PLAN.md) covers the iOS port.
 
-**Status: Aug 2026.** A1 and A2 are complete. 329 assertions green, zero import
+**Status: Sep 2026.** A1 and A2 are complete. 417 assertions green, zero import
 cycles, 48 modules.
 
 ---
@@ -253,7 +253,7 @@ seven; or treat the weak pair as a separate engine effort with its own corpus.
 Every change:
 
 ```bash
-cd web-prototype && node test/smoke.mjs      # 329 assertions; first 112 are engine parity
+cd web-prototype && node test/smoke.mjs      # 417 assertions; first 112 are engine parity
 ```
 
 Every engine or refactor change, additionally — **snapshot before touching
@@ -277,7 +277,11 @@ for (const root of LEXICON) { const rk = root.root.join('');
 console.log(out.join('\n'));
 ```
 
-20,252 lines. `diff` before against after; anything but zero is a regression.
+53,314 lines. `diff` before against after; anything but zero is a regression.
+
+The barrel groups roots by type, so the dump's LINE ORDER is not stable across a
+lexicon restructure. Sort both sides before diffing; a zero set-difference is
+the real bar.
 
 **Then walk the running app.** Twice in one session a green suite hid a real
 break — a `Set` that did not survive `JSON.stringify`, and a missing import the

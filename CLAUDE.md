@@ -27,7 +27,7 @@ history, **not authoritative**.
 ## Working here
 
 ```bash
-cd web-prototype && node test/smoke.mjs     # 329 assertions; the first 112 are engine parity
+cd web-prototype && node test/smoke.mjs     # 417 assertions; the first 112 are engine parity
 ```
 
 **Run the app** with the `sarf-quiz-web` config in `.claude/launch.json`
@@ -35,7 +35,7 @@ cd web-prototype && node test/smoke.mjs     # 329 assertions; the first 112 are 
 twice a green test suite has hidden a real break that only a page reload
 surfaced.
 
-**Any engine or refactor change needs a parity snapshot**: dump all 20,252
+**Any engine or refactor change needs a parity snapshot**: dump all 53,314
 generated words, derived nouns, citations and meanings before touching anything,
 diff after, and it must be zero. The recipe is in
 [ROADMAP.md §Verification](docs/ROADMAP.md#verification).

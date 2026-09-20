@@ -22,7 +22,7 @@ That number is not an error count, and most of it is not our problem:
 | | **596** | |
 
 **§2 is not in that total**, and cannot be: a declined cell produces no word, so
-there is nothing for the cross-check to compare. It is 121 cells the engine
+there is nothing for the cross-check to compare. It is 242 cells the engine
 deliberately leaves empty, listed here so an empty chart is not mistaken for a
 broken one.
 
@@ -149,7 +149,7 @@ root differently in one place: hamza seating is the mahmūz work
 Not errors. Recorded here so a reader who finds an empty chart knows it was a
 decision and where the decision lives.
 
-### 2.1 · Form VIII's tāʾ assimilation is not implemented — دعو VIII declined
+### 2.1 · Form VIII's tāʾ assimilation is not implemented — ضرب and دعو VIII declined
 
 Form VIII infixes a tāʾ after the fāʾ (نَظَرَ → اِنْتَظَرَ). When the fāʾ is one
 of **د ذ ز ص ض ط ظ** the tāʾ cannot stand beside it and assimilates: دعو gives
@@ -157,11 +157,16 @@ of **د ذ ز ص ض ط ظ** the tāʾ cannot stand beside it and assimilates: د
 type.
 
 Rather than emit اِدْتَعَى — a well-formed word nobody says — the service
-declines: **118 verb cells and 3 derived nouns**, for دعو Form VIII alone.
+declines: **118 verb cells and 3 derived nouns per affected root**, now
+**236 cells and 6 derived nouns** in total.
 
-Eight lexicon roots have an assimilating fāʾ (ضرب, ظهر, صفر, ظلل, ضلل, زور,
-صوم, دعو) but **only دعو declares Form VIII**, which is why this stayed
-invisible until the nāqiṣ mazīd tables landed.
+Nine lexicon roots have an assimilating fāʾ (ضرب, ظهر, صفر, ظلل, ضلل, زور,
+صوم, دعو, صلو). **Two now declare Form VIII**: دعو, which is why this stayed
+invisible until the nāqiṣ mazīd tables landed, and ضرب, added 2026-09-20 —
+اِضْطَرَبَ "to be agitated", where the tāʾ assimilates to ṭāʾ rather than to the
+fāʾ. ضرب VIII is correct, attested data that the engine simply cannot spell
+yet; it is not a lexicon error, and it should not be deleted to make the
+decline go away.
 
 **Responsible code.**
 [`shared-grammar.js:118` `IFTIAAL_ASSIMILATING_FAA`](../web-prototype/js/grammar/shared-grammar.js:118)
@@ -173,9 +178,12 @@ states the rule and the plan; the two guards that read it are
 
 ### 2.2 · Form IX is recognition-only
 
-حمر and صفر declare Form IX and produce no charts. Deliberate, and older than
-this file: PRODUCT_SPEC § 6 ships Form IX for the wazn, meaning and maṣdar
-questions only. The stems exist for the citation
+حمر and صفر declare Form IX and it produces no charts. Deliberate, and older
+than this file: PRODUCT_SPEC § 6 ships Form IX for the wazn, meaning and maṣdar
+questions only. Until 2026-09-20 Form IX was the ONLY form either root carried,
+so both sat in the lexicon contributing nothing drillable at all; they now also
+carry conjugable mazīd (حمر II; صفر I, II), and it is only their Form IX that
+stays chartless. The stems exist for the citation
 ([`salim-grammar.js`](../web-prototype/js/grammar/salim-grammar.js), `IX`), the
 unfolding does not.
 

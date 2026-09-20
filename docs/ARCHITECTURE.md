@@ -9,7 +9,7 @@
 > [ROADMAP.md](ROADMAP.md) for what is left to build.
 
 Last verified against the code: **Aug 2026**, 48 files, 181 import edges,
-329 assertions green, zero import cycles.
+417 assertions green, zero import cycles.
 
 ---
 
@@ -303,7 +303,7 @@ that matters — it depends on no *behaviour*, only on data — and
 
 1. **The engine never changes silently.** Any refactor is verified by a
    before/after snapshot of every generated word, derived noun, citation and
-   meaning — 20,252 outputs — diffed to zero. See §10.
+   meaning — 53,314 outputs — diffed to zero. See §10.
 2. **Validate once, at a boundary.** `conjugation-service` owns every
    conjugation precondition; `grade()` owns every correctness judgement. No
    screen decides whether an answer is right.
@@ -328,7 +328,7 @@ that matters — it depends on no *behaviour*, only on data — and
 cd web-prototype && node test/smoke.mjs
 ```
 
-329 assertions; the first 112 are hand-typed conjugation and meaning parity and
+417 assertions; the first 112 are hand-typed conjugation and meaning parity and
 must stay byte-identical.
 
 **For any engine or refactor work, that is not enough.** Snapshot the full

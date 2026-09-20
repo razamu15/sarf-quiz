@@ -86,5 +86,7 @@ picked; the choice is recorded in a comment beside the root. Same for ضلّ, ي
 يتم, يسر.
 
 A bāb finding is worth acting on only when ours is *neither* the surface pair
-*nor* a documented doublet — as with يقظ, whose own comment and Reverso link say
-`uu` while the data said `ia`.
+*nor* a documented doublet. The 2026-09-20 run turned up exactly one: يقظ, whose
+own comment and Reverso link said `uu` while the data said `ia` — fixed. حسب was
+the other candidate and was kept at `ii` deliberately; the reason is in a comment
+beside the root, so a later run should not re-open it.
