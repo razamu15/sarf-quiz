@@ -368,4 +368,61 @@ export const MUDAAF_ROOTS = [
               en: { past: 'took an interest', pres3: 'takes an interest', ing: 'taking an interest' } },
     },
   },
+  {
+    root: ['ض', 'م', 'م'], type: 'mudaaf',
+    forms: {
+      I: { bab: 'au', gloss: 'to join / to gather', masdar: 'ضَمّ', trans: true,
+           en: { past: 'joined', pp: 'joined', pres3: 'joins', ing: 'joining' },
+           reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%B6%D9%8E%D9%85%D9%8E%D9%91.html' },
+      VII: { gloss: 'to join / to be annexed', trans: false,
+             en: { past: 'joined', pres3: 'joins', ing: 'joining' },
+             reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%A7%D9%90%D9%86%D9%92%D8%B6%D9%8E%D9%85%D9%8E%D9%91.html' },
+    },
+  },
+  {
+    root: ['ك', 'ف', 'ف'], type: 'mudaaf',
+    forms: {
+      I: { bab: 'au', gloss: 'to restrain / to hold back', masdar: 'كَفّ', trans: true,
+           en: { past: 'restrained', pp: 'restrained', pres3: 'restrains', ing: 'restraining' },
+           reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D9%83%D9%8E%D9%81%D9%8E%D9%91.html' },
+      VII: { gloss: 'to desist / to refrain', trans: false,
+             en: { past: 'desisted', pres3: 'desists', ing: 'desisting' },
+             reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%A7%D9%90%D9%86%D9%92%D9%83%D9%8E%D9%81%D9%8E%D9%91.html' },
+    },
+  },
+  {
+    root: ['ب', 'ث', 'ث'], type: 'mudaaf',
+    forms: {
+      I: { bab: 'au', gloss: 'to spread / to broadcast', masdar: 'بَثّ', trans: true,
+           en: { past: 'broadcast', pp: 'broadcast', pres3: 'broadcasts', ing: 'broadcasting' },
+           reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%A8%D9%8E%D8%AB%D9%8E%D9%91.html' },
+      VII: { gloss: 'to be spread / diffused', trans: false,
+             en: { past: 'spread', pres3: 'spreads', ing: 'spreading' },
+             reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%A7%D9%90%D9%86%D9%92%D8%A8%D9%8E%D8%AB%D9%8E%D9%91.html' },
+    },
+  },
+  {
+    root: ['د', 'س', 'س'], type: 'mudaaf',
+    forms: {
+      I: { bab: 'au', gloss: 'to slip in / to insert slyly', masdar: 'دَسّ', trans: true,
+           en: { past: 'slipped in', pp: 'slipped in', pres3: 'slips in', ing: 'slipping in' },
+           reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%AF%D9%8E%D8%B3%D9%8E%D9%91.html' },
+      VII: { gloss: 'to slip in / to be inserted', trans: false,
+             en: { past: 'slipped in', pres3: 'slips in', ing: 'slipping in' },
+             reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%A7%D9%90%D9%86%D9%92%D8%AF%D9%8E%D8%B3%D9%8E%D9%91.html' },
+    },
+  },
+  {
+    root: ['ش', 'ق', 'ق'], type: 'mudaaf',
+    forms: {
+      I: { bab: 'au', gloss: 'to split / to cleave', masdar: 'شَقّ', trans: true,
+           en: { past: 'split', pp: 'split', pres3: 'splits', ing: 'splitting' },
+           reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%B4%D9%8E%D9%82%D9%8E%D9%91.html' },
+      VII: { gloss: 'to split / to be cleft', trans: false,
+             en: { past: 'split', pres3: 'splits', ing: 'splitting' } },
+      VIII: { gloss: 'to derive', trans: true,
+              en: { past: 'derived', pp: 'derived', pres3: 'derives', ing: 'deriving' },
+              reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%A7%D9%90%D8%B4%D9%92%D8%AA%D9%8E%D9%82%D9%8E%D9%91.html' },
+    },
+  },
 ];

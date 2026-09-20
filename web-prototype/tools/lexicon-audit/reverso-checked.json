@@ -1,0 +1,797 @@
+{
+ "updated": "2026-09-20",
+ "checked": {
+  "أدي|V": {
+   "word": "تَأَدَّى",
+   "result": "absent",
+   "detail": "HTTP 404",
+   "at": "2026-09-20"
+  },
+  "بقي|II": {
+   "word": "بَقَّى",
+   "result": "absent",
+   "detail": "HTTP 404",
+   "at": "2026-09-20"
+  },
+  "بقي|V": {
+   "word": "تَبَقَّى",
+   "result": "verified",
+   "url": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%AA%D9%8E%D8%A8%D9%8E%D9%82%D9%8E%D9%91%D9%89.html",
+   "at": "2026-09-20"
+  },
+  "بقي|X": {
+   "word": "اِسْتَبْقَى",
+   "result": "absent",
+   "detail": "HTTP 404",
+   "at": "2026-09-20"
+  },
+  "بهو|III": {
+   "word": "بَاهَى",
+   "result": "absent",
+   "detail": "HTTP 404",
+   "at": "2026-09-20"
+  },
+  "بيت|IV": {
+   "word": "أَبَاتَ",
+   "result": "absent",
+   "detail": "HTTP 404",
+   "at": "2026-09-20"
+  },
+  "بيع|III": {
+   "word": "بَايَعَ",
+   "result": "absent",
+   "detail": "HTTP 404",
+   "at": "2026-09-20"
+  },
+  "بيع|IV": {
+   "word": "أَبَاعَ",
+   "result": "verified",
+   "url": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%A3%D9%8E%D8%A8%D9%8E%D8%A7%D8%B9%D9%8E.html",
+   "at": "2026-09-20"
+  },
+  "بيع|VI": {
+   "word": "تَبَايَعَ",
+   "result": "absent",
+   "detail": "HTTP 404",
+   "at": "2026-09-20"
+  },
+  "تمم|I": {
+   "word": "تَمَّ",
+   "result": "verified",
+   "url": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%AA%D9%8E%D9%85%D9%8E%D9%91.html",
+   "at": "2026-09-20"
+  },
+  "تمم|II": {
+   "word": "تَمَّمَ",
+   "result": "absent",
+   "detail": "HTTP 404",
+   "at": "2026-09-20"
+  },
+  "تمم|IV": {
+   "word": "أَتَمَّ",
+   "result": "verified",
+   "url": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%A3%D9%8E%D8%AA%D9%8E%D9%85%D9%8E%D9%91.html",
+   "at": "2026-09-20"
+  },
+  "ثني|VIII": {
+   "word": "اِثْتَنَى",
+   "result": "absent",
+   "detail": "HTTP 404",
+   "at": "2026-09-20"
+  },
+  "جدد|I": {
+   "word": "جَدَّ",
+   "result": "verified",
+   "url": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%AC%D9%8E%D8%AF%D9%8E%D9%91.html",
+   "at": "2026-09-20"
+  },
+  "جدد|II": {
+   "word": "جَدَّدَ",
+   "result": "verified",
+   "url": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%AC%D9%8E%D8%AF%D9%8E%D9%91%D8%AF%D9%8E.html",
+   "at": "2026-09-20"
+  },
+  "جدد|V": {
+   "word": "تَجَدَّدَ",
+   "result": "verified",
+   "url": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%AA%D9%8E%D8%AC%D9%8E%D8%AF%D9%8E%D9%91%D8%AF%D9%8E.html",
+   "at": "2026-09-20"
+  },
+  "جدد|X": {
+   "word": "اِسْتَجَدَّ",
+   "result": "absent",
+   "detail": "HTTP 404",
+   "at": "2026-09-20"
+  },
+  "جلس|III": {
+   "word": "جَالَسَ",
+   "result": "absent",
+   "detail": "served جَلَسَ",
+   "at": "2026-09-20"
+  },
+  "جلس|IV": {
+   "word": "أَجْلَسَ",
+   "result": "absent",
+   "detail": "served جَلَسَ",
+   "at": "2026-09-20"
+  },
+  "جمع|II": {
+   "word": "جَمَّعَ",
+   "result": "verified",
+   "url": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%AC%D9%8E%D9%85%D9%8E%D9%91%D8%B9%D9%8E.html",
+   "at": "2026-09-20"
+  },
+  "جمع|IV": {
+   "word": "أَجْمَعَ",
+   "result": "verified",
+   "url": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%A3%D9%8E%D8%AC%D9%92%D9%85%D9%8E%D8%B9%D9%8E.html",
+   "at": "2026-09-20"
+  },
+  "جمع|V": {
+   "word": "تَجَمَّعَ",
+   "result": "verified",
+   "url": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%AA%D9%8E%D8%AC%D9%8E%D9%85%D9%8E%D9%91%D8%B9%D9%8E.html",
+   "at": "2026-09-20"
+  },
+  "جمع|X": {
+   "word": "اِسْتَجْمَعَ",
+   "result": "verified",
+   "url": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%A7%D9%90%D8%B3%D9%92%D8%AA%D9%8E%D8%AC%D9%92%D9%85%D9%8E%D8%B9%D9%8E.html",
+   "at": "2026-09-20"
+  },
+  "حبب|II": {
+   "word": "حَبَّبَ",
+   "result": "verified",
+   "url": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%AD%D9%8E%D8%A8%D9%8E%D9%91%D8%A8%D9%8E.html",
+   "at": "2026-09-20"
+  },
+  "حجج|I": {
+   "word": "حَجَّ",
+   "result": "verified",
+   "url": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%AD%D9%8E%D8%AC%D9%8E%D9%91.html",
+   "at": "2026-09-20"
+  },
+  "حجج|III": {
+   "word": "حَاجَّ",
+   "result": "verified",
+   "url": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%AD%D9%8E%D8%A7%D8%AC%D9%8E%D9%91.html",
+   "at": "2026-09-20"
+  },
+  "حجج|VIII": {
+   "word": "اِحْتَجَّ",
+   "result": "verified",
+   "url": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%A7%D9%90%D8%AD%D9%92%D8%AA%D9%8E%D8%AC%D9%8E%D9%91.html",
+   "at": "2026-09-20"
+  },
+  "حسب|III": {
+   "word": "حَاسَبَ",
+   "result": "verified",
+   "url": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%AD%D9%8E%D8%A7%D8%B3%D9%8E%D8%A8%D9%8E.html",
+   "at": "2026-09-20"
+  },
+  "حسب|V": {
+   "word": "تَحَسَّبَ",
+   "result": "verified",
+   "url": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%AA%D9%8E%D8%AD%D9%8E%D8%B3%D9%8E%D9%91%D8%A8%D9%8E.html",
+   "at": "2026-09-20"
+  },
+  "حسب|VI": {
+   "word": "تَحَاسَبَ",
+   "result": "verified",
+   "url": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%AA%D9%8E%D8%AD%D9%8E%D8%A7%D8%B3%D9%8E%D8%A8%D9%8E.html",
+   "at": "2026-09-20"
+  },
+  "حسب|VIII": {
+   "word": "اِحْتَسَبَ",
+   "result": "verified",
+   "url": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%A7%D9%90%D8%AD%D9%92%D8%AA%D9%8E%D8%B3%D9%8E%D8%A8%D9%8E.html",
+   "at": "2026-09-20"
+  },
+  "حسس|I": {
+   "word": "حَسَّ",
+   "result": "verified",
+   "url": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%AD%D9%8E%D8%B3%D9%8E%D9%91.html",
+   "at": "2026-09-20"
+  },
+  "حسس|IV": {
+   "word": "أَحَسَّ",
+   "result": "verified",
+   "url": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%A3%D9%8E%D8%AD%D9%8E%D8%B3%D9%8E%D9%91.html",
+   "at": "2026-09-20"
+  },
+  "حسس|V": {
+   "word": "تَحَسَّسَ",
+   "result": "verified",
+   "url": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%AA%D9%8E%D8%AD%D9%8E%D8%B3%D9%8E%D9%91%D8%B3%D9%8E.html",
+   "at": "2026-09-20"
+  },
+  "حقق|I": {
+   "word": "حَقَّ",
+   "result": "verified",
+   "url": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%AD%D9%8E%D9%82%D9%8E%D9%91.html",
+   "at": "2026-09-20"
+  },
+  "حقق|II": {
+   "word": "حَقَّقَ",
+   "result": "verified",
+   "url": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%AD%D9%8E%D9%82%D9%8E%D9%91%D9%82%D9%8E.html",
+   "at": "2026-09-20"
+  },
+  "حقق|V": {
+   "word": "تَحَقَّقَ",
+   "result": "verified",
+   "url": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%AA%D9%8E%D8%AD%D9%8E%D9%82%D9%8E%D9%91%D9%82%D9%8E.html",
+   "at": "2026-09-20"
+  },
+  "حقق|X": {
+   "word": "اِسْتَحَقَّ",
+   "result": "verified",
+   "url": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%A7%D9%90%D8%B3%D9%92%D8%AA%D9%8E%D8%AD%D9%8E%D9%82%D9%8E%D9%91.html",
+   "at": "2026-09-20"
+  },
+  "حكم|I": {
+   "word": "حَكَمَ",
+   "result": "verified",
+   "url": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%AD%D9%8E%D9%83%D9%8E%D9%85%D9%8E.html",
+   "at": "2026-09-20"
+  },
+  "حكم|II": {
+   "word": "حَكَّمَ",
+   "result": "verified",
+   "url": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%AD%D9%8E%D9%83%D9%8E%D9%91%D9%85%D9%8E.html",
+   "at": "2026-09-20"
+  },
+  "حكم|IV": {
+   "word": "أَحْكَمَ",
+   "result": "absent",
+   "detail": "served حَكَمَ",
+   "at": "2026-09-20"
+  },
+  "حكم|V": {
+   "word": "تَحَكَّمَ",
+   "result": "verified",
+   "url": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%AA%D9%8E%D8%AD%D9%8E%D9%83%D9%8E%D9%91%D9%85%D9%8E.html",
+   "at": "2026-09-20"
+  },
+  "حكم|X": {
+   "word": "اِسْتَحْكَمَ",
+   "result": "absent",
+   "detail": "HTTP 404",
+   "at": "2026-09-20"
+  },
+  "حلل|I": {
+   "word": "حَلَّ",
+   "result": "verified",
+   "url": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%AD%D9%8E%D9%84%D9%8E%D9%91.html",
+   "at": "2026-09-20"
+  },
+  "حلل|II": {
+   "word": "حَلَّلَ",
+   "result": "verified",
+   "url": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%AD%D9%8E%D9%84%D9%8E%D9%91%D9%84%D9%8E.html",
+   "at": "2026-09-20"
+  },
+  "حلل|IV": {
+   "word": "أَحَلَّ",
+   "result": "absent",
+   "detail": "served وَحِلَ",
+   "at": "2026-09-20"
+  },
+  "حلل|V": {
+   "word": "تَحَلَّلَ",
+   "result": "verified",
+   "url": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%AA%D9%8E%D8%AD%D9%8E%D9%84%D9%8E%D9%91%D9%84%D9%8E.html",
+   "at": "2026-09-20"
+  },
+  "حلل|X": {
+   "word": "اِسْتَحَلَّ",
+   "result": "absent",
+   "detail": "served اِسْتَحَالَ",
+   "at": "2026-09-20"
+  },
+  "حلو|IV": {
+   "word": "أَحْلَى",
+   "result": "absent",
+   "detail": "served حَلَا",
+   "at": "2026-09-20"
+  },
+  "حلو|V": {
+   "word": "تَحَلَّى",
+   "result": "absent",
+   "detail": "served حَلَا",
+   "at": "2026-09-20"
+  },
+  "حلو|X": {
+   "word": "اِسْتَحْلَى",
+   "result": "absent",
+   "detail": "HTTP 404",
+   "at": "2026-09-20"
+  },
+  "حمر|II": {
+   "word": "حَمَّرَ",
+   "result": "verified",
+   "url": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%AD%D9%8E%D9%85%D9%8E%D9%91%D8%B1%D9%8E.html",
+   "at": "2026-09-20"
+  },
+  "خرج|II": {
+   "word": "خَرَّجَ",
+   "result": "absent",
+   "detail": "served خَرَجَ",
+   "at": "2026-09-20"
+  },
+  "خرج|V": {
+   "word": "تَخَرَّجَ",
+   "result": "verified",
+   "url": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%AA%D9%8E%D8%AE%D9%8E%D8%B1%D9%8E%D9%91%D8%AC%D9%8E.html",
+   "at": "2026-09-20"
+  },
+  "خصص|I": {
+   "word": "خَصَّ",
+   "result": "verified",
+   "url": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%AE%D9%8E%D8%B5%D9%8E%D9%91.html",
+   "at": "2026-09-20"
+  },
+  "خصص|II": {
+   "word": "خَصَّصَ",
+   "result": "verified",
+   "url": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%AE%D9%8E%D8%B5%D9%8E%D9%91%D8%B5%D9%8E.html",
+   "at": "2026-09-20"
+  },
+  "خصص|V": {
+   "word": "تَخَصَّصَ",
+   "result": "verified",
+   "url": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%AA%D9%8E%D8%AE%D9%8E%D8%B5%D9%8E%D9%91%D8%B5%D9%8E.html",
+   "at": "2026-09-20"
+  },
+  "خصص|VIII": {
+   "word": "اِخْتَصَّ",
+   "result": "absent",
+   "detail": "HTTP 404",
+   "at": "2026-09-20"
+  },
+  "خلو|X": {
+   "word": "اِسْتَخْلَى",
+   "result": "absent",
+   "detail": "HTTP 404",
+   "at": "2026-09-20"
+  },
+  "درس|I": {
+   "word": "دَرَسَ",
+   "result": "verified",
+   "url": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%AF%D9%8E%D8%B1%D9%8E%D8%B3%D9%8E.html",
+   "at": "2026-09-20"
+  },
+  "درس|II": {
+   "word": "دَرَّسَ",
+   "result": "verified",
+   "url": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%AF%D9%8E%D8%B1%D9%8E%D9%91%D8%B3%D9%8E.html",
+   "at": "2026-09-20"
+  },
+  "درس|III": {
+   "word": "دَارَسَ",
+   "result": "absent",
+   "detail": "served دَرَسَ",
+   "at": "2026-09-20"
+  },
+  "درس|VI": {
+   "word": "تَدَارَسَ",
+   "result": "verified",
+   "url": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%AA%D9%8E%D8%AF%D9%8E%D8%A7%D8%B1%D9%8E%D8%B3%D9%8E.html",
+   "at": "2026-09-20"
+  },
+  "دعو|X": {
+   "word": "اِسْتَدْعَى",
+   "result": "verified",
+   "url": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%A7%D9%90%D8%B3%D9%92%D8%AA%D9%8E%D8%AF%D9%92%D8%B9%D9%8E%D9%89.html",
+   "at": "2026-09-20"
+  },
+  "ذوق|I": {
+   "word": "ذَاقَ",
+   "result": "verified",
+   "url": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%B0%D9%8E%D8%A7%D9%82%D9%8E.html",
+   "at": "2026-09-20"
+  },
+  "ذوق|IV": {
+   "word": "أَذَاقَ",
+   "result": "absent",
+   "detail": "served ذَاقَ",
+   "at": "2026-09-20"
+  },
+  "ذوق|V": {
+   "word": "تَذَوَّقَ",
+   "result": "verified",
+   "url": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%AA%D9%8E%D8%B0%D9%8E%D9%88%D9%8E%D9%91%D9%82%D9%8E.html",
+   "at": "2026-09-20"
+  },
+  "ربو|III": {
+   "word": "رَابَى",
+   "result": "absent",
+   "detail": "HTTP 404",
+   "at": "2026-09-20"
+  },
+  "ربو|IV": {
+   "word": "أَرْبَى",
+   "result": "absent",
+   "detail": "served رَبَّى",
+   "at": "2026-09-20"
+  },
+  "ربو|V": {
+   "word": "تَرَبَّى",
+   "result": "absent",
+   "detail": "served رَبَّى",
+   "at": "2026-09-20"
+  },
+  "ردد|II": {
+   "word": "رَدَّدَ",
+   "result": "verified",
+   "url": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%B1%D9%8E%D8%AF%D9%8E%D9%91%D8%AF%D9%8E.html",
+   "at": "2026-09-20"
+  },
+  "ردد|III": {
+   "word": "رَادَّ",
+   "result": "verified",
+   "url": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%B1%D9%8E%D8%A7%D8%AF%D9%8E%D9%91.html",
+   "at": "2026-09-20"
+  },
+  "ردد|VI": {
+   "word": "تَرَادَّ",
+   "result": "verified",
+   "url": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%AA%D9%8E%D8%B1%D9%8E%D8%A7%D8%AF%D9%8E%D9%91.html",
+   "at": "2026-09-20"
+  },
+  "رضي|III": {
+   "word": "رَاضَى",
+   "result": "absent",
+   "detail": "HTTP 404",
+   "at": "2026-09-20"
+  },
+  "رضي|V": {
+   "word": "تَرَضَّى",
+   "result": "absent",
+   "detail": "served رَضِيَ",
+   "at": "2026-09-20"
+  },
+  "رضي|VI": {
+   "word": "تَرَاضَى",
+   "result": "absent",
+   "detail": "HTTP 404",
+   "at": "2026-09-20"
+  },
+  "رضي|VIII": {
+   "word": "اِرْتَضَى",
+   "result": "absent",
+   "detail": "HTTP 404",
+   "at": "2026-09-20"
+  },
+  "رضي|X": {
+   "word": "اِسْتَرْضَى",
+   "result": "absent",
+   "detail": "HTTP 404",
+   "at": "2026-09-20"
+  },
+  "رقي|VI": {
+   "word": "تَرَاقَى",
+   "result": "absent",
+   "detail": "HTTP 404",
+   "at": "2026-09-20"
+  },
+  "رقي|VIII": {
+   "word": "اِرْتَقَى",
+   "result": "absent",
+   "detail": "HTTP 404",
+   "at": "2026-09-20"
+  },
+  "رمي|VI": {
+   "word": "تَرَامَى",
+   "result": "absent",
+   "detail": "HTTP 404",
+   "at": "2026-09-20"
+  },
+  "رمي|VIII": {
+   "word": "اِرْتَمَى",
+   "result": "absent",
+   "detail": "HTTP 404",
+   "at": "2026-09-20"
+  },
+  "زور|VI": {
+   "word": "تَزَاوَرَ",
+   "result": "absent",
+   "detail": "HTTP 404",
+   "at": "2026-09-20"
+  },
+  "زور|X": {
+   "word": "اِسْتَزَارَ",
+   "result": "absent",
+   "detail": "HTTP 404",
+   "at": "2026-09-20"
+  },
+  "زيد|I": {
+   "word": "زَادَ",
+   "result": "verified",
+   "url": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%B2%D9%8E%D8%A7%D8%AF%D9%8E.html",
+   "at": "2026-09-20"
+  },
+  "زيد|VI": {
+   "word": "تَزَايَدَ",
+   "result": "verified",
+   "url": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%AA%D9%8E%D8%B2%D9%8E%D8%A7%D9%8A%D9%8E%D8%AF%D9%8E.html",
+   "at": "2026-09-20"
+  },
+  "زيد|X": {
+   "word": "اِسْتَزَادَ",
+   "result": "absent",
+   "detail": "HTTP 404",
+   "at": "2026-09-20"
+  },
+  "سرر|I": {
+   "word": "سَرَّ",
+   "result": "verified",
+   "url": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%B3%D9%8E%D8%B1%D9%8E%D9%91.html",
+   "at": "2026-09-20"
+  },
+  "سرر|IV": {
+   "word": "أَسَرَّ",
+   "result": "verified",
+   "url": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%A3%D9%8E%D8%B3%D9%8E%D8%B1%D9%8E%D9%91.html",
+   "at": "2026-09-20"
+  },
+  "سرر|X": {
+   "word": "اِسْتَسَرَّ",
+   "result": "verified",
+   "url": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%A7%D9%90%D8%B3%D9%92%D8%AA%D9%8E%D8%B3%D9%8E%D8%B1%D9%8E%D9%91.html",
+   "at": "2026-09-20"
+  },
+  "سعي|X": {
+   "word": "اِسْتَسْعَى",
+   "result": "absent",
+   "detail": "HTTP 404",
+   "at": "2026-09-20"
+  },
+  "سلم|III": {
+   "word": "سَالَمَ",
+   "result": "verified",
+   "url": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%B3%D9%8E%D8%A7%D9%84%D9%8E%D9%85%D9%8E.html",
+   "at": "2026-09-20"
+  },
+  "سلم|V": {
+   "word": "تَسَلَّمَ",
+   "result": "verified",
+   "url": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%AA%D9%8E%D8%B3%D9%8E%D9%84%D9%8E%D9%91%D9%85%D9%8E.html",
+   "at": "2026-09-20"
+  },
+  "سلم|VIII": {
+   "word": "اِسْتَلَمَ",
+   "result": "verified",
+   "url": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%A7%D9%90%D8%B3%D9%92%D8%AA%D9%8E%D9%84%D9%8E%D9%85%D9%8E.html",
+   "at": "2026-09-20"
+  },
+  "سلو|IV": {
+   "word": "أَسْلَى",
+   "result": "absent",
+   "detail": "served سَلَا",
+   "at": "2026-09-20"
+  },
+  "سمع|IV": {
+   "word": "أَسْمَعَ",
+   "result": "verified",
+   "url": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%A3%D9%8E%D8%B3%D9%92%D9%85%D9%8E%D8%B9%D9%8E.html",
+   "at": "2026-09-20"
+  },
+  "سمع|V": {
+   "word": "تَسَمَّعَ",
+   "result": "verified",
+   "url": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%AA%D9%8E%D8%B3%D9%8E%D9%85%D9%8E%D9%91%D8%B9%D9%8E.html",
+   "at": "2026-09-20"
+  },
+  "سمع|VI": {
+   "word": "تَسَامَعَ",
+   "result": "verified",
+   "url": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%AA%D9%8E%D8%B3%D9%8E%D8%A7%D9%85%D9%8E%D8%B9%D9%8E.html",
+   "at": "2026-09-20"
+  },
+  "سمو|III": {
+   "word": "سَامَى",
+   "result": "absent",
+   "detail": "HTTP 404",
+   "at": "2026-09-20"
+  },
+  "سمو|VI": {
+   "word": "تَسَامَى",
+   "result": "absent",
+   "detail": "HTTP 404",
+   "at": "2026-09-20"
+  },
+  "سير|II": {
+   "word": "سَيَّرَ",
+   "result": "absent",
+   "detail": "served سَارَ",
+   "at": "2026-09-20"
+  },
+  "سير|III": {
+   "word": "سَايَرَ",
+   "result": "absent",
+   "detail": "HTTP 404",
+   "at": "2026-09-20"
+  },
+  "سيل|I": {
+   "word": "سَالَ",
+   "result": "verified",
+   "url": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%B3%D9%8E%D8%A7%D9%84%D9%8E.html",
+   "at": "2026-09-20"
+  },
+  "سيل|IV": {
+   "word": "أَسَالَ",
+   "result": "absent",
+   "detail": "HTTP 404",
+   "at": "2026-09-20"
+  },
+  "شدد|I": {
+   "word": "شَدَّ",
+   "result": "verified",
+   "url": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%B4%D9%8E%D8%AF%D9%8E%D9%91.html",
+   "at": "2026-09-20"
+  },
+  "شدد|II": {
+   "word": "شَدَّدَ",
+   "result": "verified",
+   "url": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%B4%D9%8E%D8%AF%D9%8E%D9%91%D8%AF%D9%8E.html",
+   "at": "2026-09-20"
+  },
+  "شدد|VIII": {
+   "word": "اِشْتَدَّ",
+   "result": "verified",
+   "url": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%A7%D9%90%D8%B4%D9%92%D8%AA%D9%8E%D8%AF%D9%8E%D9%91.html",
+   "at": "2026-09-20"
+  },
+  "شرب|IV": {
+   "word": "أَشْرَبَ",
+   "result": "absent",
+   "detail": "served شَرِبَ",
+   "at": "2026-09-20"
+  },
+  "شرك|IV": {
+   "word": "أَشْرَكَ",
+   "result": "verified",
+   "url": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%A3%D9%8E%D8%B4%D9%92%D8%B1%D9%8E%D9%83%D9%8E.html",
+   "at": "2026-09-20"
+  },
+  "شرك|VI": {
+   "word": "تَشَارَكَ",
+   "result": "verified",
+   "url": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%AA%D9%8E%D8%B4%D9%8E%D8%A7%D8%B1%D9%8E%D9%83%D9%8E.html",
+   "at": "2026-09-20"
+  },
+  "شكك|I": {
+   "word": "شَكَّ",
+   "result": "verified",
+   "url": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%B4%D9%8E%D9%83%D9%8E%D9%91.html",
+   "at": "2026-09-20"
+  },
+  "شكك|II": {
+   "word": "شَكَّكَ",
+   "result": "verified",
+   "url": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%B4%D9%8E%D9%83%D9%8E%D9%91%D9%83%D9%8E.html",
+   "at": "2026-09-20"
+  },
+  "شكك|V": {
+   "word": "تَشَكَّكَ",
+   "result": "absent",
+   "detail": "served شَكَّ",
+   "at": "2026-09-20"
+  },
+  "صحح|I": {
+   "word": "صَحَّ",
+   "result": "verified",
+   "url": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%B5%D9%8E%D8%AD%D9%8E%D9%91.html",
+   "at": "2026-09-20"
+  },
+  "صحح|II": {
+   "word": "صَحَّحَ",
+   "result": "verified",
+   "url": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%B5%D9%8E%D8%AD%D9%8E%D9%91%D8%AD%D9%8E.html",
+   "at": "2026-09-20"
+  },
+  "صفر|I": {
+   "word": "صَفِرَ",
+   "result": "verified",
+   "url": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%B5%D9%8E%D9%81%D9%90%D8%B1%D9%8E.html",
+   "at": "2026-09-20"
+  },
+  "صفر|II": {
+   "word": "صَفَّرَ",
+   "result": "verified",
+   "url": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%B5%D9%8E%D9%81%D9%8E%D9%91%D8%B1%D9%8E.html",
+   "at": "2026-09-20"
+  },
+  "ضرب|II": {
+   "word": "ضَرَّبَ",
+   "result": "verified",
+   "url": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%B6%D9%8E%D8%B1%D9%8E%D9%91%D8%A8%D9%8E.html",
+   "at": "2026-09-20"
+  },
+  "ضرب|III": {
+   "word": "ضَارَبَ",
+   "result": "absent",
+   "detail": "served ضَرُبَ",
+   "at": "2026-09-20"
+  },
+  "ضرب|VI": {
+   "word": "تَضَارَبَ",
+   "result": "absent",
+   "detail": "HTTP 404",
+   "at": "2026-09-20"
+  },
+  "ضلل|IV": {
+   "word": "أَضَلَّ",
+   "result": "absent",
+   "detail": "served ضَلَّ",
+   "at": "2026-09-20"
+  },
+  "ضيع|I": {
+   "word": "ضَاعَ",
+   "result": "verified",
+   "url": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%B6%D9%8E%D8%A7%D8%B9%D9%8E.html",
+   "at": "2026-09-20"
+  },
+  "ضيع|II": {
+   "word": "ضَيَّعَ",
+   "result": "verified",
+   "url": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%B6%D9%8E%D9%8A%D9%8E%D9%91%D8%B9%D9%8E.html",
+   "at": "2026-09-20"
+  },
+  "ضيع|IV": {
+   "word": "أَضَاعَ",
+   "result": "verified",
+   "url": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%A3%D9%8E%D8%B6%D9%8E%D8%A7%D8%B9%D9%8E.html",
+   "at": "2026-09-20"
+  },
+  "طوف|I": {
+   "word": "طَافَ",
+   "result": "verified",
+   "url": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%B7%D9%8E%D8%A7%D9%81%D9%8E.html",
+   "at": "2026-09-20"
+  },
+  "طوف|II": {
+   "word": "طَوَّفَ",
+   "result": "absent",
+   "detail": "served طَافَ",
+   "at": "2026-09-20"
+  },
+  "طول|I": {
+   "word": "طَالَ",
+   "result": "verified",
+   "url": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%B7%D9%8E%D8%A7%D9%84%D9%8E.html",
+   "at": "2026-09-20"
+  },
+  "طول|II": {
+   "word": "طَوَّلَ",
+   "result": "verified",
+   "url": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%B7%D9%8E%D9%88%D9%8E%D9%91%D9%84%D9%8E.html",
+   "at": "2026-09-20"
+  },
+  "طول|IV": {
+   "word": "أَطَالَ",
+   "result": "verified",
+   "url": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%A3%D9%8E%D8%B7%D9%8E%D8%A7%D9%84%D9%8E.html",
+   "at": "2026-09-20"
+  },
+  "طول|VI": {
+   "word": "تَطَاوَلَ",
+   "result": "verified",
+   "url": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%AA%D9%8E%D8%B7%D9%8E%D8%A7%D9%88%D9%8E%D9%84%D9%8E.html",
+   "at": "2026-09-20"
+  },
+  "طير|I": {
+   "word": "طَارَ",
+   "result": "verified",
+   "url": "https://conjugator.reverso.net/conjugation-arabic-verb-%D8%B7%D9%8E%D8%A7%D8%B1%D9%8E.html",
+   "at": "2026-09-20"
+  },
+  "شقق|VII": {
+   "word": "اِنْشَقَّ",
+   "result": "absent",
+   "detail": "HTTP 404",
+   "at": "2026-09-20"
+  }
+ }
+}

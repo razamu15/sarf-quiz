@@ -57,10 +57,21 @@
 //                 authors III–X.
 // forms.*.reverso → the Reverso Conjugator page for THIS form's verb, used by
 //                 hand to cross-check the engine. Nothing in the app reads it.
-//                 Present only when Reverso's own headword was verified to be
-//                 this form (it silently redirects unknown mazīd forms to a
-//                 sibling, e.g. أَيْبَسَ → يَبِسَ); absent means "not on Reverso",
-//                 never "not checked" — every form was probed on 2026-09-18.
+//                 Present only when Reverso's own headword was VERIFIED to be
+//                 this form. Reverso answers 200 for a verb it does not have
+//                 and silently serves a sibling — أَيْبَسَ gives يَبِسَ, جَالَسَ
+//                 gives جَلَسَ, and أَحَلَّ gives وَحِلَ, a different root — so a
+//                 link is never constructed, only confirmed.
+//
+//                 ABSENT NO LONGER MEANS "NOT ON REVERSO". It did while the
+//                 lexicon was 58 roots and every form had been probed; the
+//                 roots added since have outgrown that sweep. The one place
+//                 that now distinguishes "probed, Reverso has no such verb"
+//                 from "not yet probed" is
+//                 tools/lexicon-audit/reverso-checked.json — a form absent
+//                 from that ledger has simply not been looked at.
+//                 `node tools/lexicon-audit/reverso.mjs --status` reports the
+//                 split, and the probe resumes from the ledger.
 
 import { SALIM_ROOTS } from './roots/salim.js';
 import { MAHMUZ_ROOTS } from './roots/mahmuz.js';
