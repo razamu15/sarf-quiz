@@ -220,6 +220,60 @@ export const MITHAL_ROOTS = [
               reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%A7%D9%90%D8%AA%D9%91%D9%8E%D8%B9%D9%8E%D8%AF%D9%8E.html' },
     },
   },
+  {
+    root: ['و', 'ز', 'ن'], type: 'mithal_waw',
+    forms: {
+      I: { bab: 'ai', gloss: 'to weigh', masdar: 'وَزْن', trans: true,
+           en: { past: 'weighed', pp: 'weighed', pres3: 'weighs', ing: 'weighing' } },
+      III: { gloss: 'to balance / to compare', trans: true,
+             en: { past: 'balanced', pp: 'balanced', pres3: 'balances', ing: 'balancing' } },
+      VI: { gloss: 'to be in balance', trans: false },
+    },
+  },
+  {
+    root: ['و', 'ق', 'ف'], type: 'mithal_waw',
+    forms: {
+      I: { bab: 'ai', gloss: 'to stop / to stand', masdar: 'وُقُوف', trans: false,
+           en: { past: 'stopped', pres3: 'stops', ing: 'stopping' } },
+      II: { gloss: 'to halt / to suspend', trans: true,
+            en: { past: 'halted', pp: 'halted', pres3: 'halts', ing: 'halting' } },
+      IV: { gloss: 'to bring to a stop', trans: true,
+            en: { past: 'stopped', pp: 'stopped', pres3: 'stops', ing: 'stopping' } },
+      V: { gloss: 'to come to a stop', trans: false,
+           en: { past: 'came to a stop', pres3: 'comes to a stop', ing: 'coming to a stop' } },
+    },
+  },
+  {
+    root: ['و', 'ل', 'د'], type: 'mithal_waw',
+    forms: {
+      I: { bab: 'ai', gloss: 'to give birth to', masdar: 'وِلَادَة', trans: true,
+           en: { past: 'gave birth to', pp: 'born', pres3: 'gives birth to', ing: 'giving birth to' } },
+      II: { gloss: 'to generate / to produce', trans: true,
+            en: { past: 'generated', pp: 'generated', pres3: 'generates', ing: 'generating' } },
+      V: { gloss: 'to be generated', trans: false },
+    },
+  },
+  {
+    root: ['و', 'ص', 'ف'], type: 'mithal_waw',
+    forms: {
+      I: { bab: 'ai', gloss: 'to describe', masdar: 'وَصْف', trans: true,
+           en: { past: 'described', pp: 'described', pres3: 'describes', ing: 'describing' } },
+      VIII: { gloss: 'to be characterised by', trans: false },
+    },
+  },
+  {
+    root: ['و', 'س', 'ع'], type: 'mithal_waw',
+    forms: {
+      I: { bab: 'ia', gloss: 'to accommodate / to hold', masdar: 'سَعَة', trans: true,
+           en: { past: 'accommodated', pp: 'accommodated', pres3: 'accommodates', ing: 'accommodating' } },
+      II: { gloss: 'to widen / to expand', trans: true,
+            en: { past: 'widened', pp: 'widened', pres3: 'widens', ing: 'widening' } },
+      V: { gloss: 'to expand', trans: false,
+           en: { past: 'expanded', pres3: 'expands', ing: 'expanding' } },
+      VIII: { gloss: 'to become wide', trans: false,
+              en: { past: 'became wide', pres3: 'becomes wide', ing: 'becoming wide' } },
+    },
+  },
   // --- Mithāl yāʾ · ي as first radical ---------------------------------------
   // Several of these are also hamzated (يَئِسَ) or near it; classify() types them
   // by their weakness, which is the harder rule and the one that decides the

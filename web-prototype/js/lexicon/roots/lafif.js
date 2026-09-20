@@ -103,6 +103,39 @@ export const LAFIF_ROOTS = [
            reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%A7%D9%90%D8%B3%D9%92%D8%AA%D9%8E%D9%88%D9%92%D9%81%D9%8E%D9%89.html' },
     },
   },
+  {
+    root: ['و', 'ق', 'ي'], type: 'lafif_mafruq',
+    forms: {
+      I: { bab: 'ai', gloss: 'to protect / to guard', masdar: 'وِقَايَة', trans: true,
+           en: { past: 'protected', pp: 'protected', pres3: 'protects', ing: 'protecting' } },
+      VIII: { gloss: 'to fear God / to guard against', trans: true,
+              en: { past: 'feared God', pp: 'guarded against', pres3: 'fears God', ing: 'fearing God' } },
+    },
+  },
+  {
+    root: ['و', 'ع', 'ي'], type: 'lafif_mafruq',
+    forms: {
+      I: { bab: 'ia', gloss: 'to grasp / to comprehend', masdar: 'وَعْي', trans: true,
+           en: { past: 'grasped', pp: 'grasped', pres3: 'grasps', ing: 'grasping' } },
+      IV: { gloss: 'to retain / to store up', trans: true,
+            en: { past: 'retained', pp: 'retained', pres3: 'retains', ing: 'retaining' } },
+    },
+  },
+  {
+    root: ['و', 'د', 'ي'], type: 'lafif_mafruq',
+    forms: {
+      I: { bab: 'ai', gloss: 'to pay blood money for', masdar: 'دِيَة', trans: true,
+           en: { past: 'paid blood money for', pp: 'paid for', pres3: 'pays blood money for', ing: 'paying blood money for' } },
+      II: { gloss: 'to discharge / to carry out', trans: true,
+            en: { past: 'discharged', pp: 'discharged', pres3: 'discharges', ing: 'discharging' } },
+    },
+  },
+  {
+    root: ['و', 'ه', 'ي'], type: 'lafif_mafruq',
+    forms: {
+      I: { bab: 'ai', gloss: 'to be weak / frail', masdar: 'وَهْي', trans: false },
+    },
+  },
   // --- Lafīf maqrūn · the two weak letters adjacent (طَوَى) -------------------
   {
     root: ['ح', 'ي', 'ي'], type: 'lafif_maqrun',
@@ -159,6 +192,40 @@ export const LAFIF_ROOTS = [
       VIII: { gloss: 'to be level / even', masdar: 'اِسْتِوَاء', trans: false,
               en: { past: 'was level', pres3: 'is level', ing: 'being level' },
               reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%A7%D9%90%D8%B3%D9%92%D8%AA%D9%8E%D9%88%D9%8E%D9%89.html' },
+    },
+  },
+  {
+    root: ['ط', 'و', 'ي'], type: 'lafif_maqrun',
+    forms: {
+      I: { bab: 'ai', gloss: 'to fold / to roll up', masdar: 'طَيّ', trans: true,
+           en: { past: 'folded', pp: 'folded', pres3: 'folds', ing: 'folding' } },
+      VII: { gloss: 'to be folded up', trans: false },
+    },
+  },
+  {
+    root: ['ر', 'و', 'ي'], type: 'lafif_maqrun',
+    forms: {
+      I: { bab: 'ai', gloss: 'to narrate / to relate', masdar: 'رِوَايَة', trans: true,
+           en: { past: 'narrated', pp: 'narrated', pres3: 'narrates', ing: 'narrating' } },
+      II: { gloss: 'to irrigate / to water', trans: true,
+            en: { past: 'irrigated', pp: 'irrigated', pres3: 'irrigates', ing: 'irrigating' } },
+      IV: { gloss: 'to quench the thirst of', trans: true,
+            en: { past: 'quenched', pp: 'quenched', pres3: 'quenches', ing: 'quenching' } },
+    },
+  },
+  {
+    root: ['ن', 'و', 'ي'], type: 'lafif_maqrun',
+    forms: {
+      I: { bab: 'ai', gloss: 'to intend', masdar: 'نِيَّة', trans: true,
+           en: { past: 'intended', pp: 'intended', pres3: 'intends', ing: 'intending' } },
+    },
+  },
+  {
+    root: ['ش', 'و', 'ي'], type: 'lafif_maqrun',
+    forms: {
+      I: { bab: 'ai', gloss: 'to grill / to roast', masdar: 'شَيّ', trans: true,
+           en: { past: 'grilled', pp: 'grilled', pres3: 'grills', ing: 'grilling' } },
+      VIII: { gloss: 'to be grilled', trans: false },
     },
   },
 ];

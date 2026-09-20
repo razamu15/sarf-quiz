@@ -159,4 +159,122 @@ export const MUDAAF_ROOTS = [
             en: { past: 'led astray', pp: 'led astray', pres3: 'leads astray', ing: 'leading astray' } },
     },
   },
+  {
+    root: ['ش', 'ك', 'ك'], type: 'mudaaf',
+    forms: {
+      I: { bab: 'au', gloss: 'to doubt', masdar: 'شَكّ', trans: false,
+           en: { past: 'doubted', pres3: 'doubts', ing: 'doubting' } },
+      II: { gloss: 'to cast doubt on', trans: true,
+            en: { past: 'cast doubt on', pp: 'cast doubt on', pres3: 'casts doubt on', ing: 'casting doubt on' } },
+      V: { gloss: 'to become doubtful', trans: false,
+           en: { past: 'became doubtful', pres3: 'becomes doubtful', ing: 'becoming doubtful' } },
+    },
+  },
+  {
+    root: ['ح', 'ج', 'ج'], type: 'mudaaf',
+    forms: {
+      I: { bab: 'au', gloss: 'to make pilgrimage', masdar: 'حَجّ', trans: false,
+           en: { past: 'made pilgrimage', pres3: 'makes pilgrimage', ing: 'making pilgrimage' } },
+      III: { gloss: 'to dispute with', trans: true,
+             en: { past: 'disputed with', pp: 'disputed with', pres3: 'disputes with', ing: 'disputing with' } },
+      VIII: { gloss: 'to protest / to object', trans: false,
+              en: { past: 'protested', pres3: 'protests', ing: 'protesting' } },
+    },
+  },
+  {
+    root: ['س', 'ر', 'ر'], type: 'mudaaf',
+    forms: {
+      I: { bab: 'au', gloss: 'to please / to delight', masdar: 'سُرُور', trans: true,
+           en: { past: 'pleased', pp: 'pleased', pres3: 'pleases', ing: 'pleasing' } },
+      IV: { gloss: 'to confide / to keep secret', trans: true,
+            en: { past: 'confided', pp: 'confided', pres3: 'confides', ing: 'confiding' } },
+      X: { gloss: 'to be concealed', trans: false },
+    },
+  },
+  {
+    root: ['ظ', 'ن', 'ن'], type: 'mudaaf',
+    forms: {
+      I: { bab: 'au', gloss: 'to think / to suppose', masdar: 'ظَنّ', trans: true,
+           en: { past: 'supposed', pp: 'supposed', pres3: 'supposes', ing: 'supposing' } },
+    },
+  },
+  {
+    root: ['ع', 'د', 'د'], type: 'mudaaf',
+    forms: {
+      I: { bab: 'au', gloss: 'to count', masdar: 'عَدّ', trans: true,
+           en: { past: 'counted', pp: 'counted', pres3: 'counts', ing: 'counting' } },
+      II: { gloss: 'to enumerate', trans: true,
+            en: { past: 'enumerated', pp: 'enumerated', pres3: 'enumerates', ing: 'enumerating' } },
+      IV: { gloss: 'to prepare', trans: true,
+            en: { past: 'prepared', pp: 'prepared', pres3: 'prepares', ing: 'preparing' } },
+      V: { gloss: 'to be numerous', trans: false },
+      X: { gloss: 'to get ready', trans: false,
+           en: { past: 'got ready', pres3: 'gets ready', ing: 'getting ready' } },
+    },
+  },
+  {
+    root: ['ش', 'د', 'د'], type: 'mudaaf',
+    forms: {
+      I: { bab: 'au', gloss: 'to pull tight / to tighten', masdar: 'شَدّ', trans: true,
+           en: { past: 'tightened', pp: 'tightened', pres3: 'tightens', ing: 'tightening' } },
+      II: { gloss: 'to intensify / to stress', trans: true,
+            en: { past: 'intensified', pp: 'intensified', pres3: 'intensifies', ing: 'intensifying' } },
+      VIII: { gloss: 'to grow severe', trans: false,
+              en: { past: 'grew severe', pres3: 'grows severe', ing: 'growing severe' } },
+    },
+  },
+  {
+    root: ['ح', 'ل', 'ل'], type: 'mudaaf',
+    forms: {
+      I: { bab: 'ai', gloss: 'to untie / to solve', masdar: 'حَلّ', trans: true,
+           en: { past: 'solved', pp: 'solved', pres3: 'solves', ing: 'solving' } },
+      II: { gloss: 'to analyse', trans: true,
+            en: { past: 'analysed', pp: 'analysed', pres3: 'analyses', ing: 'analysing' } },
+      IV: { gloss: 'to make lawful', trans: true,
+            en: { past: 'made lawful', pp: 'made lawful', pres3: 'makes lawful', ing: 'making lawful' } },
+      V: { gloss: 'to disintegrate', trans: false,
+           en: { past: 'disintegrated', pres3: 'disintegrates', ing: 'disintegrating' } },
+      X: { gloss: 'to deem lawful', trans: true,
+           en: { past: 'deemed lawful', pp: 'deemed lawful', pres3: 'deems lawful', ing: 'deeming lawful' } },
+    },
+  },
+  {
+    root: ['ت', 'م', 'م'], type: 'mudaaf',
+    forms: {
+      I: { bab: 'ai', gloss: 'to be complete', masdar: 'تَمَام', trans: false },
+      II: { gloss: 'to complete', trans: true,
+            en: { past: 'completed', pp: 'completed', pres3: 'completes', ing: 'completing' } },
+      IV: { gloss: 'to finish / to bring to completion', trans: true,
+            en: { past: 'finished', pp: 'finished', pres3: 'finishes', ing: 'finishing' } },
+    },
+  },
+  {
+    root: ['ص', 'ح', 'ح'], type: 'mudaaf',
+    forms: {
+      I: { bab: 'ai', gloss: 'to be sound / correct', masdar: 'صِحَّة', trans: false },
+      II: { gloss: 'to correct', trans: true,
+            en: { past: 'corrected', pp: 'corrected', pres3: 'corrects', ing: 'correcting' } },
+    },
+  },
+  {
+    root: ['خ', 'ص', 'ص'], type: 'mudaaf',
+    forms: {
+      I: { bab: 'au', gloss: 'to single out', masdar: 'خُصُوص', trans: true,
+           en: { past: 'singled out', pp: 'singled out', pres3: 'singles out', ing: 'singling out' } },
+      II: { gloss: 'to allocate / to assign', trans: true,
+            en: { past: 'allocated', pp: 'allocated', pres3: 'allocates', ing: 'allocating' } },
+      V: { gloss: 'to specialise', trans: false,
+           en: { past: 'specialised', pres3: 'specialises', ing: 'specialising' } },
+      VIII: { gloss: 'to be peculiar to', trans: false },
+    },
+  },
+  {
+    root: ['ف', 'ر', 'ر'], type: 'mudaaf',
+    forms: {
+      I: { bab: 'ai', gloss: 'to flee', masdar: 'فِرَار', trans: false,
+           en: { past: 'fled', pres3: 'flees', ing: 'fleeing' } },
+      IV: { gloss: 'to put to flight', trans: true,
+            en: { past: 'put to flight', pp: 'put to flight', pres3: 'puts to flight', ing: 'putting to flight' } },
+    },
+  },
 ];

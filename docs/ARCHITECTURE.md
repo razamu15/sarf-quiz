@@ -8,7 +8,7 @@
 > Companion docs: [PRODUCT_SPEC.md](PRODUCT_SPEC.md) for what the app is,
 > [ROADMAP.md](ROADMAP.md) for what is left to build.
 
-Last verified against the code: **Aug 2026**, 48 files, 181 import edges,
+Last verified against the code: **Sep 2026**, 48 files, 181 import edges,
 417 assertions green, zero import cycles.
 
 ---
@@ -247,7 +247,7 @@ js/
 
   grammar/             shared-grammar (FORM_META, prefixes) + one file per verb
                        type. DATA, no logic.
-  lexicon/             roots.js — the BARREL over roots/ (101 roots), which holds
+  lexicon/             roots.js — the BARREL over roots/ (156 roots), which holds
                        one file per traditional verb type: salim · mahmuz ·
                        mudaaf · mithal · ajwaf · naqis · lafif. The three
                        muʿtall files carry two engine types each (waw/ya) under
@@ -303,7 +303,7 @@ that matters — it depends on no *behaviour*, only on data — and
 
 1. **The engine never changes silently.** Any refactor is verified by a
    before/after snapshot of every generated word, derived noun, citation and
-   meaning — 53,314 outputs — diffed to zero. See §10.
+   meaning — 72,224 outputs — diffed to zero. See §10.
 2. **Validate once, at a boundary.** `conjugation-service` owns every
    conjugation precondition; `grade()` owns every correctness judgement. No
    screen decides whether an answer is right.

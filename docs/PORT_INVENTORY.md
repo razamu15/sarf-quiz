@@ -7,7 +7,7 @@
 > app; [ROADMAP.md](ROADMAP.md) Track C is the schedule this feeds.
 >
 > Written Aug 2026 against 45 JS files / 6,468 lines, five shipped engines
-> (sālim · muḍāʿaf · mithāl · ajwaf · nāqiṣ), 101 roots, 417 assertions green.
+> (sālim · muḍāʿaf · mithāl · ajwaf · nāqiṣ), 156 roots, 417 assertions green.
 > Toolchain on this machine: Xcode 26.6, Swift 6.3.3, iOS 26.5 SDK.
 
 ---
@@ -799,7 +799,7 @@ Make it the same line, deliberately:
 
 This has a concrete payoff, not just tidiness: `wordPool()` walks every
 candidate × chart × ṣīghah calling `conjugate()` — the same walk that produces
-53,314 outputs — to compute the possible-question count shown under Start, and
+72,224 outputs — to compute the possible-question count shown under Start, and
 it re-runs **on every chip tap**. On a device that will visibly jank. With
 SarfCore `nonisolated` and `Sendable`, `await Task.detached { wordPool(plan) }`
 is legal and the count updates without blocking. If the engine were entangled

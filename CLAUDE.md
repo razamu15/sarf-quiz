@@ -35,7 +35,7 @@ cd web-prototype && node test/smoke.mjs     # 417 assertions; the first 112 are 
 twice a green test suite has hidden a real break that only a page reload
 surfaced.
 
-**Any engine or refactor change needs a parity snapshot**: dump all 53,314
+**Any engine or refactor change needs a parity snapshot**: dump all 72,224
 generated words, derived nouns, citations and meanings before touching anything,
 diff after, and it must be zero. The recipe is in
 [ROADMAP.md §Verification](docs/ROADMAP.md#verification).

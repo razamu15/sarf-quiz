@@ -448,14 +448,17 @@ check(conjugate(byRoot('وصل'), 'I', 'mudari', 'malum', '3ms') === 'يَصِل
   'mithāl wāw bāb ai DROPS its wāw — وَصَلَ يَصِلُ');
 check(conjugate(byRoot('وجه'), 'I', 'mudari', 'malum', '3ms') === 'يَوْجُهُ',
   'mithāl wāw bāb uu keeps its wāw — وَجُهَ يَوْجُهُ');
-// Every type the lexicon stocks now has an engine behind it — the holding
-// state mithāl, ajwaf and nāqiṣ each passed through has been cleared.
-// Stocked-but-unplayable is now a REAL state, not a hypothetical: the lexicon
-// carries lafīf roots and no LafifConjugator exists, so the two facts have
-// come apart and the gate is doing live work rather than standing by.
-const ENGINELESS = ['lafif_mafruq', 'lafif_maqrun'];
+// Stocked-but-unplayable is a REAL state, not a hypothetical: the lexicon
+// carries lafīf and mahmūz roots while no LafifConjugator or MahmuzConjugator
+// exists, so the two facts have come apart and the gate is doing live work
+// rather than standing by. mithāl, ajwaf and nāqiṣ each passed through this
+// same holding state and have since cleared it.
+//
+// Sorted alphabetically, because this compares against availableTypes() by
+// value and the lexicon's own order is an authoring detail, not a fact.
+const ENGINELESS = ['lafif_mafruq', 'lafif_maqrun', 'mahmuz'].sort();
 check(stockedTypes().filter((t) => !availableTypes().includes(t)).sort().join() === ENGINELESS.join(),
-  'exactly the lafīf types are stocked but unplayable — every other stocked type has an engine');
+  'exactly lafīf and mahmūz are stocked but unplayable — every other stocked type has an engine');
 check(ENGINELESS.every((g) => !enginedGroups().includes(g)) && !enginedGroups().includes('mahmuz'),
   'mahmūz and both lafīf types are still engine-less, and nothing pretends otherwise');
 check(availableTypes().includes('ajwaf_waw') && availableTypes().includes('ajwaf_ya'),

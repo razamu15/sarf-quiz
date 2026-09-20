@@ -187,6 +187,78 @@ export const AJWAF_ROOTS = [
            reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%A7%D9%90%D8%B3%D9%92%D8%AA%D9%8E%D9%82%D9%8E%D8%A7%D9%85%D9%8E.html' },
     },
   },
+  {
+    root: ['ع', 'و', 'د'], type: 'ajwaf_waw',
+    forms: {
+      I: { bab: 'au', gloss: 'to return / to come back', masdar: 'عَوْدَة', trans: false,
+           en: { past: 'returned', pres3: 'returns', ing: 'returning' } },
+      II: { gloss: 'to accustom', trans: true,
+            en: { past: 'accustomed', pp: 'accustomed', pres3: 'accustoms', ing: 'accustoming' } },
+      IV: { gloss: 'to repeat / to give back', trans: true,
+            en: { past: 'repeated', pp: 'repeated', pres3: 'repeats', ing: 'repeating' } },
+      V: { gloss: 'to get used to', trans: true,
+           en: { past: 'got used to', pp: 'got used to', pres3: 'gets used to', ing: 'getting used to' } },
+      X: { gloss: 'to recover / to regain', trans: true,
+           en: { past: 'recovered', pp: 'recovered', pres3: 'recovers', ing: 'recovering' } },
+    },
+  },
+  {
+    root: ['ق', 'و', 'د'], type: 'ajwaf_waw',
+    forms: {
+      I: { bab: 'au', gloss: 'to lead / to drive', masdar: 'قِيَادَة', trans: true,
+           en: { past: 'led', pp: 'led', pres3: 'leads', ing: 'leading' } },
+      VII: { gloss: 'to submit / to be led', trans: false,
+             en: { past: 'submitted', pres3: 'submits', ing: 'submitting' } },
+    },
+  },
+  {
+    root: ['ط', 'و', 'ف'], type: 'ajwaf_waw',
+    forms: {
+      I: { bab: 'au', gloss: 'to go around / to circumambulate', masdar: 'طَوَاف', trans: false,
+           en: { past: 'went around', pres3: 'goes around', ing: 'going around' } },
+      II: { gloss: 'to take (someone) around', trans: true,
+            en: { past: 'took around', pp: 'taken around', pres3: 'takes around', ing: 'taking around' } },
+    },
+  },
+  {
+    root: ['ف', 'و', 'ز'], type: 'ajwaf_waw',
+    forms: {
+      I: { bab: 'au', gloss: 'to win / to triumph', masdar: 'فَوْز', trans: false,
+           en: { past: 'won', pres3: 'wins', ing: 'winning' } },
+    },
+  },
+  {
+    root: ['ذ', 'و', 'ق'], type: 'ajwaf_waw',
+    forms: {
+      I: { bab: 'au', gloss: 'to taste', masdar: 'ذَوْق', trans: true,
+           en: { past: 'tasted', pp: 'tasted', pres3: 'tastes', ing: 'tasting' } },
+      IV: { gloss: 'to make (someone) taste', trans: true,
+            en: { past: 'made taste', pp: 'made to taste', pres3: 'makes taste', ing: 'making taste' } },
+      V: { gloss: 'to savour', trans: true,
+           en: { past: 'savoured', pp: 'savoured', pres3: 'savours', ing: 'savouring' } },
+    },
+  },
+  {
+    root: ['ط', 'و', 'ل'], type: 'ajwaf_waw',
+    forms: {
+      I: { bab: 'au', gloss: 'to be long', masdar: 'طُول', trans: false },
+      II: { gloss: 'to lengthen', trans: true,
+            en: { past: 'lengthened', pp: 'lengthened', pres3: 'lengthens', ing: 'lengthening' } },
+      IV: { gloss: 'to prolong', trans: true,
+            en: { past: 'prolonged', pp: 'prolonged', pres3: 'prolongs', ing: 'prolonging' } },
+      VI: { gloss: 'to act arrogantly', trans: false,
+            en: { past: 'acted arrogantly', pres3: 'acts arrogantly', ing: 'acting arrogantly' } },
+    },
+  },
+  {
+    root: ['ل', 'و', 'م'], type: 'ajwaf_waw',
+    forms: {
+      I: { bab: 'au', gloss: 'to blame', masdar: 'لَوْم', trans: true,
+           en: { past: 'blamed', pp: 'blamed', pres3: 'blames', ing: 'blaming' } },
+      VI: { gloss: 'to blame one another', trans: false,
+            en: { past: 'blamed one another', pres3: 'blame one another', ing: 'blaming one another' } },
+    },
+  },
   // --- Ajwaf yāʾ · ي as middle radical ---------------------------------------
   {
     root: ['س', 'ي', 'ر'], type: 'ajwaf_ya',
@@ -250,6 +322,70 @@ export const AJWAF_ROOTS = [
             reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%A8%D9%8E%D9%8A%D9%91%D9%8E%D8%AA%D9%8E.html' },
       IV: { gloss: 'to lodge for the night', trans: true,
             en: { past: 'lodged', pp: 'lodged', pres3: 'lodges', ing: 'lodging' } },
+    },
+  },
+  {
+    root: ['ع', 'ي', 'ش'], type: 'ajwaf_ya',
+    forms: {
+      I: { bab: 'ai', gloss: 'to live', masdar: 'عَيْش', trans: false,
+           en: { past: 'lived', pres3: 'lives', ing: 'living' } },
+      IV: { gloss: 'to provide a living for', trans: true,
+            en: { past: 'provided for', pp: 'provided for', pres3: 'provides for', ing: 'providing for' } },
+      VI: { gloss: 'to coexist', trans: false,
+            en: { past: 'coexisted', pres3: 'coexists', ing: 'coexisting' } },
+    },
+  },
+  {
+    root: ['ز', 'ي', 'د'], type: 'ajwaf_ya',
+    forms: {
+      I: { bab: 'ai', gloss: 'to increase / to grow', masdar: 'زِيَادَة', trans: true,
+           en: { past: 'increased', pp: 'increased', pres3: 'increases', ing: 'increasing' } },
+      VI: { gloss: 'to increase steadily', trans: false,
+            en: { past: 'increased steadily', pres3: 'increases steadily', ing: 'increasing steadily' } },
+      X: { gloss: 'to ask for more', trans: true,
+           en: { past: 'asked for more', pp: 'asked for more', pres3: 'asks for more', ing: 'asking for more' } },
+    },
+  },
+  {
+    root: ['س', 'ي', 'ل'], type: 'ajwaf_ya',
+    forms: {
+      I: { bab: 'ai', gloss: 'to flow', masdar: 'سَيَلَان', trans: false,
+           en: { past: 'flowed', pres3: 'flows', ing: 'flowing' } },
+      IV: { gloss: 'to make flow', trans: true,
+            en: { past: 'made flow', pp: 'made to flow', pres3: 'makes flow', ing: 'making flow' } },
+    },
+  },
+  {
+    root: ['ض', 'ي', 'ع'], type: 'ajwaf_ya',
+    forms: {
+      I: { bab: 'ai', gloss: 'to be lost / wasted', masdar: 'ضَيَاع', trans: false },
+      II: { gloss: 'to waste / to squander', trans: true,
+            en: { past: 'wasted', pp: 'wasted', pres3: 'wastes', ing: 'wasting' } },
+      IV: { gloss: 'to lose', trans: true,
+            en: { past: 'lost', pp: 'lost', pres3: 'loses', ing: 'losing' } },
+    },
+  },
+  {
+    root: ['ط', 'ي', 'ر'], type: 'ajwaf_ya',
+    forms: {
+      I: { bab: 'ai', gloss: 'to fly', masdar: 'طَيَرَان', trans: false,
+           en: { past: 'flew', pres3: 'flies', ing: 'flying' } },
+      II: { gloss: 'to make fly', trans: true,
+            en: { past: 'made fly', pp: 'made to fly', pres3: 'makes fly', ing: 'making fly' } },
+      IV: { gloss: 'to blow away', trans: true,
+            en: { past: 'blew away', pp: 'blown away', pres3: 'blows away', ing: 'blowing away' } },
+      V: { gloss: 'to take as a bad omen', trans: true,
+           en: { past: 'took as a bad omen', pp: 'taken as a bad omen', pres3: 'takes as a bad omen', ing: 'taking as a bad omen' } },
+    },
+  },
+  {
+    root: ['غ', 'ي', 'ب'], type: 'ajwaf_ya',
+    forms: {
+      I: { bab: 'ai', gloss: 'to be absent', masdar: 'غِيَاب', trans: false },
+      II: { gloss: 'to conceal / to make absent', trans: true,
+            en: { past: 'concealed', pp: 'concealed', pres3: 'conceals', ing: 'concealing' } },
+      V: { gloss: 'to stay away', trans: false,
+           en: { past: 'stayed away', pres3: 'stays away', ing: 'staying away' } },
     },
   },
 ];
