@@ -27,13 +27,6 @@ export const NAQIS_ROOTS = [
     },
   },
   {
-    root: ['ن', 'ع', 'و'], type: 'naqis_waw',
-    forms: {
-      I: { bab: 'au', gloss: 'to announce a death', masdar: 'نَعْي', trans: true,
-           en: { past: 'announced the death of', pp: 'mourned', pres3: 'announces the death of', ing: 'announcing the death of' } },
-    },
-  },
-  {
     root: ['ب', 'ه', 'و'], type: 'naqis_waw',
     forms: {
       // The third waw-lām root, and the first to reach the mazīd tables — where

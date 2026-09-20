@@ -277,7 +277,7 @@ for (const root of LEXICON) { const rk = root.root.join('');
 console.log(out.join('\n'));
 ```
 
-72,224 lines. `diff` before against after; anything but zero is a regression.
+74,420 lines. `diff` before against after; anything but zero is a regression.
 
 The barrel groups roots by type, so the dump's LINE ORDER is not stable across a
 lexicon restructure. Sort both sides before diffing; a zero set-difference is

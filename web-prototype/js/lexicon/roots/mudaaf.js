@@ -277,4 +277,60 @@ export const MUDAAF_ROOTS = [
             en: { past: 'put to flight', pp: 'put to flight', pres3: 'puts to flight', ing: 'putting to flight' } },
     },
   },
+  {
+    root: ['ح', 'ق', 'ق'], type: 'mudaaf',
+    forms: {
+      I: { bab: 'ai', gloss: 'to be true / established', masdar: 'حَقّ', trans: false },
+      II: { gloss: 'to verify / to achieve', trans: true,
+            en: { past: 'verified', pp: 'verified', pres3: 'verifies', ing: 'verifying' } },
+      V: { gloss: 'to be verified', trans: false },
+      X: { gloss: 'to deserve / to be entitled to', trans: true,
+           en: { past: 'deserved', pp: 'deserved', pres3: 'deserves', ing: 'deserving' } },
+    },
+  },
+  {
+    root: ['ج', 'د', 'د'], type: 'mudaaf',
+    forms: {
+      I: { bab: 'ai', gloss: 'to be serious / diligent', masdar: 'جِدّ', trans: false },
+      II: { gloss: 'to renew', trans: true,
+            en: { past: 'renewed', pp: 'renewed', pres3: 'renews', ing: 'renewing' } },
+      V: { gloss: 'to be renewed', trans: false },
+      X: { gloss: 'to arise anew', trans: false,
+           en: { past: 'arose anew', pres3: 'arises anew', ing: 'arising anew' } },
+    },
+  },
+  {
+    root: ['ح', 'س', 'س'], type: 'mudaaf',
+    forms: {
+      I: { bab: 'au', gloss: 'to sense / to feel', masdar: 'حِسّ', trans: true,
+           en: { past: 'sensed', pp: 'sensed', pres3: 'senses', ing: 'sensing' } },
+      IV: { gloss: 'to perceive / to feel', trans: true,
+            en: { past: 'perceived', pp: 'perceived', pres3: 'perceives', ing: 'perceiving' } },
+      V: { gloss: 'to feel around for', trans: true,
+           en: { past: 'felt around for', pp: 'felt around for', pres3: 'feels around for', ing: 'feeling around for' } },
+    },
+  },
+  {
+    root: ['ع', 'ز', 'ز'], type: 'mudaaf',
+    forms: {
+      I: { bab: 'ai', gloss: 'to be mighty / dear', masdar: 'عِزّ', trans: false },
+      II: { gloss: 'to strengthen / to reinforce', trans: true,
+            en: { past: 'strengthened', pp: 'strengthened', pres3: 'strengthens', ing: 'strengthening' } },
+      IV: { gloss: 'to honour / to hold dear', trans: true,
+            en: { past: 'honoured', pp: 'honoured', pres3: 'honours', ing: 'honouring' } },
+      X: { gloss: 'to grow strong', trans: false,
+           en: { past: 'grew strong', pres3: 'grows strong', ing: 'growing strong' } },
+    },
+  },
+  {
+    root: ['ه', 'م', 'م'], type: 'mudaaf',
+    forms: {
+      I: { bab: 'au', gloss: 'to concern / to worry', masdar: 'هَمّ', trans: true,
+           en: { past: 'concerned', pp: 'concerned', pres3: 'concerns', ing: 'concerning' } },
+      IV: { gloss: 'to matter to / to concern', trans: true,
+            en: { past: 'mattered to', pp: 'mattered to', pres3: 'matters to', ing: 'mattering to' } },
+      VIII: { gloss: 'to take an interest / to care', trans: false,
+              en: { past: 'took an interest', pres3: 'takes an interest', ing: 'taking an interest' } },
+    },
+  },
 ];
