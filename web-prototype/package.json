@@ -6,6 +6,7 @@
   "scripts": {
     "test": "node test/smoke.mjs",
     "serve": "node serve.mjs",
-    "export-content": "node tools/export-content.mjs"
+    "export-content": "node tools/export-content.mjs",
+    "audit-lexicon": "node tools/lexicon-audit/audit.mjs"
   }
 }

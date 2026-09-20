@@ -131,12 +131,13 @@ engine   يَءِسَا      أَيْءَسَا     يُوءِسُ     اِسْ�
 correct  يَئِسَا      أَيْئَسَا     يُوئِسُ     اِسْتَيْئِسْ
 ```
 
-**It is one of only four mithāl yāʾ roots**, so this is a quarter of that verb
+**It is one of eight mithāl yāʾ roots**, so this is an eighth of that verb
 type shipping misspelled. Its Form IV amr is wrong twice over — `أَوْءِسْ`
 should be `أَيْئِسْ`, which is §1.1 *and* this.
 
 **Responsible code.**
-[`roots.js:656`](../web-prototype/js/lexicon/roots.js:656) — the root array.
+[`roots/mithal.js:219`](../web-prototype/js/lexicon/roots/mithal.js:219) — the
+root entry.
 The engine has no seat logic anywhere, so this cannot be fixed by spelling the
 root differently in one place: hamza seating is the mahmūz work
 (ROADMAP § B4), and يءس is the one root that needs it before then.

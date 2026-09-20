@@ -67,8 +67,11 @@ These are the ones that have actually caused bugs in this codebase.
 - **Doc strings name their call sites** — who calls this, and for what. Every
   condition earns a comment saying why it exists, with a worked Arabic example
   where one helps.
-- **Files stay under ~400 lines**, shorter by preference. `lexicon/roots.js` is
-  the one exception; it is content.
+- **Files stay under ~400 lines**, shorter by preference. `lexicon/roots/*` is
+  the one exception; it is content. Those files are split by verb type, not by
+  size, because the type is the unit content is authored and reviewed in —
+  splitting `naqis.js` again when it grows would put one verb type in two
+  places for no reason a reader could guess.
 
 ## How design work happens here
 

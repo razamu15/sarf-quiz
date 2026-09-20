@@ -247,8 +247,13 @@ js/
 
   grammar/             shared-grammar (FORM_META, prefixes) + one file per verb
                        type. DATA, no logic.
-  lexicon/             roots.js (58 roots) · lexicon-service (classify, validate,
-                       availableTypes) · root.js (accessors)
+  lexicon/             roots.js — the BARREL over roots/ (101 roots), which holds
+                       one file per traditional verb type: salim · mahmuz ·
+                       mudaaf · mithal · ajwaf · naqis · lafif. The three
+                       muʿtall files carry two engine types each (waw/ya) under
+                       a section divider; lafif carries mafruq + maqrun.
+                       lexicon-service (classify, validate, availableTypes)
+                       · root.js (accessors)
   conjugation/         5 conjugators · templates.js · conjugation-service.js
                        ← THE only door
   meaning-service.js   English readings + the governing-particle registry.
@@ -284,9 +289,13 @@ js/
   main.js              composition root + router
 ```
 
-**Nine leaves** import nothing local: `vocabulary`, `glossary`, `arabic-text`,
-`settings`, `ui/dom`, `quiz/question`, `history/store`, `lexicon/root`,
-`lexicon/roots`.
+**Eight leaves** import nothing local: `vocabulary`, `glossary`, `arabic-text`,
+`settings`, `ui/dom`, `quiz/question`, `history/store`, `lexicon/root`.
+
+`lexicon/roots` was the ninth until the split; it now imports the seven files in
+`lexicon/roots/`, which are themselves leaves. It is still a leaf in the sense
+that matters — it depends on no *behaviour*, only on data — and
+`lexicon-service` remains its one importer.
 
 ---
 
