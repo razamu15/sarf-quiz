@@ -68,3 +68,23 @@ wrong.** Read the two glosses before believing any finding.
 A genuine conflict looks like حسب: ours `ii` (يَحْسِبُ), Wiktionary `ia`
 (يَحْسَبُ), same gloss, no sibling carrying ours — two attested readings of one
 verb, and a real decision about which the lexicon should teach.
+
+## Known non-findings
+
+Two families of "conflict" are correct data and should not be changed.
+
+**Surface vs underlying bāb (ajwaf, muḍāʿaf).** The lexicon stores the vowels
+you hear; dictionaries print the vowels of the unattested sound form. نَامَ
+يَنَامُ is `aa` here and `ia` (نَوِمَ) on Wiktionary — same verb. Affects نوم,
+خوف, نيل, هيب, مسس and their kind. The engines read the surface pair, so
+changing it to match a dictionary breaks the conjugation. See the `bab` note in
+`js/lexicon/roots.js`.
+
+**Attested doublets.** ظَلَّ يَظِلُّ (`ai`, ours) and ظَلِلَ يَظَلُّ (`ia`,
+Wiktionary) are both classical. A root entry holds one Form I, so one had to be
+picked; the choice is recorded in a comment beside the root. Same for ضلّ, يبس,
+يتم, يسر.
+
+A bāb finding is worth acting on only when ours is *neither* the surface pair
+*nor* a documented doublet — as with يقظ, whose own comment and Reverso link say
+`uu` while the data said `ia`.

@@ -31,6 +31,17 @@
 //                 Form I only; the mazīd forms are templatic. Every Form I in
 //                 the lexicon carries one, and eight roots have no Form I at
 //                 all (its Form I is archaic, or simply unattested).
+//
+//                 THE BĀB IS THE SURFACE VOWELS, NOT THE UNDERLYING ONES.
+//                 This matters for ajwaf and muḍāʿaf, where the two differ and
+//                 the dictionaries print the underlying pair. نَامَ يَنَامُ is
+//                 stored `aa`, the vowels you can actually hear, not the `ia`
+//                 of the unattested نَوِمَ it derives from; مَسَّ يَمَسُّ is `aa`,
+//                 not مَسِسَ's `ia`. The engines read this field to pick the
+//                 muḍāriʿ vowel, so the surface pair is the one that produces
+//                 correct output — and an audit against a dictionary WILL
+//                 report these as disagreements. They are not. See
+//                 tools/lexicon-audit/README.md before changing one.
 // forms.I.masdar is samāʿī (per-root); mazīd maṣādir come from templates.
 // forms.*.trans → transitive? (majhūl questions only make sense when true)
 // forms.*.en    → English conjugation bits for meaning display:
