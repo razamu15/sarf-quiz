@@ -45,7 +45,7 @@ export const MUDAAF_ROOTS = [
       V: { gloss: 'to hesitate / frequent', trans: false,
            en: { past: 'hesitated', pres3: 'hesitates', ing: 'hesitating' },
            reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%AA%D9%8E%D8%B1%D9%8E%D8%AF%D9%91%D9%8E%D8%AF%D9%8E.html' },
-      VI: { gloss: 'to go back and forth', trans: false,
+      VI: { gloss: 'to go back and forth', trans: true,
             en: { past: 'went back and forth', pres3: 'goes back and forth', ing: 'going back and forth' },
             reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%AA%D9%8E%D8%B1%D9%8E%D8%A7%D8%AF%D9%8E%D9%91.html' },
       VIII: { gloss: 'to turn back', trans: false,

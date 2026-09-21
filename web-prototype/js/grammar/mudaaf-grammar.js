@@ -113,8 +113,8 @@ export const MUDAAF_STEMS = {
       mutaharrik: SALIM_VERB_STEMS.VI.madi_malum,
     },
     madi_majhul: {
-      sakin: 'ت' + D + '1' + D + 'و' + '2' + SH,          // تُمُودَّ
-      mutaharrik: SALIM_VERB_STEMS.VI.madi_majhul,
+      sakin: 'ت' + D + '1' + D + 'و' + '2' + K + '3',          // تُمُودَّ
+      mutaharrik: 'ت' + D + '1' + D + 'و' + '2' + K + '3',
     },
     mudari_malum: {
       murab: 'ت' + F + '1' + F + 'ا' + '2' + SH,          // يَتَمَادُّ
