@@ -29,15 +29,14 @@
           <span class="sq-stat"><b>5</b><span>day streak</span></span>
           <span class="sq-stat"><b>86</b><span>this week</span></span>
           <span class="sq-stat"><b>71%</b><span>accuracy</span></span>
-          <div class="sq-week">
-            <span class="sq-week__day"><span class="sq-week__bar"><i style="height:41%"></i></span>S</span>
-            <span class="sq-week__day"><span class="sq-week__bar"></span>M</span>
-            <span class="sq-week__day"><span class="sq-week__bar"><i style="height:62%"></i></span>T</span>
-            <span class="sq-week__day"><span class="sq-week__bar"><i style="height:76%"></i></span>W</span>
-            <span class="sq-week__day"><span class="sq-week__bar"><i style="height:31%"></i></span>T</span>
-            <span class="sq-week__day"><span class="sq-week__bar"><i style="height:48%"></i></span>F</span>
-            <span class="sq-week__day" data-today><span class="sq-week__bar"><i style="height:38%"></i></span>S</span>
-          </div>
+          <button class="sq-weak">
+            <span class="sq-weak__text">
+              <span class="sq-weak__label">Weakest question</span>
+              <span class="sq-weak__title">Iʿrāb <small>58% of 40 answers</small></span>
+              <span class="sq-weak__meter"><i style="width:58%"></i></span>
+            </span>
+            <span class="sq-weak__cta">Drill it<svg class="sq-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M9.5 5.5L16 12l-6.5 6.5"/></svg></span>
+          </button>
         </div>
 
         <article class="sq-drill">
@@ -74,7 +73,7 @@
         </nav>
       </div>
     </div>
-    <p class="sq-caption">Drill names and descriptions are the real <code>DRILL_PRESETS</code>; the streak, week and accuracy are sample history, since a mock-up has none.</p>
+    <p class="sq-caption">Drill names and descriptions are the real <code>DRILL_PRESETS</code>; the streak, the counts and the weakest kind are sample history, since a mock-up has none.</p>
   </div>
 
   <div class="notes">
@@ -82,8 +81,9 @@
     <h4>What is different</h4>
     <ul>
       <li><b>One drill leads.</b> Three identical Start buttons made the user choose before they had a reason to; the hero is the setup you ran last (sessions already store their plan), and on a first run it is Sound verbs, the foundation.</li>
-      <li><b>The stats card does not promise a screen that is off.</b> In v1 <code>detailedStats</code> is flagged off, so there is no chevron into a “coming later” page — three numbers and the week, computed from stored answers.</li>
-      <li><b>No flame, no ring.</b> The streak is a number with a word; the week is seven bars of what you actually answered.</li>
+      <li><b>The stats card does not promise a screen that is off.</b> In v1 <code>detailedStats</code> is flagged off, so there is no chevron into a “coming later” page — three numbers and one thing to act on, all computed from stored answers.</li>
+      <li><b>The second half of the card is the weakest question kind</b>, not seven bars of how much you studied on Tuesday. “Iʿrāb · 58% of 40” names what to fix and starts a drill on it; every <code>Answer</code> already carries the question it answered, so accuracy per <code>category</code> needs no new storage. A per-day history belongs on the stats screen that v1 does not ship.</li>
+      <li><b>No flame, no ring.</b> The streak is a number with a word.</li>
       <li><b>The quote is typography</b>, not a card with a coloured edge: Naskh, the translation in the serif italic, the source small.</li>
     </ul>
     <h4>Copy</h4>

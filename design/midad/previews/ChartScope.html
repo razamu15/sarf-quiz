@@ -1,16 +1,16 @@
 <!doctype html>
 <html lang="en" data-theme="midad">
-<head><link rel="stylesheet" href="../tokens.css"><link rel="stylesheet" href="../bundle.css"><meta charset="utf-8"><title>ChartMap</title><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Scheherazade+New:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&display=swap">
+<head><link rel="stylesheet" href="../tokens.css"><link rel="stylesheet" href="../bundle.css"><meta charset="utf-8"><title>ChartScope</title><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Scheherazade+New:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&display=swap">
 <style>
-  .demo { padding: 18px 16px; max-width: 420px; display: flex; flex-direction: column; gap: 10px; }
-  .demo p.sq-hint { margin-top: 2px; }
+  .demo { padding: 18px 16px; max-width: 420px; display: flex; flex-direction: column; gap: 14px; }
+  .demo > .sq-hint { margin-top: -4px; }
 </style>
 </head>
 <body>
 <div class="demo">
-  <p class="sq-label">Charts</p>
-  <div class="sq-chartmap" id="map"></div>
-  <p class="sq-hint">Tap a header. Cells are a read-out: a plan is tense × voice × iʿrāb, so a single chart cannot be picked on its own.</p>
+  <div id="scope"></div>
+  <p class="sq-hint">Tap a chip. A plan is tense × voice × iʿrāb, so a single chart cannot be picked on its own —
+  the count is the read-out that says how many whole charts the three add up to.</p>
 </div>
 <script>
 
@@ -59,34 +59,41 @@ const covered = () => {
 
 function render() {
   const on = covered();
-  const has = (k) => on.includes(k);
-  const ar_ = (s) => `<span class="sq-ar" lang="ar">${s}</span>`;
-  const axis = (label, arabic, pressed, area, disabled, extra = '') =>
-    `<button class="sq-chartmap__axis sq-chartmap__a-${area} ${extra}" aria-pressed="${pressed}" ${disabled ? 'disabled' : ''}>`
-    + `<span>${label}</span>${arabic ? ar_(arabic) : ''}</button>`;
-  const cell = (lit, area) => `<span class="sq-chartmap__cell sq-chartmap__a-${area}" data-in="${lit}"><i></i></span>`;
   const mudari = state.tenses.has('mudari');
-  const el = document.getElementById('map');
-  el.innerHTML = [
-    '<span class="sq-chartmap__corner"></span>',
-    axis('māḍī', 'مَاضٍ', state.tenses.has('madi'), 'madi', false),
-    axis('muḍāriʿ', 'مُضَارِع', mudari, 'mudari', false),
-    axis('amr', 'أَمْر', state.tenses.has('amr'), 'amr', false),
-    ...MOODS.map((m) => axis(MOOD_EN[m], '', state.moods.has(m), m, !mudari, 'sq-chartmap__axis--mood')),
-    axis('maʿrūf', '', state.voices.has('malum'), 'malum', false),
-    cell(has('madi|malum'), 'm1'),
-    ...MOODS.map((m, k) => cell(has(`mudari|malum|${m}`), 'm' + (k + 2))),
-    cell(has('amr'), 'amrcell'),
-    axis('majhūl', '', state.voices.has('majhul'), 'majhul', false),
-    cell(has('madi|majhul'), 'j1'),
-    ...MOODS.map((m, k) => cell(has(`mudari|majhul|${m}`), 'j' + (k + 2))),
-    `<p class="sq-chartmap__foot">${on.length} of 9 charts in scope</p>`,
-  ].join('');
-  const keys = ['madi', 'mudari', 'amr', ...MOODS, 'malum', 'majhul'];
-  el.querySelectorAll('.sq-chartmap__axis').forEach((b, i) => {
-    const k = keys[i];
+  const amrOnly = state.tenses.size === 1 && state.tenses.has('amr');
+  const chip = (label, arabic, pressed, k, off) =>
+    `<button class="sq-chip" data-axis="${k}" aria-pressed="${pressed}" ${off ? 'disabled' : ''}>`
+    + `<span>${label}</span>${arabic ? `<span class="sq-chip__ar" lang="ar">${arabic}</span>` : ''}</button>`;
+
+  document.getElementById('scope').innerHTML = `<div class="sq-scope">
+    <div class="sq-scope__group"><p class="sq-label">Tense</p>
+      <div class="sq-chips">
+        ${chip('māḍī', 'مَاضٍ', state.tenses.has('madi'), 'madi')}
+        ${chip('muḍāriʿ', 'مُضَارِع', mudari, 'mudari')}
+        ${chip('amr', 'أَمْر', state.tenses.has('amr'), 'amr')}
+      </div></div>
+
+    <div class="sq-scope__group"><p class="sq-label">Voice</p>
+      <div class="sq-chips">
+        ${chip('maʿrūf', '', state.voices.has('malum'), 'malum', amrOnly)}
+        ${chip('majhūl', '', state.voices.has('majhul'), 'majhul', amrOnly)}
+      </div>
+      ${amrOnly ? '<p class="sq-hint">The amr has neither voice nor iʿrāb — it is one chart on its own.</p>' : ''}</div>
+
+    <div class="sq-scope__group sq-scope__group--under">
+      <p class="sq-label">Iʿrāb <small>of the muḍāriʿ</small></p>
+      <div class="sq-chips">
+        ${MOODS.map((m) => chip(MOOD_EN[m], '', state.moods.has(m), m, !mudari)).join('')}
+      </div>
+      ${mudari ? '' : '<p class="sq-hint">Add the muḍāriʿ to drill marfūʿ, manṣūb and majzūm.</p>'}</div>
+
+    <p class="sq-scope__count">${on.length} of 9 <small>charts in scope</small></p>
+  </div>`;
+
+  document.querySelectorAll('[data-axis]').forEach((b) => {
     b.onclick = () => {
-      toggle(k === 'madi' || k === 'mudari' || k === 'amr' ? state.tenses : MOODS.includes(k) ? state.moods : state.voices, k);
+      const k = b.dataset.axis;
+      toggle(['madi', 'mudari', 'amr'].includes(k) ? state.tenses : MOODS.includes(k) ? state.moods : state.voices, k);
       render();
     };
   });

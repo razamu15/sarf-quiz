@@ -11,16 +11,27 @@
 <body>
 <div class="demo">
   <figure>
-    <figcaption>At rest · what this setup asks, and what it retired</figcaption>
+    <figcaption>At rest · what this setup asks, and the reason for everything it does not</figcaption>
     <div class="sq-setupbar">
-      <p class="sq-setupbar__count">≈ 2,268 <small>questions</small></p>
-      <button class="sq-btn sq-btn--primary">Start · 10</button>
-      <div class="sq-kinds">
-        <span class="sq-kind">Tense</span>
-        <span class="sq-kind">Who the doer is</span>
-        <span class="sq-kind">Bāb</span>
-        <span class="sq-kind" data-live="false">Voice</span>
-        <span class="sq-kind" data-live="false">Iʿrāb</span>
+      <div class="sq-asks">
+        <div class="sq-asks__head">
+          <p class="sq-asks__label">This setup asks</p>
+          <p class="sq-setupbar__count">≈ 4,200 <small>questions</small></p>
+        </div>
+        <div class="sq-kinds">
+          <span class="sq-kind"><svg class="sq-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Tense</span>
+          <span class="sq-kind"><svg class="sq-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Who the doer is</span>
+          <span class="sq-kind"><svg class="sq-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Bāb</span>
+        </div>
+        <p class="sq-asks__why"><b>Voice</b> — only one voice reachable</p>
+        <p class="sq-asks__why"><b>Iʿrāb</b> — iʿrāb needs the muḍāriʿ in more than one state</p>
+      </div>
+      <div class="sq-setupbar__go">
+        <div class="sq-seg">
+          <button aria-pressed="false">5</button><button aria-pressed="true">10</button>
+          <button aria-pressed="false">20</button><button aria-pressed="false" aria-label="Endless">∞</button>
+        </div>
+        <button class="sq-btn sq-btn--primary">Start</button>
       </div>
     </div>
   </figure>
@@ -28,16 +39,49 @@
   <figure>
     <figcaption>Right after a tap · the number alone would not say that a whole question kind went with it</figcaption>
     <div class="sq-setupbar">
-      <p class="sq-setupbar__count">≈ 2,268 <small>questions</small></p>
-      <button class="sq-btn sq-btn--primary">Start · 10</button>
-      <div class="sq-kinds">
-        <span class="sq-kind">Tense</span>
-        <span class="sq-kind">Who the doer is</span>
-        <span class="sq-kind">Bāb</span>
-        <span class="sq-kind" data-live="false">Voice</span>
-        <span class="sq-kind" data-live="false">Iʿrāb</span>
+      <div class="sq-asks">
+        <div class="sq-asks__head">
+          <p class="sq-asks__label">This setup asks</p>
+          <p class="sq-setupbar__count">≈ 4,200 <small>questions</small></p>
+        </div>
+        <div class="sq-kinds">
+          <span class="sq-kind"><svg class="sq-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Tense</span>
+          <span class="sq-kind"><svg class="sq-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Who the doer is</span>
+          <span class="sq-kind"><svg class="sq-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Bāb</span>
+        </div>
+        <p class="sq-asks__why"><b>Voice</b> — only one voice reachable</p>
+        <p class="sq-asks__why"><b>Iʿrāb</b> — iʿrāb needs the muḍāriʿ in more than one state</p>
+        <p class="sq-setupbar__delta">↓ from <b>10,192</b> — no longer asking <b>Voice</b></p>
       </div>
-      <p class="sq-setupbar__delta">↓ from <b>5,264</b> — no longer asking <b>Voice</b></p>
+      <div class="sq-setupbar__go">
+        <div class="sq-seg">
+          <button aria-pressed="false">5</button><button aria-pressed="true">10</button>
+          <button aria-pressed="false">20</button><button aria-pressed="false" aria-label="Endless">∞</button>
+        </div>
+        <button class="sq-btn sq-btn--primary">Start</button>
+      </div>
+    </div>
+  </figure>
+
+  <figure>
+    <figcaption>Nothing left to ask · the reasons are the instructions for fixing it</figcaption>
+    <div class="sq-setupbar">
+      <div class="sq-asks">
+        <div class="sq-asks__head">
+          <p class="sq-asks__label">This setup asks</p>
+          <p class="sq-setupbar__count">Nothing <small>in scope</small></p>
+        </div>
+        <p class="sq-asks__none">Nothing — widen the selection</p>
+        <p class="sq-asks__why"><b>Tense</b> — only one tense selected</p>
+        <p class="sq-asks__why"><b>Who the doer is</b> — only one pronoun reachable</p>
+      </div>
+      <div class="sq-setupbar__go">
+        <div class="sq-seg">
+          <button aria-pressed="false">5</button><button aria-pressed="true">10</button>
+          <button aria-pressed="false">20</button><button aria-pressed="false" aria-label="Endless">∞</button>
+        </div>
+        <button class="sq-btn sq-btn--primary" disabled>Start</button>
+      </div>
     </div>
   </figure>
 </div>

@@ -4,25 +4,31 @@ Practice describes a pool of words. Its hard part is that narrowing the pool **r
 
 ## 1. A setup bar, pinned
 
-Count, live question kinds (retired ones struck through), what the last tap changed, and Start — docked to the bottom, always visible. Real numbers from the engine: turning majhūl on takes 2,268 → 5,264 and brings the Voice question back; dropping the māḍī takes 2,268 → 378 and retires Tense and Bāb together.
+**What this setup asks** leads it, the count sits on that same line, then the length and Start — docked to the bottom, always visible. Read top to bottom it is: what you will be asked, how much of it there is, how many you want, go. Real numbers from the engine: turning majhūl on takes 4,200 → 10,192 and brings the Voice question back; dropping the māḍī takes 4,200 → 700 and retires Tense and Bāb together.
 
-The delta line matters because the number alone lies by omission: half of that 2,268 → 378 drop is fewer words and half is two question kinds disappearing. The wizard's footer already does this; the bar makes it true of both flows.
+The asks panel is the classic Practice screen's, kept: every live kind ticked, and **every retired kind with its reason** — "Iʿrāb — iʿrāb needs the muḍāriʿ in more than one state", which is `QUESTION_RULES`' own `reason` string, printed verbatim. A struck-through chip says a question went away; the reason says which axis to widen to get it back, and that is the whole value of the panel. It was in the prototype from A2 and this system does not improve on it.
 
-## 2. One chart map instead of three chip rows
+The delta line matters because the number alone lies by omission: half of that 4,200 → 700 drop is fewer words and half is two question kinds disappearing. The wizard's footer already does this; the bar makes it true of both flows.
 
-Tense, voice and iʿrāb are not three independent filters — they are the axes of the nine charts that exist (`CHART_SHAPES`). Make that the control: tense across the top, iʿrāb under the muḍāriʿ column where it belongs, voice down the side, and the body showing which charts your choice covers.
+**The length lives here, beside Start**, not as a fourth picker in the body. Everything above it decides *what can be asked* and moves the count; the length decides how many of those you want, and changes nothing about the pool. Putting it next to the button makes the bar read as one sentence — ask me ten of these 4,200 — and takes a whole section off the screen. Endless is `∞` rather than the word, which is what makes four options fit on one row beside the button.
 
-- Nothing greys out mysteriously: the iʿrāb toggles sit *under* muḍāriʿ, so their dependency is spatial.
-- The amr cell spans both voice rows, because `planCharts()` gives the amr one chart whatever the voice row says. The control tells the truth about the model.
-- **Cells are a read-out, not toggles.** A plan is tense × voice × iʿrāb; "māḍī majhūl plus muḍāriʿ maʿrūf" is not expressible and should not look as if it is. This keeps `QuizPlan` exactly as it is.
+## 2. One axis, one control — and a count that ties them together
 
-If you ever do want per-chart selection, that is a plan-model change (a set of chart shapes instead of three arrays) — worth its own decision, and not needed for anything v1 does.
+Tense, voice and iʿrāb are the axes of the nine charts that exist (`CHART_SHAPES`), and an earlier draft of this system made them one two-axis grid: tense across, voice down, iʿrāb nested under the muḍāriʿ column, cells lit for coverage. It was honest and compact, and it was the wrong trade — a grid has to be *read as a grid* before you can change one thing, and changing one thing is what people come to this screen to do.
 
-## 3. Recent setups, first thing on the screen
+So: three labelled groups of chips, and one line under them counting the charts they add up to. What the grid carried for free is kept deliberately:
 
-Sessions already store their plan verbatim (`startSession(plan, mode)`), and `planFrom()` already validates a stored plan back into a runnable one. So the last three distinct setups are one tap, with their real counts.
+- **The dependency is spatial and verbal.** The iʿrāb group is indented under a rule and labelled "of the muḍāriʿ". Drop the muḍāriʿ and its chips **disable rather than disappear**, with a hint saying what to add — the prototype's own failure was a row that greyed out for no stated reason.
+- **The amr's exception is stated.** `planCharts()` gives the amr one chart whatever the voice says, so with only the amr in scope the voice chips disable and say so.
+- **The count is the read-out the cells were.** "2 of 9 charts in scope" — nine being what exists, not a number to hold in your head.
 
-This is also the cheapest answer to the wizard's measured cost: "always opens at step 1, no resume" (ROADMAP A2 · Q5) hurts on session five, and recents sidestep it without reopening that decision.
+**A single chart is still not selectable.** A plan is tense × voice × iʿrāb; "māḍī majhūl plus muḍāriʿ maʿrūf" is not expressible and nothing here suggests it is. That keeps `QuizPlan` exactly as it is. If you ever do want per-chart selection, that is a plan-model change (a set of chart shapes instead of three arrays) — worth its own decision, and not needed for anything v1 does.
+
+## 3. No recent setups here
+
+An earlier draft put the last three setups at the top of this screen, one tap each. They are **out** — the screen is for building a setup, and a shelf of old ones at the top of it competes with the thing it is for.
+
+Say the cost out loud, though: the wizard's measured "always opens at step 1, no resume" (ROADMAP A2 · Q5) hurts on session five, and recents were the cheap answer to it. Sessions do store their plan verbatim (`startSession(plan, mode)`) and `planFrom()` validates a stored one back into a runnable plan, so the capability is there whenever it is wanted. **Home** is the place for it: that screen already exists to answer "what do I do now", and one of its rows could be the last setup.
 
 ## 4. Quiz type as four cards
 

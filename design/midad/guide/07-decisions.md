@@ -1,49 +1,46 @@
-# What needs deciding
+# Decisions
 
-In the order they block things.
+Taken 20 Sep 2026. Each one says what was decided, and what it now obliges.
 
-## 1. Which direction
+## 1. Direction — **Midād**
 
-Midād, Sirāj or Basīṭ (02-directions). Everything else in this system is direction-independent, so this one is free to take late — but it is the one that decides what the app *feels* like, and the other two get deleted from `tokens.json` when you pick.
+Ink on paper, light by default, `midad-night` as its dark counterpart. Sirāj and Basīṭ are out; they stay in the artifact's theme switcher as the record of the comparison, and `design/midad/tokens.json` carries only the Midād pair.
 
-**Recommendation: Midād**, with the noted fallback of swapping `sign` to a lapis blue if red-for-the-sign tests badly.
+## 2. Arabic face — **Scheherazade New**
 
-## 2. Arabic face
+Bundled (SIL OFL), over Noto Naskh Arabic. Evidence in **Type**: Amiri stacks يستخرج into a vertical ligature, Geeza Pro's marks are small and crowded, Noto's are lighter than Scheherazade's. **Obliges:** a font in the bundle, and explicit row heights in SwiftUI — Scheherazade's metrics are generous and fighting them costs more than setting them.
 
-**Scheherazade New** (bundled, SIL OFL) over Noto Naskh Arabic. Evidence in **Type**: Amiri stacks يستخرج into a vertical ligature, Geeza Pro's marks are small and crowded, Noto's marks are lighter than Scheherazade's. The cost is a font in the bundle and taller line boxes in SwiftUI (Scheherazade's metrics are generous; set explicit row heights rather than fighting them).
+## 3. The checklist rule — **`QUESTION_RULES` declares it**
 
-## 3. The checklist rule — a quiz-layer change
+The interaction becomes a property of the question kind: the registry gains `select: 'one' | 'many'` and the builder passes it into the response. `isMultiSelect` stays derived (`correct.length > 1`) for **grading** — that is a different fact and it keeps grading's single owner.
 
-Make the interaction a declared property of the question kind rather than a consequence of how many answers the draw produced (03-quiz §2). Two ways:
+**Obliges:** one field per rule object, one read in the view. A new question kind declares its interaction by existing, which is the same property the labels and reasons already have.
 
-- `QUESTION_RULES` gains a `select: 'one' | 'many'` field, and the builder passes it into the response. Fits the existing registry shape.
-- `Response` carries it, set by `choiceResponse()`. Closer to where grading reads.
+## 4. Both shapes, for two different jobs
 
-Either way `isMultiSelect` stays derived for **grading**; what is being added is the *interaction*, which is a different fact. Not a view-layer fix, so it needs your call.
+The **fourteen-row list** is the Tables screen (PRODUCT_SPEC §5.6 stands, unamended). The **three-column paradigm grid** is the quiz's peek behind *Full table*, with the answered cell outlined.
 
-## 4. The paradigm grid vs PRODUCT_SPEC §5.6
+One `fullTable()` call feeds both, so this costs a second view and no model change. The grid also remains the accessibility fallback's opposite number: at the largest text sizes the peek falls back to the list.
 
-The spec says all 14 rows, vertically scrollable. The grid replaces that as the default and keeps the list as the Dynamic Type fallback (05-tables). If you take it, §5.6 needs rewriting; if you keep the list, the Tables screen loses the column alignment that makes a chart teach.
+## 5. Segmented output — **documented, not built**
 
-## 5. Exports that must exist before the corpus freeze (ROADMAP B3)
-
-The API freezes at B3, so anything the UI will ever want has to be there first. This design wants one thing that does not exist:
-
-- **Segmented output** — prefix / stem / suffix for a conjugated word, so the sign can be marked inside a word and affixes can be coloured down a column in Tables. The sālim engine already assembles words that way (`joinEnding()`), so this is an export and a shape, not new grammar.
+Prefix / stem / suffix for a conjugated word: needed to mark the sign inside a word and to colour affixes down a column. **Not implemented now.** The requirement is written where the change will land — `conjugation/conjugation-service.js`, above `fullTable()` — because the API freezes at ROADMAP B3 and anything the UI will ever want has to be there first.
 
 Already on that list from A5: `waznRoot()`.
 
-## 6. Structured feedback, now or with A6
+## 6. Structured feedback — **isolate now, parts with A6**
 
-`feedback.explanation` is a prose string that mixes scripts. The view fix (isolate every Arabic run) works and costs three lines. The structural fix — builders return parts — is what A6's structured `Explanation` needs anyway. Doing it now means A6 inherits it; doing it later means writing the same change twice.
+The view wraps every Arabic run in an isolate (three lines, needed whatever shape the feedback has). The builders keep returning prose for now; `Explanation` as structured parts is designed with A6, which is the feature that knows what it needs to hold. Deferring costs one more pass over the builders later; deciding now risks designing the shape twice, and nothing in B3 freezes it.
 
-## 7. When the visual system lands, relative to the practiceFlow experiment
+Reversible: if A6 slips past the visual refresh, do the parts with the refresh instead.
 
-Classic Practice is frozen verbatim. Restyling one flow biases the comparison. Choose: apply tokens and type to **both** flows in one change (no layout edits), or hold the refresh until the flag resolves. This is a scheduling decision with a correctness consequence, so it should be explicit.
+## 7. Practice — **classic is out of scope for now**
 
-## 8. "Drill these again" from Results
+The refresh applies to the wizard and to Home, Quiz, Tables and Results. Classic Practice stays frozen verbatim; the practiceFlow comparison is not being decided by paint. When the flag resolves, the losing flow is deleted and the winner takes the tokens in one pass.
 
-Replays the missed questions exactly as they were asked (06-home-results). New path through `QuizRun`, new session mode. Cheap, but not free.
+## 8. "Drill these again" from Results — **yes**
+
+Replays the missed questions exactly as they were asked. An `Answer` embeds its whole `Question`, so there is nothing to rebuild. **Obliges:** a new path through `QuizRun` (a fixed source rather than a fresh draw) and a new session mode.
 
 ---
 
@@ -51,13 +48,14 @@ Replays the missed questions exactly as they were asked (06-home-results). New p
 
 **Answers are lost when a session is not ended.** `recordAnswer()` writes to memory; only `endSession()` saves; the "See the full table" link exits without it, and a reload loses the open session too. Verified in the running app (01-audit §11). This breaks "history storage is unconditional" and should be fixed regardless of anything in this system.
 
-**Two small content bugs noticed while reading real output:**
+**Three content bugs noticed while reading real output:**
 
 - The tip `produce-final-haraka-is-the-irab` fires whenever the last cluster diverges, including on a māḍī — where the final fatḥa is bināʾ, not iʿrāb. Its `when` should require `identity.tense === 'mudari'`.
 - The Weak verbs drill description still says "doubly-weak", but lafīf is flagged off in v1.
+- **ظَهَرَ “to appear” is marked `trans: true`** (`lexicon/roots/salim.js`), so the engine now generates a majhūl for it and the voice question can ask about a passive that does not exist. It was intransitive when this system's first mock-ups were generated and changed since. Worth a pass over `trans` across the lexicon: this is the one flag that invents grammar when it is wrong.
 
 ## What this system deliberately does not do
 
 - No component library in JavaScript. The prototype renders HTML strings and the target is SwiftUI; a third implementation would be a third thing to keep in sync. `bundle.css` is the reference, and each component's README says what it becomes in SwiftUI.
 - No app icon or logo. There isn't one yet, and inventing a mark is not a design-system job.
-- No redesign of the wizard. It is mid-experiment; this system gives it tokens, not a new shape.
+- No redesign of the wizard's steps. It is mid-experiment; this system gives it tokens and the setup bar, not a new shape.

@@ -27,6 +27,44 @@
 // content into a plausible wrong answer in a quiz.
 //
 // The full-table API powers the Tables browser and the parity tests.
+//
+// ---------------------------------------------------------------------------
+// FUTURE FIX — SEGMENTED OUTPUT (prefix / stem / suffix). Not built.
+//
+// Every word this service returns is a finished string, and two things the
+// visual design needs cannot be done to a string:
+//
+//   1. Mark the SIGN inside a word after an answer — the letters that actually
+//      carry the grammar (the تـ of تَنْصُرُ, the ـُوا of يَنْصُرُونَ). Today the only
+//      marks the UI can make are the ones it can locate without help: the
+//      diverging cluster of a typed answer (grade() reports the index) and a
+//      governing particle, which is a separate word.
+//   2. Colour the affixes down a column of a chart, which is the thing that
+//      turns fourteen conjugations into a visible pattern.
+//
+// Shape when it is built: a parallel export beside conjugate() and fullTable()
+// returning { prefix, stem, suffix } per word rather than changing what these
+// two return — no caller migrates, and the string stays the thing grading and
+// the corpus compare.
+//
+// Mostly already there: engines build a word as fill(stem) + affix via
+// joinEnding() (templates.js), and the muḍāriʿ prefix is
+// PREFIX_LETTERS[slot] + MUDARI_PREFIX_HARAKA[formId][voice]. So this is an
+// export and a shape, not new grammar. The two places it needs a decision
+// rather than a split:
+//   - joinEnding() MERGES stem and ending into a shadda (مَدَّ, يَمُدُّونَ). That
+//     boundary does not exist in the output; a segment API has to say the
+//     shadda belongs to both parts rather than pretend one owns it.
+//   - The weak engines mutate the stem itself (a dropped lām in a majzūm
+//     نَاقِص, a shortened ʿayn in an أَجْوَف). "Stem" there is what the engine
+//     produced for that slot, not the citation's stem.
+//
+// Why it is written here and not left to later: ROADMAP B3 freezes this API
+// for the corpus, and anything the UI will ever want has to exist before the
+// freeze. Same list as waznRoot() from A5. Decided 20 Sep 2026 — documented
+// now, implemented before B3. Design rationale: design/midad/guide/05-tables.md
+// §7 and 03-quiz.md §3.
+// ---------------------------------------------------------------------------
 
 import {
   DERIVED_NOUN_TYPES, slotsFor, groupOfVerbType, CHART_SHAPES, isValidShape,

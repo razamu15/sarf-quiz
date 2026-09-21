@@ -26,6 +26,7 @@ button, input { font: inherit; color: inherit; }
 .sq-title { margin: 0; font: 500 30px/36px var(--font-serif); letter-spacing: -0.01em; }
 .sq-title .sq-ar { font-size: 30px; color: var(--ink-muted); margin-inline-start: var(--space-2); }
 .sq-label { margin: 0; font: 600 13px/18px var(--font-sans); color: var(--ink-muted); }
+.sq-label small { font-weight: 500; color: var(--ink-faint); }
 .sq-hint { margin: 0; font: 400 13px/18px var(--font-sans); color: var(--ink-muted); }
 .sq-section { display: flex; flex-direction: column; gap: var(--space-3); }
 .sq-row-between { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-3); }
@@ -183,23 +184,36 @@ button, input { font: inherit; color: inherit; }
 
 /* -------------------------------------------------------- AnswerSheet --- */
 /* Feedback rises from the bottom instead of being appended below the options,
-   so the word stays on screen and Continue sits under the thumb. */
+   so the word stays on screen and Continue sits under the thumb.
+   Four blocks and no more: the verdict (with the reading under it), the
+   explanation, the tips, Continue. The table is a small button in the head, so
+   the only full-width action in the sheet is the one that moves you on. */
 .sq-sheet {
   display: flex; flex-direction: column; gap: var(--space-3);
   padding: var(--space-2) var(--space-5) var(--space-5);
   background: var(--raised); border-radius: var(--radius-lg) var(--radius-lg) 0 0; box-shadow: var(--shadow-sheet);
 }
 .sq-sheet__grab { align-self: center; width: 36px; height: 5px; border-radius: 3px; background: var(--line-strong); margin-bottom: var(--space-1); }
+.sq-sheet__head { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--space-3); }
+.sq-sheet__head > div { min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+.sq-sheet__peek {
+  appearance: none; flex: none; display: inline-flex; align-items: center; gap: 6px;
+  height: 34px; padding: 0 12px; border: 1px solid var(--line-strong); border-radius: var(--radius-full);
+  background: var(--raised); color: var(--ink-muted); font: 600 13px/16px var(--font-sans); cursor: pointer;
+}
+.sq-sheet__peek .sq-icon { width: 17px; height: 17px; }
 .sq-sheet__verdict { display: flex; align-items: center; gap: var(--space-2); margin: 0; font: 700 20px/26px var(--font-sans); }
 .sq-sheet__verdict .sq-icon { width: 24px; height: 24px; stroke-width: 2.25; }
 .sq-sheet[data-verdict="correct"] .sq-sheet__verdict { color: var(--correct); }
 .sq-sheet[data-verdict="wrong"] .sq-sheet__verdict { color: var(--wrong); }
 .sq-sheet__answer { margin: 0; font: 500 15px/22px var(--font-sans); color: var(--ink-muted); }
 .sq-sheet__answer .sq-ar { font-size: 21px; color: var(--ink); }
-.sq-sheet__reading { margin: 0; font: italic 400 19px/26px var(--font-serif); color: var(--ink); }
+.sq-sheet__reading { margin: 0; font: italic 400 16px/22px var(--font-serif); color: var(--ink-muted); }
 .sq-sheet__explain { margin: 0; font: 400 15px/26px var(--font-sans); color: var(--ink); }
 .sq-sheet__explain .sq-ar, .sq-tip .sq-ar { font-size: 21px; line-height: 26px; }
-.sq-tips { list-style: none; margin: 0; padding: var(--space-3) 0 0; border-top: 1px solid var(--line); display: flex; flex-direction: column; gap: var(--space-3); }
+.sq-tips { list-style: none; margin: 0; padding: var(--space-3) 0 0; border-top: 1px solid var(--line); display: flex; flex-direction: column; gap: var(--space-2); }
+/* The mark is on the first tip only — the column keeps the rest aligned under
+   it, so two tips read as one note instead of two competing bullets. */
 .sq-tip { display: grid; grid-template-columns: 18px 1fr; gap: var(--space-2); font: 400 14px/21px var(--font-sans); color: var(--ink-muted); }
 .sq-tip .sq-icon { width: 18px; height: 18px; margin-top: 2px; color: var(--ink-muted); }
 .sq-tip .sq-ar { color: var(--ink); }
@@ -247,69 +261,54 @@ button, input { font: inherit; color: inherit; }
 .sq-input[data-state="wrong"] { border-color: var(--wrong); background: var(--wrong-soft); }
 
 /* ----------------------------------------------------------- SetupBar --- */
-/* Practice's consequences, pinned where the finger is: the count, what the
-   setup asks (retired kinds struck through), what the last tap changed. */
+/* Practice's consequences, pinned where the finger is. Read top to bottom:
+   what this setup asks, then how much there is of it, then how much of that
+   you want and Start. The length sits beside Start because it is the one
+   control on the screen that does not change the pool — everything above
+   decides WHAT can be asked; this decides how many of them. */
 .sq-setupbar {
-  display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 6px var(--space-3);
+  display: flex; flex-direction: column; gap: var(--space-3);
   min-height: var(--setup-bar-height); padding: var(--space-3) var(--space-4);
   background: var(--raised); box-shadow: var(--shadow-sheet);
 }
+.sq-setupbar__go { display: flex; align-items: center; gap: var(--space-3); padding-top: var(--space-3); border-top: 1px solid var(--line); }
+.sq-setupbar__go .sq-seg { flex: 1; min-width: 0; }
+.sq-setupbar__go .sq-btn--primary { flex: none; min-width: 124px; }
 .sq-setupbar__count { font: 700 17px/22px var(--font-sans); font-variant-numeric: tabular-nums; }
 .sq-setupbar__count small { font-weight: 500; font-size: 13px; color: var(--ink-muted); }
+/* What the quiz will ask, and — for every kind it will not — the reason, in
+   QUESTION_RULES' own words. A ticked list alone leaves the user to guess why
+   a kind is absent; the reason is what tells them which axis to widen. */
+.sq-asks { display: flex; flex-direction: column; gap: 5px; }
+/* The count belongs with what the setup asks — same fact, one is the list and
+   the other is the size of it — so it shares the panel's header line. */
+.sq-asks__head { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-3); }
+.sq-asks__label { margin: 0; font: 700 10px/14px var(--font-sans); letter-spacing: .07em; text-transform: uppercase; color: var(--ink-muted); }
 .sq-kinds { display: flex; flex-wrap: wrap; gap: 4px; }
-.sq-kind { display: inline-flex; align-items: center; height: 22px; padding: 0 8px; border-radius: var(--radius-full); background: var(--fill); font: 600 11px/14px var(--font-sans); color: var(--ink); white-space: nowrap; }
-.sq-kind[data-live="false"] { background: transparent; color: var(--ink-muted); text-decoration: line-through; box-shadow: inset 0 0 0 1px var(--line); }
-.sq-setupbar__delta { grid-column: 1 / -1; margin: 0; font: 500 12px/16px var(--font-sans); color: var(--ink-muted); }
+.sq-kind { display: inline-flex; align-items: center; gap: 4px; height: 24px; padding: 0 9px 0 7px; border-radius: var(--radius-full); background: var(--fill); font: 600 12px/15px var(--font-sans); color: var(--ink); white-space: nowrap; }
+.sq-kind .sq-icon { width: 13px; height: 13px; stroke-width: 3; color: var(--correct); }
+.sq-asks__why { margin: 0; font: 400 12px/17px var(--font-sans); color: var(--ink-muted); }
+.sq-asks__why b { font-weight: 600; }
+.sq-asks__none { margin: 0; font: 600 12px/17px var(--font-sans); color: var(--wrong); }
+.sq-setupbar__delta { margin: 0; font: 500 12px/16px var(--font-sans); color: var(--ink-muted); }
 .sq-setupbar__delta b { color: var(--ink); font-weight: 600; }
-.sq-setupbar .sq-btn--primary { grid-row: 1 / span 2; grid-column: 2; min-width: 116px; }
 
-/* ----------------------------------------------------------- ChartMap --- */
-/* The nine real charts (CHART_SHAPES) as one grid. Headers toggle an axis;
-   cells only SHOW coverage, since a plan is tense × voice × mood and a single
-   cell cannot be chosen on its own. Every slot is named, because auto-placement
-   around spanning headers puts things in the wrong row. */
-.sq-chartmap {
-  display: grid; direction: ltr; gap: 6px;
-  grid-template-columns: 64px repeat(5, 1fr);
-  grid-template-areas:
-    "corner madi mudari mudari mudari amr"
-    "corner madi raf    nasb   jazm   amr"
-    "malum  m1   m2     m3     m4     amrcell"
-    "majhul j1   j2     j3     j4     amrcell"
-    "foot   foot foot   foot   foot   foot";
-}
-.sq-chartmap__corner { grid-area: corner; }
-.sq-chartmap__a-madi { grid-area: madi; }
-.sq-chartmap__a-mudari { grid-area: mudari; }
-.sq-chartmap__a-amr { grid-area: amr; }
-.sq-chartmap__a-raf { grid-area: raf; }
-.sq-chartmap__a-nasb { grid-area: nasb; }
-.sq-chartmap__a-jazm { grid-area: jazm; }
-.sq-chartmap__a-malum { grid-area: malum; }
-.sq-chartmap__a-majhul { grid-area: majhul; }
-.sq-chartmap__a-m1 { grid-area: m1; } .sq-chartmap__a-m2 { grid-area: m2; }
-.sq-chartmap__a-m3 { grid-area: m3; } .sq-chartmap__a-m4 { grid-area: m4; }
-.sq-chartmap__a-j1 { grid-area: j1; } .sq-chartmap__a-j2 { grid-area: j2; }
-.sq-chartmap__a-j3 { grid-area: j3; } .sq-chartmap__a-j4 { grid-area: j4; }
-/* The amr is one chart whatever the voice row says (planCharts), so its cell
-   spans both voice rows rather than lighting up under maʿrūf alone. */
-.sq-chartmap__a-amrcell { grid-area: amrcell; }
-.sq-chartmap__foot { grid-area: foot; margin: 2px 0 0; font: 500 12px/16px var(--font-sans); color: var(--ink-muted); }
-.sq-chartmap__axis {
-  appearance: none; display: flex; flex-direction: column; align-items: center; justify-content: center;
-  min-height: var(--tap-target); padding: 2px 4px; border: 1px solid var(--line-strong); border-radius: var(--radius-sm);
-  background: var(--raised); color: var(--ink); font: 600 12px/14px var(--font-sans); cursor: pointer;
-}
-.sq-chartmap__axis .sq-ar { font-size: 16px; line-height: 22px; color: var(--ink-muted); }
-.sq-chartmap__axis[aria-pressed="true"] { background: var(--select); border-color: var(--select); color: var(--on-select); }
-.sq-chartmap__axis[aria-pressed="true"] .sq-ar { color: var(--on-select); }
-.sq-chartmap__axis:disabled { cursor: not-allowed; background: transparent; border-style: dashed; color: var(--ink-faint); }
-.sq-chartmap__axis:disabled .sq-ar { color: var(--ink-faint); }
-.sq-chartmap__axis--mood { font-weight: 500; min-height: 38px; }
-.sq-chartmap__cell { display: grid; place-items: center; min-height: 46px; border-radius: var(--radius-sm); background: var(--fill); }
-.sq-chartmap__cell i { width: 14px; height: 14px; border-radius: 4px; border: 1.5px solid var(--line-strong); }
-.sq-chartmap__cell[data-in="true"] { background: var(--select-soft); box-shadow: inset 0 0 0 1.5px var(--select); }
-.sq-chartmap__cell[data-in="true"] i { background: var(--select); border-color: var(--select); }
+/* --------------------------------------------------------- ChartScope --- */
+/* One axis, one control, each with its own label — and one line saying what
+   they add up to. The matrix this replaces was fewer pixels and told the whole
+   truth at once, but it asked the reader to learn a grid before they could
+   change one thing; three labelled groups ask nothing of them. What the grid
+   carried for free is kept in two places: the rule down the iʿrāb group's side
+   (it belongs to the muḍāriʿ, and the group stays visible, disabled, when the
+   muḍāriʿ is out of scope) and the count, which is what a plan really is —
+   whole charts out of the nine that exist (CHART_SHAPES). Cells were never
+   selectable and there are none now: "māḍī majhūl plus muḍāriʿ maʿrūf" is not
+   expressible in a QuizPlan and should not look as if it is. */
+.sq-scope { display: flex; flex-direction: column; gap: var(--space-4); }
+.sq-scope__group { display: flex; flex-direction: column; gap: var(--space-2); }
+.sq-scope__group--under { margin-inline-start: 8px; padding-inline-start: var(--space-3); border-inline-start: 2px solid var(--line); }
+.sq-scope__count { margin: 0; font: 700 14px/20px var(--font-sans); color: var(--ink); font-variant-numeric: tabular-nums; }
+.sq-scope__count small { font-weight: 500; font-size: 13px; color: var(--ink-muted); }
 
 /* ------------------------------------------------------- ParadigmGrid --- */
 /* The 14 ṣiyagh the way a student's paper chart has them: singular, dual and
@@ -337,16 +336,42 @@ button, input { font: inherit; color: inherit; }
 .sq-list14 .sq-ar:first-child { font-size: 26px; line-height: 48px; }
 .sq-list14 small { font: 500 12px/16px var(--font-sans); color: var(--ink-muted); direction: ltr; unicode-bidi: isolate; }
 
+/* ------------------------------------------------------------- WordBar --- */
+/* Tables has one field, in two states: search until a verb is chosen, then the
+   verb itself. Choosing takes the bar over; the X is the only way back. The
+   screen is then never ambiguous about which word it is showing. */
+.sq-wordbar { display: flex; align-items: center; gap: var(--space-2); min-height: 56px; padding: 0 4px 0 var(--space-3); border: 1px solid transparent; border-radius: var(--radius-md); background: var(--fill); }
+.sq-wordbar > .sq-icon { flex: none; width: 20px; height: 20px; color: var(--ink-muted); }
+.sq-wordbar__placeholder { flex: 1; padding: var(--space-3) 0; font: 400 15px/20px var(--font-sans); color: var(--ink-muted); }
+.sq-wordbar[data-mode="word"] { background: var(--raised); border-color: var(--line-strong); box-shadow: var(--shadow-raised); }
+.sq-wordbar__word { flex: 1; min-width: 0; display: flex; align-items: baseline; gap: var(--space-2); overflow: hidden; }
+.sq-wordbar__word .sq-ar { font-size: 26px; line-height: 44px; color: var(--ink); white-space: nowrap; }
+.sq-wordbar__word .sq-gloss { font-size: 14px; line-height: 20px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sq-wordbar__clear { appearance: none; flex: none; width: var(--tap-target); height: var(--tap-target); display: grid; place-items: center; border: 0; border-radius: var(--radius-full); background: var(--fill); color: var(--ink-muted); cursor: pointer; }
+.sq-wordbar__clear .sq-icon { width: 17px; height: 17px; stroke-width: 2.25; }
+
 /* ----------------------------------------------------------- StatStrip --- */
 .sq-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-3) var(--space-2); padding: var(--space-4); background: var(--raised); border: 1px solid var(--line); border-radius: var(--radius-lg); }
 .sq-stat { display: flex; flex-direction: column; gap: 2px; }
 .sq-stat b { font: 600 28px/32px var(--font-sans); font-variant-numeric: tabular-nums; letter-spacing: -0.01em; }
 .sq-stat span { font: 500 12px/16px var(--font-sans); color: var(--ink-muted); }
-.sq-week { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; padding-top: var(--space-3); border-top: 1px solid var(--line); }
-.sq-week__day { display: flex; flex-direction: column; align-items: center; gap: 4px; font: 600 11px/14px var(--font-sans); color: var(--ink-muted); }
-.sq-week__bar { width: 100%; height: 30px; border-radius: 6px; background: var(--fill); display: flex; align-items: flex-end; overflow: hidden; }
-.sq-week__bar i { display: block; width: 100%; background: var(--ink); border-radius: 6px 6px 0 0; }
-.sq-week__day[data-today] { color: var(--ink); }
+/* The second half of the card is the one thing a student can act on: which
+   question kind they are worst at, and a way into it. Seven bars of "how much
+   did I study on Tuesday" answer a question nobody asks twice. Both halves come
+   from the same stored answers — accuracy per `question.category`. */
+.sq-weak {
+  grid-column: 1 / -1; appearance: none; display: flex; align-items: center; gap: var(--space-3);
+  padding: var(--space-3) 0 0; border: 0; border-top: 1px solid var(--line);
+  background: transparent; color: var(--ink); text-align: start; cursor: pointer;
+}
+.sq-weak__text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.sq-weak__label { font: 700 10px/14px var(--font-sans); letter-spacing: .07em; text-transform: uppercase; color: var(--ink-muted); }
+.sq-weak__title { display: flex; align-items: baseline; gap: 6px; font: 600 15px/20px var(--font-sans); }
+.sq-weak__title small { font: 500 12px/16px var(--font-sans); color: var(--ink-muted); font-variant-numeric: tabular-nums; }
+.sq-weak__meter { width: 100%; height: 4px; margin-top: 2px; border-radius: 2px; background: var(--fill); overflow: hidden; }
+.sq-weak__meter i { display: block; height: 100%; border-radius: 2px; background: var(--ink-muted); }
+.sq-weak__cta { flex: none; display: inline-flex; align-items: center; gap: 1px; font: 600 13px/18px var(--font-sans); color: var(--ink); }
+.sq-weak__cta .sq-icon { width: 16px; height: 16px; color: var(--ink-faint); }
 .sq-stats--empty { grid-template-columns: 1fr; }
 
 /* ----------------------------------------------------------- DrillCard --- */

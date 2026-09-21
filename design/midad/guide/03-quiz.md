@@ -10,6 +10,8 @@ Build it as a **bottom inset, not a modal sheet** — in SwiftUI `.safeAreaInset
 
 Consequence, accepted: on a small phone a four-option question plus a two-tip sheet does not fit at once. The prompt card compacts (60px word → 42px) and the options scroll under the sheet; the graded options are scrolled into view automatically.
 
+**Four blocks and one action.** The sheet is the verdict (with the reading under it), the explanation, the tip, and Continue full-width under the thumb. *Full table* is a small button up in the verdict row rather than a second button on the action line: two buttons side by side make you choose before you have read anything, and only one of them moves the session on. The reading and the verdict share a block because they are one thought — what you said, and what the word actually meant.
+
 ## 2. The interaction is decided by the question kind, not by the draw
 
 Today `isMultiSelect` is `correct.length > 1`, so the same question kind is sometimes a checklist and sometimes a one-tap answer — while the ask always says "Select all that apply". **Make the doer question always a checklist**: tick boxes visible before the first tap, Check to submit.
@@ -36,7 +38,9 @@ English leads, Arabic trails, in fixed isolated slots. A checklist shows tick bo
 
 Wrap every Arabic run in an isolate. That is a three-line view fix and it repairs the reordering in every explanation, tip and recap.
 
-The better version is structural: have the builders return feedback in **parts** (`{ word, label, citation }`) instead of one prose string, and let the view lay them out. That is the same shape A6 (AI Explain) already wants — "a structured `Explanation`, not a markdown blob" — so doing it now means A6 inherits it rather than introducing it.
+The better version is structural: have the builders return feedback in **parts** (`{ word, label, citation }`) instead of one prose string, and let the view lay them out. That is the same shape A6 (AI Explain) will want.
+
+**Decided: isolate now, parts with A6.** The isolation is three lines and is needed whatever the feedback's shape is. The parts are not: `Explanation` is A6's own data model, nothing before B3 freezes it, and designing it now — without knowing what AI Explain needs to fill in — risks designing it twice. The cost of waiting is that the builders are touched once more later, which is a smaller cost than a shape that has to be undone.
 
 ## 6. Progress shows the bundle
 

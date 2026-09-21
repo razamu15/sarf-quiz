@@ -10,27 +10,26 @@
 <body>
 <div class="demo">
   <figure>
-    <figcaption>Sample history — the bars are questions answered per day</figcaption>
+    <figcaption>Sample history — the row underneath is accuracy on one question kind</figcaption>
     <div class="sq-stats">
       <span class="sq-stat"><b>5</b><span>day streak</span></span>
       <span class="sq-stat"><b>86</b><span>this week</span></span>
       <span class="sq-stat"><b>71%</b><span>accuracy</span></span>
-      <div class="sq-week">
-        <span class="sq-week__day"><span class="sq-week__bar"><i style="height:41%"></i></span>S</span>
-        <span class="sq-week__day"><span class="sq-week__bar"></span>M</span>
-        <span class="sq-week__day"><span class="sq-week__bar"><i style="height:62%"></i></span>T</span>
-        <span class="sq-week__day"><span class="sq-week__bar"><i style="height:76%"></i></span>W</span>
-        <span class="sq-week__day"><span class="sq-week__bar"><i style="height:31%"></i></span>T</span>
-        <span class="sq-week__day"><span class="sq-week__bar"><i style="height:48%"></i></span>F</span>
-        <span class="sq-week__day" data-today><span class="sq-week__bar"><i style="height:38%"></i></span>S</span>
-      </div>
+      <button class="sq-weak">
+        <span class="sq-weak__text">
+          <span class="sq-weak__label">Weakest question</span>
+          <span class="sq-weak__title">Iʿrāb <small>58% of 40 answers</small></span>
+          <span class="sq-weak__meter"><i style="width:58%"></i></span>
+        </span>
+        <span class="sq-weak__cta">Drill it<svg class="sq-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M9.5 5.5L16 12l-6.5 6.5"/></svg></span>
+      </button>
     </div>
   </figure>
 
   <figure>
     <figcaption>Before the first drill — an honest gap, not a zero</figcaption>
     <div class="sq-stats">
-      <span class="sq-stat" style="grid-column: 1 / -1"><b>No drills yet</b><span>Your streak, your week and your accuracy show up here.</span></span>
+      <span class="sq-stat" style="grid-column: 1 / -1"><b>No drills yet</b><span>Your streak, your accuracy and what to work on show up here.</span></span>
     </div>
   </figure>
 </div>

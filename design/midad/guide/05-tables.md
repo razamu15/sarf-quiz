@@ -1,36 +1,53 @@
 # Tables
 
-The Tables browser is the app's best free feature: it showcases the engine and feeds the study loop. It is also the screen where the current design costs the most, because a conjugation chart has a shape and the app flattens it.
+The Tables browser is the app's best free feature: it showcases the engine and feeds the study loop. The screen reads top to bottom as a sentence — **this verb · this form · this chart · show it to me** — and each of those four is a different kind of control, chosen for what it has to hold.
 
-## 1. The paradigm grid
+## 1. One field, two states: the word takes it over
 
-Fourteen ṣiyagh as a **5 × 3 grid, read right to left**: singular, dual, plural across; he, she, you (m), you (f), I down, with the first person spanning the dual and plural columns because نَحْنُ covers both.
+Search until a verb is chosen; then the verb itself sits where the placeholder was, its citation and its meaning. The **X** is the only way back to searching.
 
-- It is the shape of the chart a student already owns, so it is readable without learning a new layout.
-- **The endings line up in columns.** Every dual in the column ends the same way; every feminine plural ends in ـنَ. A list of fourteen hides exactly the pattern the screen exists to teach.
-- The whole chart fits one phone screen without scrolling, which the fourteen-row list does not.
-- The amr grid is two rows, not five, because the command is second person only. It shrinks rather than padding eight empty cells.
+The point is that the states are exclusive. A search field that merely sits above the results lets the screen show one verb's chart while a search for another is open above it — two answers to "what am I looking at?" on one screen. Here there is one: either you are choosing a verb or you are reading one.
 
-**This contradicts PRODUCT_SPEC §5.6** ("all 14 rows, vertically scrollable"). That is a decision to take, not a detail: see 07-decisions. The list stays in the design as the **Dynamic Type fallback** — at accessibility sizes three columns of vowelled Arabic cannot fit, and a toggle is cheaper than a compromise that serves neither.
+The citation in the bar is the citation of the **root and the chosen form**, so picking Form VIII of نصر changes the bar to اِنْتَصَرَ يَنْتَصِرُ “to triumph”. One bar, one verb.
 
-## 2. No "View table" step
+## 2. Every form the verb has, on the screen
 
-The pickers are segmented rows at the top and the chart redraws under them as you tap. Choosing a chart and seeing a chart are the same act; making them two screens means leaving and re-entering to change one axis.
+Which forms a root carries is a fact **about the verb** — نَصَرَ has I, III, VI, VIII, X; كَتَبَ has I, II, III, IV, VI, VIII, X; رَمَى has three — and it is one of the first things a student wants from a dictionary. So it is not something to open a menu to discover: every attested form is a chip, and the gaps (كَتَبَ has no V, VII or IX) are visible as gaps.
 
-## 3. Gaps are shown as gaps
+Each chip is the numeral and the **wazn** — `I فَعَلَ`, `II فَعَّلَ`, `X اِسْتَفْعَلَ` — which is the same control the Practice screen uses for forms, so the two screens agree. Form I's wazn is the one that changes from root to root, because it carries the bāb's vowels (فَعَلَ, فَعِلَ): free information, in the space a Roman numeral would have taken alone.
+
+What a menu could show and a chip cannot is each form's own citation and meaning. That is not lost, it moved: tapping a chip puts that form's citation and gloss in the bar above (نَصَرَ "to help" → اِنْتَصَرَ "to triumph"), so reading the family is a row of taps rather than a list you have to open first.
+
+Tense, voice and iʿrāb stay segmented controls: three members, always three, and comparing them is the point.
+
+## 3. Fourteen rows, one per ṣīgha
+
+PRODUCT_SPEC §5.6 stands: the chart is a list of fourteen, vertically scrollable, because that is the shape of the chart a student already owns and a list is what a long read wants.
+
+The three-column paradigm grid is **not** deleted — it is the quiz's peek (§6, and `components/ParadigmGrid`). Same data, two jobs: a glance mid-question wants the whole chart at once and the neighbours visible; a browse wants one row per ṣīgha and room to scroll. Building both is cheap, because the table underneath is one `fullTable()` call either way.
+
+## 4. The table waits for "View the table"
+
+The pickers do not redraw a chart as you tap. The line above the button names the chart you are about to open — "Form I · māḍī · maʿrūf · 14 ṣiyagh" — and the button opens it.
+
+Changing any axis afterwards puts the table away and re-arms the button. So the table on screen is always the one that was asked for, never a half-changed selection.
+
+**What it costs:** a tap, every time you compare two charts of the same verb. The alternative — a table live under the pickers — makes the button meaningless after its first press, which is worse than making it cost something. What is *not* paid here is the old cost: today's View table is a navigation push, so changing one axis means leaving the chart and coming back. Here the pickers never leave.
+
+## 5. Gaps are shown as gaps
 
 خَرَجَ is intransitive, so it has no majhūl. The row says that instead of offering an empty table — and the screen never silently swaps your selection for one that exists. (This is the same rule that killed `chartSpec()`: one validator, and it rejects rather than corrects.)
 
-## 4. Arriving from a question
+## 6. Arriving from a question
 
-"See the table" opens the chart **over** the quiz with the cell you just met outlined, and closes back to the question. Today it leaves the quiz — and, because of the storage bug in 01-audit, takes the session's answers with it.
+*Full table* in the answer sheet opens the **paradigm grid** over the quiz with the cell you just met outlined, and closes back to the question. Today that link leaves the quiz — and, because of the storage bug in 01-audit, takes the session's answers with it.
 
 For a doer question every correct slot is outlined, not just the drawn one: that is the lesson (تَنْصُرُ is هِيَ *and* أَنْتَ).
 
-## 5. What the grid cannot do yet
+## 7. What neither shape can do yet
 
-Colouring the affixes down a column — the thing that turns a chart into a lesson — needs the engine to return prefix / stem / suffix. Nothing in the app produces that today. It belongs on the list of exports that must land **before B3 freezes the engine API**.
+Colouring the affixes — the thing that turns a chart into a lesson, and the thing the grid's columns exist to set up — needs the engine to return prefix / stem / suffix. Nothing in the app produces that today. It belongs on the list of exports that must land **before B3 freezes the engine API**; the note is now in `conjugation-service.js` where the change lands.
 
-## 6. Search
+## 8. Search
 
-Root letters and gloss, as today. Add root tiles to each result so the row reads as a root rather than a string, and show which forms the root has. Searching conjugated forms stays deferred (PRODUCT_SPEC §5.6) — but note that the paradigm grid makes the deferral cheaper: if you can see the whole chart at a glance, you need to search for a conjugated form less often.
+Root letters and gloss, as today. Each result reads as a verb rather than a string: the root's citation, its meaning, how many forms it carries and its type — "قَالَ يَقُولُ · to say · 7 forms · Hollow". Searching conjugated forms stays deferred (PRODUCT_SPEC §5.6).
