@@ -176,22 +176,43 @@ def compare_root(root_entry, form):
     return mismatches
 
 
-def main():
-    if len(sys.argv) not in (2, 3):
-        print('Usage: compare.py <lexicon-type> [form]', file=sys.stderr)
-        sys.exit(1)
-    lexicon_type = sys.argv[1]
-    form = sys.argv[2] if len(sys.argv) == 3 else 'I'
-    if form not in FORM_IDS:
-        print(f"Unknown form '{form}' — expected one of {' '.join(FORM_IDS)}", file=sys.stderr)
-        sys.exit(1)
+def run(lexicon_type, form):
+    """Checks one type at one form and writes its report. Returns an outcome
+    dict whose 'status' names which of three different things happened, because
+    all three otherwise look alike from the output directory:
+
+      'unknown_type' — this type is not in the tables at the top of this file,
+                       so there is no engine source list to hand the analysis
+                       step. No report is written: one with a null engine_group
+                       would read like a clean result.
+      'no_roots'     — no root declares this form. Nothing to check.
+      'no_engine'    — roots declare it, but the engine produced no charts for
+                       any of them (true today for mahmuz and both lafifs).
+                       Comparing would yield one 'no seed word' note per root,
+                       which looks like a finding and is not one.
+      'checked'      — a report was written; carries 'mismatches' and 'path'.
+
+    Called by: main() below for a single type, and run_form.py for every type in
+    a form sweep. run_form.py calls this in-process rather than by subprocess so
+    that libqutrub is imported once per sweep rather than once per type.
+    """
+    if lexicon_type not in ENGINE_SOURCE_FILES:
+        return {'status': 'unknown_type', 'type': lexicon_type, 'form': form}
 
     dump = dump_engine(lexicon_type, form)
     # No roots is not a clean run, and must not be written as one: an empty
     # report here would be indistinguishable from "checked, nothing wrong".
     if not dump['roots']:
-        print(f'{lexicon_type} form {form}: no roots declare this form — nothing to check, no report written')
-        return
+        return {'status': 'no_roots', 'type': lexicon_type, 'form': form}
+
+    # Same reasoning one level down. An engineless type still yields root
+    # entries — they just carry no charts — so emptiness has to be read off the
+    # charts, not off the root list.
+    if not any(root_entry['charts'] for root_entry in dump['roots']):
+        return {
+            'status': 'no_engine', 'type': lexicon_type, 'form': form,
+            'roots': len(dump['roots']),
+        }
 
     mismatches = [m for root_entry in dump['roots'] for m in compare_root(root_entry, form)]
 
@@ -210,8 +231,43 @@ def main():
     out_path = OUTPUT_DIR / f'{lexicon_type}_{form}_mismatches.json'
     out_path.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding='utf-8')
 
-    print(f"{lexicon_type} form {form}: {len(mismatches)} mismatch(es) "
-          f"across {report['roots_checked']} root(s) -> {out_path.name}")
+    return {
+        'status': 'checked', 'type': lexicon_type, 'form': form,
+        'roots': len(dump['roots']), 'mismatches': len(mismatches), 'path': out_path,
+    }
+
+
+def describe(outcome):
+    """One line per outcome, shared by main() and run_form.py's sweep so a
+    single type reads the same whether it was run alone or in a sweep."""
+    kind, lexicon_type, form = outcome['status'], outcome['type'], outcome['form']
+    if kind == 'unknown_type':
+        return (f'{lexicon_type} form {form}: not in this pipeline\'s type tables — add it to '
+                f'ENGINE_SOURCE_FILES and ENGINE_GROUP in compare.py. No report written.')
+    if kind == 'no_roots':
+        return f'{lexicon_type} form {form}: no roots declare this form — nothing to check, no report written'
+    if kind == 'no_engine':
+        return (f'{lexicon_type} form {form}: {outcome["roots"]} root(s), but no engine for this type — '
+                f'nothing to compare, no report written')
+    return (f'{lexicon_type} form {form}: {outcome["mismatches"]} mismatch(es) '
+            f'across {outcome["roots"]} root(s) -> {outcome["path"].name}')
+
+
+def main():
+    if len(sys.argv) not in (2, 3):
+        print('Usage: compare.py <lexicon-type> [form]', file=sys.stderr)
+        sys.exit(1)
+    lexicon_type = sys.argv[1]
+    form = sys.argv[2] if len(sys.argv) == 3 else 'I'
+    if form not in FORM_IDS:
+        print(f"Unknown form '{form}' — expected one of {' '.join(FORM_IDS)}", file=sys.stderr)
+        sys.exit(1)
+
+    outcome = run(lexicon_type, form)
+    if outcome['status'] == 'unknown_type':
+        print(describe(outcome), file=sys.stderr)
+        sys.exit(1)
+    print(describe(outcome))
 
 
 if __name__ == '__main__':

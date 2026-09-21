@@ -4,13 +4,15 @@ Practice describes a pool of words. Its hard part is that narrowing the pool **r
 
 ## 1. A setup bar, pinned
 
-**What this setup asks** leads it, the count sits on that same line, then the length and Start — docked to the bottom, always visible. Read top to bottom it is: what you will be asked, how much of it there is, how many you want, go. Real numbers from the engine: turning majhūl on takes 4,200 → 10,192 and brings the Voice question back; dropping the māḍī takes 4,200 → 700 and retires Tense and Bāb together.
+**What this setup asks** leads it, the count sits on that same line, then the length and Start — docked to the bottom, always visible. Read top to bottom it is: what you will be asked, how much of it there is, how many you want, go. All of it is live: every tap above moves the count, the ticks and the reasons together. Real numbers from the engine: turning majhūl on takes 4,200 → 10,192 and brings the Voice question back; dropping the māḍī takes 4,200 → 700 and retires Tense and Bāb together.
 
 The asks panel is the classic Practice screen's, kept: every live kind ticked, and **every retired kind with its reason** — "Iʿrāb — iʿrāb needs the muḍāriʿ in more than one state", which is `QUESTION_RULES`' own `reason` string, printed verbatim. A struck-through chip says a question went away; the reason says which axis to widen to get it back, and that is the whole value of the panel. It was in the prototype from A2 and this system does not improve on it.
 
-The delta line matters because the number alone lies by omission: half of that 4,200 → 700 drop is fewer words and half is two question kinds disappearing. The wizard's footer already does this; the bar makes it true of both flows.
+An earlier draft also printed a **delta** — "↓ from 10,192 — no longer asking Voice" — on the grounds that the number alone lies by omission: half of a 4,200 → 700 drop is fewer words and half is two question kinds disappearing. It is gone, because the panel above it already shows that second half happening: the kind leaves the ticked row and reappears as a reason. Describing the same event twice, in a line that comes and goes under everything else, costs more attention than it returns. The size of the change is what is actually lost, and that is the cheaper half — the count is on screen either way.
 
-**The length lives here, beside Start**, not as a fourth picker in the body. Everything above it decides *what can be asked* and moves the count; the length decides how many of those you want, and changes nothing about the pool. Putting it next to the button makes the bar read as one sentence — ask me ten of these 4,200 — and takes a whole section off the screen. Endless is `∞` rather than the word, which is what makes four options fit on one row beside the button.
+**The length lives here**, not as a fourth picker in the body. Everything above it decides *what can be asked* and moves the count; the length decides how many of those you want, and changes nothing about the pool. In the bar it takes a whole section off the screen and the bar reads as one sentence — this is what you will be asked, there are 4,200 of them, give me ten.
+
+It is a **small control on a labelled row**, with Start full width underneath. A full-size segmented control beside the button read as a second action competing with it, and 44px is the size a control earns when a screen is built around it; this one is a setting with a value. Endless is `∞`, which is also what keeps the four values narrow enough to sit opposite the label.
 
 ## 2. One axis, one control — and a count that ties them together
 
@@ -18,7 +20,7 @@ Tense, voice and iʿrāb are the axes of the nine charts that exist (`CHART_SHAP
 
 So: three labelled groups of chips, and one line under them counting the charts they add up to. What the grid carried for free is kept deliberately:
 
-- **The dependency is spatial and verbal.** The iʿrāb group is indented under a rule and labelled "of the muḍāriʿ". Drop the muḍāriʿ and its chips **disable rather than disappear**, with a hint saying what to add — the prototype's own failure was a row that greyed out for no stated reason.
+- **The dependency is spatial and verbal.** The iʿrāb group sits directly under the tense group, indented behind a rule, labelled "of the muḍāriʿ" — and it is there only while the muḍāriʿ is. Appearing and vanishing immediately under the chip that governs it is what makes the relationship readable; the prototype's failure was a row that greyed out elsewhere on the screen for no stated reason. The usual objection to hiding a control is that it hides the reason as well — it does not here, because the setup bar prints that reason regardless: "Iʿrāb — iʿrāb needs the muḍāriʿ in more than one state". The mood selection is kept, so the muḍāriʿ coming back restores it.
 - **The amr's exception is stated.** `planCharts()` gives the amr one chart whatever the voice says, so with only the amr in scope the voice chips disable and say so.
 - **The count is the read-out the cells were.** "2 of 9 charts in scope" — nine being what exists, not a number to hold in your head.
 
@@ -34,7 +36,9 @@ Say the cost out loud, though: the wizard's measured "always opens at step 1, no
 
 The type changes what the whole session is; it deserves the wizard's naming and one-line explanation (`QUIZ_TYPE_INFO`), not a chip row. Two by two, Arabic term beside the English.
 
-## 5. Chips that read in one direction
+## 5. Verb type and form are two questions, not one
+
+They were one "Verbs" section with two chip rows in it, which made a compound of two independent axes: *which kinds of verb* and *which forms of them*. They get a label each — **Verb type** and **Form** — and **Form** is then the same label, the same control and the same chips as the Tables screen's, which is the second place a student picks a form.
 
 Form chips lead with the numeral and follow with the **wazn** (`II فَعَّلَ`), not the bāb's maṣdar name: it is shorter, and the wazn is how a form is recognised on sight. Keep the maṣdar names (`بَابُ التَّفْعِيل`) for the Tables header, where there is room. Verb types use the terms a student is taught — Sound, Doubled, Assimilated, Hollow, Defective — each with its Arabic.
 

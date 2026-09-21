@@ -1,30 +1,15 @@
 # Qutrub cross-check — plan
 
-Status: **v3, per-form sweeps.** v1 checked Form I only; v2 made every stage
-take a form but left the sweep itself to be typed out by hand, once per verb
-type. v3 adds the missing entry point — one command checks one form across
-every verb type the lexicon declares — and derives the type list from the
-lexicon instead of a hand-maintained constant.
+Status: **v2, form-aware.** v1 checked Form I only; this version takes a form
+alongside the lexicon type, so any of I–X can be cross-checked. Form I and
+Form II have both been run across every type that has roots for them.
 
-[PLAN_v2.md](PLAN_v2.md) and [PLAN_v1.md](PLAN_v1.md) are the previous versions,
-kept for traceability. Read **this** file; the older ones are only there to show
-what changed and why. When this is next revised, rename it `PLAN_v3.md` and
-write a new `PLAN.md`, per project convention.
+[PLAN_v1.md](PLAN_v1.md) is the previous version, kept for traceability. Read
+**this** file; v1 is only there to show what changed and why. When this is next
+revised, rename it `PLAN_v2.md` and write a new `PLAN.md`, per project
+convention.
 
 ## How to run
-
-**One form, every verb type — this is the normal way in:**
-
-```
-verification/.venv/bin/python verification/run_form.py III
-```
-
-That sweeps all types, writes a report per checkable type, then hands every
-non-empty batch to headless Claude for analysis, and finishes with
-`output/III_SUMMARY.md` recording what was covered and what was not.
-
-The per-type stages still work on their own, unchanged, for re-running one
-category after a fix:
 
 ```
 verification/.venv/bin/python verification/compare.py <lexicon-type> [form]
@@ -37,74 +22,40 @@ verification/.venv/bin/python verification/analyze_category.py <lexicon-type> [f
 `.venv` (created via `python3 -m venv .venv && .venv/bin/pip install -r
 requirements.txt`) and `output/` are both gitignored — regenerable, not source.
 
-## What changed from v2, and why
+A type/form pair with no roots is not an error: `compare.py` says so and writes
+nothing, because a report for a form nobody declares would be indistinguishable
+from a clean run.
 
-### 1. A per-form entry point, because there wasn't one
+## What changed from v1, and why
 
-v2 made `compare.py` and `analyze_category.py` take a form, which was the hard
-part, but checking one form still meant sixteen invocations typed by hand and a
-verb-type list held in the operator's head. `run_form.py <form>` is that missing
-command.
+**v1 was Form I only** — `dump_engine.mjs` hardcoded `formId: 'I'` and filtered
+roots on `r.forms.I`. That was the right scope at the time: the mazīd stem
+tables were largely unwritten, so there was nothing to check. That is no longer
+true (ROADMAP B1 filled the last of them), and the mazīd forms are now the part
+of the engine with the least independent verification behind it.
 
-### 2. The type list is read off the lexicon now
+Three things had to become form-aware:
 
-The hand-maintained list was the part that actually failed. Three verb types —
-`mahmuz`, `lafif_mafruq`, `lafif_maqrun` — were added to the lexicon and never
-added to `compare.py`'s `ENGINE_SOURCE_FILES`/`ENGINE_GROUP`, so a sweep done by
-hand simply skipped them with nothing anywhere to show that it had. Worse,
-`compare.py` looked those tables up with `.get(type, [])`, so running one of
-them directly would have written a report with `engine_group: null` and no
-engine sources — a file indistinguishable at a glance from a clean result.
+1. **Root selection.** `r.forms[form]`, not `r.forms.I`. Most roots declare a
+   handful of forms and no root declares all ten, so each form checks a
+   different, smaller set of roots than Form I did.
 
-`lexicon_coverage.mjs` now emits the whole matrix (every type, whether an engine
-exists for it, root counts per form) from the production exports `VERB_TYPE_IDS`,
-`groupOfVerbType` and `enginedGroups()`. `run_form.py` iterates *that*. A new
-verb type cannot go silently unchecked, and `compare.py` refuses a type its
-tables don't cover rather than writing a null-group report for it.
+2. **The seed word.** Still `madi_malum`/`3ms`, but of the form being checked —
+   `عَلَّمَ` for Form II, not `عَلِمَ`. libqutrub reads the pattern off the surface
+   form, so a Form II seed produces a Form II paradigm with no other hint.
 
-### 3. Four outcomes, named, because three of them used to look identical
+3. **`future_type`.** For Form I this is the bāb's second letter, the muḍāriʿ
+   ʿayn vowel. The mazīd forms have no bāb — the FORM fixes that vowel — so
+   `MAZEED_FUTURE_TYPE` states it per form. **Verified empirically that
+   libqutrub ignores the parameter entirely for a mazīd seed**: `عَلَّمَ` returns
+   the same paradigm under all three values. It is passed correctly anyway, so
+   that a future libqutrub which does consult it finds the right answer rather
+   than a placeholder that happened to work.
 
-A type that produced no report could previously mean any of several different
-things, all presenting as a missing file. `compare.run()` returns a status
-instead, and `run_form.py` prints and records it:
-
-| status | means | report written? |
-|---|---|---|
-| `checked` | compared; carries the mismatch count | yes |
-| `no_roots` | no root declares this form | no |
-| `no_engine` | roots declare it, but no engine serves this verb type | no |
-| `unknown_type` | in the lexicon, absent from `compare.py`'s tables | no |
-
-`no_engine` is the one with teeth today: `mahmuz`, `lafif_mafruq` and
-`lafif_maqrun` all have roots and no conjugator, so `fullTable()` returns
-nothing for them. Comparing anyway would emit one "no seed word" note per root —
-entries that look like findings and are not. The sweep decides this from the
-coverage matrix, before running a comparison, rather than by reading the
-wreckage afterward.
-
-### 4. A sweep cleans its own form, and only its own form
-
-`output/` is flat and cumulative — `<type>_<form>_mismatches.json`, as in v2 —
-and nothing in it recorded which run it came from. A month-old full sweep across
-ten forms therefore sat indistinguishably beside a fresh single-form run, and
-looked like its output.
-
-`run_form.py` now deletes `*_<form>_*` before it writes, so a run leaves exactly
-the files it produced. It is scoped to the form on purpose: another form's
-results are not stale because this form was re-run, and deleting them would
-throw away work nobody asked to repeat.
-
-**v1-era files (`<type>_mismatches.json`, no form in the name) are reported, not
-deleted.** They belong to no form, so no form sweep has any basis to claim them.
-Delete them by hand.
-
-### 5. `output/<form>_SUMMARY.md`
-
-Three of the four outcomes above write no JSON, so the output directory alone
-still could not distinguish "clean" from "not applicable" from "never ran". The
-summary is where that lives: a table of what was checked, and a list of what was
-not, with the reason. It is cleaned and rewritten with the rest of the form's
-output, so it can never describe a run that is no longer on disk.
+**Output filenames now carry the form**: `<type>_<form>_mismatches.json`, e.g.
+`salim_II_mismatches.json`. v1's `<type>_mismatches.json` files were left in
+place by the rename and are stale — regenerate or delete them; nothing reads
+them any more.
 
 ## Goal
 
@@ -128,15 +79,12 @@ iteration, the qutrub call, comparison, and the trigger into Claude Code.
 ```
 verification/
   PLAN.md                 # this file
-  PLAN_v2.md, PLAN_v1.md  # previous versions, for traceability
-  run_form.py             # Python: ONE FORM across every type — the entry point
-  lexicon_coverage.mjs    # Node: what the lexicon holds, and what has an engine
+  PLAN_v1.md              # the Form-I-only version, for traceability
   dump_engine.mjs         # Node: dumps this project's tables for one type+form
   compare.py              # Python: loads the dump, calls qutrub, diffs, reports
   analyze_category.py     # Python: shells out to `claude -p` per exhausted batch
   requirements.txt        # qutrub + whatever else compare.py needs
   output/                 # generated reports — gitignored, regenerable
-    <form>_SUMMARY.md
     <type>_<form>_mismatches.json
     <type>_<form>_analysis.md
 ```
@@ -162,7 +110,6 @@ Form II has to say.
 | `mithal_waw`, `mithal_ya` | `mithal` | `mithal-conjugator.js` |
 | `ajwaf_waw`, `ajwaf_ya` | `ajwaf` | `ajwaf-conjugator.js` |
 | `naqis_waw`, `naqis_ya` | `naqis` | `naqis-conjugator.js` |
-| `mahmuz`, `lafif_mafruq`, `lafif_maqrun` | — | **no engine yet** |
 
 Every category's engine file also routes through shared modules
 (`conjugation-service.js`, `templates.js`, `shared-grammar.js`,
@@ -170,10 +117,6 @@ Every category's engine file also routes through shared modules
 innocent, since a bug could live in either place.
 
 ## Pipeline
-
-**0. `run_form.py <form>`** — reads the coverage matrix, cleans this form's
-previous output, then drives stages 1–3 below for every type, and writes the
-summary. The stages remain independently runnable.
 
 **1. `dump_engine.mjs <type> [form]`** — finds every root of that type declaring
 that form, calls `fullTable()` for each of its charts, prints one JSON blob. One
@@ -185,11 +128,8 @@ process spawn per type+form, not per root.
     root/slot combinations
   - compares via plain NFC-normalized exact match — no diacritic tolerance;
     see "Still open"
-  - writes `output/<type>_<form>_mismatches.json` when it had something to
-    compare, and returns one of the four statuses above when it did not
-
-`run_form.py` calls `compare.run()` in-process rather than by subprocess, so
-libqutrub is imported once per sweep instead of once per type.
+  - writes `output/<type>_<form>_mismatches.json`, present even when empty, so
+    a missing file always means "not run yet," never "no bugs found"
 
 **3. `analyze_category.py <type> [form]`** — if the batch is non-empty, invokes
 `claude -p` with the mismatch file, the engine sources, and read-only tools
@@ -249,7 +189,7 @@ form the seed IS the citation form — `عَلَّمَ`, `اِقْتَضَى` �
 cell in the paradigm to check against a dictionary by eye, and the one a reader
 of the Tables browser sees first. So the blind spot is easier to cover by hand
 in the mazīd forms, but it is still a blind spot, and a clean report is not a
-full clearance. Not solved in v3 — flagged, as in v1 and v2.
+full clearance. Not solved in v2 — flagged, as in v1.
 
 ## Claude Code invocation: headless CLI, not the Agent SDK
 
@@ -260,10 +200,6 @@ integration code. `claude -p "<prompt>" --model claude-opus-5 --effort max
 --allowedTools "Read Grep Glob" --output-format text`. Model and effort are
 pinned explicitly so analysis quality does not depend on whose machine runs it.
 
-`run_form.py` spawns one of these per non-empty batch, in sequence. That is the
-slow and expensive part of a sweep by a wide margin; a form where every category
-is clean finishes in seconds.
-
 ## Resolved during implementation
 
 - **qutrub's exact API.** The PyPI package is `libqutrub` (not `qutrub`), by
@@ -272,27 +208,18 @@ is clean finishes in seconds.
   by Arabic chart names (`CHART_KEY_TO_ARABIC` in `compare.py`), each holding a
   dict keyed by Arabic pronoun labels (`SLOT_TO_PERSON_LABEL`).
 - **libqutrub auto-detects the verb class from the surface form alone** —
-  verified for all 8 engined lexicon types at Form I (v1) and for every type that
-  has Form II roots (v2).
-- **`future_type` is ignored for a mazīd seed** — verified empirically: `عَلَّمَ`
-  returns the same paradigm under all three values. It is passed correctly
-  anyway, so that a future libqutrub which does consult it finds the right
-  answer rather than a placeholder that happened to work.
+  verified for all 8 lexicon types at Form I (v1) and for every type that has
+  Form II roots (v2: sound, muḍāʿaf, mithāl wāw and yāʾ, ajwaf wāw and yāʾ).
+- **`future_type` is ignored for a mazīd seed** — see "What changed" above.
 - **`output/` and git** — gitignored. Regenerable reports, not source.
 
 ## Still open
 
-- **Three verb types cannot be checked at all.** `mahmuz` (15 roots),
-  `lafif_mafruq` (6) and `lafif_maqrun` (7) have roots and no conjugator. The
-  sweep reports them as `no_engine` every run, which is the honest answer, but
-  it is not verification. They become checkable the day an engine lands — and
-  `compare.py`'s two type tables need entries for them at that point, which is
-  the one place the lexicon-derived list cannot fill in by itself.
 - **Diacritic normalization strictness.** `compare.py` does *plain* NFC exact
   matching, with no tolerance for diacritic placement, and that is deliberate:
   silently normalizing away "probably style" differences risks masking a real
   future regression in diacritic output. The classification of style-vs-bug is
   `analyze_category.py`'s job instead. Revisit only if a batch ends up dominated
   by clearly-cosmetic noise that drowns out real findings.
-- **Forms IV–X have not been run since the lexicon grew.** v3 makes each one a
-  single command.
+- **Forms III–X are not yet run.** v2 makes them one command each; nothing
+  blocks them but the running.

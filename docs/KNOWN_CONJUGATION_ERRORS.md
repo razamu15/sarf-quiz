@@ -30,7 +30,14 @@ Everything in §1 is reachable from the app today: a student drilling the
 affected root and chart is shown the wrong word and marked wrong for typing the
 right one.
 
-Regenerate any figure here with:
+Regenerate any figure here with a whole-form sweep — every verb type, plus a
+`output/<form>_SUMMARY.md` saying which types it could not check and why:
+
+```bash
+verification/.venv/bin/python verification/run_form.py <form>
+```
+
+Or one category at a time, to re-check a single type after a fix:
 
 ```bash
 verification/.venv/bin/python verification/compare.py <type> <form>

@@ -9,8 +9,9 @@
 <body>
 <div class="demo">
   <div id="scope"></div>
-  <p class="sq-hint">Tap a chip. A plan is tense × voice × iʿrāb, so a single chart cannot be picked on its own —
-  the count is the read-out that says how many whole charts the three add up to.</p>
+  <p class="sq-hint">Tap a chip. The iʿrāb group belongs to the muḍāriʿ: drop that tense and the group
+  greys out in place, its label saying so. A plan is tense × voice × iʿrāb, so a single chart cannot be
+  picked on its own — the count is the read-out that says how many whole charts the three add up to.</p>
 </div>
 <script>
 
@@ -73,19 +74,18 @@ function render() {
         ${chip('amr', 'أَمْر', state.tenses.has('amr'), 'amr')}
       </div></div>
 
+    <div class="sq-scope__group sq-scope__group--under">
+      <p class="sq-label">Iʿrāb <small>${mudari ? 'of the muḍāriʿ' : 'needs the muḍāriʿ'}</small></p>
+      <div class="sq-chips">
+        ${MOODS.map((m) => chip(MOOD_EN[m], '', state.moods.has(m), m, !mudari)).join('')}
+      </div></div>
+
     <div class="sq-scope__group"><p class="sq-label">Voice</p>
       <div class="sq-chips">
         ${chip('maʿrūf', '', state.voices.has('malum'), 'malum', amrOnly)}
         ${chip('majhūl', '', state.voices.has('majhul'), 'majhul', amrOnly)}
       </div>
       ${amrOnly ? '<p class="sq-hint">The amr has neither voice nor iʿrāb — it is one chart on its own.</p>' : ''}</div>
-
-    <div class="sq-scope__group sq-scope__group--under">
-      <p class="sq-label">Iʿrāb <small>of the muḍāriʿ</small></p>
-      <div class="sq-chips">
-        ${MOODS.map((m) => chip(MOOD_EN[m], '', state.moods.has(m), m, !mudari)).join('')}
-      </div>
-      ${mudari ? '' : '<p class="sq-hint">Add the muḍāriʿ to drill marfūʿ, manṣūb and majzūm.</p>'}</div>
 
     <p class="sq-scope__count">${on.length} of 9 <small>charts in scope</small></p>
   </div>`;

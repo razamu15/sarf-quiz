@@ -85,6 +85,10 @@ button, input { font: inherit; color: inherit; }
 .sq-seg > button .sq-ar { font-size: 17px; line-height: 26px; }
 .sq-seg > button[aria-pressed="true"] { background: var(--raised); border-color: var(--line-strong); color: var(--ink); box-shadow: var(--shadow-raised); }
 .sq-seg > button:disabled { color: var(--ink-faint); cursor: not-allowed; }
+/* The secondary size: a short set of values beside a label, not a control the
+   screen is built around. Sized to its content, never stretched. */
+.sq-seg--sm { flex: none; padding: 2px; }
+.sq-seg--sm > button { min-height: 30px; padding: 0 11px; font-size: 14px; border-radius: 7px; }
 
 /* Read-only pill: a recipe chip on a cue card, a question kind. Never tappable. */
 .sq-pill {
@@ -268,42 +272,49 @@ button, input { font: inherit; color: inherit; }
    decides WHAT can be asked; this decides how many of them. */
 .sq-setupbar {
   display: flex; flex-direction: column; gap: var(--space-3);
-  min-height: var(--setup-bar-height); padding: var(--space-3) var(--space-4);
+  min-height: var(--setup-bar-height); padding: var(--space-4);
   background: var(--raised); box-shadow: var(--shadow-sheet);
 }
-.sq-setupbar__go { display: flex; align-items: center; gap: var(--space-3); padding-top: var(--space-3); border-top: 1px solid var(--line); }
-.sq-setupbar__go .sq-seg { flex: 1; min-width: 0; }
-.sq-setupbar__go .sq-btn--primary { flex: none; min-width: 124px; }
-.sq-setupbar__count { font: 700 17px/22px var(--font-sans); font-variant-numeric: tabular-nums; }
+/* The length is a labelled row of its own, and Start is full width like every
+   other primary action in the app. Beside the button the segmented control
+   read as a second action competing with it. */
+.sq-setupbar__go { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); padding-top: var(--space-3); border-top: 1px solid var(--line); }
+/* A <p>: kill the UA margin, or it adds 17px above and below the count and the
+   panel above it stops reading as one block. */
+.sq-setupbar__count { margin: 0; font: 700 17px/22px var(--font-sans); font-variant-numeric: tabular-nums; }
 .sq-setupbar__count small { font-weight: 500; font-size: 13px; color: var(--ink-muted); }
 /* What the quiz will ask, and — for every kind it will not — the reason, in
    QUESTION_RULES' own words. A ticked list alone leaves the user to guess why
-   a kind is absent; the reason is what tells them which axis to widen. */
-.sq-asks { display: flex; flex-direction: column; gap: 5px; }
+   a kind is absent; the reason is what tells them which axis to widen.
+   It is one text block on one left edge: the ticked kinds were pills, and a
+   pill indents its own text, so the panel had three different left edges and
+   two line rhythms. Same size, same leading, same margin — the tick is the
+   only ornament. */
+.sq-asks { display: flex; flex-direction: column; gap: 6px; }
 /* The count belongs with what the setup asks — same fact, one is the list and
    the other is the size of it — so it shares the panel's header line. */
 .sq-asks__head { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-3); }
 .sq-asks__label { margin: 0; font: 700 10px/14px var(--font-sans); letter-spacing: .07em; text-transform: uppercase; color: var(--ink-muted); }
-.sq-kinds { display: flex; flex-wrap: wrap; gap: 4px; }
-.sq-kind { display: inline-flex; align-items: center; gap: 4px; height: 24px; padding: 0 9px 0 7px; border-radius: var(--radius-full); background: var(--fill); font: 600 12px/15px var(--font-sans); color: var(--ink); white-space: nowrap; }
-.sq-kind .sq-icon { width: 13px; height: 13px; stroke-width: 3; color: var(--correct); }
-.sq-asks__why { margin: 0; font: 400 12px/17px var(--font-sans); color: var(--ink-muted); }
+.sq-kinds { display: flex; flex-wrap: wrap; gap: 2px var(--space-3); }
+.sq-kind { display: inline-flex; align-items: center; gap: 5px; font: 600 13px/18px var(--font-sans); color: var(--ink); white-space: nowrap; }
+.sq-kind .sq-icon { width: 14px; height: 14px; stroke-width: 2.75; color: var(--correct); }
+.sq-asks__why { margin: 0; font: 400 13px/18px var(--font-sans); color: var(--ink-muted); }
 .sq-asks__why b { font-weight: 600; }
-.sq-asks__none { margin: 0; font: 600 12px/17px var(--font-sans); color: var(--wrong); }
-.sq-setupbar__delta { margin: 0; font: 500 12px/16px var(--font-sans); color: var(--ink-muted); }
-.sq-setupbar__delta b { color: var(--ink); font-weight: 600; }
+.sq-asks__none { margin: 0; font: 600 13px/18px var(--font-sans); color: var(--wrong); }
 
 /* --------------------------------------------------------- ChartScope --- */
 /* One axis, one control, each with its own label — and one line saying what
    they add up to. The matrix this replaces was fewer pixels and told the whole
    truth at once, but it asked the reader to learn a grid before they could
    change one thing; three labelled groups ask nothing of them. What the grid
-   carried for free is kept in two places: the rule down the iʿrāb group's side
-   (it belongs to the muḍāriʿ, and the group stays visible, disabled, when the
-   muḍāriʿ is out of scope) and the count, which is what a plan really is —
-   whole charts out of the nine that exist (CHART_SHAPES). Cells were never
-   selectable and there are none now: "māḍī majhūl plus muḍāriʿ maʿrūf" is not
-   expressible in a QuizPlan and should not look as if it is. */
+   carried for free is kept in two places: the iʿrāb group, indented under the
+   rule and placed DIRECTLY under the tense it belongs to, where it greys out in
+   place when the muḍāriʿ goes (a control that vanishes moves everything under
+   it, and its own label carries the reason instead); and the count, which is
+   what a plan really is — whole charts out of the nine that exist
+   (CHART_SHAPES). Cells were never selectable and there are none now: "māḍī
+   majhūl plus muḍāriʿ maʿrūf" is not expressible in a QuizPlan and should not
+   look as if it is. */
 .sq-scope { display: flex; flex-direction: column; gap: var(--space-4); }
 .sq-scope__group { display: flex; flex-direction: column; gap: var(--space-2); }
 .sq-scope__group--under { margin-inline-start: 8px; padding-inline-start: var(--space-3); border-inline-start: 2px solid var(--line); }
