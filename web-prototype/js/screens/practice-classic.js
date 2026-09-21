@@ -15,7 +15,7 @@
 // The panel at the bottom is the point: narrowing the selection RETIRES the
 // questions it has already answered, and saying which ones survived and why the
 // others didn't is what makes widening a row visibly bring one back
-// (PRODUCT_SPEC §5.2b).
+// (product-spec D-16).
 //
 // Called by: screens/practice.js, when settings.practiceFlow === 'classic'.
 

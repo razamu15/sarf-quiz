@@ -54,7 +54,7 @@ export const draftPlan = () => quizPlan(state.draft);
 /**
  * Send the wizard back to its first step and drop everything it remembered.
  *
- * Called by: main.js on entering the Practice tab (ROADMAP A2 · Q5 — the wizard
+ * Called by: main.js on entering the Practice tab (product-spec D-42 — the wizard
  * always opens at step 1, with no resume), and more.js when practiceFlow is
  * flipped, so turning the wizard on does not drop you into step 3 of it.
  */

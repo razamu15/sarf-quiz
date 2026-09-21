@@ -5,7 +5,7 @@
 // contributes two, and "Word 3 / 5" stays true either way.
 //
 // Home drills are always quiz type 1 — writing and derived-noun practice are a
-// deliberate choice you make in Practice (PRODUCT_SPEC §5.1).
+// deliberate choice you make in Practice (product-spec D-14).
 //
 // Called by: screens/home.js.
 

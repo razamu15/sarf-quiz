@@ -4,7 +4,9 @@
 > and an iOS app, and what each one costs in the port. Read
 > [ARCHITECTURE.md](ARCHITECTURE.md) first — it describes the thing being
 > ported. [TECHNICAL_PLAN.md](TECHNICAL_PLAN.md) Part B describes the target
-> app; [ROADMAP.md](ROADMAP.md) Track C is the schedule this feeds.
+> app; [TECHNICAL_PLAN.md](TECHNICAL_PLAN.md) Part C holds the remaining
+> milestones this feeds, and [product-spec/](../product-spec/README.md) says what
+> each screen does.
 >
 > Written Aug 2026 against 45 JS files / 6,468 lines, five shipped engines
 > (sālim · muḍāʿaf · mithāl · ajwaf · nāqiṣ), 161 roots, 417 assertions green.
@@ -401,6 +403,10 @@ Three things to internalize:
 
 ## 2.2 Screens → Views
 
+> Predates the design system (Sep 2026). Where this table and
+> [`product-spec/screens/`](../product-spec/README.md) disagree, the spec wins;
+> the implementation plan re-derives the mapping.
+
 Each `screens/*.js` becomes one `View` struct (plus small child views). The
 mapping is direct, and the state each one reads is already isolated in
 `ui/state.js`:
@@ -408,12 +414,12 @@ mapping is direct, and the state each one reads is already isolated in
 | prototype | SwiftUI | notes |
 |---|---|---|
 | `main.js` tab bar | `TabView` | system component; do **not** hand-build it |
-| `screens/home.js` | `HomeScreen` + `StatCard`, `QuoteCard`, `PresetCard` | `ScrollView` + `LazyVStack` |
-| `screens/practice.js` | `PracticeScreen` | picks the flow off `settings.practiceFlow` — a `switch` in the body |
-| `screens/practice-controls.js` | `PracticeControls` (the axis rows) + `ChipRow` | each row is a `ForEach` over `.allCases` binding into `PlanDraft`; **port this first** — both flows are views over it |
-| `screens/practice-classic.js` | `PracticeClassicScreen` | `ScrollView` + `ScrollViewReader` for the summary chips' jump-to-row |
-| `screens/practice-wizard.js` | `PracticeWizardScreen` | the step table is data; `NavigationStack` is **not** the right fit — the live step list changes with the draft, so drive it off the step id in state |
-| `screens/practice-summary.js` | `PracticeSummary` | shared by both; renders `QuestionCard` non-interactively |
+| `screens/home.js` | `HomeScreen` + `StatStrip`, `DrillCard`, `Quote` (the design's components) | `ScrollView` + `LazyVStack` |
+| `screens/practice.js` | `PracticeScreen` | **one** screen — the design's single scrolling configuration screen with a pinned setup bar (product-spec D-69). No `practiceFlow` switch |
+| `screens/practice-controls.js` | `PracticeControls` (the axis rows) + `ChipRow` | each row is a `ForEach` over `.allCases` binding into `PlanDraft`; **port this first** — the single screen is made of it (chart scope, verb-type and form chips) |
+| `screens/practice-classic.js` | — | **not ported** (D-69) |
+| `screens/practice-wizard.js` | — | **not ported** (D-69) |
+| `screens/practice-summary.js` | `SetupBar` (the pinned "This setup asks" panel) | reads the pool's `relevance()`; the wizard-only **sample-question card is not ported** (D-42, retired) |
 | `screens/question-card.js` | `QuestionCard` | one `View` per prompt kind, `switch` exhaustive over the tag — shared by the quiz and the summary preview |
 | `screens/tables.js` | `TablesScreen` → `TableDetailView` | `.searchable()` replaces the hand-built search box |
 | `screens/quiz.js` | `QuizScreen` + `QuestionCard`, `FeedbackView` | §2.4 — the real work |
@@ -434,9 +440,6 @@ mapping is direct, and the state each one reads is already isolated in
 @Observable @MainActor final class AppState {
     var tab: Tab = .home
     var draft: PlanDraft            // the Practice chips — struct, value semantics
-    var practiceStep: PracticeAxis? // where the wizard is standing; nil = not walked
-                                    // yet. An ID, never an index — the live step
-                                    // list changes with the draft.
     var tables: TablesSelection     // rootKey, formId, tense, voice, mood, highlight
     var search: String = ""
     var run: QuizRun?               // non-nil ⇒ a quiz is playing
@@ -521,7 +524,7 @@ TextField("", text: $run.typed)
 
 **The platform problem with no web equivalent:** iOS only offers keyboards the
 user has installed, and the Arabic keyboard is **not** installed by default. A
-user without it literally cannot answer a produce question. PRODUCT_SPEC §5.2
+user without it literally cannot answer a produce question. product-spec D-27
 already calls for detection; the mechanism is
 `UITextInputMode.activeInputModes` filtered on `primaryLanguage` prefixed `"ar"`,
 checked when a produce quiz starts, with a sheet routing to Settings → General →
@@ -635,8 +638,8 @@ measurements, all from the code as it stands:
    unknown?'`. None of that is a fact about Arabic.
 3. **The two halves have opposite stability.** SarfCore is heading for a
    **freeze** (B3: corpus committed, engine API frozen). The quiz layer is the
-   *least* frozen thing on the roadmap — A2 rebuilds Practice, A3 adds tips, A5
-   adds compare. Shipping them as one package means the frozen thing's version
+   *least* frozen thing in the app — Practice keeps being reshaped, tips keep
+   growing, and Compare adds a diff. Shipping them as one package means the frozen thing's version
    moves every time the unfrozen thing does.
 4. **The app already calls the engine directly.** `screens/tables.js` imports
    `conjugation-service`; `screens/practice.js` imports `meaning-service`. Quiz
@@ -825,7 +828,7 @@ ConjugationService
     derivedNoun(_:form:kind:) -> String?
     citation(_:form:) -> String
     waznOf(_:slot:bab:) -> String?          waznOfDerived · waznCitation
-    waznRoot(...)                            // ROADMAP A5 needs this public
+    waznRoot(...)                            // Compare and Tables' form chips need this public
     hasEngine(_:) · conjugates(_:) · hasPassive(_:)      // §3.3b
 
 LexiconService
@@ -930,7 +933,7 @@ local changes) · 🔁 rework (same behaviour, different construction) · 🆕 r
 | `conjugation/mithal-conjugator.js` | `Conjugation/MithalConjugator.swift` | ✅ | internal |
 | `conjugation/ajwaf-conjugator.js` | `Conjugation/AjwafConjugator.swift` | ✅ | internal |
 | `conjugation/naqis-conjugator.js` | `Conjugation/NaqisConjugator.swift` | ⚠️🔧 | **Trap 4.** Densest scalar-indexing in the codebase. Internal |
-| `conjugation/conjugation-service.js` | `Conjugation/ConjugationService.swift` | 🔧 | **the only `public` type here.** + `conjugates`/`hasPassive` (§3.3b), + `waznRoot` (ROADMAP A5) |
+| `conjugation/conjugation-service.js` | `Conjugation/ConjugationService.swift` | 🔧 | **the only `public` type here.** + `conjugates`/`hasPassive` (§3.3b), + `waznRoot` (Compare; Tables' form chips) |
 | `lexicon/root.js` | folded into `Models/Root.swift` | 🔧 | `babOf()` → `root.bab(for:)`; the cycle that split it out doesn't exist in Swift (§3.5) |
 | `lexicon/roots.js` | `Resources/roots.json` | 🔁 | **data, not code** — `Codable` with enum-keyed decode |
 | `lexicon/lexicon-service.js` | `Lexicon/LexiconService.swift` | ⚠️🔧 | top-level `throw` → `static func load() throws` (§1.10); **`settings` import must become `availableTypes(enabled:)`** (§3.3c) |
@@ -966,7 +969,7 @@ local changes) · 🔁 rework (same behaviour, different construction) · 🆕 r
 | `index.html`, `serve.mjs` | — | ⛔ | Xcode replaces both |
 | `data/quotes.json` | `Resources/quotes.json` | ✅ | bundle read, no `fetch` |
 | `test/smoke.mjs` | split: `SarfCoreTests` + `SarfQuizTests` | 🔧 | the 112 hand-typed parity strings → `SarfCoreTests`, **verbatim**, and they are the gate; plan/pool/relevance/grading assertions → `SarfQuizTests` |
-| `tools/export-content.mjs` | — | 🔧 | un-park it; emits `roots.json` + `golden-corpus.json` (ROADMAP B3) |
+| `tools/export-content.mjs` | — | 🔧 | un-park it; emits `roots.json` + `golden-corpus.json` (B3 — TECHNICAL_PLAN Part C) |
 
 ## What does *not* change — and it is most of the value
 
@@ -981,16 +984,18 @@ JS.
 
 # Part 5 — Consequences and open questions
 
-## 5.1 Port readiness — one conflict with your own roadmap ⚠️
+## 5.1 Port readiness — one conflict with the plan ⚠️
 
 You asked to start porting "portions that are more or less completed, such as
-the conjugation engines." ROADMAP Track C says Swift starts when **B3** lands
+the conjugation engines." TECHNICAL_PLAN Part C says Swift starts when **B3** lands
 (corpus freeze), and B3 is blocked on **Q1** (whether to freeze over five
 engines or seven). Today:
 
 - 5 of 7 engines ship; **mahmūz and lafīf do not exist** (flagged off)
-- **B1** — `NAQIS_STEMS.II`…`.X` are eight empty objects: nāqiṣ has no mazīd
-- **B2** — `DERIVED_NOUN_STEMS = {}` in mithāl, ajwaf **and** nāqiṣ
+- **B1 and B2 are done** — nāqiṣ mazīd II–X (`c11be1b`) and derived-noun stems
+  for mithāl, ajwaf and nāqiṣ (`27edeb5`). *(When this section was written,
+  `NAQIS_STEMS.II`…`.X` were eight empty objects and `DERIVED_NOUN_STEMS = {}` in
+  all three weak types.)*
 - `tools/export-content.mjs` is parked and produces nothing
 
 So there is **no golden corpus**, which is the acceptance gate the whole port
@@ -1003,8 +1008,8 @@ corpus catch up.** Concretely, split S1 in two:
   `LexiconService`, `ArabicText`, and the smoke test's 112 parity assertions.
   These are the most settled files in the codebase and Traps 1–3 get solved
   once, here, where a small corpus can prove it.
-- **S1b (needs B1/B2 and a Q1 answer)** — mithāl, ajwaf, nāqiṣ, and the
-  full-corpus zero-diff run.
+- **S1b (needs a Q1 answer)** — mithāl, ajwaf, nāqiṣ, and the full-corpus
+  zero-diff run. *(It also waited on B1/B2 when this was written; both landed.)*
 
 The cost of doing S1a early is that any later JS engine change must be applied
 twice. Given those files have been stable for the last several commits while
@@ -1038,9 +1043,9 @@ are cheap and can ride along.
 
 | | question | why it can't wait |
 |---|---|---|
-| 1 | **Deployment target** — iOS 17 (as planned) or 18/26? | `@Observable` needs 17; newer APIs (`TabView` value syntax, some `Layout` conveniences) need 18+. Affects every view file |
-| 2 | **Does an interrupted quiz resume?** | §2.9 — changes whether `QuizRun` is `Codable` |
-| 3 | **iPad?** | The prototype is a fixed-width phone column. iPad is a different navigation structure (`NavigationSplitView`), not a stretch |
+| 1 | **Deployment target** — ✅ **decided: iOS 18+** (21 Sep 2026, product-spec D-71) | `@Observable` needs 17; newer APIs (`TabView` value syntax, some `Layout` conveniences) need 18+. Affects every view file |
+| 2 | **Does an interrupted quiz resume?** | §2.9 — changes whether `QuizRun` is `Codable`. **Assumed no** (product-spec Q-03); answers persist as they are given either way |
+| 3 | **iPad?** | The prototype is a fixed-width phone column. iPad is a different navigation structure (`NavigationSplitView`), not a stretch. **Assumed iPhone-only, portrait** (product-spec Q-03) |
 | 4 | **Q1 (corpus scope)** | §4.1 — blocks the acceptance gate |
 
 ## 5.4 Effort, honestly

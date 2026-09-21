@@ -9,43 +9,99 @@ Every question is one morphological fact — a root poured into a chart at a pro
 
 | id | Name | You are given | You answer | Response |
 |---|---|---|---|---|
-| `identify` | **Name the grammar** | the conjugated word `تُنْصَرَانِ` | its tense, voice, doer, iʿrāb or bāb | multiple choice |
+| `identify` | **Parse the word** | the conjugated word `تُنْصَرَانِ` | its form, tense, iʿrāb, voice **and** doer — every axis, on one card | chips, one **Check** |
 | `produce` | **Write the word** | root + form + chart + pronoun | the word, fully vowelled | typed Arabic |
 | `derived` | **Derived nouns** | a verb + form + which derivative — *or* a derived noun | the derivative, or its kind and its form | multiple choice |
 | `fromMeaning` | **Match the meaning** | an English reading “they two (m) helped” | which of four Arabic words says it | multiple choice |
 
 **`fromMeaning` is `identify` run backwards** — it states what the word encodes and asks which word says it. 🔒 D-12
+🔒 **D-79** The name is *Parse the word* · تَحْلِيل صَرْفِي. **The id `identify` does not change** — it is written into every stored answer (D-12).
 
-## Every question kind
+## Parse the word — five axes on one card
 
-The **rule id is the `category`**: one vocabulary for the registry, the stored record, the Results breakdown and Home's weakest kind.
-`label` and `reason` are **printed verbatim** by Practice's setup bar and Results — the view never rewords them.
+🔒 **D-72** One word, one card, **every applicable axis answered at once**, then one **Check**. These were five separate
+questions until 2026-09-21; each drew its own word, and a session asked one of them at a time about a word you then never
+saw again. They are now **axes of one question**, which is what تَحْلِيل صَرْفِي actually is.
 
-| id (= category) | Label | Type | Prompt | Ask · hint | Options | `select` | **Retired when** (reason, verbatim) |
+The **axis id is the `category`** — unchanged, and that is the point: one vocabulary for the registry, the stored row, the
+Results breakdown and Home's weakest kind. `label` and `reason` are still **printed verbatim** by Practice's setup bar and
+Results; the view never rewords them.
+
+| id (= category) | Label | `select` | Options | **Retired when** (reason, verbatim) |
+|---|---|---|---|---|
+| `form` | Form | one | the forms in the pool, up to 4: numeral + wazn (`I مُجَرَّد`, `X اِسْتَفْعَلَ`) | *only one form selected* |
+| `tense` | Tense | one | 3: past مَاضٍ · present مُضَارِع · command أَمْر | *only one tense selected* |
+| `mood` | Iʿrāb | **many** | marfūʿ · manṣūb · majzūm · **mabnī — no iʿrāb** | *iʿrāb needs the muḍāriʿ in more than one state* |
+| `voice` | Voice | **many** | 2: maʿrūf · majhūl | *only one voice reachable* |
+| `doer` | Who the doer can be | **many** | 2–5 pronouns: **every slot that renders the same word**, plus ≥1 distractor | *only one pronoun reachable* — in practice never |
+
+🔒 **D-73** `form` is new. It is read off the wazn, which is visible on the word — no lexical knowledge is needed, unlike the bāb.
+🔒 **D-76** **`bab` is gone.** A bāb is read off the citation `نَصَرَ يَنْصُرُ` — *both* tenses — and one conjugated word does
+not carry it (three of the six abwāb share a fatḥa on the māḍī ʿayn). It stays in the **answer sheet's explanation**, which is
+where D-19 already put bāb meanings. D-18 is untouched: bāb was never a Practice control and still is not.
+
+**Order on the card:** Form · Tense · *Iʿrāb* · Voice · Doer — **the same order, and the same indent, as Practice's own axis
+list.** The iʿrāb group sits under Tense behind a rule, exactly as `ChartScope` draws it, because it is an attribute of the
+muḍāriʿ (D-32). A student configures a pool in that shape and is then asked in that shape.
+
+### The one rule that covers every row
+
+🔒 **D-74** **Every axis is answered for the *written form*, and every reading the written form admits is correct.**
+
+| Axis | The collapse it teaches | Example |
+|---|---|---|
+| `doer` | one form, several pronouns | `تَنْصُرُ` is **هِيَ** and **أَنْتَ** |
+| `voice` | the vowel that carried the voice is gone | `خِفْتَ` is **maʿrūf** and **majhūl** (~72 cells: ajwaf māḍī, muḍāʿaf III) |
+| `mood` | duals and plurals conflate naṣb and jazm; nūn al-niswa never changes | `تَنْصُرَانِ` is **manṣūb** and **majzūm** |
+
+This is D-20 (*"the best idea in the app"*) and D-70 promoted from two special cases to **the rule of the screen**.
+*Picking one of a set is not the same as picking the set* — a partial row is wrong.
+
+- **`select` is declared per axis, never derived from the draw.** An axis that can collapse is a checklist on **every** word,
+  including the ones with a single answer. The interaction must not tell you how many answers there are — that judgement is
+  the skill (D-60, D-70).
+- 🎨 Rows with `select: 'many'` **show a tick box from the first render** and say *select all that apply* on the label. That is a
+  property of the axis, so it leaks nothing.
+- **D-70's recorded cost is paid off.** *"A tap and Check on every voice question"* was the price of always-checklist voice.
+  There is now **one Check for the whole card**, so it costs nothing.
+
+### Every axis must be askable of every word drawn
+
+🔒 **D-74 · D-75** An axis that is live for the pool but **absent from some cards leaks the answer to another axis.** Two
+places this bites, and both are settled rather than left to the builder:
+
+1. **Iʿrāb.** If the row appeared only on a muḍāriʿ, its presence would answer the Tense row for free. So the row is **always
+   shown when live**, and a māḍī or amr is answered **`mabnī — no iʿrāb`** — a real judgement (the māḍī is mabnī ʿalā l-fatḥ,
+   the amr ʿalā s-sukūn), not a filler option. 🔒 D-75
+2. **Voice.** A word whose opposite voice does not exist (an intransitive verb) cannot be asked about voice without the choice
+   of chart giving it away. So **when the voice axis is live, the draw is constrained to words that have a voice pair** — the
+   job `drawVoicePair()` already does, moved from one builder to the draw. The row is then never missing.
+
+*Accepted, and it is a real constraint:* the draw must satisfy **every** live axis at once, so it retries more than a
+single-kind draw did. It must never respond by dropping a row.
+
+### The other three quiz types — unchanged
+
+| id (= category) | Label | Type | Prompt | Ask · hint | Options | `select` | **Retired when** |
 |---|---|---|---|---|---|---|---|
-| `tense` | Tense | identify | word | *What kind of verb is this?* | 3: past (māḍī) · present/future (muḍāriʿ) · command (amr), each with its Arabic | one | *only one tense selected* |
-| `voice` | Voice | identify | word | *Is the doer known or unknown?* | 2: active — doer is known · passive — doer is unknown | **many** (Q-02) | *only one voice reachable* |
-| `doer` | Who the doer is | identify | word | *Who can the doer be?* · **Select all that apply.** — majhūl: *Who/what can this verb be conjugated for (nāʾib al-fāʿil)?* | 2–5 pronouns: **every slot that renders the same word is correct** + ≥1 distractor | **many** (D-60) | *only one pronoun reachable* — in practice never |
-| `mood` | Iʿrāb | identify | word | *What is the iʿrāb state of this muḍāriʿ?* | one per iʿrāb state in the plan (2–3), with a note | one | *iʿrāb needs the muḍāriʿ in more than one state* |
-| `bab` | Bāb | identify | citation | *Which bāb of the thulāthī mujarrad is this verb from?* | 4 of the 6 abwāb, named by their citation pair + vowels | one | *needs both tenses in scope, and more than one bāb* |
 | `derivedPick` | Pick the derivative | derived | derivedRequest | *Which is the doer noun (ism fāʿil) of this verb?* | up to 4, **Arabic only** | one | *nothing to choose between* |
 | `derivedKind` | Which derivative it is | derived | derivedWord | *Which derivative is this?* | 3: ism fāʿil · ism mafʿūl · maṣdar | one | *only one kind of derivative in scope* |
 | `derivedForm` | Which form it is from | derived | derivedWord | *Which form is this derivative from?* | up to 4 forms, Arabic name + `Form N` | one | *only one form selected* |
 | `produce` | Write the word | produce | spec | *Write this verb* · *Fully vowelled — the final ḥaraka counts.* | typed | — | **never** |
 | `fromMeaning` | Pick the verb from its meaning | fromMeaning | meaning | *Which verb says this?* | up to 4, **Arabic only**, particles included | one | **never** |
 
-A `hint` is a **second line**, separate from the `ask` (design rule: *a question asks one thing in one sentence*). The prototype still embeds "Select all that apply." inside the ask string — split it.
+> **Not done, and deliberately so.** `derivedKind` + `derivedForm` are *"two questions on the same word"* (D-23) — the same
+> shape D-72 just collapsed for `identify`. Merging them into a parse card of their own is the obvious follow-on and it is
+> **out of scope for this change**; raise it as its own decision rather than doing it in passing.
 
-### Rules that define the kinds
+### Rules that define the other kinds
 
-- 🔒 **D-20 · Doer is multi-answer, and the ambiguity is the lesson.** One written form legitimately serves several pronouns — `تَكْتُبُ` is *she* **and** *you (m)*; `تُنْصَرَانِ` is هُمَا **and** أَنْتُمَا — so **every** matching option is correct and **all** must be selected. *"Picking one of a set is not the same as picking the set."*
-  Design: *the best idea in the app.* It is what makes the interaction a checklist (D-60).
 - 🔒 **D-21 · `fromMeaning` is the mirror image, and the constraint runs the other way.** There, collapse is the lesson; here it would be a **defect** — a prompt with two defensible answers marks the user wrong for being right.
   So **every option differs from every other in both its word and its English reading**. Distractors are other cells of the **same root** (different pronoun, voice, tense, iʿrāb, or form) so every wrong answer is a near-miss and only the grammar separates them.
 - 🔒 **D-22 · The particle goes on both sides.** A governed muḍāriʿ is read through the particle that governs it: `لَنْ يَنْصُرَ` = "he will not help" (manṣūb), `لَمْ يَنْصُرْ` = "he did not help" (majzūm — *jussive in form, past in meaning*, the trap worth drilling). The prompt says "she will not be broken" and the option is `لَنْ تُكْسَرَ`, **not** a bare `تُكْسَرَ` (which reads "she **will** be broken"). Each option is voiced by **its own** mood's particle. Launch ships **لَنْ** and **لَمْ**; the particle table is a registry, so أَنْ، كَيْ، حَتَّى، لَمَّا، لَا النَّاهِيَة، لَامُ الأَمْر are additions, not rewrites.
-- 🔒 **D-23 · Derived nouns.** 3a options are **Arabic-only** — an English label would name the answer, and *مُسْتَخْرِج vs مُسْتَخْرَج* differ by one ḥaraka, which is exactly the confusion worth drilling. Distractors are the verb's **other derivatives plus the same derivative from a neighbouring form**. 3b is **two questions on the same word** — which derivative, then which form — matching the tense → voice → doer rhythm and telling you **which half** you got wrong. A session interleaves 3a and 3b. Form I's maṣdar is *samāʿī* (stored per root; absent → not askable); ism mafʿūl needs a **transitive** verb.
-- 🔒 **D-15 · The user does not choose which kinds identify asks.** The pool does (below). D-18 bāb is not configurable.
-- 🔒 **D-19 · Not asked as questions:** wazn, root extraction, "meanings of the abwāb", and **typed English → Arabic** (given a meaning, *write* the word — two hard skills stacked; picking from four near-misses drills the same recognition at a workable difficulty). Wazn and bāb *meanings* still appear in **feedback**. Iʿrāb and bāb *are* in.
+- 🔒 **D-23 · Derived nouns.** 3a options are **Arabic-only** — an English label would name the answer, and *مُسْتَخْرِج vs مُسْتَخْرَج* differ by one ḥaraka, which is exactly the confusion worth drilling. Distractors are the verb's **other derivatives plus the same derivative from a neighbouring form**. 3b is **two questions on the same word** — which derivative, then which form. A session interleaves 3a and 3b. Form I's maṣdar is *samāʿī* (stored per root; absent → not askable); ism mafʿūl needs a **transitive** verb.
+- 🔒 **D-15 · The user does not choose what is asked.** The pool does (below). D-18 bāb is not configurable — and since D-76 it is not asked at all.
+- 🔒 **D-19 · Not asked as questions:** wazn, root extraction, "meanings of the abwāb", and **typed English → Arabic** (given a meaning, *write* the word — two hard skills stacked; picking from four near-misses drills the same recognition at a workable difficulty). Wazn and bāb *meanings* still appear in **feedback** — and since D-76 that is the only place the bāb appears.
 
 ## Relevance — questions that know their own configuration
 
@@ -53,10 +109,12 @@ A `hint` is a **second line**, separate from the `ask` (design rule: *a question
 
 - Each kind declares the answer space it discriminates; **fewer than two possible answers and it never enters the quiz.**
 - It takes a **pool, not a plan**: a question dies from what the pool *contains*, not from what was ticked. Voice is dead when **every root in scope is intransitive**, which no reading of the ticks would reveal.
-- **Order matters:** the per-word kinds (tense, voice, doer) sit ahead of the per-root one (bāb), because drill bundles take the first three live kinds.
-- **The count is `pool cells × live kinds`** — never all kinds regardless of configuration.
-- 🔒 **D-17 · Accepted deliberately:** narrowing the configuration makes the quiz **harder, not shorter.** A muḍāriʿ-only setup asks nothing but the doer question — the hardest of the three.
-- Adding a kind is **one registry row** (`id`, label, type, `select`, answer-space, reason, builder); nothing else changes. Only the registry reaches a builder.
+- **Order is the card's order**, not a draw order: Form · Tense · Iʿrāb · Voice · Doer. *(It used to matter for a different reason — bundles took the first three live kinds. D-80 dissolved the bundle.)*
+- **The count for `identify` is `pool cells`** — one parse card per cell. It is no longer `cells × live kinds`, because the kinds are no longer separate questions. The other three types still count `cells × live kinds`.
+  ⚠️ **This makes Practice's number drop by roughly 4–5×**, and it is not a regression: the same cell is still asked about five ways, just on one card. What the setup bar counts is **cards**, and the axes are listed beside the count.
+- 🔒 **D-17 · Accepted deliberately:** narrowing the configuration makes the quiz **harder, not shorter.** A muḍāriʿ-only setup drops the Tense row and leaves the parse card asking only the hard axes.
+- Adding an axis is **one registry row** (`id`, label, `select`, answer-space, reason, options, the draw precondition it imposes); nothing else changes.
+- **An axis that is live imposes its precondition on the draw** (D-74) — it never responds to an awkward word by vanishing from that card.
 
 ## Grading — one owner
 
@@ -66,6 +124,13 @@ A `hint` is a **second line**, separate from the `ask` (design rule: *a question
 |---|---|---|
 | **choice** | the picked value-keys equal the correct value-keys **as a set** — order-insensitive; a partial pick is wrong; a right pick plus a wrong pick is wrong | `null` |
 | **input** | typed text → **NFC** → trim → **strictly equal** to the engine's own string, **final ḥaraka included** | index of the first differing **grapheme cluster** |
+| **parse** | **every axis is correct**, each judged by the `choice` rule above | `null` |
+
+🔒 **D-77 · A word is right only if every axis is.** `parse` is not a third comparison — it is the `choice` rule **run per axis
+and then `every()`**, which is why it is one more mode rather than a new grader. The per-axis results are **kept, not
+collapsed**: `Answer.parts[]` carries one `{ axis, given, expected, correct }` per row, and `Answer.correct` is their
+conjunction. A 4-of-5 card scores nothing for the session and still records four correct axes — the strictness is in the
+score, never in the record.
 
 🔒 **D-26** Fully strict — *the ending is the lesson*; accepting a bare `يَنْصُر` would teach the opposite of the app's point. NFC first: typed and templated text order ḥaraka and shadda differently.
 The engine's spelling is the only accepted one, so it must match the madrasa convention your users learned (matters again for hamza seats when mahmūz lands).
@@ -73,8 +138,23 @@ Absence is a value: `divergeAt` is `null` — **never `-1` and never `0`** — w
 
 ## The Answer — and it is the history row
 
-`Answer { question (embedded whole) · given · expected · correct · divergeAt · answeredAt }`. Embedding, not copying, is load-bearing: the **options that were offered** were sampled and shuffled from a random draw and **no rebuild can recover them** — which is also what makes *Drill these again* (D-50) possible. `given`/`expected` are **value keys and typed strings, never button positions**, so "you picked 2ms when the answer was 3fs" is a fact the app can read.
+`Answer { question (embedded whole) · given · expected · parts[] · correct · divergeAt · answeredAt }`. Embedding, not copying, is load-bearing: the **options that were offered** were sampled and shuffled from a random draw and **no rebuild can recover them** — which is also what makes *Drill these again* (D-50) possible. `given`/`expected` are **value keys and typed strings, never button positions**, so "you picked 2ms when the answer was 3fs" is a fact the app can read.
 Everything the Question needs to be **stored** is flat and key-based (`rootKey`, `formId`, granular `verbType`, `bab`, `tense`, `voice`, `mood`, `slot`, `derivedKind` — each `null` when the axis does not apply).
+
+**`parts[]` is present only on a parse answer** — `null` on every other kind, because "this question had no axes" and "its axes
+were all wrong" must not read the same. Each part is `{ axis, given[], expected[], correct }`, and `axis` is the **same
+`category` vocabulary** the registry, the stats breakdown and the tip registry already use.
+
+🔒 **D-78 · One stored row per axis.** The flat query index fans out: a parse Answer writes **one row per part**, each carrying
+that part's `category` and `correct`, all pointing at the same embedded Answer. Nothing downstream changes —
+**Home's weakest kind (D-48), Results' *By question* (D-49) and tip targeting (D-28) keep working untouched**, because they
+group by `category` and a `category` still means one axis. The index was always declared *"a copy, in one function,
+rebuildable from the embedded answer at any time"* (D-54); this is that promise being spent, in the one function that owns it.
+
+⚠️ **What this changes in the numbers, said plainly:** an "answer" in history is now an **axis judgement**, so *this week*
+counts roughly 4–5× what it did, and Home's all-time accuracy is an accuracy **over axes**. The session score is the one
+number that counts **words** (D-77). Two denominators, each coherent in its own scope — **record it as a named comment** where
+the two meet.
 
 ## Feedback — three parts
 
@@ -92,21 +172,30 @@ Everything the Question needs to be **stored** is flat and key-based (`rootKey`,
 - **Wrong answers only.** A tip after a right answer reads as a lecture. Pure function of `(question, answer)`; **no network.**
 - **A declarative table**, same shape as the question rules and the particle registry: `Tip { id, category, when(question, answer), en, ar? }`. `category` is **declared**, not tested inside `when` — "which question is this about" and "which confusion is this about" are different facts. `en` is a **fixed sentence**; `ar` is the only place its example appears.
 - **Show the first two**, in registration order. The lightbulb sits on the first.
-- **Coverage (asserted in the suite, off a real answer stream):** ≥1 tip for every category · none on a correct answer · **100% of 3,101 distinct wrong answers** across all four types get ≥1. **29 tips** in the prototype.
+- **Coverage (asserted in the suite, off a real answer stream):** ≥1 tip for every category · none on a correct answer · **100% of distinct wrong answers** across all four types get ≥1. **29 tips** in the prototype.
+  ⚠️ **Re-measure after D-72.** The old figure (3,101 distinct wrong answers) was counted over five separate identify questions; a parse card produces a *set* of wrong axes. **A tip is matched per wrong axis, not per card** — `tipsFor(question, part)` — so the registry does not change, but the coverage assertion has to walk `parts[]`. The sheet still shows **the first two tips of the whole card**.
 - Seed rules: the dual ends in ا + ن · the تـ prefix serves هِيَ and أَنْتَ · a ḍamma prefix + fatḥa before the last letter = majhūl muḍāriʿ · nūn al-niswa makes the muḍāriʿ mabnī · every muḍāriʿ opens with أ ن ي ت · a māḍī carries its pronoun **behind** it · لَمْ is jussive in form, past in meaning.
 - ⚠️ **Filed bug:** `produce-final-haraka-is-the-irab` fires whenever the last cluster diverges — including on a māḍī, where the final fatḥa is *bināʾ*, not iʿrāb. Its `when` must require `identity.tense === 'mudari'`.
 - The registry is an afternoon; **the tips are content** — a thin one reads worse than nothing.
 
 ## Home drills
 
-A **bundle** is *the live kinds applied to one word*, not a fixed list of three (D-30). 5 words; per word the first three live per-word kinds; words never repeat. `Word i of N` reads in the QuizBar. See `screens/01-home.md`.
+🔒 **D-80** **Five words, five parse cards.** One word is now one question, so the *bundle* — "the live kinds applied to one
+word", `forWord()`, `QUESTIONS_PER_WORD`, the `Word i of N` tag — **dissolves**, and the QuizBar's ticks are simply one per
+word. Words never repeat within a drill. The workload is about what it was: five words × ~4 axes ≈ the old five words × three
+questions. See `screens/01-home.md`.
+
+The one piece of bundle logic that **survives**, because it was never about bundling: drills flip about half the drawn words
+to the majhūl, *and only when both voices exist*, so the choice of chart never gives the Voice row away. That is now the
+general draw constraint of D-74.
 
 ## Endless
 
-A **stream**, not a list: it serves one question at a time and records only what it served. It avoids repeating any of the **last 30** (keyed on category + prompt + slot) so a small pool never starves, and stops only if repeated attempts find nothing new (the pool is genuinely dry).
+A **stream**, not a list: it serves one question at a time and records only what it served. It avoids repeating any of the **last 30** (for a parse card, keyed on the word and its slot — there is no longer a category to key on) so a small pool never starves, and stops only if repeated attempts find nothing new (the pool is genuinely dry).
 
 ## Known deferred fixes — accepted, do not "fix" without re-opening
 
 1. **A governed option can be identified by its particle alone.** Now that options show لَنْ / لَمْ, a question whose answer is governed while all three distractors are not can be solved without reading the verb. Measured over 431 governed-answer questions: 2+ options carry a particle in 84% (so it decides nothing); in the remaining **16%** it does. The fix — bias distractors toward the other governed states — is deferred because the alternative it replaced left **65%** of questions unanswerable as written.
-2. **The reading on a multi-answer question picks one slot.** When تُفْتَحَانِ serves both هُمَا and أَنْتُمَا, the post-answer reading still renders one ("you two (m) are being opened"), silently privileging it. Should list the valid readings or use a neutral phrasing.
+2. **The reading of an ambiguous word picks one slot.** When تُفْتَحَانِ serves both هُمَا and أَنْتُمَا, the post-answer reading renders one ("you two (m) are being opened"), silently privileging it.
+   ⚠️ **D-72 promotes this from deferred to required.** The parse card has *one* sheet for the whole word, so its reading cannot be scoped to whichever axis was asked — a card that marks you right for both هُمَا and أَنْتُمَا and then reads the word as one of them is contradicting its own grading. **List the valid readings**, as the mock-up does: *“she helps / will help” · “you (m) help / will help”*.
 3. **Weak-spot drills are diluted** (D-36) — a plan narrows which words, not which questions.

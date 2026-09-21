@@ -285,7 +285,7 @@ export const NAQIS_ROOTS = [
         reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%B1%D9%8E%D9%85%D9%8E%D9%89.html',
       },
       // Form I is fixture-checked; VI and VIII are the naqis mazīd tables
-      // (ROADMAP B1) doing the work, same as قضي and رضي.
+      // (commit c11be1b) doing the work, same as قضي and رضي.
       VI: { gloss: 'to shoot at one another', trans: false,
             en: { past: 'shot at one another', pres3: 'shoot at one another', ing: 'shooting at one another' } },
       VIII: { gloss: 'to fling oneself', trans: false,

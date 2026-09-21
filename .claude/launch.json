@@ -6,6 +6,12 @@
       "runtimeExecutable": "node",
       "runtimeArgs": ["web-prototype/serve.mjs", "4173"],
       "port": 4173
+    },
+    {
+      "name": "sarf-design",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["web-prototype/serve.mjs", "4174", "../design"],
+      "port": 4174
     }
   ]
 }

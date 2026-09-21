@@ -34,7 +34,7 @@ title on the left, current value or a one-line description beneath, chevron or c
 
 - **Detailed stats** — the prototype shows a *"SOON"* row here. With `detailedStats` off the row **does not exist**. When the flag turns on it returns under a **Progress** section.
 - **Subscription, Restore purchases, Manage subscription, Terms of Use** — arrive with monetization (`later-versions.md`).
-- **Practice layout** — the prototype's `practiceFlow` toggle. Gone unless Q-01 resolves the other way.
+- **Practice layout** — the prototype's `practiceFlow` toggle. Gone (D-69): there is one Practice screen.
 - **The developer levers** — `audience: 'dev'` rows are **not rendered in Settings** (D-03). A debug-only screen lists them, so a feature can be turned on for a look without an edit-and-reload.
 
 ## Delete my history

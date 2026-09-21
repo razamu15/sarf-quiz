@@ -66,7 +66,7 @@ It **fills the slot the tips occupy**, so it is a source swap, not a new surface
 
 Both need **content authoring, which is yours** — it was the real schedule, and taking them out of v1 is what made v1 close. Roots are now authored (15 + 15); the **engines** are not.
 Mahmūz is a **hamza-seat** problem (أخذ، سأل، قرأ، أمر). Lafīf **composes the mithāl and nāqiṣ rule sets** (وقي، طوي) and lands last by design, because it validates that those rules compose rather than special-case.
-Freezing the golden corpus over five engines and regenerating it when these land is a **reviewed diff** — the mechanism exists (ROADMAP Q1, still open).
+Freezing the golden corpus over five engines and regenerating it when these land is a **reviewed diff** — the mechanism exists (Q1, still open — `docs/TECHNICAL_PLAN.md`, *Open decisions*).
 
 ## Smaller deferrals
 

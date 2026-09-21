@@ -6,7 +6,7 @@
 
 | | |
 |---|---|
-| **OS / device** | **iOS 17+, iPhone.** iPad later. *Planned in `PRODUCT_SPEC` and `TECHNICAL_PLAN`, never confirmed — ❓ **Q-03**.* |
+| **OS / device** | **iOS 18+** (🔒 D-71), **iPhone.** iPad later — *assumed, Q-03.* |
 | **Orientation** | Portrait. The design draws portrait only; landscape is not designed (assumed). |
 | **Stack** | SwiftUI + Observation (`@Observable`); **no third-party dependencies** in the app target. |
 | **Network** | **None in v1.** Everything works offline. Nothing in the app calls out. |
@@ -51,9 +51,9 @@ The app is an **English UI displaying Arabic content** — that decides everythi
 The prototype has none — a refresh is a clean boot. iOS suspends, kills and restores.
 
 - **Answers persist as they are given** (D-51). A killed app loses nothing already answered.
-- **The in-flight run is not resumed** (recommended; Q-03). The alternative makes `QuizRun` and its question source `Codable` — do that only if you want it.
+- **The in-flight run is not resumed** (assumed — Q-03). The alternative makes `QuizRun` and its question source `Codable` — do that only if you want it.
 - **Quiz cover** suppresses the tab bar (`fullScreenCover`); Results lives **inside** it, so *Done* is one dismissal and *Same setup again* swaps the run with no navigation.
-- **State lives at the lowest level that outlives the view that reads it**: preferences and history persist; the selected tab, the Practice draft, the Tables selection and the live run live for the app session; Practice, as specified here, has no step state at all (Q-01).
+- **State lives at the lowest level that outlives the view that reads it**: preferences and history persist; the selected tab, the Practice draft, the Tables selection and the live run live for the app session; Practice, as specified here, has no step state at all (D-69).
   SwiftUI keeps a tab's view tree alive across tab switches — anything meant to reset on entry needs an explicit reset.
 - **Alerts are state**, not blocking calls: quit-quiz, delete-history.
 - **Settings write-through** on change; appearance takes effect immediately.

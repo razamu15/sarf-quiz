@@ -7,13 +7,13 @@
 //
 // The Swift package (SarfCore v1) still consumes its previously committed
 // patterns.json/roots.json in the OLD format — those bundled resources stay
-// untouched and its build stays green. When SarfCore v2 lands (phase R3 in
-// docs/TECHNICAL_PLAN.md), this script shrinks to a roots-only export in the
+// untouched and its build stays green. When SarfCore v2 lands (milestone B3 in
+// docs/TECHNICAL_PLAN.md Part C), this script shrinks to a roots-only export in the
 // new format and patterns.json disappears entirely.
 
 console.error(
   'export-content is parked during the v2 restructure (R2).\n'
   + 'SarfCore still uses its committed v1 JSON resources; the roots-only v2\n'
-  + 'export lands with SarfCore v2 (R3). See docs/TECHNICAL_PLAN.md §A.9.',
+  + 'export lands at the corpus freeze (B3). See docs/TECHNICAL_PLAN.md Part C.',
 );
 process.exit(1);

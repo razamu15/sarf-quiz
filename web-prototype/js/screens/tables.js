@@ -2,7 +2,7 @@
 //
 // Search matches root letters and English gloss only, not conjugated forms: a
 // reverse index over every generated word was considered and deferred
-// (PRODUCT_SPEC §5.6).
+// (product-spec D-43).
 
 import { el, chipRow, sectionLabel } from '../ui/dom.js';
 import { state } from '../ui/state.js';

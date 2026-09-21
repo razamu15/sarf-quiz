@@ -1,91 +1,88 @@
 # Open questions — gaps and contradictions, each with the default this spec assumes
 
-> Nothing here blocks anyone: **every question carries "Spec assumes"**, and an agent should build that unless you overrule it.
-> **🔴 = change what gets built** — worth answering before the implementation plan. **🟡 = small**, with a default that is probably right.
-> Answer by ID — *"Q-01: A"*, *"Q-02: B, and …"* — and I will fold it into the spec and move it to [`DECISIONS.md`](DECISIONS.md).
+> Nothing here blocks anyone: **every open question carries "Spec assumes"**, and an agent should build that unless you overrule it.
+> **Nothing blocks the implementation plan.** The four that did were answered or deferred on **2026-09-21** (below); what remains is small, with a default that is probably right.
+> Answer by ID — *"Q-05: yes"*, *"Q-12: B"* — and I will fold it into the spec and move it to [`DECISIONS.md`](DECISIONS.md).
 
-| | Question | Bites | Tier |
-|---|---|---|:-:|
-| **Q-01** | Which Practice does iOS build? | Practice, Settings, plan | 🔴 |
-| **Q-02** | The voice question is also multi-answer | Quiz, question rules | 🔴 |
-| **Q-03** | Platform: iOS version, iPad, resume | every view file | 🔴 |
-| **Q-04** | What plan does *Drill it* build? | Home, drills | 🔴 |
-| Q-05 | Home hero when the last session wasn't a preset | Home | 🟡 |
-| Q-06 | Iʿrāb group: disable in place, or vanish? | Practice | 🟡 |
-| Q-07 | Results: five small gaps | Results | 🟡 |
-| Q-08 | Home accuracy mixes recognition with production | Home | 🟡 |
-| Q-09 | More has no design | More | 🟡 |
-| Q-10 | States the design does not draw | several | 🟡 |
-| Q-11 | The typed-miss diff note | Quiz, Results | 🟡 |
-| Q-12 | Tables search: scope and order | Tables | 🟡 |
-| Q-13 | Practice: empty axes, forms offered, Derived nouns | Practice | 🟡 |
-| Q-14 | One term for voice: `maʿrūf` or `maʿlūm` | everywhere | 🟡 |
-| Q-15 | Arabic text size vs Dynamic Type; Newsreader | type | 🟡 |
-| Q-16 | Streak day boundary | Home | 🟡 |
-| Q-17 | Carried over — not product | plan | 🟡 |
+## Resolved — 2026-09-21
+
+| Was | Your answer | Now |
+|---|---|---|
+| **Q-01** · Which Practice does iOS build? | the design's single screen | **D-69** — no `practiceFlow`; classic and wizard not built; D-42 retired |
+| **Q-02** · The voice question is also multi-answer | voice is select-many too | **D-70** — voice is always a checklist, like doer |
+| **Q-03** · iOS version | iOS 18+ | **D-71** — *iPad and resume were not answered; see Q-03 below* |
+
+## Deferred by you
+
+| | Question | What is built meanwhile |
+|---|---|---|
+| **Q-04** | What plan does Home's *Drill it* build? | The weakest-question row is **display-only** — no *Drill it* button, no chevron. |
+
+## Still open
+
+| | Question | Bites |
+|---|---|---|
+| Q-03 | iPad and resume — *assumed* | platform |
+| Q-05 | Home hero when the last session wasn't a preset | Home |
+| Q-06 | Iʿrāb group: disable in place, or vanish? | Practice |
+| Q-07 | Results: five small gaps | Results |
+| Q-08 | Home accuracy mixes recognition with production | Home |
+| Q-09 | More has no design | More |
+| Q-10 | States the design does not draw | several |
+| Q-11 | The typed-miss diff note | Quiz, Results |
+| Q-12 | Tables search: scope and order | Tables |
+| Q-13 | Practice: empty axes, forms offered, Derived nouns | Practice |
+| Q-14 | One term for voice: `maʿrūf` or `maʿlūm` | everywhere |
+| Q-15 | Arabic text size vs Dynamic Type; Newsreader | type |
+| Q-16 | Streak day boundary | Home |
+| Q-17 | Carried over — not product | plan |
+| Q-18 | Success metrics vs "no analytics" | privacy label |
 
 ---
 
-## 🔴 Q-01 · Which Practice does iOS build?
+## Q-03 · iPad and resume — assumed
 
-**Found.** The design's Practice (screenshots 09, 10, 18) is **one scrolling screen** with a pinned setup bar. The prototype has **two other** layouts behind `settings.practiceFlow`: the frozen one-screen *classic*, and a five-page *wizard* (type → verbs → charts → length → **Ready**, which shows a **sample question**).
-The design guide says the refresh "applies to the wizard" and "no redesign of the wizard's steps" — yet draws neither. Decision 7 (2026-09-20) and the screenshots cannot both describe the same screen.
+**Answered:** iOS 18+ (D-71). **Not answered, so still assumed:**
 
-| | Option | Pros | Cons |
-|---|---|---|---|
-| **A** ✅ | **The design's single screen only.** No `practiceFlow` setting. | The design is your stated source; one screen to build and test; the A/B was a *prototype* instrument for choosing, and the design came after it; the setup bar already delivers the wizard's best idea (live count + what it asks). | Drops the wizard's **sample question** (A2·Q2 — *"the feature"*), its Edit button and *always step 1*; long scroll on a small phone; the experiment is never resolved by use. |
-| **B** | Design's screen **and** the wizard behind `practiceFlow`. | Keeps every A2 decision and the comparison alive. | Two Practice UIs to build, test and keep in sync; **the wizard has no design** in the system (its steps were never redrawn); triples the settings surface. |
-| **C** | The wizard only, with the setup bar pinned on each page. | Honours decision 7's wording; short pages. | Contradicts the visible screenshots; needs a new design; walking five pages to change one chip on session five (the cost D-42 ⚡ accepted). |
-
-**Spec assumes A** — and keeps **D-34** (the Practice UI never constructs a plan) whichever you pick, so a wizard remains possible later at no migration cost. *A sample-question preview could be added to the single screen later as an addition, not a layout.*
-**Also decide:** whether the ♻️ D-42 items (all ⚡ or superseded) are formally retired.
-
-## 🔴 Q-02 · The voice question is also multi-answer
-
-**Found.** D-60 fixes the doer question as always a checklist because the ask says "Select all that apply" while the interaction sometimes submits on the first tap. **The voice question has the same defect and the design never mentions it.** In **~72 lexicon cells both voices spell the same word** — the ajwaf māḍī (`خِفْتَ`, `بِعْتَ`: the compensating kasra is identical either way) and muḍāʿaf Form III (`يُمَاسُّ`) — so *both* answers are correct. Today the ask changes (*"Select all that apply."* appears only then), which **tells the user there are two answers**.
-
-| | Option | Pros | Cons |
-|---|---|---|---|
-| **A** ✅ | **Voice is `select: 'many'` — always a checklist.** | Same reasoning as doer: *deciding whether a form is ambiguous is the skill*; the interaction never varies with the draw (D-60's whole point); one rule. | An extra tap and **Check** on **every** voice question — a two-option checklist feels heavy, and most voice questions have one answer. |
-| **B** | Voice is `one`; **exclude the ~72 homograph cells** from the voice question. | Fast single-tap voice questions everywhere. | Never teaches the collapse — which is itself a lesson; shrinks the pool; the registry then hides a real ambiguity instead of teaching it. |
-| **C** | **Keep the prototype's behaviour** — single-select unless the draw is ambiguous. | No extra tap on most questions. | **Leaks the answer count** — the exact defect D-60 removes; contradicts "the kind decides, not the draw". |
-
-**Spec assumes A.**
-
-## 🔴 Q-03 · Platform: iOS version, iPad, resume
-
-Queued in `ios-structure.html` §10 and listed as open in `PORT_INVENTORY` §5.3 ("decide before writing view code"); **no answer is recorded anywhere.** `PRODUCT_SPEC` and `TECHNICAL_PLAN` say *iOS 17+, iPhone-first* — a plan, not a confirmed decision.
-
-| Decision | Options | **Spec assumes** | Why it can't wait |
-|---|---|---|---|
-| **Deployment target** | **iOS 17** (`@Observable` needs it; widest reach) · iOS 18+ (newer navigation/`Layout` conveniences) · iOS 26 (smallest base) | **iOS 17** | Affects every view file; expensive to retrofit. |
-| **iPad** | **iPhone only** · iPad from the start (`NavigationSplitView` — a different navigation structure, not a stretch) | **iPhone only**, portrait | Decided before views are written or retrofitted after. |
-| **Interrupted quiz resumes?** | **No** — a killed app ends the run; answers already given are kept · Yes — `QuizRun` and its source become `Codable` | **No** | Decides whether the run is `Codable`. History is safe either way. |
-
-## 🔴 Q-04 · What plan does *Drill it* build?
-
-**Found.** Home's *Weakest question · Iʿrāb · 58% of 40 · **Drill it*** "starts the drill" — the design says no more. But a plan narrows **which words**, never **which questions** (D-36), so a drill can only make a kind *live*; and the prototype's drill **bundle** only knows the three per-word kinds (tense, voice, doer). For iʿrāb, bāb, derived, write-the-word and match-the-meaning there is no bundle.
-
-**Spec assumes:** *Drill it* is a **plain run of the user's default length** through the same stream Practice uses (not a 5-word bundle), built from **one declarative table** — rule id → plan overrides on Home's drill base (`māḍī + muḍāriʿ · maʿrūf · marfūʿ · Form I · every playable type`) — **diluted** by other live kinds (D-36), session mode `weakest`:
-
-| Weakest kind | Type | Plan overrides — what makes it live |
+| Decision | **Spec assumes** | If you say otherwise |
 |---|---|---|
+| **iPad** | **iPhone only, portrait.** | iPad is a different navigation structure (`NavigationSplitView`), not a stretched phone column — decide before views are written, or retrofit. |
+| **Interrupted quiz resumes?** | **No** — a killed app ends the run; answers already given are kept. | `QuizRun` and its question source become `Codable`. History is safe either way. |
+
+## Q-04 · What plan does *Drill it* build? — deferred
+
+**Found.** The design's *Weakest question · Iʿrāb · 58% of 40 · **Drill it*** "starts the drill" and says no more. A plan narrows **which words**, never **which questions** (D-36), so a drill can only make an axis *live*.
+
+**Your answer: later.** So Home ships the row **display-only** (axis · accuracy · sample size · meter). Turning it on later is one button and one table — nothing else in Home changes.
+
+> ⚠️ **D-72 changed this question's shape, and mostly in your favour.** The old blocker was that the drill **bundle** only knew
+> three per-word kinds, so there was no bundle for iʿrāb, bāb or the other types. **There is no bundle any more** (D-80): a drill
+> is a plain run, and a plan that makes an axis live is all one needs. **`Bāb` is also gone from the table** (D-76) — it can no
+> longer be a weakest kind, because it is no longer asked.
+> What has *not* changed is **D-36's dilution**: a parse card asks every live axis, so a drill on Iʿrāb still asks the other four
+> rows too. Under D-72 that is arguably no longer a compromise — the card was always going to ask them.
+
+**The proposal, kept for when you decide** — a plain run of the user's default length through the same stream Practice uses, built from **one declarative table**, axis id → plan overrides on Home's drill base (`māḍī + muḍāriʿ · maʿrūf · marfūʿ · Form I · every playable type`), session mode `weakest`:
+
+| Weakest axis / kind | Type | Plan overrides — what makes it live |
+|---|---|---|
+| Form | identify | `forms: [I, II, X]` — the base is Form I only, which retires it |
 | Tense | identify | *(base)* — both tenses |
 | Voice | identify | `voices: [maʿrūf, majhūl]` |
-| Who the doer is | identify | *(base)* |
-| Iʿrāb | identify | `tenses: [muḍāriʿ]`, `moods: [marfūʿ, manṣūb, majzūm]` — dropping māḍī retires Tense and Bāb, so the drill is *less* diluted |
-| Bāb | identify | `types: [sālim]`, forms `[I]` — the bāb question draws only sound Form I citations |
+| Who the doer can be | identify | *(base)* |
+| Iʿrāb | identify | `tenses: [muḍāriʿ]`, `moods: [marfūʿ, manṣūb, majzūm]` — dropping māḍī retires Tense, so the card is shorter and the drill is *less* diluted |
+| ~~Bāb~~ | — | **removed — D-76** |
 | Pick the derivative · Which derivative it is · Which form it is from | derived | forms `I–X` (the form question needs >1 form), every playable type |
 | Write the word | produce | *(base)* — triggers the Arabic keyboard check |
 | Pick the verb from its meaning | fromMeaning | *(base)* |
 
-Alternative: **prefill Practice** with that plan and switch tab — more transparent, but two taps and it is no longer "starts the drill". **Please confirm the table.**
+*Alternative:* **prefill Practice** with that plan and switch tab — more transparent, but two taps, and no longer "starts the drill".
 
 ---
 
-## 🟡 The small ones
+## The small ones
 
-**Q-05 · Home hero.** *Found:* the hero is "the setup you ran last" (design), but sessions can be a preset, custom, endless, Drill it, or a replay — and the card is built for presets (title, Arabic, description, two pills); the "Pick up where you left off" kicker is wrong on a first run; a list row has a chevron but no detail screen.
+**Q-05 · Home hero.** *Found:* the hero is "the setup you ran last" (design), but sessions can be a preset, custom, endless, or a replay — and the card is built for presets (title, Arabic, description, two pills); the "Pick up where you left off" kicker is wrong on a first run; a list row has a chevron but no detail screen.
 **Assumes:** hero = the last **preset** drill; custom setups return via Results → *Same setup again*; first-run kicker **"Start here"**; tapping a list row **starts that drill**.
 
 **Q-06 · Iʿrāb group in Practice.** *Found:* `guide/04` §2 says it **vanishes** without the muḍāriʿ; the *ChartScope* README, preview and `bundle.css` say it **disables in place** (label becomes *needs the muḍāriʿ*) — regenerated in the same run.
@@ -128,10 +125,13 @@ Alternative: **prefill Practice** with that plan and switch tab — more transpa
 **Q-16 · Streak day boundary.** The prototype keys days by UTC date. **Assumes:** the user's **local calendar day.** (A correction, not a preference — listed so you can see it.)
 
 **Q-17 · Carried over — not product, but the plan needs them.**
-- **ROADMAP Q1 — what gates the corpus freeze?** Freeze over five engines and regenerate later (recommended there) · hold the port for all seven · treat mahmūz/lafīf as a separate effort. Blocks the **engine port**, not the UI.
+- **Q1 — what gates the corpus freeze?** Freeze over five engines and regenerate later (recommended) · hold the port for all seven · treat mahmūz/lafīf as a separate effort. Blocks the **engine port** (B3), not the UI. Full statement: `docs/TECHNICAL_PLAN.md`, *Open decisions* #1.
 - **Ship gate for known-wrong cells** (`reference/content.md`): decline them or fix them before release.
 - **`trans` audit** across the lexicon (`ظَهَرَ` is wrong today) and the `produce-final-haraka-is-the-irab` tip bug.
 - **Verify the 14 quotes** against primary sources before release.
 - **App name** ("Sarf Quiz" is a working title) and **app icon** — none yet.
 - **Commit the design toolchain** as `design/tools/` — an open offer you have not answered; without it `design/midad/` cannot be regenerated and hand-edits are lost.
-- **Archive the old docs** — rename `docs/PRODUCT_SPEC.md` → `_v1` and point `CLAUDE.md` at `product-spec/` (your planning-docs rule), once you accept this.
+- **`design/midad/` cites documents that no longer exist** (`PRODUCT_SPEC §5.6`, `ROADMAP B3`, `ROADMAP A2 · Q5`, …). It is generated, so I left it alone; regenerate it, or say and I will patch the references by hand.
+
+**Q-18 · Success metrics vs "no analytics".** *Found:* the old spec measured success by **activation** (% of installs completing a quiz on day 1), **retention** (D7 return; quizzes per user per week) and **quality** (average score trend per cohort); later, free→trial and trial→paid. v1 has **no analytics SDK, no accounts, and an App Privacy label of "Data not collected"** — so none of the in-app ones can be measured.
+**Assumes:** nothing is collected in-app in v1; the only numbers you see are **App Store Connect's own** (installs, retention, sessions). *Alternative:* an opt-in, aggregate, first-party counter — which changes the privacy label, so decide before it is filed.

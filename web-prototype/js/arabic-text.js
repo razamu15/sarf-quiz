@@ -3,7 +3,7 @@
 //
 // It lives at the top of js/ rather than inside the engine or the quiz because
 // two unrelated features need the same rule: typed-answer grading, which must
-// report WHERE an answer diverged, and the chart diff (PRODUCT_SPEC §5.7), which
+// report WHERE an answer diverged, and the chart diff (Compare — product-spec/reference/later-versions.md), which
 // must highlight the letters that differ between two words. Letting either own
 // it would make the other import from a sibling that happens to have it.
 

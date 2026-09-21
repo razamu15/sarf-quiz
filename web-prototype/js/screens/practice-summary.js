@@ -178,7 +178,7 @@ function setupCard(plan, pool, onEdit) {
 /**
  * The whole summary, appended to `app` in order.
  *
- * `onEdit` sends the user back to the wizard's first step (ROADMAP A2 · Q5 —
+ * `onEdit` sends the user back to the wizard's first step (product-spec D-42 —
  * there is no per-axis jump; Edit means "walk it again"). `onReroll` just
  * redraws the screen after the memo is cleared.
  */

@@ -91,14 +91,17 @@ A root's bāb is a **lexical fact** — you cannot derive it — which is why it
 | **The sign** | The letters that carry the grammar, marked in the accent colour **after** the answer — the diverging cluster; the governing particle; later, the affixes. |
 | **Particle** | A word that governs the verb's mood. v1 knows **لَنْ** (→ manṣūb, "will not") and **لَمْ** (→ majzūm, "did not" — *jussive in form, past in meaning*). |
 | **Recognition vs production** | Reading a word and saying what it is (types 1, 3, 4) vs *writing* it (type 2). Production is strictly harder; stats keep them apart. |
-| **Live / retired kind** | A question kind the current pool can / cannot usefully ask. |
-| **Bundle** | One Home-drill word with its 2–3 questions. |
+| **Mabnī** | Built — fixed on one ending, with no iʿrāb: the māḍī on the fatḥa, the amr on the sukūn, the muḍāriʿ with nūn al-niswa. It is a **chip on the parse card's iʿrāb row** (D-75), not a filler option. |
+| **Parse card** | The `identify` question: one word, and **every applicable axis answered at once** (D-72). Its Arabic name is تَحْلِيل صَرْفِي. |
+| **Axis** | One row of a parse card — form, tense, iʿrāb, voice, doer. An axis id **is** a `category`, so it is the same word the registry, the stats breakdown and the tip registry use. |
+| **Live / retired** | An axis (or, for the other three types, a question kind) the current pool can / cannot usefully ask. |
+| ♻️ **Bundle** | *Was:* one Home-drill word with its 2–3 questions. **Gone with D-80** — one word is one question. |
 
 ## Writing rules for on-screen terms 🎨
 
 - **Sentence case.** No tracked capitals, no exclamation marks, no emoji.
 - **Transliterate consistently:** māḍī, muḍāriʿ, amr, maʿlūm/maʿrūf, majhūl, marfūʿ, manṣūb, majzūm, ism fāʿil, maṣdar. Use **ʿ (U+02BF)** and **ʾ (U+02BE)**, never an apostrophe.
 - **One term per concept.** ❓ **Q-14 —** the prototype prints `maʿrūf` beside `مَعْلُوم` (screenshot 08), which transliterates a *different word* than it prints. Pick one. **Spec assumes:** `maʿrūf` (what every chip and control already says) and print `مَعْرُوف` where an Arabic half is shown.
-- **Name the grammatical fact, never the internal id.** *Who the doer is*, not `doer`.
+- **Name the grammatical fact, never the internal id.** *Who the doer can be*, not `doer`.
 - **A question asks one thing in one sentence**; how to answer goes on a second line.
 - An English gloss is **a quotation** — “to help” — in the serif italic.

@@ -7,7 +7,8 @@
 > all 10 forms. Last run: **Aug 2026**, 70 roots, 215 root-form pairs.
 >
 > This file owns one thing: **what is broken now**. It is not a roadmap —
-> nothing here is scheduled. [ROADMAP.md](ROADMAP.md) owns what gets built next.
+> nothing here is scheduled. [TECHNICAL_PLAN.md](TECHNICAL_PLAN.md) Part C owns what
+> gets built next on the engine side.
 
 ## How to read this
 
@@ -147,7 +148,8 @@ should be `أَيْئِسْ`, which is §1.1 *and* this.
 root entry.
 The engine has no seat logic anywhere, so this cannot be fixed by spelling the
 root differently in one place: hamza seating is the mahmūz work
-(ROADMAP § B4), and يءس is the one root that needs it before then.
+(B4 — [TECHNICAL_PLAN.md](TECHNICAL_PLAN.md) Part C), and يءس is the one root that
+needs it before then.
 
 ---
 
@@ -186,8 +188,8 @@ states the rule and the plan; the two guards that read it are
 ### 2.2 · Form IX is recognition-only
 
 حمر and صفر declare Form IX and it produces no charts. Deliberate, and older
-than this file: PRODUCT_SPEC § 6 ships Form IX for the wazn, meaning and maṣdar
-questions only. Until 2026-09-20 Form IX was the ONLY form either root carried,
+than this file: Form IX is recognition-only, with no charts in v1
+([product-spec D-24](../product-spec/DECISIONS.md)). Until 2026-09-20 Form IX was the ONLY form either root carried,
 so both sat in the lexicon contributing nothing drillable at all; they now also
 carry conjugable mazīd (حمر II; صفر I, II), and it is only their Form IX that
 stays chartless. The stems exist for the citation

@@ -780,7 +780,7 @@ for (const [root, formId, kind, want] of derivedCases) {
     `${root.root.join('')} ${formId} ${kind}: got ${got} want ${want}`);
 }
 
-// Derived nouns for the four weak types (ROADMAP B2). Hand-typed, and picked so
+// Derived nouns for the four weak types (commit 27edeb5). Hand-typed, and picked so
 // that every rule in the three new tables is pinned by at least one word:
 // mithāl's three ḥaraka rules, ajwaf's hamza and its dropped ayn, nāqiṣ's three
 // endings, and the two Form I ism mafʿūls that differ by lexicon type.
@@ -869,7 +869,7 @@ check(derivedNoun(byRoot('قضي'), 'VIII', 'ismFail') !== null,
 }
 
 // ---------------------------------------------------------------------------
-// Nāqiṣ mazīd, forms II–X (ROADMAP B1). Hand-typed against قضي (a yaa lām) and
+// Nāqiṣ mazīd, forms II–X (commit c11be1b). Hand-typed against قضي (a yaa lām) and
 // دعو (a waw lām), which is the pairing that matters: in the mazīd forms they
 // must conjugate ALIKE, and before these tables landed دعو had no mazīd at all.
 // ---------------------------------------------------------------------------
@@ -1496,7 +1496,7 @@ check(chartKeysFor({ tenses: ['madi'], voices: ['majhul'], moods: [] }) === 'mad
   check(visible(draft({ quizType: 'derived' })).length === 4,
     'A2: and the wizard is four pages long for them');
   // The amr loses ROWS, not the page — the accepted cost of five multi-field
-  // pages over one page per field (ROADMAP A2 · Q1).
+  // pages over one page per field (product-spec D-42).
   check(visible(draft({ tenses: ['amr'] })).includes('charts'),
     'A2: an amr-only plan keeps the charts page — it loses rows, not the step');
 
@@ -1520,7 +1520,7 @@ check(chartKeysFor({ tenses: ['madi'], voices: ['majhul'], moods: [] }) === 'mad
 }
 
 // ---------------------------------------------------------------------------
-// Recognition tips (ROADMAP A3). The exit criteria are the assertions: a tip
+// Recognition tips (product-spec D-28). The exit criteria are the assertions: a tip
 // for every category, no tip on a correct answer, and pure functions of
 // (question, answer).
 // ---------------------------------------------------------------------------

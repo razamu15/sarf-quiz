@@ -1,11 +1,16 @@
-// Minimal static server for the prototype: node serve.mjs [port]
+// Minimal static server for the prototype: node serve.mjs [port] [root]
+//
+// `root` is relative to this file and defaults to the prototype itself. It
+// exists so the same server can serve design/ — the Midad previews and the
+// proposals beside them are plain HTML against ../midad/*.css, and opening
+// them from Finder is the only other way to see them.
 import { createServer } from 'node:http';
 import { readFile } from 'node:fs/promises';
 import { extname, join, normalize } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const root = fileURLToPath(new URL('.', import.meta.url));
 const port = Number(process.argv[2] ?? 4173);
+const root = fileURLToPath(new URL(process.argv[3] ?? '.', import.meta.url));
 const MIME = {
   '.html': 'text/html; charset=utf-8',
   '.js': 'text/javascript; charset=utf-8',

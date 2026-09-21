@@ -2,7 +2,7 @@
 // dashboard read the SAME rows; only who may open which screen differs.
 //
 // Everything here is a query — nothing is ever stored pre-aggregated, or the two
-// would drift. The catalogue these implement is `.lavish/a1a-queries.html`; the
+// would drift. The catalogue these implement is product-spec/reference/history-and-stats.md; the
 // query numbers below are that document's.
 //
 // Mirrors SarfCore's StatsService (TECHNICAL_PLAN §B.2), which is why it is a

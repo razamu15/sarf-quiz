@@ -96,7 +96,7 @@ If a chart truly does not exist for the selection: *"This verb has no chart for 
 ## What neither shape can do yet
 
 **Colouring the affixes** — the thing that turns a chart into a lesson, and the reason the grid's columns exist — needs the engine to return prefix / stem / suffix. Nothing produces that today. D-61: **documented, not built.**
-It must be on the engine's export list **before the API freezes** (ROADMAP B3), like `waznRoot()`.
+It must be on the engine's export list **before the API freezes** (B3, the corpus freeze — `docs/TECHNICAL_PLAN.md` Part C), like `waznRoot()`.
 
 ## Not in v1 here
 

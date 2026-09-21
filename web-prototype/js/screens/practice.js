@@ -1,6 +1,6 @@
 // Practice — the flag, and the one place a QuizPlan is built.
 //
-// Two layouts exist (ROADMAP A2): the one-screen `classic` and the stepped
+// Two layouts exist (product-spec D-42, retired by D-69): the one-screen `classic` and the stepped
 // `wizard`, chosen by settings.practiceFlow at render time. They are being lived
 // with for a while and the better one kept; the loser is deleted with no
 // migration, which is only true because of the invariant below.

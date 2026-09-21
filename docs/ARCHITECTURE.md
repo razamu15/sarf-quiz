@@ -5,10 +5,11 @@
 > **target iOS architecture** and no longer describes the prototype at all;
 > [PORT_INVENTORY.md](PORT_INVENTORY.md) covers how this code becomes Swift.
 >
-> Companion docs: [PRODUCT_SPEC.md](PRODUCT_SPEC.md) for what the app is,
-> [ROADMAP.md](ROADMAP.md) for what is left to build.
+> Companion docs: [product-spec/](../product-spec/README.md) for what the app is
+> (every screen, rule and decision); [TECHNICAL_PLAN.md](TECHNICAL_PLAN.md)
+> Part C for what is left on the engine side.
 
-Last verified against the code: **Sep 2026**, 48 files, 181 import edges,
+Last verified against the code: **21 Sep 2026**, 56 modules, 189 import edges,
 417 assertions green, zero import cycles.
 
 ---
@@ -161,6 +162,25 @@ A chart is **a plain object written out at the call site**:
 triples that name a real table; `isValidShape()` beside it is the **single**
 judge of whether a combination is real.
 
+> ⚠️ **Known defect, measured 2026-09-21: `isValidShape()` does not yet live up
+> to that sentence.** It enforces *"a mood belongs to the muḍāriʿ alone"* but not
+> *"the amr has no voice"*, so it accepts a tenth combination that is not in
+> `CHART_SHAPES`:
+>
+> ```
+> isValidShape({tense:'amr', voice:'majhul', mood:null})  →  true
+> in CHART_SHAPES?                                        →  false
+> conjugate(...)  →  TypeError: template.replaceAll is not a function
+> ```
+>
+> `chartExists()` defers to it, so the guard passes and the engine **throws**
+> instead of answering `null` — contradicting `conjugate()`'s own contract
+> (*"Null is a normal answer here, not an error"*). It is unreachable today only
+> because every caller intersects with `CHART_SHAPES` first and `drawVoicePair()`
+> filters out the amr. **The parse card's voice axis reaches it directly**, so the
+> fix is scheduled with that change — one line, in the validator, not in a caller.
+> See [`PARSE_CARD_PLAN.md`](PARSE_CARD_PLAN.md) § Stage 0, FINDING 1.
+
 There used to be a `chartSpec()` constructor. It defaulted the voice to maʿlūm
 and the mood to rafʿ, then rewrote combinations that did not fit — so a caller
 passing a manṣūb māḍī got a māḍī back rather than an error. That made it a
@@ -179,7 +199,7 @@ rule.
 
 `quiz/relevance.js` holds `QUESTION_RULES`, one entry per question kind. Each
 declares the answer space it discriminates; **fewer than two possible answers
-and it never enters the quiz** (PRODUCT_SPEC §5.2b).
+and it never enters the quiz** (product-spec D-16).
 
 `relevance(pool)` takes a **pool**, not a plan, and that is deliberate: a
 question dies from what the pool *contains*, not from what was ticked — the
@@ -247,7 +267,7 @@ js/
 
   grammar/             shared-grammar (FORM_META, prefixes) + one file per verb
                        type. DATA, no logic.
-  lexicon/             roots.js — the BARREL over roots/ (161 roots), which holds
+  lexicon/             roots.js — the BARREL over roots/ (165 roots), which holds
                        one file per traditional verb type: salim · mahmuz ·
                        mudaaf · mithal · ajwaf · naqis · lafif. The three
                        muʿtall files carry two engine types each (waw/ya) under
@@ -260,7 +280,7 @@ js/
                        verbMeaning() gives the English, verbPhrase() the Arabic
                        that says it — both read the particle off ONE owner, so
                        "she will not be broken" can never sit above a bare
-                       تُكْسَرَ (see PRODUCT_SPEC §3.1)
+                       تُكْسَرَ (see product-spec D-22)
 
   quiz/
     quiz-plan.js       QuizPlan · planCharts · planFrom (validates stored plans)
@@ -333,14 +353,41 @@ must stay byte-identical.
 
 **For any engine or refactor work, that is not enough.** Snapshot the full
 engine output before touching anything and diff afterwards — it must be zero.
-Twice this session a green suite hid a real break (a `Set` that did not survive
+Twice a green suite hid a real break (a `Set` that did not survive
 `JSON.stringify`, and a missing import the test could not see because the test
 file had its own local copy).
 
-```bash
-# from web-prototype/ — walk every root × form × chart × ṣīghah
-node -e "..." > /tmp/engine-before.txt   # see ROADMAP.md §Verification
+```js
+// web-prototype/snapshot-parity.mjs — write it, run it, delete it when done
+import { LEXICON } from './js/lexicon/lexicon-service.js';
+import { slotsFor, DERIVED_NOUN_TYPE_IDS, CHART_SHAPES } from './js/vocabulary.js';
+import { conjugate, derivedNoun, citation } from './js/conjugation/conjugation-service.js';
+import { verbMeaning, derivedNounMeaning } from './js/meaning-service.js';
+const out = [];
+for (const root of LEXICON) { const rk = root.root.join('');
+  for (const formId of Object.keys(root.forms)) {
+    out.push(`CITE\t${rk}\t${formId}\t${citation(root, formId)}`);
+    for (const kind of DERIVED_NOUN_TYPE_IDS)
+      out.push(`DERV\t${rk}\t${formId}\t${kind}\t${derivedNoun(root, formId, kind) ?? 'NULL'}`);
+    for (const shape of CHART_SHAPES) { const spec = { root, formId, ...shape };
+      for (const slot of slotsFor(shape.tense)) { const w = conjugate(spec, slot);
+        out.push(`WORD\t${rk}\t${formId}\t${shape.tense}\t${shape.voice}\t${shape.mood ?? '-'}\t${slot}\t${w ?? 'NULL'}\t${w ? (verbMeaning(spec, slot) ?? 'NULL') : 'NULL'}`); } } } }
+console.log(out.join('\n'));
 ```
+
+```bash
+cd web-prototype
+node snapshot-parity.mjs | sort > /tmp/engine-before.txt    # before touching anything
+# … make the change …
+node snapshot-parity.mjs | sort > /tmp/engine-after.txt
+diff /tmp/engine-before.txt /tmp/engine-after.txt           # must print nothing
+```
+
+**75,640 lines on 21 Sep 2026**, growing with the lexicon — the bar is a zero
+diff, not the count. The dump walks every root in the lexicon, including the
+flagged-off mahmūz and lafīf roots, which answer `NULL`. **Sort both sides
+before diffing:** the barrel groups roots by type, so line order is not stable
+across a lexicon restructure, and a zero set-difference is the real bar.
 
 **Then walk the running app.** `preview_start` the `sarf-quiz-web` config, drive
 each tab, and read the console. Tests do not catch serialization, wiring or
@@ -348,10 +395,19 @@ integration breaks.
 
 ---
 
-## 11. The two Practice flows
+## 11. The two Practice flows — resolved
 
-`settings.practiceFlow` chooses between two complete layouts of the same screen
-(ROADMAP A2). They are being lived with, and the loser is deleted.
+`settings.practiceFlow` chooses between two complete layouts of the same screen:
+the one-screen **classic** and the five-page **wizard**. They were built to be
+lived with and compared, and the loser deleted.
+
+**Resolved 21 Sep 2026** ([product-spec D-69](../product-spec/DECISIONS.md)): the
+iOS app builds **neither**. It builds the single scrolling screen in the design
+system ([screens/03-practice.md](../product-spec/screens/03-practice.md)) and
+ships no `practiceFlow` setting. The prototype keeps both flows and the setting
+as they are; they are **no longer being compared and should not be extended**,
+and the "frozen verbatim" rule on `practice-classic.js` is lifted. Deleting them
+is a free cleanup whenever it is wanted, because of the invariant below.
 
 ```
 practice.js ──reads settings.practiceFlow──┬─→ practice-classic.js
@@ -360,23 +416,17 @@ practice.js ──reads settings.practiceFlow──┬─→ practice-classic.js
      └───────────── startPlan() ←── draftPlan() ←─── state.draft ─┘
 ```
 
-**What makes deleting the loser free:** neither flow constructs a `QuizPlan`.
-Both only paint and mutate `state.draft`, and `practice.js` makes the one
-`draftPlan()` call on the start path — so a wizard cannot write a field the
-classic screen has no control for. `quizPlan()` has exactly two call sites in
-the whole app, `ui/state.js` and `quiz/drills.js`, and neither is a screen.
-A smoke check reads the source to pin this.
-
-**`practice-classic.js` is frozen verbatim.** It does not render the summary
-card and it keeps its older quiz-type labels, so the same type is *Identify* in
-classic and *Name the grammar* in the wizard. That is deliberate: every
-improvement made to one side of a comparison is a result the comparison can no
-longer produce. The consequences — a duplicated verb-type expansion in the
-wizard, and two copies of the muḍāriʿ particle note — are tracked comments in
-those files, not oversights.
+**The invariant still holds, and the iOS screen must keep it (D-34):** no Practice
+UI constructs a `QuizPlan`. The screens only paint and mutate `state.draft`, and
+`practice.js` makes the one `draftPlan()` call on the start path — so a screen
+cannot write a field the plan has no control for, and any layout can be replaced
+with no migration. `quizPlan()` has exactly two call sites in the whole app,
+`ui/state.js` and `quiz/drills.js`, and neither is a screen. A smoke check reads
+the source to pin this.
 
 **`state.practice` is view state and never reaches a plan.** `step` is a stage
 **id**, not an index: choosing `derived` removes the charts page, so an index
 into a list whose length just changed would send Back somewhere arbitrary. The
 wizard resets to page one on every entry to the tab (`resetPracticeFlow()` in
-`main.js`), which is A2's decided behaviour and not an accident.
+`main.js`) — the wizard's own decided behaviour (D-42), not an accident. None of
+this state exists in the iOS screen.

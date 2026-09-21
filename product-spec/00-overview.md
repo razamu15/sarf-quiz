@@ -4,7 +4,7 @@
 
 **Sarf Quiz** (working title; final name TBD — check App Store availability) teaches you to *read the signs on
 Arabic words*. It shows a fully vowelled word and trains you to extract everything it encodes — tense, voice,
-who the doer is, iʿrāb, bāb — through short drills, and lets you look up the complete conjugation of any verb
+who the doer is, iʿrāb — through short drills, and lets you look up the complete conjugation of any verb
 offline. It is an iPhone app for **students of ṣarf** (madrasa and university Arabic students, serious
 self-learners) who already read vowelled script and want the *patterns* to become automatic. A session is about
 five minutes. **It is free and unlimited; nothing nags mid-quiz.** 🔒 D-01
@@ -13,7 +13,7 @@ five minutes. **It is free and unlimited; nothing nags mid-quiz.** 🔒 D-01
 
 | Verb | Where | Meaning |
 |---|---|---|
-| **Drill** | Home | One tap into a ready-made session (five words, ≈15 questions), or into the question kind you are weakest at. |
+| **Drill** | Home | One tap into a ready-made session (**five words, five parse cards** — D-80). *(Later: straight into the question kind you are weakest at — Q-04.)* |
 | **Configure** | Practice | Describe a pool of words — quiz type, verb types, forms, charts — see what that setup will ask, choose a length, go. |
 | **Look up** | Tables | Find any verb and read its full conjugation, all forms, offline. |
 | **Review** | Results (after a quiz) | The two or three words you missed, what you said, why it was wrong — then straight back in. |
@@ -37,6 +37,9 @@ Plus **More** (settings, delete history). The quiz itself is not a place you nav
 🔒 D-01 D-02 D-04 · Every flag is one row in a single `Settings` object with two audiences — `dev` levers and `user`
 preferences (D-03). Flags gate **screens and content, never storage** (D-51).
 
+**How success is judged.** Recorded in the old spec, never confirmed: **activation** (% of installs completing a quiz on day 1) · **retention** (D7 return; quizzes per user per week) · **quality** (average score trend — are users actually learning?) · later, **conversion** (free→trial, trial→paid).
+v1 has no analytics, no accounts and a privacy label of *"Data not collected"*, so none of the in-app measures can be read — only App Store Connect's own numbers are visible (**Q-18**).
+
 ---
 
 ## Navigation and flows
@@ -49,7 +52,7 @@ preferences (D-03). Flags gate **screens and content, never storage** (D-51).
                 └──────┬───────────────┬──────────────────┬────────────────┬─────────┘
                        │               │                  │                └ settings · delete history · about
    Start (hero/list) ──┤               │                  └ search ─▶ word bar ─▶ form · tense · voice · iʿrāb
-   Drill it ───────────┤               │                              ─▶ View the table ─▶ 14 rows
+   Drill it (later) ───┤               │                              ─▶ View the table ─▶ 14 rows
                        ▼               ▼
               ┌──────────────────────────────────────────────────────────┐
               │  QUIZ — full-screen cover · no tab bar                   │
@@ -77,7 +80,7 @@ pinned bar say what that asks and how many → choose a length → Start.
 **Flow 4 — look something up.** Tables → search → pick a verb → its forms appear as chips → pick tense / voice / iʿrāb →
 *View the table*.
 
-**Flow 5 — act on a weakness.** Home → *Weakest question · Iʿrāb · 58% of 40 answers · Drill it* → Quiz → Results.
+**Flow 5 — act on a weakness.** *(Deferred, Q-04 — in v1 the row is display-only.)* Home → *Weakest question · Iʿrāb · 58% of 40 answers · Drill it* → Quiz → Results.
 
 **Flow 6 — quit.** ✕ in the quiz → confirm (only if you have answered something) → the session **ends and is kept** →
 back to where you started.
@@ -123,8 +126,8 @@ draw from  the plan     session    asked        IS the history row
 | **Plan** | A *pool of words*, not a list of questions: quiz type, verb types, forms, tenses, voices, iʿrāb states, length. One plan serves all four quiz types. | Practice (from its chips), Home (from a preset), Results/Home (from a stored session) | Pool, history |
 | **Pool** | Every word the plan admits, resolved once. Tells us how many questions exist and which properties actually *vary* — which is how dead questions are found. | the plan | Practice's bar, the quiz |
 | **Run** | One live session: which question you are on, what you answered. | Start | Quiz, Results |
-| **Question** | Four parts: what kind, what word, what the card shows, how you answer + what counts as correct. | the pool | Quiz, Results, history |
-| **Answer** | The question **embedded whole**, what you gave, what was expected, correct or not. Written to history the instant it is given. | grading | Results, Home stats, later screens |
+| **Question** | Four parts: what kind, what word, what the card shows, how you answer + what counts as correct. For `identify` it is **one question with five axes** (D-72), not five questions. | the pool | Quiz, Results, history |
+| **Answer** | The question **embedded whole**, what you gave, what was expected, correct or not. A parse answer also carries **`parts[]`, one per axis** (D-77). Written to history the instant it is given, **as one row per axis** (D-78). | grading | Results, Home stats, later screens |
 
 Depth: `docs/ARCHITECTURE.md` §2–3. **No screen decides whether an answer is right** — grading has one owner.
 
@@ -139,7 +142,7 @@ Depth: `docs/ARCHITECTURE.md` §2–3. **No screen decides whether an answer is 
    plausible default. 🔒 (project rule)
 5. **Guessing is part of the drill.** No skip button (D-10). No streak animation, no confetti — a study session, not a
    game show. 🎨 D-65
-6. **Labels are grammar, not ids.** "Who the doer is", never `doer`. 🎨
+6. **Labels are grammar, not ids.** "Who the doer can be", never `doer`. 🎨
 7. **Native first.** Tab bar, lists, sheets, search, segmented controls are the platform's. Custom only where the domain is:
    prompt card, options, paradigm grid, root tiles, chart scope. 🎨
 8. **Views never compute a domain fact.** Whether an answer is right, whether a chart exists, which questions are worth
@@ -154,11 +157,15 @@ prototype first, per D-07 — that is the implementation plan's call).
 
 | Change | Layer | Source |
 |---|---|---|
-| Each question kind **declares** its interaction: `select: 'one' \| 'many'`. Doer is always a checklist. (Voice: Q-02.) | quiz | D-60 |
+| **`identify` is one parse card per word** — form, tense, iʿrāb, voice, doer answered together behind one **Check**; the `bab` kind and the `citation` prompt are deleted | quiz | 🔒 D-72, D-76 |
+| A **`form` axis**, and a **`mabnī — no iʿrāb`** option on the iʿrāb row | quiz | 🔒 D-73, D-75 |
+| The **draw satisfies every live axis at once** — an axis that is live is never missing from a card | quiz | 🔒 D-74 |
+| `Answer.parts[]`, and a history index that **fans one answer out into one row per axis** | quiz + history | 🔒 D-77, D-78 |
+| Each axis / kind **declares** its interaction: `select: 'one' \| 'many'`. Doer, voice **and iʿrāb** are always checklists. | quiz | D-60, D-70, D-74 |
 | A prompt carries `ask` **and** a separate `hint` ("Select all that apply.") | quiz | design 03 §2, README |
 | Wrap every Arabic run in feedback in a bidi isolate (FSI…PDI) | view | D-62 |
 | "Drill these again": a run whose source is a fixed list of stored questions, and a new session mode | quiz | D-50 |
-| Weakest question kind: accuracy per `category`, with a ≈20-answer floor; and a plan per kind (Q-04) | history + quiz | 🎨 D-48 |
+| Weakest question kind: accuracy per `category`, with a ≈20-answer floor *(display only — the plan per kind is deferred, Q-04)*. **Unchanged by D-72** — D-78's per-axis rows are what keep it working | history | 🎨 D-48 |
 | Home hero = plan of the last session (Q-05) | history | 🎨 D-47 |
 | **Answers persist the moment they are given**, not at session end | history | D-51 |
 | Form chips need each form's **wazn** per root (Form I varies by bāb) | engine API | 🎨 D-46 — export `waznRoot()` before the API freezes |
@@ -169,9 +176,13 @@ prototype first, per D-07 — that is the implementation plan's call).
 | Prototype does | Spec says |
 |---|---|
 | Appends feedback below the options; the word scrolls away | Docks as a bottom inset (D-64) |
-| Doer question is a checklist only when the draw has >1 answer, yet always says "Select all that apply" | Always a checklist (D-60) |
+| Doer and voice are checklists only when the draw has >1 answer (the doer ask *always* says "Select all that apply") | Always checklists (D-60, D-70); and **every ambiguous axis** is, by D-74 |
+| `identify` asks one property at a time, drawing a fresh word for each | **One parse card per word** — form, tense, iʿrāb, voice, doer at once (D-72) |
+| The bāb question, on a `citation` prompt | **Dropped** (D-76); the bāb lives in the sheet's explanation |
+| A drill is a bundle: one word carrying its first three live kinds, "Word 2 of 5" | Five words, five questions; no tag (D-80) |
 | "See the full table" exits the quiz **and loses the answers** | Peek over the quiz; answers persist per answer (D-45, D-51) |
 | Prints `doer`, `tense` ids on the card and in Results | Grammar labels (principle 6) |
+| The iʿrāb question draws its own muḍāriʿ, so it only appears on muḍāriʿ words | The iʿrāb row is always shown when live, with a `mabnī` option (D-75) |
 | One mixed bidi run: `شَرِبَتْ — فِعْل مَاضٍ from …` reorders | Isolate every Arabic run (D-62) |
 | Home: three equal Start cards, accuracy ring, 🔥 | Hero + list + strip; no flame, no ring (D-47) |
 | Results: explanation sentences under a score ring | Misses first, as cards (D-49) |

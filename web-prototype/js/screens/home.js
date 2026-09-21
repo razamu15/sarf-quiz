@@ -1,7 +1,7 @@
 // Home — three prebuilt drills and the free stats card.
 //
 // Home drills are always quiz type 1: writing and derived-noun practice are a
-// deliberate choice you make in Practice (PRODUCT_SPEC §5.1).
+// deliberate choice you make in Practice (product-spec D-14).
 
 import { el } from '../ui/dom.js';
 import { state } from '../ui/state.js';

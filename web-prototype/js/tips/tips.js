@@ -26,7 +26,7 @@
 // behind it, and a rule stated in general is the thing worth carrying away.
 //
 // Called by: screens/quiz.js, from feedbackBox(), which shows the first two.
-// When AI Explain lands (ROADMAP A6) it fills this same slot from a model
+// When AI Explain lands (product-spec/reference/later-versions.md) it fills this same slot from a model
 // instead of this table — which is why the slot is a list of sentences rather
 // than a bespoke panel.
 

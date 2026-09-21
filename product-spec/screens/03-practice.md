@@ -12,11 +12,9 @@
 </tr>
 </table>
 
-> ❓ 🔴 **Q-01 · Which Practice does iOS build?** This spec describes **the design's Practice**: **one scrolling screen with a pinned setup bar.**
-> That is **neither** of the two layouts in the prototype — the frozen one-screen *classic* (seven chip rows, consequences at the bottom) **nor** the five-page *wizard*
-> (type → verbs → charts → length → Ready page with a sample question). The prototype's `practiceFlow` A/B setting does not exist in the design.
-> **Spec assumes:** iOS v1 builds this one screen, ships **no** `practiceFlow` setting, and keeps the invariant that **the Practice UI never constructs a plan** (D-34) — so a wizard stays possible later.
-> **What that drops** (all decided in Aug 2026, ♻️ D-42): the wizard's **sample question** ("the feature", A2·Q2), its footer **delta line** (A2·Q3 — the design removed it on purpose), the Ready page's **Edit** button, *always opens at step 1*. Full list in `OPEN_QUESTIONS.md`.
+> 🔒 **D-69 · This is the Practice iOS builds** — **one scrolling screen with a pinned setup bar.** You chose the design's screen over both layouts the prototype has: the frozen one-screen *classic* (seven chip rows, consequences at the bottom) and the five-page *wizard* (type → verbs → charts → length → Ready page with a sample question). iOS ships **no `practiceFlow` setting**.
+> **Kept:** the invariant that **the Practice UI never constructs a plan** (D-34), so any layout can be replaced later with no migration.
+> **Dropped with the wizard** (♻️ D-42, all decided in Aug 2026): its **sample question** ("the feature", A2·Q2), its footer **delta line** (A2·Q3 — the design removed it on purpose), the Ready page's **Edit** button, and *always opens at step 1*. A sample-question preview could be added to this screen later as an addition, not a layout.
 
 ---
 
@@ -38,12 +36,12 @@
 
 | id | Name | Arabic | One line |
 |---|---|---|---|
-| `identify` | **Name the grammar** | تَمْيِيز | You see a word — say its tense, voice, doer, iʿrāb or bāb. |
+| `identify` | **Parse the word** | تَحْلِيل صَرْفِي | You see a word — name its form, tense, iʿrāb, voice and doer. |
 | `produce` | **Write the word** | صِيَاغَة | You're given the grammar — type the Arabic. |
 | `derived` | **Derived nouns** | المُشْتَقَّات | From a verb, pick its ism fāʿil, ism mafʿūl or maṣdar. |
 | `fromMeaning` | **Match the meaning** | مِنَ المَعْنَى | You read an English meaning — choose the Arabic word that says it. |
 
-🔒 **D-35** The type names are recorded in ROADMAP A2's naming table; the design adopts them. صِيَاغَة, not كِتَابَة: writing is the physical act, *ṣiyāgha* is forming — which is what the user is doing.
+🔒 **D-35** The type names are yours (recorded in `DECISIONS.md`); the design adopts them. صِيَاغَة, not كِتَابَة: writing is the physical act, *ṣiyāgha* is forming — which is what the user is doing.
 🔒 **D-13** **One type per session.** Mixing is deliberately deferred so Results never averages two incomparable skills into one number.
 
 ---
@@ -57,9 +55,9 @@
 
 Read top to bottom it is one sentence: **what you will be asked → how much of it there is → how many you want → go.**
 
-1. **This setup asks** — label on the left, **`≈ 4,200 questions`** on the same line.
-2. Every **live** question kind, ticked: `✓ Tense  ✓ Who the doer is  ✓ Bāb`.
-3. Every **retired** kind, **with its reason**, one line each:
+1. **This setup asks** — label on the left, **`≈ 1,400 words`** on the same line. *(For `identify` the unit is now a **word**, because one word is one parse card — D-72. The other three types still count questions.)*
+2. **Each word asks —** every **live** axis, ticked: `✓ Form  ✓ Tense  ✓ Who the doer can be`.
+3. Every **retired** axis, **with its reason**, one line each:
    *Voice — only one voice reachable* · *Iʿrāb — iʿrāb needs the muḍāriʿ in more than one state*.
 4. **How many** — a small labelled segmented control: `5 · 10 · 20 · ∞`.
 5. **Start** — full width, primary.
@@ -77,20 +75,32 @@ Read top to bottom it is one sentence: **what you will be asked → how much of 
 - **The length lives here, not in the body.** Everything above decides *what can be asked* and moves the count; the length decides *how many of those you want* and changes nothing about the pool. It is a **small control on a labelled row** (34pt) — a full-size segmented control beside Start read as a second action competing with it. **∞** is endless, which also keeps four values narrow enough to sit opposite the label.
 - **Nothing live** → *"Nothing — widen the selection"*, and every kind prints its reason: the empty state is a list of instructions, not a dead end. Start is **disabled but keeps its shape**, so the bar does not resize when it becomes available.
 
-**The count is `≈ live kinds × real cells in the pool`** (D-16). "Real" matters: cells that the engine answers `null` for (the majhūl of an intransitive verb, the amr outside 2nd person) are not counted — multiplying dimensions instead once claimed 798 questions where 266 meant anything.
+**For `identify` the count is `≈ real cells in the pool`** — one parse card per cell (D-16, D-72). It is no longer multiplied by
+the live kinds, because the kinds are no longer separate questions; they are rows of the one card, and the ticked list beside the
+count is what says how many. The other three types still count `cells × live kinds`.
+"Real" matters either way: cells the engine answers `null` for (the majhūl of an intransitive verb, the amr outside 2nd person)
+are not counted — multiplying dimensions instead once claimed 798 questions where 266 meant anything.
+
+⚠️ **The number on this screen drops by 4–5×** against the old spec, and that is arithmetic, not a loss: 4,200 was 1,400 cells ×
+3 kinds. The same 1,400 words are still asked about in the same five ways. **Say *words*, not *questions*, so the drop reads as a
+change of unit.**
 
 <details><summary><b>Measured 2026-09-21</b> — sound verbs, forms I · II · X, identify (the design's numbers, re-run against today's lexicon)</summary>
 
-| Setup | ≈ questions | Live | Retired |
-|---|---:|---|---|
-| **default:** māḍī + muḍāriʿ · maʿrūf · marfūʿ | **4,200** | Tense, Doer, Bāb | Voice, Iʿrāb |
-| + majhūl | 10,192 | + **Voice** back | Iʿrāb |
-| drop māḍī | 700 | Doer only | Tense, Voice, Iʿrāb, Bāb |
-| muḍāriʿ only + all three moods | 4,200 | Doer, **Iʿrāb** | Tense, Voice, Bāb |
-| amr only | 300 | Doer only | the rest |
-| every tense, both voices, all moods | 26,980 | all five | — |
+| Setup | ≈ words | *was, × kinds* | Live axes | Retired |
+|---|---:|---:|---|---|
+| **default:** māḍī + muḍāriʿ · maʿrūf · marfūʿ | **1,400** | *4,200* | Form, Tense, Who the doer can be | Iʿrāb, Voice |
+| + majhūl | **2,548** | *10,192* | Form, Tense, **Voice**, Who the doer can be | Iʿrāb |
+| drop māḍī | **700** | *1,400* | Form, Who the doer can be | Tense, Iʿrāb, Voice |
+| muḍāriʿ only + all three moods | **2,100** | *6,300* | Form, **Iʿrāb**, Who the doer can be | Tense, Voice |
+| amr only | **300** | *600* | Form, Who the doer can be | Tense, Iʿrāb, Voice |
+| every tense, both voices, all moods | **5,396** | *26,980* | all five | — |
 
-The corpus grows; regenerate rather than trust these.
+**Note what the Form axis does to D-17.** Form is live in *every* row above, because the mock's selection is forms I · II · X.
+So a narrowed setup no longer collapses to a single hard question — the card keeps at least Form and Doer. Narrowing still makes
+the quiz **harder, not shorter** (D-17), but the floor is higher than it was.
+
+The corpus grows; regenerate rather than trust these — the recipe is the script in `web-prototype/`, run 2026-09-21.
 </details>
 
 ---
@@ -115,7 +125,7 @@ The corpus grows; regenerate rather than trust these.
   **Two layers, deliberately:** the UI offers the group ("Hollow"); the plan stores the **engine types** (`ajwaf_waw` + `ajwaf_ya`). Expand **once, at the UI boundary** (D-33) — carrying a group name into plan data silently killed a Home drill.
 - **Form chips lead with the numeral and follow with the wazn**, not the bāb's maṣdar name (shorter, and the wazn is how a form is recognised on sight): `I مُجَرَّد` · `II فَعَّلَ` · `III فَاعَلَ` · `IV أَفْعَلَ` · … · `X اِسْتَفْعَلَ`. Keep the maṣdar names (`بَابُ التَّفْعِيل`) for the Tables header, where there is room.
 - **Do not advertise what v1 cannot play.** No mahmūz or lafīf chips — one sentence says they arrive later. A choice that does not exist in this version is a **sentence under the row, never a disabled chip** (a disabled chip means "exists but cannot apply").
-- **Bāb is not a control** (D-18). A root's Form I bāb is a lexical fact, so filtering by bāb would really be filtering the roots.
+- **Bāb is not a control** (D-18) — and since **D-76** it is not a question either. A root's Form I bāb is a lexical fact, so filtering by bāb would really be filtering the roots; and it cannot be read off a single conjugated word. It survives in the answer sheet's explanation.
 - **What a quiz asks is not a control either** (D-15). The app decides from the pool; the user only shapes the pool.
 
 > ❓ **Q-13 · Three small Practice gaps.** (a) **Empty selection.** The prototype's pool treats an empty **Form** or **Verb type** row as *"all"* but an empty **Tense** or **Voice** row as *"none"* — an unstated default masking absence, which your rules forbid.
@@ -161,7 +171,10 @@ The old `alert("No questions possible")` is **unreachable by design**: Start is 
 - [ ] Reasons are the registry's strings verbatim; adding a question kind to the registry lists it here with no view change.
 - [ ] Dropping the muḍāriʿ leaves the iʿrāb selection intact; adding it back restores it.
 - [ ] amr-only disables both voice chips and states why; the chart count reads `1 of 9`.
-- [ ] Zero live kinds → "Nothing — widen the selection", every reason listed, Start disabled at unchanged size.
+- [ ] Zero live axes → "Nothing — widen the selection", every reason listed, Start disabled at unchanged size.
+- [ ] The `identify` count reads **words**, and equals the pool's real cells — not cells × axes.
+- [ ] **Form** appears in the ticked list whenever more than one form is selected, and retires with *only one form selected*.
+- [ ] No **Bāb** row appears in the asks panel, live or retired.
 - [ ] Choosing *Derived nouns* removes the chart scope; choosing another type restores it with its selection.
 - [ ] The stored plan holds engine types (`ajwaf_waw`), never group names.
 - [ ] No mahmūz / lafīf chip anywhere; the sentence appears once.

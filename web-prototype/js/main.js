@@ -37,7 +37,7 @@ function tabBar() {
       state.tables.viewing = false;
       state.showStats = false;
       // Each screen's transient view state is dropped on the way in, which is
-      // where the wizard's "always open at step 1" (ROADMAP A2 · Q5) lives. It
+      // where the wizard's "always open at step 1" (product-spec D-42) lives. It
       // cannot go inside renderPractice(): that runs on every chip tap, and
       // resetting there would pin the wizard to page one forever.
       resetPracticeFlow();

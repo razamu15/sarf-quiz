@@ -7,7 +7,7 @@
 //
 // v1 of this script was Form I only and hardcoded it in three places: the root
 // filter, the spec, and the report. The form is now a parameter because the
-// mazīd stem tables have since been authored (ROADMAP B1/B2) and are the part
+// mazīd stem tables have since been authored (commits c11be1b, 27edeb5) and are the part
 // of the engine with the least independent verification behind it.
 
 import { ROOTS } from '../web-prototype/js/lexicon/roots.js';

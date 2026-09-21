@@ -1,7 +1,7 @@
 // The question repertoire, and which of it a given pool is worth asking.
 //
 // A question is DEAD when the property it asks about is constant across the pool
-// (PRODUCT_SPEC §5.2b). Select muḍāriʿ only and "what kind of verb is this?" has
+// (product-spec D-16). Select muḍāriʿ only and "what kind of verb is this?" has
 // one possible answer: it is a free point, and after two of them the user stops
 // reading the word. Measured on the prototype, a muḍāriʿ · maʿrūf · rafʿ setup
 // produced 30 questions of which 18 were free.

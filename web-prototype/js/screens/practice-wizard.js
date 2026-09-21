@@ -1,6 +1,6 @@
 // Practice, the stepped layout — one page per group of decisions.
 //
-// Built beside practice-classic.js, not instead of it (ROADMAP A2): both write
+// Built beside practice-classic.js, not instead of it (product-spec D-42): both write
 // the SAME QuizPlan, both are lived with for a while, and the loser is deleted
 // with no migration. This file therefore never constructs a plan — it mutates
 // state.draft and calls the onStart handed down by practice.js.
@@ -92,7 +92,7 @@ export function renderWizard(app, { onStart, rerender }) {
   step.render(app, d, rerender, {
     pool,
     // Edit walks the wizard again from page one; there is no per-axis jump
-    // (ROADMAP A2 · Q5 — the wizard has one entry point and it is step 1).
+    // (product-spec D-42 — the wizard has one entry point and it is step 1).
     onEdit: () => { state.practice.step = 'type'; rerender(); },
   });
 
@@ -171,7 +171,7 @@ function foot(pool, { isLast, count, onBack, onNext, onStart }) {
  * Dropping māḍī from the default takes 2,268 → 378, and only ~half of that is
  * fewer words: the rest is the Tense and Bāb questions retiring together. On a
  * multi-row page the count can even return to where it started while three
- * kinds changed underneath, so naming them is what keeps PRODUCT_SPEC §5.2b
+ * kinds changed underneath, so naming them is what keeps product-spec D-16
  * legible here.
  */
 function deltaLine(possible, liveIds) {

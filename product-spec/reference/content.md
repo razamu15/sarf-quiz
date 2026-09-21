@@ -41,7 +41,7 @@ Both feed **`availableTypes()`** — a type is playable only if it is **in the l
 | | We write | The other reading | |
 |---|---|---|---|
 | **Muḍāʿaf in the majzūm and amr** | keeps its idghām — `لَمْ يَمُدَّ`, `مُدَّ` | unfolds — `لَمْ يَمْدُدْ`, `اُمْدُدْ` | Ḥijāzī vs Tamīmī. Forms II and V do not merge (`يُظَلِّلْ`). |
-| **Ajwaf majhūl māḍī** | a pure kasra — `خِفْتُ`, `بِعْتُ` | a ḍamma for the ishmām | This is what makes the **voice homographs**: `خِفْتَ` reads as both voices (Q-02). |
+| **Ajwaf majhūl māḍī** | a pure kasra — `خِفْتُ`, `بِعْتُ` | a ḍamma for the ishmām | This is what makes the **voice homographs**: `خِفْتَ` reads as both voices (D-70). |
 | **2mp ends in a bare mīm** | `كَتَبْتُم` | `كَتَبْتُمْ` | Mīm al-jamāʿa is waṣl-dependent; writing a sukūn asserts a pausal reading. Most likely to be "corrected" back by someone who has not read the reasoning. |
 
 ## Deliberate gaps — the engine declines rather than guess

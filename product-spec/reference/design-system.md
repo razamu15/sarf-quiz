@@ -27,6 +27,7 @@ There is **no JS component library** by decision (D-67): the prototype renders H
 3. **Letters carry grammar, containers carry correctness.** Right and wrong live on the option's fill, border, icon and word (`correct`, `wrong`). `sign` never fills a box; correctness never colours a letter. **Two channels, never crossed.** (Success leans teal so it never pairs with `wrong` on the red–green axis; **every verdict also carries an icon and a word**.) *The risk, named:* red usually means wrong — if testing shows people read red letters as errors, the fix is **one token** (`sign` → a lapis blue) and nothing else moves.
 4. **Three voices, three faces.** Arabic (`arabic-*`) is the object of study; the serif italic (`meaning-display`, `reading`, `gloss`) is a meaning; the sans (`headline`, `body`, `label`) is the interface talking. Nothing else gets a face.
 5. **Native first, and show what exists.** Tab bar, navigation, lists, sheets, search fields and segmented controls are the platform's; build custom only where the domain is — prompt card, options, paradigm grid, root tiles, chart scope. A **fixed set meant to be compared** is a segmented control (three tenses); a set whose **membership is itself the information** is **chips, all visible** (كَتَبَ has seven forms and no V, VII or IX — a fact about the verb, not a menu to open). **No pop-up menus.**
+   🆕 **Named exception, D-72:** the parse card uses **chips for every row, including fixed sets like Tense.** A segmented control always shows a selection and so **has no empty state** — and an answer control must be able to say *nothing chosen yet*. The exception is about the empty state, not about the set.
 
 ## Type 🔒 D-59
 
@@ -93,12 +94,15 @@ Every text token meets **4.5:1** on the grounds its usage note names, in every t
 | **QuizBar** | ✕ · ticks by word · count | Quiz | — |
 | **PromptCard** | six prompt kinds | Quiz | exhaustive `switch`; Prompt as an enum |
 | **RootTiles** | three radicals as separate sorts, first on the right | cue card, meaning card, search, table header | `--sm` rows, `--lg` cue; `data-slot` prints ف ع ل under each tile the **first time a root appears on a screen** |
-| **AnswerOption** | one answer, fixed slots, six states | Quiz | `Button` + `RoundedRectangle`, **60pt min height** |
+| **AnswerOption** | one answer, fixed slots, six states | Quiz — `produce`, `derived`, `fromMeaning` | `Button` + `RoundedRectangle`, **60pt min height** |
+| **ParseAxes** 🆕 | the parse card's five labelled chip rows; iʿrāb indented under Tense | Quiz — `identify` | the `ChartScope` stack, with `Chip`s that answer instead of configure |
+| **Chip**, as an answer 🆕 | the same chip, plus a tick box for `many` rows and **the six `AnswerOption` states** | Quiz — `identify` | one correctness vocabulary on the screen, not two |
 | **AnswerSheet** | the bottom inset | Quiz | `.safeAreaInset(edge: .bottom)` — **not `.sheet`** |
 | **SignText** | the red cluster / particle | Quiz, Results | colour only; whole clusters |
 | **ParadigmGrid** | 3-column peek | Quiz, Results | falls back to the 14-row list at the largest Dynamic Type |
 | **SetupBar** | asks panel + count + length + Start | Practice | pinned inset above the tab bar |
 | **ChartScope** | three axis groups + count | Practice | three `FlowLayout`s; the nested group is the same stack with a leading `Divider()` |
+| | | | **`ParseAxes` is this component doing the other half of its job** — a student configures a pool in this shape and is then asked in it. Build the stack once. |
 | **WordBar** | search ↔ chosen verb | Tables | `.searchable`, chosen verb in the title area |
 
 Icons are **SF Symbols**: `xmark`, `checkmark`, `chevron.right`, `lightbulb`, `house`, `slider.horizontal.3`, `tablecells`, `square.grid.2x2`, `ellipsis.circle`, `magnifyingglass`. The previews draw stand-ins — *approximations, not assets*. **There is no logo and no app icon** (D-66); the wordmark is set in the serif.
@@ -115,11 +119,12 @@ Icons are **SF Symbols**: `xmark`, `checkmark`, `chevron.right`, `lightbulb`, `h
 | | |
 |---|---|
 | ⚠️ **Iʿrāb group: vanish or disable?** | `guide/04` §2 says vanish; ChartScope's README, preview and `bundle.css` say disable in place. **Q-06.** |
-| ⚠️ **Practice is neither the classic nor the wizard.** | Decision 7 says the refresh applies "to the wizard… no redesign of the wizard's steps" — the mock is one screen. **Q-01.** |
+| ⚠️ **Practice is neither the classic nor the wizard.** | Decision 7 says the refresh applies "to the wizard… no redesign of the wizard's steps" — the mock is one screen. **Resolved: the single screen is what iOS builds (D-69)**; decision 7's wording should be amended when the design is regenerated. |
 | ⚠️ **`maʿrūf مَعْلُوم`** | Prints a transliteration that does not match the word beside it (screenshot 08). **Q-14.** |
 | ⚠️ **Screenshots show the bidi bug** the guide fixes (03, 06, 07, 08). | Text wins. |
 | ⚠️ **Practice's mock has no tab bar.** | The setup bar must dock above it. |
 | ❌ **Silent:** More/Settings; first-run; quit alert; keyboard-missing sheet; empty & error states; how a stored answer's Results screen looks (no history browser in v1). | **Q-09, Q-10.** |
+| 🆕 **The parse card is not in the design system.** D-72 postdates it, so screenshots 02–08 and 16 show the **old single-axis** quiz, and `QuizFlow.html` still drives it. | The proposal is drawn in **`design/proposals/parse-card.html`** (Paper and Night, real engine output, with the CSS it needs marked as proposed additions). **It is not `design/midad/` and must not be hand-merged into it** — that folder is generated by a toolchain kept outside the repo, so a hand-edit is lost on the next run. Fold the additions into the generator. |
 | ❌ **Newsreader** is named but nothing says it is bundled. | **Q-15.** |
 
 ## Adopting it

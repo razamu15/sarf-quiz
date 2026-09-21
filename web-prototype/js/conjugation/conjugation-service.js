@@ -59,7 +59,7 @@
 //     نَاقِص, a shortened ʿayn in an أَجْوَف). "Stem" there is what the engine
 //     produced for that slot, not the citation's stem.
 //
-// Why it is written here and not left to later: ROADMAP B3 freezes this API
+// Why it is written here and not left to later: the corpus freeze (B3, docs/TECHNICAL_PLAN.md Part C) freezes this API
 // for the corpus, and anything the UI will ever want has to exist before the
 // freeze. Same list as waznRoot() from A5. Decided 20 Sep 2026 — documented
 // now, implemented before B3. Design rationale: design/midad/guide/05-tables.md

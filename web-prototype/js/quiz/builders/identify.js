@@ -3,7 +3,7 @@
 // Five question kinds share one pool draw and one identity, and differ only in
 // which property they interrogate: tense, voice, doer, iʿrāb, bāb. Which of them
 // a session actually asks is decided by relevance.js from what the pool
-// contains, never by the user (PRODUCT_SPEC §5.2b).
+// contains, never by the user (product-spec D-15, D-16).
 //
 // Called by: relevance.js (the registry points at these) and drills.js, which
 // applies several of them to the SAME word to make a bundle.
@@ -59,7 +59,7 @@ export function tenseQuestion(drawn) {
  * be served as single-correct.
  *
  * Same treatment doerQuestion gives تَكْتُبُ serving "she" and "you (m)": the
- * collapse is the lesson rather than something to dodge (PRODUCT_SPEC §5.2).
+ * collapse is the lesson rather than something to dodge (product-spec D-20).
  */
 export function voiceQuestion(drawn) {
   const p = partsOf(drawn);
@@ -94,7 +94,7 @@ export function voiceQuestion(drawn) {
       : singleCorrect(drawnOption, [otherOption]),
     feedback: feedbackOf(p.meaning, collapses
       // States the collapse without explaining it: WHY the vowel is gone differs
-      // by verb type and belongs to recognition tips (ROADMAP A3), which is the
+      // by verb type and belongs to recognition tips (product-spec D-28), which is the
       // layer that gets to see what the user actually picked.
       ? `${p.word} is written the same in both voices — ${drawnOption.ar} and `
         + `${otherOption.ar} fall together here, so only context tells them apart.`

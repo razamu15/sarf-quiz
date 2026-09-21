@@ -8,21 +8,21 @@ implementation; the Swift app is a port that happens once, later.
 
 | | |
 |---|---|
-| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | **What exists now** in `web-prototype/`. The layers, the object chain, the module map, and the invariants a change must not break. Start here. |
-| [docs/ROADMAP.md](docs/ROADMAP.md) | What is left, in build order, with the decisions already made. |
-| [docs/PRODUCT_SPEC.md](docs/PRODUCT_SPEC.md) | What the app is for and how each screen behaves. |
-| [docs/TECHNICAL_PLAN.md](docs/TECHNICAL_PLAN.md) | The **target iOS app**: stack, module layout, persistence, monetization, AI Explain, testing gates. Does not describe the prototype. |
+| [product-spec/README.md](product-spec/README.md) | **What the app is and how every screen behaves** — split by screen, with the design system's screenshots. [`DECISIONS.md`](product-spec/DECISIONS.md) lists every call the owner has made, with its source; [`OPEN_QUESTIONS.md`](product-spec/OPEN_QUESTIONS.md) lists what nobody has, each with the default to build. The design system in `design/midad/` is the source of truth for look and behaviour. |
+| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | **What exists now** in `web-prototype/`. The layers, the object chain, the module map, the invariants a change must not break, and how to verify a change. |
+| [docs/TECHNICAL_PLAN.md](docs/TECHNICAL_PLAN.md) | The **target iOS app**: stack, module layout, persistence, testing gates, and the engine-side milestones. Does not describe the prototype. |
+| [docs/PARSE_CARD_PLAN.md](docs/PARSE_CARD_PLAN.md) | **The one change in flight.** How `identify` becomes a single composite *Parse the word* question (D-72…D-80): measured ground truth, the entities, the file split, and the parity proof. Design, not built. |
 | [docs/PORT_INVENTORY.md](docs/PORT_INVENTORY.md) | JS → Swift: every discrepancy and what it costs. Read when the port starts, not before. |
 | [docs/KNOWN_CONJUGATION_ERRORS.md](docs/KNOWN_CONJUGATION_ERRORS.md) | **Every cell the engine gets wrong today**, with the code responsible — plus the differences that only look like errors. Read before touching a conjugator, and before trusting a mismatch report. |
 
-Each doc owns one thing and they do not overlap: **ARCHITECTURE** is what is
-built, **TECHNICAL_PLAN** is what gets built in Swift, **PORT_INVENTORY** is how
-one becomes the other, **ROADMAP** is the order.
+Each doc owns one thing and they do not overlap: **product-spec** is what the app
+is and does, **ARCHITECTURE** is what is built, **TECHNICAL_PLAN** is what gets
+built in Swift, **PORT_INVENTORY** is how one becomes the other.
 
-**Ignore `docs/archive/`.** Those are superseded plans kept only so the owner can
-trace decisions; they describe types and structures that no longer exist and will
-mislead you. Same for `.lavish/*.html` — design-session review artifacts, useful
-history, **not authoritative**.
+**The old `docs/PRODUCT_SPEC.md`, `docs/ROADMAP.md`, `docs/archive/` and `.lavish/`
+were deleted on 2026-09-21** because they were stale. They are recoverable from
+git (`git show d4c6119:<path>`) and `product-spec/README.md` says where each
+thing that was still true went. Do not rebuild them.
 
 ## Working here
 
@@ -31,14 +31,17 @@ cd web-prototype && node test/smoke.mjs     # 417 assertions; the first 112 are 
 ```
 
 **Run the app** with the `sarf-quiz-web` config in `.claude/launch.json`
-(`preview_start`), never with a bare `node`. Then drive it and read the console —
+(`preview_start`), never with a bare `node`. The `sarf-design` config in the same
+file serves `design/` on 4174, which is how you look at `design/midad/previews/`
+and `design/proposals/` without opening them from Finder (`serve.mjs` takes an
+optional root argument for it). Then drive it and read the console —
 twice a green test suite has hidden a real break that only a page reload
 surfaced.
 
-**Any engine or refactor change needs a parity snapshot**: dump all 74,420
-generated words, derived nouns, citations and meanings before touching anything,
-diff after, and it must be zero. The recipe is in
-[ROADMAP.md §Verification](docs/ROADMAP.md#verification).
+**Any engine or refactor change needs a parity snapshot**: dump every generated
+word, derived noun, citation and meaning (75,640 lines on 2026-09-21; it grows
+with the lexicon) before touching anything, diff after, and it must be zero. The
+recipe is in [docs/ARCHITECTURE.md §10](docs/ARCHITECTURE.md#10-how-to-verify-a-change).
 
 ## The rules that bite hardest here
 
@@ -54,11 +57,13 @@ These are the ones that have actually caused bugs in this codebase.
 - **Validate once, at a boundary.** `conjugation-service` owns every conjugation
   precondition; `grade()` owns every correctness judgement. No screen decides
   whether an answer is right.
-- **Practice has two flows and they share a plan.** `settings.practiceFlow`
-  picks classic or wizard. Neither screen calls `quizPlan()` — both mutate
-  `state.draft` and `practice.js` makes the one `draftPlan()` call. Keep it that
-  way: it is what lets the losing flow be deleted with no migration.
-  `practice-classic.js` is **frozen verbatim** until that call is made.
+- **Practice never builds a plan.** No Practice screen calls `quizPlan()` — they
+  mutate `state.draft` and `practice.js` makes the one `draftPlan()` call — and
+  the iOS screen must keep that: it is what lets any layout be replaced with no
+  migration. The prototype still contains the classic and wizard layouts behind
+  `settings.practiceFlow`, but that comparison is **closed** (product-spec D-69:
+  iOS builds the design's single screen), so they are no longer frozen and
+  should not be extended.
 - **Verb types have two layers.** `ajwaf_waw` is what the engine routes on;
   `ajwaf` is what a student picks. Expand at the UI boundary, store the granular
   one. Carrying a group name into plan data silently killed a Home drill.

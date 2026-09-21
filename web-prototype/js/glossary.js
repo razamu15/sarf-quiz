@@ -20,7 +20,7 @@ export const PRONOUNS = {
 };
 
 /**
- * The four quiz types as a student meets them (ROADMAP A2's naming table).
+ * The four quiz types as a student meets them (product-spec D-35).
  *
  * Each is named by WHAT YOU ARE GIVEN → WHAT YOU MUST SUPPLY, which is what the
  * old names failed at: "Identify" did not say identify what, and "Meaning →

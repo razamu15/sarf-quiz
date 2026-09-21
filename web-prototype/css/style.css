@@ -246,7 +246,7 @@ h1 .ar { font-family: var(--arabic); font-size: 30px; margin-inline-start: 8px; 
 }
 .feedback .meaning .ar { font-size: 24px; }
 
-/* Recognition tips (ROADMAP A3) — the rule behind the miss. Set apart from the
+/* Recognition tips (product-spec D-28) — the rule behind the miss. Set apart from the
    explanation above it, because that one is about THIS word and these are not. */
 .feedback .tips {
   margin-top: 10px;

@@ -5,7 +5,7 @@
 // this screen was reachable. That is the whole point of storing rather than
 // summarising — data you didn't keep can't be backfilled, so a user who turns
 // this on gets every answer they ever gave rather than a dashboard that starts
-// today (PRODUCT_SPEC §5.4).
+// today (product-spec/reference/history-and-stats.md).
 
 import { el } from '../ui/dom.js';
 import { state } from '../ui/state.js';

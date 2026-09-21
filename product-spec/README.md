@@ -1,7 +1,8 @@
 # Sarf Quiz — product spec
 
-> **v2 · draft for your review · 2026-09-21.** Supersedes [`docs/PRODUCT_SPEC.md`](../docs/PRODUCT_SPEC.md)
-> for the iOS build. Nothing in `docs/` was touched — see [Old docs](#old-docs) for what is stale in them.
+> **v2 · reviewed 2026-09-21.** Replaces the old `docs/PRODUCT_SPEC.md`, which has been **removed** along with
+> the other stale docs — see [What was removed](#what-was-removed-and-where-it-went). Your answers to the first
+> review are in [`DECISIONS.md`](DECISIONS.md) (D-69 to D-71).
 
 **What this is.** A fresh, complete description of the app to build: every screen, flow, rule and
 piece of copy, split the way the design system splits it, with screenshots. It is written so an
@@ -13,8 +14,8 @@ agent can be handed a few of these files and build one part of the app without r
    interactive previews. It is the latest statement of what you want. Where it says something, this spec follows it.
 2. **The running prototype** — `web-prototype/`, read *and run*. Every number in this folder is
    measured (2026-09-21), not copied from a doc.
-3. **Your recorded decisions** — from `docs/`, `.lavish/` review artifacts and the design's
-   `07-decisions.md` — used wherever the design is silent.
+3. **Your recorded decisions** — from the old docs and review artifacts (now removed, still recoverable from git)
+   and the design's `07-decisions.md` — used wherever the design is silent.
 
 When two of them disagree the higher one wins **and the disagreement is flagged**, never hidden.
 
@@ -34,8 +35,8 @@ Look for these; they are the point of the folder. Everything is listed in one pl
 | ⚠️ | A conflict or piece of drift between sources, and how this spec resolved it. |
 | ♻️ | Was decided, later superseded. Listed so it is not resurrected. |
 
-**Four ❓ are 🔴 — they change what gets built and are worth answering before the implementation plan.**
-The rest are 🟡: small, with a default that is probably right.
+**Nothing open blocks the implementation plan.** The four 🔴 questions were answered or deferred on 2026-09-21
+(D-69, D-70, D-71; Q-04 deferred). What remains is 🟡 — small, with a default that is probably right.
 
 ---
 
@@ -98,34 +99,32 @@ The interactive versions are in `design/midad/previews/` (open `index.html`); *Q
 
 ---
 
-## Old docs
+## What was removed, and where it went
 
-The old set was not reused because it disagrees with the app you are now building. What is stale, so nobody
-builds from it by accident:
+On 2026-09-21 the stale docs were **deleted**. Everything is still in git at commit **`d4c6119`**
+(`git show d4c6119:<path>`). Nothing that was still true was dropped — it moved:
 
-| Where | What is wrong now |
-|---|---|
-| `docs/PRODUCT_SPEC.md` §3–4, §6 | A free/Pro matrix, a paywall, and all seven verb types at launch — v1 has **no Pro tier** and **five verb types** (D-01, D-04). |
-| `docs/PRODUCT_SPEC.md` §5.1 | Home as three equal drill cards, with a stats card that opens a stats page — the design replaced both. |
-| `docs/PRODUCT_SPEC.md` §5.2 | "See full table" leaves the quiz for the Tables tab — it is now a peek over the quiz (D-45). |
-| `docs/PRODUCT_SPEC.md` §5.2, §5.5 | An **Explain ✨ button** on wrong answers — that is the *later* AI Explain; in v1 rule-based tips fill the slot (D-05), and the dead ✨ stub `ROADMAP` mentions never existed in the code. |
-| `docs/ROADMAP.md` **B1, B2** | Listed as open ("⬜ v1"). **Both are done** — nāqiṣ mazīd II–X (`c11be1b`) and weak-verb derived-noun stems (`27edeb5`), verified by running the engine. |
-| `docs/ROADMAP.md` A2 · `ARCHITECTURE.md` §11 | Two Practice layouts behind `practiceFlow`. The design has one — see **Q-01**. |
-| `docs/TECHNICAL_PLAN.md` §B.2 | `Results/ — score ring` and `Home/ — prebuilt drill cards + the free stats card` — both superseded by the design (D-47, D-49). |
-| `docs/*` | "161 roots" — it is **165** now (135 playable). |
-| `CLAUDE.md` | Points agents at `docs/PRODUCT_SPEC.md`. |
+| Removed | Why | Where its content lives now |
+|---|---|---|
+| `docs/PRODUCT_SPEC.md` | Superseded: a Pro tier, seven verb types, three equal Home cards, a Tables-tab "See full table" — none of it is the app you are building. | **This folder.** Its success metrics → `00-overview.md` (and Q-18). |
+| `docs/ROADMAP.md` | Its status was stale (B1/B2 listed open; both done) and its build order is replaced by the implementation plan. | Decisions → `DECISIONS.md` · **the parity-snapshot recipe → `docs/ARCHITECTURE.md` §10** · remaining engine milestones (B3, B4, C1–C4) and the corpus gate Q1 → `docs/TECHNICAL_PLAN.md` Part C · the flagged features → `reference/later-versions.md` |
+| `docs/archive/` | Superseded plans, "kept only so the owner can trace decisions". | Its one live idea — what happens to the JS prototype after the port — → `docs/TECHNICAL_PLAN.md` Part C, *The prototype after the port* |
+| `.lavish/` (13 review artifacts) | Design-session history, marked *not authoritative*. | The decisions you made in them → `DECISIONS.md` (sources keep their old short names; the legend gives the git path) · the 24-query stats catalogue → `reference/history-and-stats.md` |
 
-**Still valid, and worth keeping:** `ARCHITECTURE.md` (the object chain and invariants), `KNOWN_CONJUGATION_ERRORS.md`,
-`PORT_INVENTORY.md` (JS→Swift traps — engine port only), and the engine half of `TECHNICAL_PLAN.md` (Parts A, C).
-They describe the **engine and the port**, which this spec deliberately does not.
+**Kept, and corrected where they were wrong** (links repointed, stale claims fixed):
+`docs/ARCHITECTURE.md` (the object chain and invariants — module and edge counts re-verified, Practice section resolved) ·
+`docs/TECHNICAL_PLAN.md` (iOS 18+, one Practice screen, Part C milestones) ·
+`docs/PORT_INVENTORY.md` (JS→Swift traps — its screen mapping predates the design and says so) ·
+`docs/KNOWN_CONJUGATION_ERRORS.md`. They describe the **engine and the port**, which this spec deliberately does not.
 
-> **Suggested follow-up, not done:** once you accept this spec, rename `docs/PRODUCT_SPEC.md` → `PRODUCT_SPEC_v1.md`
-> (your planning-docs rule) and point `CLAUDE.md` here. I left both alone — the folder is a proposal until you say so.
+**Left alone on purpose:** `design/midad/` is generated and its files cite the removed docs (`PRODUCT_SPEC §5.6`,
+`ROADMAP B3`, …) — see Q-17. `verification/` has its own versioned plans.
 
 ## What is deliberately not in here
 
-- **The implementation plan** — build order, module layout, per-agent briefs. That is the next step and it should be derived
-  screen by screen from this spec (`plan-review` skill). Q-03 and Q-04 are the questions it needs answered first.
+- **The implementation plan** — build order, module layout, per-agent briefs.
+  *(Exception: the one change in flight has one — [`docs/PARSE_CARD_PLAN.md`](../docs/PARSE_CARD_PLAN.md) for the parse card, D-72…D-80.)* That is the next step and it should be derived
+  screen by screen from this spec (`plan-review` skill). Nothing in `OPEN_QUESTIONS.md` blocks it.
 - **The engine** — how words are generated. Done; see `docs/ARCHITECTURE.md` and `reference/content.md`.
-- **Swift architecture** — `docs/TECHNICAL_PLAN.md` Part B and `PORT_INVENTORY.md`, unchanged by this spec except where
+- **Swift architecture** — `docs/TECHNICAL_PLAN.md` Part B and `docs/PORT_INVENTORY.md`, unchanged by this spec except where
   `00-overview.md` lists a quiz-layer change the design requires.

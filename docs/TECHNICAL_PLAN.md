@@ -1,18 +1,17 @@
 # Sarf Quiz — the iOS app
 
 > **What this is.** The target architecture for the native app: the stack, the
-> module layout, persistence, monetization, AI Explain, and the testing gates.
+> module layout, persistence, the later-version backends (monetization, AI
+> Explain), the testing gates, and the engine-side sequencing.
 >
 > **What it is not.** It does not describe the prototype — that is
-> [ARCHITECTURE.md](ARCHITECTURE.md) — and it does not describe how JS becomes
-> Swift, which is [PORT_INVENTORY.md](PORT_INVENTORY.md). The build order is
-> [ROADMAP.md](ROADMAP.md); the product is [PRODUCT_SPEC.md](PRODUCT_SPEC.md).
+> [ARCHITECTURE.md](ARCHITECTURE.md) — it does not describe how JS becomes Swift,
+> which is [PORT_INVENTORY.md](PORT_INVENTORY.md), and it does not say what the
+> app does: that is [product-spec/](../product-spec/README.md).
 >
-> Rewritten Aug 2026. The previous version merged a v1 and a v2 plan and carried
-> both as inline history; it described types that no longer exist (`ChartID`,
-> `chartKey`, a single `QuizService`, a flat `Question`, the `manualTables`
-> fallback) and would mislead anyone building from it. It is kept only for
-> traceability at `docs/archive/TECHNICAL_PLAN_v2.md` — **do not build from it**.
+> Updated 21 Sep 2026: **iOS 18+** ([product-spec D-71](../product-spec/DECISIONS.md)),
+> **one Practice screen** (D-69), and the old ROADMAP and PRODUCT_SPEC were
+> removed — what was still true in them is in Part C below and in `product-spec/`.
 
 ---
 
@@ -129,7 +128,7 @@ nouns (`Root`, `ConjugationChart`, `Glossary`); files are named for their role.
 
 ### B.1 Stack
 
-SwiftUI + Observation, iOS 17+; SwiftData with CloudKit mirroring; StoreKit 2;
+SwiftUI + Observation, **iOS 18+** (product-spec D-71); SwiftData with CloudKit mirroring; StoreKit 2;
 **no third-party dependencies** in the app target; one serverless endpoint for AI
 Explain.
 
@@ -145,12 +144,12 @@ SarfQuiz/                     ← app target: UI and platform services only
     AppModel.swift            composition root: LexiconService once, then
                               ConjugationService / MeaningService on top
   Features/                   ← four tabs: Home · Practice · Tables · More
-    Home/       prebuilt drill cards + the free stats card
-    Practice/   the configuration surface (both flows — ROADMAP § A2)
-    Quiz/       QuizView, QuestionCard, FeedbackView, QuizRun binding
-    Tables/     search → per-attribute chart pickers → all 14 rows,
-                deep-linkable from quiz feedback
-    Results/    score ring, breakdowns, vocab recap
+    Home/       hero drill + list, the free stats strip, the quote
+    Practice/   one scrolling screen + the pinned setup bar (product-spec D-69)
+    Quiz/       QuizView, QuestionCard, FeedbackView, the full-table peek,
+                QuizRun binding
+    Tables/     search → per-attribute chart pickers → all 14 rows
+    Results/    the misses, the score fraction, breakdown by kind, vocab recap
     More/       settings, about, and the entry to Stats
     Stats/      the detailed dashboard (flagged)
     Explain/    the streaming sheet (flagged)
@@ -234,7 +233,7 @@ that moves with the mix.
 
 ### B.4 Monetization — StoreKit 2
 
-Flagged off in v1 (ROADMAP § "v1 has no Pro tier"). When it lands:
+Flagged off in v1 (product-spec D-01: no Pro tier). When it lands:
 
 - One subscription group, "Sarf Pro": monthly + annual, 7-day trial on annual
 - `StoreService` exposes `entitlement: .free | .pro` via
@@ -243,11 +242,11 @@ Flagged off in v1 (ROADMAP § "v1 has no Pro tier"). When it lands:
 - **Gating is view-level only** — SarfCore never learns about tiers
 - The AI-trial counter lives in the iCloud key-value store so reinstalls don't
   reset it
-- Paywall copy per PRODUCT_SPEC §4; include restore and the legal links
+- Paywall placement and copy per product-spec/reference/later-versions.md § Monetization; include restore and the legal links
 
 ### B.5 AI Explain
 
-Flagged off in v1; recognition tips (ROADMAP § A3) occupy the same slot first.
+Flagged off in v1; recognition tips (product-spec D-28) occupy the same slot first.
 
 **Client.** `ExplainService.explain(_:) async throws -> AsyncStream<String>`,
 with a local cache keyed `(word, category)` so a repeated question costs nothing.
@@ -285,8 +284,9 @@ constants on purpose, so agreement means both are almost certainly right.
 
 ## Part C — Sequencing
 
-The build order is [ROADMAP.md](ROADMAP.md). Only the port-specific argument
-belongs here:
+The build order for the iOS app is the **implementation plan**, to be derived
+screen by screen from [product-spec/](../product-spec/README.md). What belongs
+here is the engine-side sequencing and the port-specific argument:
 
 **The morphology is finished and proven in JavaScript before any Swift is
 written**, because correctness risk and iteration cost are inverted. Nearly all
@@ -313,14 +313,45 @@ button, privacy policy URL, App Privacy labels, export compliance (standard
 encryption exemption), age rating, RTL/Arabic screenshot review on the smallest
 and largest devices.
 
+### Remaining milestones
+
+The engine content work — nāqiṣ mazīd II–X and the weak-verb derived nouns — is
+**done**. What is left on the engine and port side:
+
+| | |
+|---|---|
+| **B3 · Freeze the engine; export the golden corpus** | Un-park `tools/export-content.mjs`; emit `roots.json` plus `golden-corpus.json` — every root × form × chart × ṣīghah with its exact NFC string, **including every combination deliberately answered `null`**, plus derived nouns and citations. **The engine API freezes here**, so everything the app will ever need from `ConjugationService` must already exist: **`waznRoot()`** (Tables' form chips, Compare's wazn preset) and, if it is wanted before the freeze, the **segmented counterpart to `conjugate()`** — prefix / stem / suffix (product-spec D-61: documented, not built). **Gated on Q1** (Open decisions). |
+| **B4 · Mahmūz, then lafīf** | Flagged off. The roots are authored (15 + 15); the **engines** are the work. Mahmūz is a hamza-seat problem (أخذ، سأل، قرأ، أمر); lafīf composes the mithāl and nāqiṣ rule sets (وقي، طوي) and lands last by design, because it validates that those rules compose rather than special-case. |
+| **C1 · SarfCore port** | The frozen structure ported whole. Gate: **zero diffs against the corpus**, chart-audit snapshots green, property test green. One mechanical task with a binary pass condition. [PORT_INVENTORY.md](PORT_INVENTORY.md) §5.1 splits it into S1a (the settled files, portable now) and S1b (gated on Q1). |
+| **C2 · App v1** | Every screen is specified in [product-spec/](../product-spec/README.md). First TestFlight. |
+| **C3 · Ship** | Arabic-keyboard detection, Dynamic Type, VoiceOver, icon, screenshots, privacy labels. SwiftData for history, local only — sync has nothing to sync for yet. |
+| **C4+ · The flags, one at a time** | Detailed stats + CloudKit · compare · monetization · AI Explain · mahmūz and lafīf. Each is a release, and each has a flag already in place. |
+
+### The prototype after the port
+
+The agreed path, carried over from the superseded v2 plan because no live doc
+states it:
+
+1. **JS first.** Engines, quiz layer and screen layouts are settled in
+   `web-prototype/`, where a wrong ḥaraka costs seconds to find. *(Done for the
+   engines and the quiz layer.)*
+2. **The golden corpus is the handoff** (A.5), graded by a zero-diff run.
+3. **The Swift port** mirrors the signed-off JS structure.
+4. **Retirement.** Once the SwiftUI app reaches feature parity and the owner
+   signs off, **Swift becomes the single engine**. The JS app is frozen as a
+   scratch UX sketchpad, **no longer authoritative**; `tools/export-content.mjs`
+   shrinks to roots + golden corpus and disappears entirely once the corpus is
+   committed and root authoring moves to editing `roots.json` directly.
+
 ---
 
 ## Part D — Designed, not built
 
 ### D.1 Chart comparison — base + delta with vary-by presets
 
-The build spec for ROADMAP § A5. **No engine, grammar or service changes are
-required** — a comparison is two chart specs and a diff, and both already exist.
+The build spec for Compare (the product decision is in
+product-spec/reference/later-versions.md § Compare; dev-audience only in v1,
+product-spec D-06). **No engine, grammar or service changes are required** — a comparison is two chart specs and a diff, and both already exist.
 
 **Decision (Aug 2026):** the right-hand chart is a **delta over the left**, not
 an independently configured chart. Rejected: two independent pickers (too many
@@ -360,7 +391,7 @@ first, grey out the rest, the way the Practice rows already do.
 
 The wazn preset needs ف-ع-ل as a lexicon-shaped object. `waznRoot()` in
 `conjugation-service.js` already builds one and **must be exported before the
-engine API freezes** (ROADMAP § B3).
+engine API freezes** (B3, Part C).
 
 **The diff, at three levels.**
 
@@ -383,31 +414,27 @@ scroll container so rows stay aligned. On a narrow phone shrink the pronoun
 column; **never wrap an Arabic word to a second line**, as the diff highlighting
 becomes unreadable.
 
-**Why it earns its place before the remaining engine work.** It is a correctness
-instrument as much as a feature. Put ظلل Form II manṣūb beside majzūm today and
-it reports **identical**, which is wrong — Form II never merges, so it must
-behave like a sound verb (compare علم II: يُعَلِّمَ vs يُعَلِّمْ). Writing the
-nāqiṣ mazīd tables against this view will surface the same class of error while
-the tables are being authored rather than after.
+**Why it earns its place.** It is a correctness instrument as much as a
+feature: two charts that *should* differ but report identical are wrong on
+sight. (ظلل Form II manṣūb beside majzūm once did — Form II never merges, unlike
+Form I — and is fixed; compare علم II: يُعَلِّمَ vs يُعَلِّمْ.) The same view is
+the cheapest audit for the mahmūz and lafīf tables when they are authored.
 
 **Later extensions, worth not designing out.** A third column, so verb · verb ·
 wazn fit together. And a deep link from quiz feedback — *"you wrote the manṣūb,
 here it is beside the majzūm you were asked for"* — which turns a wrong answer
 into the comparison that explains it.
 
-### D.2 The Practice wizard
-
-**Moved.** The full build spec is [ROADMAP.md](ROADMAP.md) § A2, including the
-settings entry, the file split, the wizard's steps, the shared summary step and
-the naming table. PRODUCT_SPEC §5.2a describes the behaviour.
-
 ---
 
 ## Open decisions
 
-1. **The corpus gate (ROADMAP § Open decisions · Q1).** This plan says Swift
-   never carries a half-covered `VerbType`. Freezing the corpus over five engines
-   — with mahmūz and lafīf flagged out of v1 — breaks that. **Blocks the port.**
+1. **The corpus gate (Q1).** This plan says Swift never carries a half-covered
+   `VerbType`. Freezing the corpus over five engines — with mahmūz and lafīf
+   flagged out of v1 — breaks that. Options: **freeze over five and regenerate
+   when the other two land** (a reviewed diff — the mechanism exists; the
+   recommended option), hold the port for all seven, or treat the weak pair as a
+   separate engine effort with its own corpus. **Blocks B3, and so the port.**
 2. **Explain prompt language** — English at launch; Arabic-medium later?
 3. **Trial mechanics** — 3 lifetime explains *and* a 7-day trial (they compose),
    or one of them?

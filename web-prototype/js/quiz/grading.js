@@ -46,7 +46,7 @@ export function grade(question, given) {
     };
   }
 
-  // Strict, final ḥaraka included — the ending IS the lesson (PRODUCT_SPEC §5.2).
+  // Strict, final ḥaraka included — the ending IS the lesson (product-spec D-26).
   // The engine's string is already NFC; what was typed may not be.
   const typed = (given[0] ?? '').normalize('NFC').trim();
   const expected = question.response.accepted[0];

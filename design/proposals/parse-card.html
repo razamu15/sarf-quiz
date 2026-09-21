@@ -1,0 +1,365 @@
+<!doctype html>
+<html lang="en" data-theme="midad">
+<head>
+<meta charset="utf-8"><title>ParseCard — proposal</title>
+<link rel="stylesheet" href="../midad/tokens.css"><link rel="stylesheet" href="../midad/bundle.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Scheherazade+New:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&display=swap">
+<style>
+/* ===================================================================
+   PROPOSED ADDITIONS to bundle.css — not yet in the design system.
+   Everything else on this page is existing Midad classes, unchanged.
+   Fold these into the generator when the proposal is accepted.
+   =================================================================== */
+
+/* --- the parse card's axis rows ---------------------------------------
+   Deliberately the SAME visual grammar as Practice's ChartScope: labelled
+   groups of chips, with iʿrāb indented under Tense behind a rule. The user
+   has already learned to read this on the Practice screen; the quiz asking
+   in the same shape it was configured in is the point. */
+.sq-axes { display: flex; flex-direction: column; gap: var(--space-4); }
+.sq-axis { display: flex; flex-direction: column; gap: var(--space-2); }
+.sq-axis--under { margin-inline-start: 8px; padding-inline-start: var(--space-3); border-inline-start: 2px solid var(--line); }
+.sq-axis__head { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-3); }
+.sq-axis__mark { display: none; align-items: center; gap: 5px; font: 600 12px/16px var(--font-sans); }
+.sq-axis__mark .sq-icon { width: 15px; height: 15px; stroke-width: 2.5; }
+.sq-axis[data-verdict] .sq-axis__mark { display: inline-flex; }
+.sq-axis[data-verdict="correct"] .sq-axis__mark { color: var(--correct); }
+.sq-axis[data-verdict="wrong"] .sq-axis__mark { color: var(--wrong); }
+
+/* --- the chip as an answer control ------------------------------------
+   A chip, not an AnswerOption: five stacked 60pt options would be 1,000pt of
+   screen. The chip already carries a bilingual label in fixed slots and
+   already toggles, so the only things it lacks are a tick box and the six
+   graded states AnswerOption has. */
+.sq-chip__box {
+  flex: none; width: 18px; height: 18px; display: grid; place-items: center;
+  border: 1.5px solid var(--line-strong); border-radius: var(--radius-xs);
+  background: var(--raised); color: var(--on-select);
+}
+.sq-chip__box svg { width: 12px; height: 12px; stroke-width: 3; opacity: 0; }
+.sq-chip[aria-pressed="true"] .sq-chip__box { background: var(--on-select); border-color: var(--on-select); color: var(--select); }
+.sq-chip[aria-pressed="true"] .sq-chip__box svg { opacity: 1; }
+.sq-chip__mark { flex: none; width: 17px; height: 17px; display: none; }
+.sq-chip__verdict { display: none; font: 600 11px/14px var(--font-sans); }
+
+/* graded — correctness on the container, exactly as AnswerOption does it.
+   Never `sign`: red is for letters that carry the grammar. */
+.sq-chip[data-state] { cursor: default; }
+.sq-chip[data-state] .sq-chip__box { display: none; }
+.sq-chip[data-state="correct"] { background: var(--correct-soft); border-color: var(--correct); border-width: 2px; color: var(--ink); }
+.sq-chip[data-state="correct"] .sq-chip__ar { color: var(--ink-muted); }
+.sq-chip[data-state="missed"] { background: var(--raised); border: 2px dashed var(--correct); color: var(--ink); }
+.sq-chip[data-state="missed"] .sq-chip__ar { color: var(--ink-muted); }
+.sq-chip[data-state="wrong"] { background: var(--wrong-soft); border-color: var(--wrong); border-width: 2px; color: var(--ink); }
+.sq-chip[data-state="wrong"] .sq-chip__num, .sq-chip[data-state="wrong"] .sq-chip__en { text-decoration: line-through; text-decoration-thickness: 1.5px; }
+.sq-chip[data-state="rest"] { background: transparent; border-color: var(--line); color: var(--ink-faint); }
+.sq-chip[data-state="rest"] .sq-chip__ar { color: var(--ink-faint); }
+.sq-chip[data-state="correct"] .sq-chip__mark, .sq-chip[data-state="missed"] .sq-chip__mark { display: block; color: var(--correct); }
+.sq-chip[data-state="wrong"] .sq-chip__mark { display: block; color: var(--wrong); }
+.sq-chip[data-state="missed"] .sq-chip__verdict { display: inline; color: var(--correct); }
+.sq-chip__en { font: 600 14px/18px var(--font-sans); }
+
+/* After grading, a row that was RIGHT collapses to one line — its label, the
+   chip you picked, a tick. Only rows with a miss stay expanded.
+   This is not tidying: with five axes expanded, the answer sheet covers the
+   very row you are meant to look at. Collapsing the right ones is what keeps
+   "the misses are the screen" (D-49) true on a phone. */
+.sq-screen[data-answered] .sq-axes { padding-bottom: var(--space-2); }
+.sq-axis[data-verdict="correct"] {
+  display: grid; grid-template-columns: auto 1fr; align-items: center;
+  gap: var(--space-3); padding-block: 2px;
+}
+.sq-axis[data-verdict="correct"] .sq-axis__head { justify-content: flex-start; gap: 6px; }
+.sq-axis[data-verdict="correct"] .sq-chips { justify-content: flex-end; }
+/* The distractors have done their work; only the answer is worth the room. */
+.sq-axis[data-verdict="correct"] .sq-chip[data-state="rest"] { display: none; }
+.sq-axis[data-verdict="correct"] .sq-chip { min-height: 32px; border-width: 1px; background: transparent; }
+.sq-axis[data-verdict="correct"] .sq-chip__mark { display: none; }
+.sq-axis--under[data-verdict="correct"] { padding-block: 4px; }
+
+/* ---------------------------------------------------- the page itself --- */
+body { font-family: var(--font-sans); }
+.wrap { padding: 24px; }
+h1 { font: 500 30px/36px var(--font-serif); margin: 0 0 4px; }
+.sub { font: 400 15px/22px var(--font-sans); color: var(--ink-muted); margin: 0 0 24px; max-width: 78ch; }
+.notes { width: 380px; flex: none; font: 400 14px/21px var(--font-sans); color: var(--ink-muted); }
+.notes h3 { font: 600 17px/24px var(--font-sans); color: var(--ink); margin: 0 0 8px; }
+.notes h4 { font: 600 13px/18px var(--font-sans); color: var(--ink); margin: 20px 0 6px; text-transform: none; }
+.notes ul { margin: 0; padding-inline-start: 18px; }
+.notes li { margin-bottom: 8px; }
+.notes b { color: var(--ink); }
+.notes code { font: 600 12px/16px ui-monospace, "SF Mono", Menlo, monospace; color: var(--ink); }
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>Parse the word <span class="sq-ar" lang="ar" style="font-size:26px;color:var(--ink-muted)">تَحْلِيل صَرْفِي</span></h1>
+<p class="sub">One card per word; every aspect answered at once. Replaces the five separate identify questions
+(<code>tense</code>, <code>voice</code>, <code>doer</code>, <code>mood</code>) with one, and adds <code>form</code>.
+Every Arabic word, pronoun collapse and reading on this page is real output from <code>web-prototype/</code>.</p>
+
+<div class="sq-stage">
+
+  <!-- ============================================ 1 · at rest ========= -->
+  <div class="sq-stage__col">
+    <div class="sq-phone">
+      <div class="sq-status"><span>9:41</span><i></i></div>
+      <div class="sq-topbar">
+        <div class="sq-quizbar">
+          <button class="sq-iconbtn" aria-label="Quit"><svg class="sq-icon" viewBox="0 0 24 24"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/></svg></button>
+          <div class="sq-progress">
+            <span class="sq-progress__word"><i class="sq-progress__tick" data-at="done"></i></span>
+            <span class="sq-progress__word"><i class="sq-progress__tick" data-at="now"></i></span>
+            <span class="sq-progress__word"><i class="sq-progress__tick"></i></span>
+            <span class="sq-progress__word"><i class="sq-progress__tick"></i></span>
+            <span class="sq-progress__word"><i class="sq-progress__tick"></i></span>
+          </div>
+          <span class="sq-quizbar__count">2 of 5</span>
+        </div>
+      </div>
+
+      <div class="sq-screen">
+        <div class="sq-prompt">
+          <p class="sq-prompt__word" lang="ar">تَنْصُرُ</p>
+          <p class="sq-prompt__gloss">“to help”</p>
+        </div>
+        <p class="sq-ask">Parse this word<span class="sq-ask__hint">Answer every row.</span></p>
+
+        <div class="sq-axes">
+          <div class="sq-axis">
+            <div class="sq-axis__head"><p class="sq-label">Form</p></div>
+            <div class="sq-chips">
+              <button class="sq-chip" aria-pressed="false"><span class="sq-chip__num">I</span><span class="sq-chip__ar" lang="ar">مُجَرَّد</span></button>
+              <button class="sq-chip" aria-pressed="false"><span class="sq-chip__num">III</span><span class="sq-chip__ar" lang="ar">فَاعَلَ</span></button>
+              <button class="sq-chip" aria-pressed="false"><span class="sq-chip__num">VIII</span><span class="sq-chip__ar" lang="ar">اِفْتَعَلَ</span></button>
+              <button class="sq-chip" aria-pressed="false"><span class="sq-chip__num">X</span><span class="sq-chip__ar" lang="ar">اِسْتَفْعَلَ</span></button>
+            </div>
+          </div>
+
+          <div class="sq-axis">
+            <div class="sq-axis__head"><p class="sq-label">Tense</p></div>
+            <div class="sq-chips">
+              <button class="sq-chip" aria-pressed="false"><span class="sq-chip__en">past</span><span class="sq-chip__ar" lang="ar">مَاضٍ</span></button>
+              <button class="sq-chip" aria-pressed="false"><span class="sq-chip__en">present</span><span class="sq-chip__ar" lang="ar">مُضَارِع</span></button>
+              <button class="sq-chip" aria-pressed="false"><span class="sq-chip__en">command</span><span class="sq-chip__ar" lang="ar">أَمْر</span></button>
+            </div>
+          </div>
+
+          <div class="sq-axis sq-axis--under">
+            <div class="sq-axis__head"><p class="sq-label">Iʿrāb <small>select all that apply</small></p></div>
+            <div class="sq-chips">
+              <button class="sq-chip" aria-pressed="false"><span class="sq-chip__box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M5 12.5l5 5 9-11"/></svg></span><span class="sq-chip__en">marfūʿ</span><span class="sq-chip__ar" lang="ar">مَرْفُوع</span></button>
+              <button class="sq-chip" aria-pressed="false"><span class="sq-chip__box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M5 12.5l5 5 9-11"/></svg></span><span class="sq-chip__en">manṣūb</span><span class="sq-chip__ar" lang="ar">مَنْصُوب</span></button>
+              <button class="sq-chip" aria-pressed="false"><span class="sq-chip__box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M5 12.5l5 5 9-11"/></svg></span><span class="sq-chip__en">majzūm</span><span class="sq-chip__ar" lang="ar">مَجْزُوم</span></button>
+              <button class="sq-chip" aria-pressed="false"><span class="sq-chip__box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M5 12.5l5 5 9-11"/></svg></span><span class="sq-chip__en">mabnī — no iʿrāb</span><span class="sq-chip__ar" lang="ar">مَبْنِيّ</span></button>
+            </div>
+          </div>
+
+          <div class="sq-axis">
+            <div class="sq-axis__head"><p class="sq-label">Voice <small>select all that apply</small></p></div>
+            <div class="sq-chips">
+              <button class="sq-chip" aria-pressed="false"><span class="sq-chip__box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M5 12.5l5 5 9-11"/></svg></span><span class="sq-chip__en">maʿrūf</span><span class="sq-chip__ar" lang="ar">مَعْلُوم</span></button>
+              <button class="sq-chip" aria-pressed="false"><span class="sq-chip__box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M5 12.5l5 5 9-11"/></svg></span><span class="sq-chip__en">majhūl</span><span class="sq-chip__ar" lang="ar">مَجْهُول</span></button>
+            </div>
+          </div>
+
+          <div class="sq-axis">
+            <div class="sq-axis__head"><p class="sq-label">Who the doer can be <small>select all that apply</small></p></div>
+            <div class="sq-chips">
+              <button class="sq-chip" aria-pressed="false"><span class="sq-chip__box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M5 12.5l5 5 9-11"/></svg></span><span class="sq-chip__en">he</span><span class="sq-chip__ar" lang="ar">هُوَ</span></button>
+              <button class="sq-chip" aria-pressed="false"><span class="sq-chip__box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M5 12.5l5 5 9-11"/></svg></span><span class="sq-chip__en">she</span><span class="sq-chip__ar" lang="ar">هِيَ</span></button>
+              <button class="sq-chip" aria-pressed="false"><span class="sq-chip__box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M5 12.5l5 5 9-11"/></svg></span><span class="sq-chip__en">you (m)</span><span class="sq-chip__ar" lang="ar">أَنْتَ</span></button>
+              <button class="sq-chip" aria-pressed="false"><span class="sq-chip__box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M5 12.5l5 5 9-11"/></svg></span><span class="sq-chip__en">you (f)</span><span class="sq-chip__ar" lang="ar">أَنْتِ</span></button>
+              <button class="sq-chip" aria-pressed="false"><span class="sq-chip__box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M5 12.5l5 5 9-11"/></svg></span><span class="sq-chip__en">we</span><span class="sq-chip__ar" lang="ar">نَحْنُ</span></button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sq-dock" style="padding:0 var(--space-4) var(--space-4)">
+        <button class="sq-btn sq-btn--primary sq-btn--block" disabled>Check</button>
+      </div>
+    </div>
+    <p class="sq-caption"><b>1 · at rest.</b> Five axes, one Check. Rows that can have more than one right answer carry a
+      tick box and say so — a property of the axis, never of the draw (D-60).</p>
+  </div>
+
+  <!-- ============================================ 2 · graded ========== -->
+  <div class="sq-stage__col">
+    <div class="sq-phone">
+      <div class="sq-status"><span>9:41</span><i></i></div>
+      <div class="sq-topbar">
+        <div class="sq-quizbar">
+          <button class="sq-iconbtn" aria-label="Quit"><svg class="sq-icon" viewBox="0 0 24 24"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/></svg></button>
+          <div class="sq-progress">
+            <span class="sq-progress__word"><i class="sq-progress__tick" data-at="done"></i></span>
+            <span class="sq-progress__word"><i class="sq-progress__tick" data-at="now"></i></span>
+            <span class="sq-progress__word"><i class="sq-progress__tick"></i></span>
+            <span class="sq-progress__word"><i class="sq-progress__tick"></i></span>
+            <span class="sq-progress__word"><i class="sq-progress__tick"></i></span>
+          </div>
+          <span class="sq-quizbar__count">2 of 5</span>
+        </div>
+      </div>
+
+      <div class="sq-screen" data-answered>
+        <div class="sq-prompt">
+          <p class="sq-prompt__word" lang="ar">تَنْصُرُ</p>
+          <p class="sq-prompt__gloss">“to help”</p>
+        </div>
+
+        <div class="sq-axes">
+          <div class="sq-axis" data-verdict="correct">
+            <div class="sq-axis__head"><p class="sq-label">Form</p>
+              <span class="sq-axis__mark"><svg class="sq-icon" viewBox="0 0 24 24"><path d="M5 12.5l5 5 9-11"/></svg></span></div>
+            <div class="sq-chips">
+              <button class="sq-chip" data-state="correct"><span class="sq-chip__num">I</span><span class="sq-chip__ar" lang="ar">مُجَرَّد</span><svg class="sq-chip__mark sq-icon" viewBox="0 0 24 24"><path d="M5 12.5l5 5 9-11"/></svg></button>
+              <button class="sq-chip" data-state="rest"><span class="sq-chip__num">III</span><span class="sq-chip__ar" lang="ar">فَاعَلَ</span></button>
+              <button class="sq-chip" data-state="rest"><span class="sq-chip__num">VIII</span><span class="sq-chip__ar" lang="ar">اِفْتَعَلَ</span></button>
+              <button class="sq-chip" data-state="rest"><span class="sq-chip__num">X</span><span class="sq-chip__ar" lang="ar">اِسْتَفْعَلَ</span></button>
+            </div>
+          </div>
+
+          <div class="sq-axis" data-verdict="correct">
+            <div class="sq-axis__head"><p class="sq-label">Tense</p>
+              <span class="sq-axis__mark"><svg class="sq-icon" viewBox="0 0 24 24"><path d="M5 12.5l5 5 9-11"/></svg></span></div>
+            <div class="sq-chips">
+              <button class="sq-chip" data-state="rest"><span class="sq-chip__en">past</span><span class="sq-chip__ar" lang="ar">مَاضٍ</span></button>
+              <button class="sq-chip" data-state="correct"><span class="sq-chip__en">present</span><span class="sq-chip__ar" lang="ar">مُضَارِع</span><svg class="sq-chip__mark sq-icon" viewBox="0 0 24 24"><path d="M5 12.5l5 5 9-11"/></svg></button>
+              <button class="sq-chip" data-state="rest"><span class="sq-chip__en">command</span><span class="sq-chip__ar" lang="ar">أَمْر</span></button>
+            </div>
+          </div>
+
+          <div class="sq-axis sq-axis--under" data-verdict="correct">
+            <div class="sq-axis__head"><p class="sq-label">Iʿrāb</p>
+              <span class="sq-axis__mark"><svg class="sq-icon" viewBox="0 0 24 24"><path d="M5 12.5l5 5 9-11"/></svg></span></div>
+            <div class="sq-chips">
+              <button class="sq-chip" data-state="correct"><span class="sq-chip__en">marfūʿ</span><span class="sq-chip__ar" lang="ar">مَرْفُوع</span><svg class="sq-chip__mark sq-icon" viewBox="0 0 24 24"><path d="M5 12.5l5 5 9-11"/></svg></button>
+              <button class="sq-chip" data-state="rest"><span class="sq-chip__en">manṣūb</span><span class="sq-chip__ar" lang="ar">مَنْصُوب</span></button>
+              <button class="sq-chip" data-state="rest"><span class="sq-chip__en">majzūm</span><span class="sq-chip__ar" lang="ar">مَجْزُوم</span></button>
+              <button class="sq-chip" data-state="rest"><span class="sq-chip__en">mabnī</span><span class="sq-chip__ar" lang="ar">مَبْنِيّ</span></button>
+            </div>
+          </div>
+
+          <div class="sq-axis" data-verdict="correct">
+            <div class="sq-axis__head"><p class="sq-label">Voice</p>
+              <span class="sq-axis__mark"><svg class="sq-icon" viewBox="0 0 24 24"><path d="M5 12.5l5 5 9-11"/></svg></span></div>
+            <div class="sq-chips">
+              <button class="sq-chip" data-state="correct"><span class="sq-chip__en">maʿrūf</span><span class="sq-chip__ar" lang="ar">مَعْلُوم</span><svg class="sq-chip__mark sq-icon" viewBox="0 0 24 24"><path d="M5 12.5l5 5 9-11"/></svg></button>
+              <button class="sq-chip" data-state="rest"><span class="sq-chip__en">majhūl</span><span class="sq-chip__ar" lang="ar">مَجْهُول</span></button>
+            </div>
+          </div>
+
+          <div class="sq-axis" data-verdict="wrong">
+            <div class="sq-axis__head"><p class="sq-label">Who the doer can be</p>
+              <span class="sq-axis__mark"><svg class="sq-icon" viewBox="0 0 24 24"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/></svg></span></div>
+            <div class="sq-chips">
+              <button class="sq-chip" data-state="rest"><span class="sq-chip__en">he</span><span class="sq-chip__ar" lang="ar">هُوَ</span></button>
+              <button class="sq-chip" data-state="correct"><span class="sq-chip__en">she</span><span class="sq-chip__ar" lang="ar">هِيَ</span><svg class="sq-chip__mark sq-icon" viewBox="0 0 24 24"><path d="M5 12.5l5 5 9-11"/></svg></button>
+              <button class="sq-chip" data-state="missed"><span class="sq-chip__en">you (m)</span><span class="sq-chip__ar" lang="ar">أَنْتَ</span><span class="sq-chip__verdict">· missed</span><svg class="sq-chip__mark sq-icon" viewBox="0 0 24 24"><path d="M5 12.5l5 5 9-11"/></svg></button>
+              <button class="sq-chip" data-state="rest"><span class="sq-chip__en">you (f)</span><span class="sq-chip__ar" lang="ar">أَنْتِ</span></button>
+              <button class="sq-chip" data-state="rest"><span class="sq-chip__en">we</span><span class="sq-chip__ar" lang="ar">نَحْنُ</span></button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sq-dock">
+        <div class="sq-sheet" data-verdict="wrong">
+          <span class="sq-sheet__grab"></span>
+          <div class="sq-sheet__head">
+            <div>
+              <p class="sq-sheet__verdict"><svg class="sq-icon" viewBox="0 0 24 24"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/></svg>Not quite</p>
+              <p class="sq-sheet__answer">Four rows right · <b>Who the doer can be</b> missed one.</p>
+              <p class="sq-sheet__reading">“she helps / will help” · “you (m) help / will help”</p>
+            </div>
+            <button class="sq-sheet__peek"><svg class="sq-icon" viewBox="0 0 24 24"><path d="M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z"/></svg>Full table</button>
+          </div>
+          <p class="sq-sheet__explain"><span class="sq-ar" lang="ar">تَنْصُرُ</span> is <span class="sq-ar" lang="ar">فِعْل مُضَارِع</span> <span class="sq-ar" lang="ar">مَعْلُوم</span> <span class="sq-ar" lang="ar">مَرْفُوع</span>, Form I, from <span class="sq-ar" lang="ar">نَصَرَ يَنْصُرُ</span> — and it serves <span class="sq-ar" lang="ar">هِيَ</span> and <span class="sq-ar" lang="ar">أَنْتَ</span> alike. One written form, two pronouns.</p>
+          <ul class="sq-tips">
+            <li class="sq-tip"><svg class="sq-icon" viewBox="0 0 24 24"><path d="M9 18h6M10 21h4M12 3a6 6 0 00-3.5 10.9V16h7v-2.1A6 6 0 0012 3z"/></svg>
+              <span>The <span class="sq-ar" lang="ar">تـ</span> prefix serves both <span class="sq-ar" lang="ar">هِيَ</span> and <span class="sq-ar" lang="ar">أَنْتَ</span> — only context separates them.</span></li>
+          </ul>
+          <div class="sq-sheet__actions"><button class="sq-btn sq-btn--primary">Continue</button></div>
+        </div>
+      </div>
+    </div>
+    <p class="sq-caption"><b>2 · graded.</b> Correctness stays on the containers; the row label carries a ✓ or ✕ so the
+      misses are scannable without reading chips. The sheet names which rows went wrong.</p>
+  </div>
+
+  <!-- ============================================ notes =============== -->
+  <div class="notes">
+    <h3>What changed, and why</h3>
+
+    <h4>One card, every aspect</h4>
+    <ul>
+      <li><b>Five questions become one.</b> <code>tense</code>, <code>voice</code>, <code>doer</code> and <code>mood</code>
+        stop being separate questions drawing separate words. They are <b>axes of one question about one word</b>, plus a
+        new <code>form</code> axis. This is <span class="sq-ar" lang="ar">تَحْلِيل صَرْفِي</span> — the exercise a student is
+        actually set.</li>
+      <li><b>Relevance is untouched.</b> An axis still dies when the pool makes it constant, with the registry's own reason
+        printed verbatim. Drop the muḍāriʿ and the Iʿrāb row leaves, exactly as the setup bar promised.</li>
+      <li><b>The chip, not the option.</b> Five stacked 60pt AnswerOptions would be 1,000pt of screen. A chip already holds
+        a bilingual label in fixed slots and already toggles.</li>
+      <li><b>Chips, not segmented controls</b> — even for a fixed set like Tense. A segmented control has no empty state, and
+        an answer control must be able to show “nothing chosen yet”.</li>
+    </ul>
+
+    <h4>The rule that now covers every row</h4>
+    <ul>
+      <li><b>Every reading the written form admits is correct.</b> <span class="sq-ar" lang="ar">تَنْصُرُ</span> is
+        <span class="sq-ar" lang="ar">هِيَ</span> <i>and</i> <span class="sq-ar" lang="ar">أَنْتَ</span>;
+        <span class="sq-ar" lang="ar">خِفْتَ</span> is maʿrūf <i>and</i> majhūl; a dual muḍāriʿ conflates manṣūb and
+        majzūm. D-20's doer rule becomes the <b>general</b> rule of the screen.</li>
+      <li><b>D-70's cost disappears.</b> “A tap and Check on every voice question” was the price of always-checklist voice.
+        There is now <b>one Check for the whole card</b>, so it costs nothing.</li>
+      <li><b>Iʿrāb is always shown, with a <span class="sq-ar" lang="ar">مَبْنِيّ</span> option.</b> If the row appeared only
+        on a muḍāriʿ, its presence would answer the Tense row for free. Naming a māḍī as mabnī is a real judgement, so the
+        leak becomes content.</li>
+    </ul>
+
+    <h4>What it costs</h4>
+    <ul>
+      <li><b>Bāb can no longer be asked.</b> You read the bāb off <span class="sq-ar" lang="ar">نَصَرَ يَنْصُرُ</span> —
+        both tenses — and one conjugated word does not carry it. It stays in the sheet's explanation.</li>
+      <li><b>A word is right only if every row is.</b> The session score counts words: <code>7 / 10</code>. Partial credit
+        lives in Results' <i>By question</i>, which still breaks down per axis.</li>
+      <li><b>The card is tall.</b> Five rows plus a sheet does not fit at once on a small phone. Two things make it work:
+        rows you got right collapse to one line, and the card <b>opens scrolled to the first row with a miss</b>. Without
+        both, the sheet sits on top of the row you are meant to review.</li>
+      <li><b>Mood chips lose their explanatory tail.</b> “marfūʿ — the default state” is an AnswerOption label; a chip gets
+        “marfūʿ”. The tail moves to the answer sheet.</li>
+    </ul>
+
+    <h4>Still open</h4>
+    <ul>
+      <li><b>Q-14</b> is unresolved and visible here: the Voice chips read <code>maʿrūf</code> beside
+        <span class="sq-ar" lang="ar">مَعْلُوم</span>. This page prints what the engine prints today.</li>
+      <li><b>The reading of an ambiguous word.</b> Listing both readings (as above) is the fix
+        <code>questions.md</code> already files as deferred — the composite makes it unavoidable.</li>
+    </ul>
+  </div>
+</div>
+</div>
+
+<div style="position:fixed;top:10px;right:10px;z-index:99">
+  <button id="sq-theme-toggle" style="font:600 12px/1 -apple-system,system-ui;padding:7px 11px;border-radius:8px;
+    border:1px solid var(--line-strong);background:var(--raised);color:var(--ink);cursor:pointer">Paper / Night</button>
+</div>
+<script>
+  /* The graded card opens scrolled to the first row with a miss — the same rule
+     the quiz already has ("the graded options scroll into view automatically").
+     With five axes it stops being a nicety: the sheet is a bottom inset, so
+     without it the row you are meant to review sits underneath it. */
+  const graded = document.querySelector('.sq-screen[data-answered]');
+  const miss = graded?.querySelector('.sq-axis[data-verdict="wrong"]');
+  if (miss) graded.scrollTop = miss.offsetTop - 8;
+
+  document.getElementById('sq-theme-toggle').onclick = () => {
+    const el = document.documentElement;
+    el.dataset.theme = el.dataset.theme === 'midad' ? 'midad-night' : 'midad';
+  };
+</script>
+</body>
+</html>
