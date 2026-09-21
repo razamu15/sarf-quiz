@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en" data-theme="midad">
+<head><link rel="stylesheet" href="../tokens.css"><link rel="stylesheet" href="../bundle.css"><meta charset="utf-8"><title>Type</title><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Scheherazade+New:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=Amiri:wght@400&family=Noto+Naskh+Arabic:wght@400&display=swap">
+<style>
+  body { padding: 22px 24px 30px; }
+  h1 { margin: 0 0 6px; font: 500 30px/36px var(--font-serif); letter-spacing: -0.01em; }
+  h2 { margin: 26px 0 10px; font: 600 13px/18px var(--font-sans); color: var(--ink-muted); }
+  .lede { margin: 0; max-width: 78ch; font: 400 15px/23px var(--font-sans); color: var(--ink-muted); }
+  .voices { display: flex; flex-direction: column; gap: 4px; padding: 18px 20px; background: var(--raised); border: 1px solid var(--line); border-radius: var(--radius-lg); align-items: center; text-align: center; }
+  .faces { display: grid; grid-template-columns: 150px 1fr; gap: 0; border: 1px solid var(--line); border-radius: var(--radius-md); overflow: hidden; background: var(--raised); }
+  .faces > div { padding: 10px 14px; border-bottom: 1px solid var(--line); }
+  .faces > div:nth-last-child(-n + 2) { border-bottom: 0; }
+  .faces .who { display: flex; flex-direction: column; gap: 3px; }
+  .faces .who b { font: 600 14px/20px var(--font-sans); }
+  .faces .who small { font: 400 12px/17px var(--font-sans); color: var(--ink-muted); }
+  .faces .row { direction: rtl; }
+  .faces .big { font-size: 42px; line-height: 1.9; }
+  .faces .small { font-size: 20px; line-height: 2; }
+  .sch { font-family: "Scheherazade New", serif; }
+  .nnk { font-family: "Noto Naskh Arabic", serif; }
+  .ami { font-family: Amiri, serif; }
+  .gz { font-family: "Geeza Pro", serif; }
+  .scale { display: flex; flex-direction: column; gap: 2px; }
+  .scale div { display: grid; grid-template-columns: 130px 1fr; align-items: baseline; gap: 16px; padding: 4px 0; border-bottom: 1px solid var(--line); }
+  .scale code { font: 500 12px/16px ui-monospace, "SF Mono", Menlo, monospace; color: var(--ink-muted); }
+  .scale .sq-ar { direction: rtl; }
+</style>
+</head>
+<body>
+<h1>Type</h1>
+<p class="lede">Three faces, three jobs. The Arabic is the thing being studied, the serif italic is a meaning, the sans is the interface talking.
+  Nothing else gets a face, and Arabic is never bolded: a weight change breaks the joining inside a word.</p>
+
+<h2>The three voices, in one card</h2>
+<div class="voices">
+  <p class="sq-prompt__word" style="margin:0" lang="ar">تَنْصُرُ</p>
+  <p class="sq-prompt__gloss" style="margin:0">“to help”</p>
+  <p class="sq-ask" style="margin-top:10px">Who can the doer be?<span class="sq-ask__hint">Select all that apply.</span></p>
+</div>
+
+<h2>Why Scheherazade New</h2>
+<div class="faces">
+  <div class="who"><b>Scheherazade New</b><small>Chosen. SIL, drawn for fully vowelled text: big, well-spaced marks and few ligatures.</small></div>
+  <div><div class="row big sch">تَتَقَاتَلَانِ يُسْتَخْرَجُ</div><div class="row small sch">لَمْ يَنْصُرُوا · مُسْتَسْلِم · مُدَّ · اُنْصُرْنَ · أَنْتُمَا</div></div>
+
+  <div class="who"><b>Noto Naskh Arabic</b><small>The fallback. Cleaner at small sizes, shorter lines — but the marks are lighter, which is what we are asking people to read.</small></div>
+  <div><div class="row big nnk">تَتَقَاتَلَانِ يُسْتَخْرَجُ</div><div class="row small nnk">لَمْ يَنْصُرُوا · مُسْتَسْلِم · مُدَّ · اُنْصُرْنَ · أَنْتُمَا</div></div>
+
+  <div class="who"><b>Amiri</b><small>Beautiful, and wrong here: it stacks يستخرج into a vertical ligature, so the letters a learner is trying to identify pile on top of each other.</small></div>
+  <div><div class="row big ami">تَتَقَاتَلَانِ يُسْتَخْرَجُ</div><div class="row small ami">لَمْ يَنْصُرُوا · مُسْتَسْلِم · مُدَّ · اُنْصُرْنَ · أَنْتُمَا</div></div>
+
+  <div class="who"><b>Geeza Pro</b><small>What the prototype asks for first today (Apple devices only). The marks are small and sit tight to the letters — exactly the thing being tested.</small></div>
+  <div><div class="row big gz">تَتَقَاتَلَانِ يُسْتَخْرَجُ</div><div class="row small gz">لَمْ يَنْصُرُوا · مُسْتَسْلِم · مُدَّ · اُنْصُرْنَ · أَنْتُمَا</div></div>
+</div>
+
+<h2>The Arabic scale · 1.35× the Latin beside it, 1.7 leading so stacked marks clear the line above</h2>
+<div class="scale">
+  <div><code>arabic-hero 60/104</code><span class="sq-ar arabic-hero">تَنْصُرُ</span></div>
+  <div><code>arabic-display 40/70</code><span class="sq-ar arabic-display">اِسْتَخْرَجَ يَسْتَخْرِجُ</span></div>
+  <div><code>arabic-title 28/50</code><span class="sq-ar arabic-title">لَمْ تَسْلَمَا</span></div>
+  <div><code>arabic-cell 24/42</code><span class="sq-ar arabic-cell">نَصَرْتُمَا</span></div>
+  <div><code>arabic-body 21/36</code><span class="sq-ar arabic-body">فِعْل مُضَارِع مَعْلُوم</span></div>
+  <div><code>arabic-label 19/30</code><span class="sq-ar arabic-label">مَعْلُوم</span></div>
+</div>
+
+<h2>The Latin scale</h2>
+<div class="scale">
+  <div><code>screen-title 30/36</code><span class="screen-title">Practice</span></div>
+  <div><code>meaning-display 28/36</code><span class="meaning-display">“they two (m) did not teach”</span></div>
+  <div><code>reading 19/26</code><span class="reading">“she drank”</span></div>
+  <div><code>gloss 17/24</code><span class="gloss">“to help”</span></div>
+  <div><code>headline 17/24</code><span class="headline">Who can the doer be?</span></div>
+  <div><code>body 15/22</code><span class="body">A māḍī carries its pronoun behind it as a suffix.</span></div>
+  <div><code>label 13/18</code><span class="label">Charts</span></div>
+  <div><code>caption 12/16</code><span class="caption">≈ 2,268 questions</span></div>
+  <div><code>numeral 32/38</code><span class="numeral">2 / 4</span></div>
+</div>
+
+<div style="position:fixed;top:10px;right:10px;z-index:99">
+  <button id="sq-theme-toggle" style="font:600 12px/1 -apple-system,system-ui;padding:7px 11px;border-radius:8px;
+    border:1px solid var(--line-strong);background:var(--raised);color:var(--ink);cursor:pointer">Paper / Night</button>
+</div>
+<script>
+  document.getElementById('sq-theme-toggle').onclick = () => {
+    const el = document.documentElement;
+    el.dataset.theme = el.dataset.theme === 'midad' ? 'midad-night' : 'midad';
+  };
+</script>
+</body>
+</html>

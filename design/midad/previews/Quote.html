@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en" data-theme="midad">
+<head><link rel="stylesheet" href="../tokens.css"><link rel="stylesheet" href="../bundle.css"><meta charset="utf-8"><title>Quote</title><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Scheherazade+New:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&display=swap">
+<style>
+  .demo { padding: 10px 16px; max-width: 420px; }
+</style>
+</head>
+<body>
+<div class="demo">
+  <figure class="sq-quote">
+    <blockquote lang="ar">وَقُل رَّبِّ زِدْنِي عِلْمًا</blockquote>
+    <figcaption>
+      <span class="sq-quote__en">“And say: My Lord, increase me in knowledge.”</span>
+      <cite><b>Qurʾān</b> · Sūrat Ṭāhā 20:114</cite>
+    </figcaption>
+  </figure>
+</div>
+
+<div style="position:fixed;top:10px;right:10px;z-index:99">
+  <button id="sq-theme-toggle" style="font:600 12px/1 -apple-system,system-ui;padding:7px 11px;border-radius:8px;
+    border:1px solid var(--line-strong);background:var(--raised);color:var(--ink);cursor:pointer">Paper / Night</button>
+</div>
+<script>
+  document.getElementById('sq-theme-toggle').onclick = () => {
+    const el = document.documentElement;
+    el.dataset.theme = el.dataset.theme === 'midad' ? 'midad-night' : 'midad';
+  };
+</script>
+</body>
+</html>

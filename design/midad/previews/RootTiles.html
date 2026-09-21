@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en" data-theme="midad">
+<head><link rel="stylesheet" href="../tokens.css"><link rel="stylesheet" href="../bundle.css"><meta charset="utf-8"><title>RootTiles</title><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Scheherazade+New:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&display=swap">
+<style>
+  .demo { display: flex; align-items: flex-start; gap: 36px; padding: 20px 16px; flex-wrap: wrap; }
+  .demo figure { margin: 0; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+  .demo figcaption { font: 500 12px/16px var(--font-sans); color: var(--ink-muted); text-align: center; }
+</style>
+</head>
+<body>
+<div class="demo">
+  <figure>
+    <span class="sq-root sq-root--slots" lang="ar" aria-label="root ن ص ر"><span class="sq-tile" data-slot="ف">ن</span><span class="sq-tile" data-slot="ع">ص</span><span class="sq-tile" data-slot="ل">ر</span></span>
+    <figcaption>With the mīzān: which radical<br>fills which slot of the pattern</figcaption>
+  </figure>
+  <figure>
+    <span class="sq-root sq-root--lg" lang="ar" aria-label="root ظ ه ر"><span class="sq-tile">ظ</span><span class="sq-tile">ه</span><span class="sq-tile">ر</span></span>
+    <figcaption>Large: the write-the-word card</figcaption>
+  </figure>
+  <figure>
+    <span class="sq-root sq-root--sm" lang="ar" aria-label="root ع ل م"><span class="sq-tile">ع</span><span class="sq-tile">ل</span><span class="sq-tile">م</span></span>
+    <figcaption>Small: a meaning card,<br>a search result</figcaption>
+  </figure>
+</div>
+
+<div style="position:fixed;top:10px;right:10px;z-index:99">
+  <button id="sq-theme-toggle" style="font:600 12px/1 -apple-system,system-ui;padding:7px 11px;border-radius:8px;
+    border:1px solid var(--line-strong);background:var(--raised);color:var(--ink);cursor:pointer">Paper / Night</button>
+</div>
+<script>
+  document.getElementById('sq-theme-toggle').onclick = () => {
+    const el = document.documentElement;
+    el.dataset.theme = el.dataset.theme === 'midad' ? 'midad-night' : 'midad';
+  };
+</script>
+</body>
+</html>

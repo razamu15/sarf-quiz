@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en" data-theme="midad">
+<head><link rel="stylesheet" href="../tokens.css"><link rel="stylesheet" href="../bundle.css"><meta charset="utf-8"><title>PromptCard</title><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Scheherazade+New:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&display=swap">
+<style>
+  .demo { display: grid; grid-template-columns: repeat(3, 340px); gap: 28px 32px; padding: 20px; align-items: start; }
+  .demo figure { margin: 0; display: flex; flex-direction: column; gap: 12px; }
+  .demo figcaption { font: 600 12px/16px var(--font-sans); color: var(--ink-muted); }
+  .demo figcaption code { font: 600 12px/16px ui-monospace, "SF Mono", Menlo, monospace; color: var(--ink); }
+</style>
+</head>
+<body>
+<div class="demo">
+  <figure>
+    <figcaption><code>word</code> · Name the grammar</figcaption>
+    <div class="sq-prompt" data-kind="word">
+      <span class="sq-prompt__tag">Word 2 of 5</span>
+      <p class="sq-prompt__word" lang="ar">تَنْصُرُ</p>
+      <p class="sq-prompt__gloss">“to help”</p>
+    </div>
+    <p class="sq-ask">Who can the doer be?<span class="sq-ask__hint">Select all that apply.</span></p>
+  </figure>
+
+  <figure>
+    <figcaption><code>citation</code> · the bāb question: both tenses, because the bāb is read off the pair</figcaption>
+    <div class="sq-prompt" data-kind="citation">
+      <p class="sq-prompt__verb" lang="ar">خَرَجَ يَخْرُجُ</p>
+      <p class="sq-prompt__gloss">“to go out”</p>
+    </div>
+    <p class="sq-ask">Which bāb of the thulāthī mujarrad is this verb from?</p>
+  </figure>
+
+  <figure>
+    <figcaption><code>spec</code> · Write the word</figcaption>
+    <div class="sq-prompt" data-kind="spec">
+      <span class="sq-root sq-root--lg" lang="ar"><span class="sq-tile">ظ</span><span class="sq-tile">ه</span><span class="sq-tile">ر</span></span>
+      <p class="sq-prompt__gloss">“to appear”</p>
+      <div class="sq-prompt__recipe">
+        <span class="sq-pill">Form I</span>
+        <span class="sq-pill"><span>present</span><span class="sq-ar" lang="ar">مُضَارِع</span></span>
+        <span class="sq-pill"><span>maʿrūf</span><span class="sq-ar" lang="ar">مَعْلُوم</span></span>
+        <span class="sq-pill"><span>marfūʿ</span><span class="sq-ar" lang="ar">مَرْفُوع</span></span>
+        <span class="sq-pill"><span>he</span><span class="sq-ar" lang="ar">هُوَ</span></span>
+      </div>
+    </div>
+    <p class="sq-ask">Write this verb<span class="sq-ask__hint">Fully vowelled: the last ḥaraka counts.</span></p>
+  </figure>
+
+  <figure>
+    <figcaption><code>meaning</code> · Match the meaning: no Arabic word, since any would be the answer</figcaption>
+    <div class="sq-prompt" data-kind="meaning">
+      <p class="sq-prompt__meaning">“they two (m) did not teach”</p>
+      <span class="sq-root sq-root--sm" lang="ar" aria-label="root ع ل م"><span class="sq-tile">ع</span><span class="sq-tile">ل</span><span class="sq-tile">م</span></span>
+    </div>
+    <p class="sq-ask">Which verb says this?</p>
+  </figure>
+
+  <figure>
+    <figcaption><code>derivedRequest</code> · Derived nouns, pick</figcaption>
+    <div class="sq-prompt" data-kind="derivedRequest">
+      <p class="sq-prompt__verb" lang="ar">اِسْتَمَدَّ</p>
+      <p class="sq-prompt__gloss">“to seek help / draw from”</p>
+      <div class="sq-prompt__recipe">
+        <span class="sq-pill">Form X</span>
+        <span class="sq-pill"><span>doer noun</span><span class="sq-ar" lang="ar">اسْم فَاعِل</span></span>
+      </div>
+    </div>
+    <p class="sq-ask">Which is the doer noun (ism fāʿil) of this verb?</p>
+  </figure>
+
+  <figure>
+    <figcaption><code>derivedWord</code> · Derived nouns, name</figcaption>
+    <div class="sq-prompt" data-kind="derivedWord">
+      <p class="sq-prompt__word" lang="ar">اِسْتِظْلَال</p>
+      <p class="sq-prompt__gloss">“to seek shade”</p>
+    </div>
+    <p class="sq-ask">Which derivative is this?</p>
+  </figure>
+</div>
+
+<div style="position:fixed;top:10px;right:10px;z-index:99">
+  <button id="sq-theme-toggle" style="font:600 12px/1 -apple-system,system-ui;padding:7px 11px;border-radius:8px;
+    border:1px solid var(--line-strong);background:var(--raised);color:var(--ink);cursor:pointer">Paper / Night</button>
+</div>
+<script>
+  document.getElementById('sq-theme-toggle').onclick = () => {
+    const el = document.documentElement;
+    el.dataset.theme = el.dataset.theme === 'midad' ? 'midad-night' : 'midad';
+  };
+</script>
+</body>
+</html>

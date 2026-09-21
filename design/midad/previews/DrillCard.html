@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en" data-theme="midad">
+<head><link rel="stylesheet" href="../tokens.css"><link rel="stylesheet" href="../bundle.css"><meta charset="utf-8"><title>DrillCard</title><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Scheherazade+New:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&display=swap">
+<style>
+  .demo { display: flex; flex-direction: column; gap: 14px; padding: 18px 16px; max-width: 420px; }
+  .demo .sq-label { margin-top: 6px; }
+</style>
+</head>
+<body>
+<div class="demo">
+  <article class="sq-drill">
+    <p class="sq-drill__kicker">Pick up where you left off</p>
+    <h3 class="sq-drill__title">Weak verbs <span class="sq-ar" lang="ar">مُعْتَلّ</span></h3>
+    <p class="sq-drill__desc">Hollow, defective and assimilated, mixed.</p>
+    <div class="sq-drill__meta">
+      <span class="sq-pill">5 words</span>
+      <span class="sq-pill">Name the grammar</span>
+    </div>
+    <button class="sq-btn sq-btn--primary sq-btn--block">Start</button>
+  </article>
+
+  <p class="sq-label">Or start another</p>
+  <ul class="sq-list">
+    <li><button class="sq-listrow"><span class="sq-listrow__text">
+      <span class="sq-listrow__title">Sound verbs <span class="sq-ar" lang="ar">سَالِم</span></span>
+      <span class="sq-listrow__sub">No weak letters — the foundation.</span></span><svg class="sq-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M9.5 5.5L16 12l-6.5 6.5"/></svg></button></li>
+    <li><button class="sq-listrow"><span class="sq-listrow__text">
+      <span class="sq-listrow__title">Mazīd fīhi <span class="sq-ar" lang="ar">مَزِيد فِيه</span></span>
+      <span class="sq-listrow__sub">The derived forms II–X, shuffled.</span></span><svg class="sq-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M9.5 5.5L16 12l-6.5 6.5"/></svg></button></li>
+  </ul>
+</div>
+
+<div style="position:fixed;top:10px;right:10px;z-index:99">
+  <button id="sq-theme-toggle" style="font:600 12px/1 -apple-system,system-ui;padding:7px 11px;border-radius:8px;
+    border:1px solid var(--line-strong);background:var(--raised);color:var(--ink);cursor:pointer">Paper / Night</button>
+</div>
+<script>
+  document.getElementById('sq-theme-toggle').onclick = () => {
+    const el = document.documentElement;
+    el.dataset.theme = el.dataset.theme === 'midad' ? 'midad-night' : 'midad';
+  };
+</script>
+</body>
+</html>

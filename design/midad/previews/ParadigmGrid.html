@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en" data-theme="midad">
+<head><link rel="stylesheet" href="../tokens.css"><link rel="stylesheet" href="../bundle.css"><meta charset="utf-8"><title>ParadigmGrid</title><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Scheherazade+New:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&display=swap">
+<style>
+  .demo { display: grid; grid-template-columns: 390px 390px; gap: 32px; padding: 20px; align-items: start; }
+  .demo figure { margin: 0; display: flex; flex-direction: column; gap: 10px; }
+  .demo figcaption { font: 600 12px/16px var(--font-sans); color: var(--ink-muted); }
+  .demo figcaption b { color: var(--ink); }
+  .head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+  .head .sq-ar { font-size: 26px; line-height: 44px; }
+</style>
+</head>
+<body>
+<div class="demo">
+  <figure>
+    <figcaption><b>Form I · māḍī · maʿrūf</b> · arriving from a question, the cell you just met is outlined</figcaption>
+    <div class="head"><span class="sq-ar" lang="ar">نَصَرَ يَنْصُرُ</span><span class="sq-gloss">“to help”</span></div>
+    <div class="sq-grid"><div class="sq-grid__head"><bdi class="sq-ar" lang="ar">مُفْرَد</bdi><small>one</small></div><div class="sq-grid__head"><bdi class="sq-ar" lang="ar">مُثَنًّى</bdi><small>two</small></div><div class="sq-grid__head"><bdi class="sq-ar" lang="ar">جَمْع</bdi><small>three +</small></div><div class="sq-cell" ><span class="sq-cell__pron">هُوَ</span><span class="sq-cell__word">نَصَرَ</span></div><div class="sq-cell" ><span class="sq-cell__pron">هُمَا</span><span class="sq-cell__word">نَصَرَا</span></div><div class="sq-cell" ><span class="sq-cell__pron">هُمْ</span><span class="sq-cell__word">نَصَرُوا</span></div><div class="sq-cell" data-hit><span class="sq-cell__pron">هِيَ</span><span class="sq-cell__word">نَصَرَتْ</span></div><div class="sq-cell" ><span class="sq-cell__pron">هُمَا</span><span class="sq-cell__word">نَصَرَتَا</span></div><div class="sq-cell" ><span class="sq-cell__pron">هُنَّ</span><span class="sq-cell__word">نَصَرْنَ</span></div><div class="sq-cell" data-band><span class="sq-cell__pron">أَنْتَ</span><span class="sq-cell__word">نَصَرْتَ</span></div><div class="sq-cell" data-band><span class="sq-cell__pron">أَنْتُمَا</span><span class="sq-cell__word">نَصَرْتُمَا</span></div><div class="sq-cell" data-band><span class="sq-cell__pron">أَنْتُمْ</span><span class="sq-cell__word">نَصَرْتُم</span></div><div class="sq-cell" ><span class="sq-cell__pron">أَنْتِ</span><span class="sq-cell__word">نَصَرْتِ</span></div><div class="sq-cell" ><span class="sq-cell__pron">أَنْتُمَا</span><span class="sq-cell__word">نَصَرْتُمَا</span></div><div class="sq-cell" ><span class="sq-cell__pron">أَنْتُنَّ</span><span class="sq-cell__word">نَصَرْتُنَّ</span></div><div class="sq-cell" data-band><span class="sq-cell__pron">أَنَا</span><span class="sq-cell__word">نَصَرْتُ</span></div><div class="sq-cell" data-span="2" data-band><span class="sq-cell__pron">نَحْنُ</span><span class="sq-cell__word">نَصَرْنَا</span></div></div>
+  </figure>
+  <figure>
+    <figcaption><b>Form I · amr</b> · six cells, because the command is second person only — the grid shrinks, it does not pad</figcaption>
+    <div class="head"><span class="sq-ar" lang="ar">قَالَ يَقُولُ</span><span class="sq-gloss">“to say”</span></div>
+    <div class="sq-grid sq-grid--amr"><div class="sq-grid__head"><bdi class="sq-ar" lang="ar">مُفْرَد</bdi><small>one</small></div><div class="sq-grid__head"><bdi class="sq-ar" lang="ar">مُثَنًّى</bdi><small>two</small></div><div class="sq-grid__head"><bdi class="sq-ar" lang="ar">جَمْع</bdi><small>three +</small></div><div class="sq-cell" ><span class="sq-cell__pron">أَنْتَ</span><span class="sq-cell__word">قُلْ</span></div><div class="sq-cell" ><span class="sq-cell__pron">أَنْتُمَا</span><span class="sq-cell__word">قُولَا</span></div><div class="sq-cell" ><span class="sq-cell__pron">أَنْتُمْ</span><span class="sq-cell__word">قُولُوا</span></div><div class="sq-cell" ><span class="sq-cell__pron">أَنْتِ</span><span class="sq-cell__word">قُولِي</span></div><div class="sq-cell" ><span class="sq-cell__pron">أَنْتُمَا</span><span class="sq-cell__word">قُولَا</span></div><div class="sq-cell" ><span class="sq-cell__pron">أَنْتُنَّ</span><span class="sq-cell__word">قُلْنَ</span></div></div>
+  </figure>
+</div>
+
+<div style="position:fixed;top:10px;right:10px;z-index:99">
+  <button id="sq-theme-toggle" style="font:600 12px/1 -apple-system,system-ui;padding:7px 11px;border-radius:8px;
+    border:1px solid var(--line-strong);background:var(--raised);color:var(--ink);cursor:pointer">Paper / Night</button>
+</div>
+<script>
+  document.getElementById('sq-theme-toggle').onclick = () => {
+    const el = document.documentElement;
+    el.dataset.theme = el.dataset.theme === 'midad' ? 'midad-night' : 'midad';
+  };
+</script>
+</body>
+</html>

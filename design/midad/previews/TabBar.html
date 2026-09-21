@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en" data-theme="midad">
+<head><link rel="stylesheet" href="../tokens.css"><link rel="stylesheet" href="../bundle.css"><meta charset="utf-8"><title>TabBar</title><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Scheherazade+New:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&display=swap">
+<style>
+  .demo { padding: 16px; max-width: 420px; }
+  .demo .sq-tabbar { border: 1px solid var(--line); border-radius: var(--radius-md); padding-bottom: 8px; }
+</style>
+</head>
+<body>
+<div class="demo">
+  <nav class="sq-tabbar">
+    <a class="sq-tab" aria-current="page"><svg class="sq-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11.2L12 4.5l8 6.7M6.5 9.5V19.5h4v-5h3v5h4V9.5"/></svg>Home</a>
+    <a class="sq-tab"><svg class="sq-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7.5h9M17 7.5h3M4 16.5h3M11 16.5h9"/><circle cx="15" cy="7.5" r="2"/><circle cx="9" cy="16.5" r="2"/></svg>Practice</a>
+    <a class="sq-tab"><svg class="sq-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="4.5" width="17" height="15" rx="2.5"/><path d="M3.5 9.5h17M3.5 14.5h17M9.5 9.5v10M14.5 9.5v10"/></svg>Tables</a>
+    <a class="sq-tab"><svg class="sq-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M8.2 12h.01M12 12h.01M15.8 12h.01" stroke-width="2.6"/></svg>More</a>
+  </nav>
+</div>
+
+<div style="position:fixed;top:10px;right:10px;z-index:99">
+  <button id="sq-theme-toggle" style="font:600 12px/1 -apple-system,system-ui;padding:7px 11px;border-radius:8px;
+    border:1px solid var(--line-strong);background:var(--raised);color:var(--ink);cursor:pointer">Paper / Night</button>
+</div>
+<script>
+  document.getElementById('sq-theme-toggle').onclick = () => {
+    const el = document.documentElement;
+    el.dataset.theme = el.dataset.theme === 'midad' ? 'midad-night' : 'midad';
+  };
+</script>
+</body>
+</html>

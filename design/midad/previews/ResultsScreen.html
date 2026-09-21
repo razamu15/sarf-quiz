@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en" data-theme="midad">
+<head><link rel="stylesheet" href="../tokens.css"><link rel="stylesheet" href="../bundle.css"><meta charset="utf-8"><title>Results</title><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Scheherazade+New:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&display=swap">
+<style>
+
+  body { background: var(--ground); }
+  .notes { width: 380px; flex: none; display: flex; flex-direction: column; gap: 14px; padding-top: 6px; }
+  .notes h3 { margin: 0; font: 500 21px/26px var(--font-serif); }
+  .notes h4 { margin: 10px 0 -4px; font: 600 12px/16px var(--font-sans); color: var(--ink-muted); letter-spacing: .02em; }
+  .notes ul { margin: 0; padding-inline-start: 18px; display: flex; flex-direction: column; gap: 9px; }
+  .notes li { font: 400 14px/21px var(--font-sans); color: var(--ink-muted); }
+  .notes li b { color: var(--ink); font-weight: 600; }
+  .notes .try { padding: 12px 14px; border: 1px dashed var(--line-strong); border-radius: var(--radius-md); font: 500 13px/20px var(--font-sans); color: var(--ink); }
+
+  .score { display: flex; align-items: baseline; gap: 12px; }
+  .score b { font: 600 44px/48px var(--font-sans); font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
+  .score span { font: 400 15px/22px var(--font-sans); color: var(--ink-muted); }
+  .review { display: flex; flex-direction: column; gap: 10px; }
+  .miss { display: flex; flex-direction: column; gap: 6px; padding: 12px 14px; background: var(--raised); border: 1px solid var(--line); border-radius: var(--radius-md); }
+  .miss .top { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+  .miss .top .sq-ar { font-size: 30px; line-height: 52px; }
+  .miss .said { font: 400 13px/20px var(--font-sans); color: var(--ink-muted); }
+  .miss .said b { color: var(--ink); font-weight: 600; }
+  .bars { display: flex; flex-direction: column; gap: 8px; }
+  .bar { display: grid; grid-template-columns: 1fr 54px 34px; align-items: center; gap: 10px; font: 500 14px/20px var(--font-sans); }
+  .bar i { display: block; height: 8px; border-radius: 4px; background: var(--fill); }
+  .bar i b { display: block; height: 100%; border-radius: 4px; background: var(--ink); }
+  .bar small { font: 500 12px/16px var(--font-sans); color: var(--ink-muted); font-variant-numeric: tabular-nums; text-align: end; }
+  .vocab { display: flex; flex-direction: column; }
+  .vocab div { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding: 7px 0; border-bottom: 1px solid var(--line); }
+  .vocab div:last-child { border-bottom: 0; }
+  .vocab .sq-ar { font-size: 24px; line-height: 42px; }
+</style>
+</head>
+<body>
+<div class="sq-stage">
+  <div class="sq-stage__col">
+    <div class="sq-phone">
+      <div class="sq-status"><span>9:41</span><i></i></div>
+      <div class="sq-screen">
+        <h1 class="sq-title">Done</h1>
+        <p class="score"><b>2 / 4</b><span>Sound verbs · Name the grammar</span></p>
+
+        <div class="sq-section">
+          <p class="sq-label">Two to look at again</p>
+          <div class="review">
+            <div class="miss">
+              <span class="top"><span class="sq-ar" lang="ar">شَرِبَتْ</span><span class="sq-gloss">“she drank”</span></span>
+              <span class="said">You said <b>command (amr)</b> — it is <b>past (māḍī)</b>. A māḍī never takes a prefix; it carries its pronoun behind it.</span>
+              <span><button class="sq-link">See the table</button></span>
+            </div>
+            <div class="miss">
+              <span class="top"><span class="sq-ar" lang="ar">يَظْهَرُ</span><span class="sq-gloss">“he appears / will appear”</span></span>
+              <span class="said">You wrote <b><bdi class="sq-ar" lang="ar">يَظْهَ<span class="sq-sign">رَ</span></bdi></b> — one ḥaraka off, and it was the iʿrāb.</span>
+              <span><button class="sq-link">See the table</button></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="sq-section">
+          <p class="sq-label">By question</p>
+          <div class="bars">
+            <span class="bar">Who the doer is <i><b style="width:100%"></b></i><small>1/1</small></span>
+            <span class="bar">Pick the verb from its meaning <i><b style="width:100%"></b></i><small>1/1</small></span>
+            <span class="bar">Tense <i><b style="width:0"></b></i><small>0/1</small></span>
+            <span class="bar">Write the word <i><b style="width:0"></b></i><small>0/1</small></span>
+          </div>
+        </div>
+
+        <div class="sq-section">
+          <p class="sq-label">Vocabulary from this session</p>
+          <div class="vocab">
+            <div><span class="sq-ar" lang="ar">شَرِبَتْ</span><span class="sq-gloss">“she drank”</span></div>
+            <div><span class="sq-ar" lang="ar">تَنْصُرُ</span><span class="sq-gloss">“she helps / will help”</span></div>
+            <div><span class="sq-ar" lang="ar">لَمْ يُعَلِّمَا</span><span class="sq-gloss">“they two (m) did not teach”</span></div>
+            <div><span class="sq-ar" lang="ar">يَظْهَرُ</span><span class="sq-gloss">“he appears / will appear”</span></div>
+          </div>
+        </div>
+
+        <p class="sq-hint" style="text-align:center">Added to your streak — five days.</p>
+      </div>
+      <div class="sq-dock">
+        <div style="padding: 0 var(--space-4) var(--space-4); display: flex; flex-direction: column; gap: 8px">
+          <button class="sq-btn sq-btn--primary sq-btn--block">Same setup again</button>
+          <button class="sq-btn sq-btn--block">Done</button>
+        </div>
+      </div>
+    </div>
+    <p class="sq-caption">The four questions are the ones in the Quiz screen; the outcome is a sample session (two right, two wrong).</p>
+  </div>
+
+  <div class="notes">
+    <h3>Results</h3>
+    <h4>What is different</h4>
+    <ul>
+      <li><b>The misses come first</b>, as cards with the word, what you said, why, and a way into the table. Today the review is a list of explanation sentences with neither the word nor your answer — the two things that make it a review.</li>
+      <li><b>Category names, not ids.</b> The breakdown prints <code>tense</code> and <code>doer</code> today, straight from the rule id; <code>CATEGORIES</code> in <code>glossary.js</code> already holds the labels.</li>
+      <li><b>The score is a fact, not a trophy.</b> A fraction in tabular figures, and the setup that produced it; the ring is gone.</li>
+      <li><b>Vocabulary keeps its word.</b> The recap lists the Arabic beside the reading, not the reading alone.</li>
+    </ul>
+    <h4>Idea worth costing</h4>
+    <ul>
+      <li>“Drill these two again” would build a run from the missed questions. Cheap because an <code>Answer</code> embeds its whole <code>Question</code> — but it is a new path through <code>QuizRun</code>, so it is a decision, not a freebie.</li>
+    </ul>
+  </div>
+</div>
+
+<div style="position:fixed;top:10px;right:10px;z-index:99">
+  <button id="sq-theme-toggle" style="font:600 12px/1 -apple-system,system-ui;padding:7px 11px;border-radius:8px;
+    border:1px solid var(--line-strong);background:var(--raised);color:var(--ink);cursor:pointer">Paper / Night</button>
+</div>
+<script>
+  document.getElementById('sq-theme-toggle').onclick = () => {
+    const el = document.documentElement;
+    el.dataset.theme = el.dataset.theme === 'midad' ? 'midad-night' : 'midad';
+  };
+</script>
+</body>
+</html>

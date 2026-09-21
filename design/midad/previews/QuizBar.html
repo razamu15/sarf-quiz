@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en" data-theme="midad">
+<head><link rel="stylesheet" href="../tokens.css"><link rel="stylesheet" href="../bundle.css"><meta charset="utf-8"><title>QuizBar</title><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Scheherazade+New:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&display=swap">
+<style>
+  .demo { display: flex; flex-direction: column; gap: 18px; padding: 18px 20px; max-width: 420px; }
+  .demo figure { margin: 0; display: flex; flex-direction: column; gap: 6px; }
+  .demo figcaption { font: 600 12px/16px var(--font-sans); color: var(--ink-muted); }
+</style>
+</head>
+<body>
+<div class="demo">
+  <figure>
+    <figcaption>A Home drill: 5 words, 2 questions each</figcaption>
+    <div class="sq-quizbar">
+      <button class="sq-iconbtn" aria-label="Quit"><svg class="sq-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/></svg></button>
+      <div class="sq-progress">
+        <span class="sq-progress__word"><i class="sq-progress__tick" data-at="done"></i><i class="sq-progress__tick" data-at="done"></i></span>
+        <span class="sq-progress__word"><i class="sq-progress__tick" data-at="done"></i><i class="sq-progress__tick" data-at="now"></i></span>
+        <span class="sq-progress__word"><i class="sq-progress__tick"></i><i class="sq-progress__tick"></i></span>
+        <span class="sq-progress__word"><i class="sq-progress__tick"></i><i class="sq-progress__tick"></i></span>
+        <span class="sq-progress__word"><i class="sq-progress__tick"></i><i class="sq-progress__tick"></i></span>
+      </div>
+      <span class="sq-quizbar__count">Word 2 of 5</span>
+    </div>
+  </figure>
+
+  <figure>
+    <figcaption>A Practice session of ten</figcaption>
+    <div class="sq-quizbar">
+      <button class="sq-iconbtn" aria-label="Quit"><svg class="sq-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/></svg></button>
+      <div class="sq-progress">
+        <span class="sq-progress__word"><i class="sq-progress__tick" data-at="done"></i></span>
+        <span class="sq-progress__word"><i class="sq-progress__tick" data-at="done"></i></span>
+        <span class="sq-progress__word"><i class="sq-progress__tick" data-at="done"></i></span>
+        <span class="sq-progress__word"><i class="sq-progress__tick" data-at="now"></i></span>
+        <span class="sq-progress__word"><i class="sq-progress__tick"></i></span>
+        <span class="sq-progress__word"><i class="sq-progress__tick"></i></span>
+        <span class="sq-progress__word"><i class="sq-progress__tick"></i></span>
+        <span class="sq-progress__word"><i class="sq-progress__tick"></i></span>
+        <span class="sq-progress__word"><i class="sq-progress__tick"></i></span>
+        <span class="sq-progress__word"><i class="sq-progress__tick"></i></span>
+      </div>
+      <span class="sq-quizbar__count">4 of 10</span>
+    </div>
+  </figure>
+
+  <figure>
+    <figcaption>Endless: a running score instead of a bar, and a way out</figcaption>
+    <div class="sq-quizbar">
+      <button class="sq-iconbtn" aria-label="Quit"><svg class="sq-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/></svg></button>
+      <span class="sq-score">
+        <span class="sq-score__right"><svg class="sq-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg> 12</span>
+        <span class="sq-score__wrong"><svg class="sq-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/></svg> 3</span>
+      </span>
+      <span style="flex:1"></span>
+      <button class="sq-btn sq-btn--small">End quiz</button>
+    </div>
+  </figure>
+</div>
+
+<div style="position:fixed;top:10px;right:10px;z-index:99">
+  <button id="sq-theme-toggle" style="font:600 12px/1 -apple-system,system-ui;padding:7px 11px;border-radius:8px;
+    border:1px solid var(--line-strong);background:var(--raised);color:var(--ink);cursor:pointer">Paper / Night</button>
+</div>
+<script>
+  document.getElementById('sq-theme-toggle').onclick = () => {
+    const el = document.documentElement;
+    el.dataset.theme = el.dataset.theme === 'midad' ? 'midad-night' : 'midad';
+  };
+</script>
+</body>
+</html>

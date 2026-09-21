@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en" data-theme="midad">
+<head><link rel="stylesheet" href="../tokens.css"><link rel="stylesheet" href="../bundle.css"><meta charset="utf-8"><title>Chip</title><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Scheherazade+New:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&display=swap">
+<style>
+  .demo { display: flex; flex-direction: column; gap: 18px; padding: 16px; max-width: 500px; }
+  .demo .sq-section { gap: 8px; }
+</style>
+</head>
+<body>
+<div class="demo">
+  <div class="sq-section">
+    <p class="sq-label">Tense · adds to a selection</p>
+    <div class="sq-chips">
+      <button class="sq-chip" aria-pressed="true"><span>past</span><span class="sq-chip__ar" lang="ar">مَاضٍ</span></button>
+      <button class="sq-chip" aria-pressed="true"><span>present</span><span class="sq-chip__ar" lang="ar">مُضَارِع</span></button>
+      <button class="sq-chip" aria-pressed="false"><span>command</span><span class="sq-chip__ar" lang="ar">أَمْر</span></button>
+    </div>
+  </div>
+  <div class="sq-section">
+    <p class="sq-label">Forms · the numeral always leads, the wazn follows</p>
+    <div class="sq-chips">
+      <button class="sq-chip" aria-pressed="true"><span class="sq-chip__num">I</span><span class="sq-chip__ar" lang="ar">مُجَرَّد</span></button>
+      <button class="sq-chip" aria-pressed="true"><span class="sq-chip__num">II</span><span class="sq-chip__ar" lang="ar">فَعَّلَ</span></button>
+      <button class="sq-chip" aria-pressed="false"><span class="sq-chip__num">III</span><span class="sq-chip__ar" lang="ar">فَاعَلَ</span></button>
+      <button class="sq-chip" aria-pressed="false"><span class="sq-chip__num">IV</span><span class="sq-chip__ar" lang="ar">أَفْعَلَ</span></button>
+      <button class="sq-chip" aria-pressed="false"><span class="sq-chip__num">V</span><span class="sq-chip__ar" lang="ar">تَفَعَّلَ</span></button>
+      <button class="sq-chip" aria-pressed="false"><span class="sq-chip__num">VI</span><span class="sq-chip__ar" lang="ar">تَفَاعَلَ</span></button>
+      <button class="sq-chip" aria-pressed="false"><span class="sq-chip__num">VII</span><span class="sq-chip__ar" lang="ar">اِنْفَعَلَ</span></button>
+      <button class="sq-chip" aria-pressed="false"><span class="sq-chip__num">VIII</span><span class="sq-chip__ar" lang="ar">اِفْتَعَلَ</span></button>
+      <button class="sq-chip" aria-pressed="false"><span class="sq-chip__num">IX</span><span class="sq-chip__ar" lang="ar">اِفْعَلَّ</span></button>
+      <button class="sq-chip" aria-pressed="true"><span class="sq-chip__num">X</span><span class="sq-chip__ar" lang="ar">اِسْتَفْعَلَ</span></button>
+    </div>
+  </div>
+  <div class="sq-section">
+    <p class="sq-label">Verb types · the five v1 plays; flagged-off types are a footnote, not dead chips</p>
+    <div class="sq-chips">
+      <button class="sq-chip" aria-pressed="true"><span>Sound</span><span class="sq-chip__ar" lang="ar">سَالِم</span></button>
+      <button class="sq-chip" aria-pressed="false"><span>Doubled</span><span class="sq-chip__ar" lang="ar">مُضَاعَف</span></button>
+      <button class="sq-chip" aria-pressed="false"><span>Assimilated</span><span class="sq-chip__ar" lang="ar">مِثَال</span></button>
+      <button class="sq-chip" aria-pressed="false"><span>Hollow</span><span class="sq-chip__ar" lang="ar">أَجْوَف</span></button>
+      <button class="sq-chip" aria-pressed="false"><span>Defective</span><span class="sq-chip__ar" lang="ar">نَاقِص</span></button>
+    </div>
+    <p class="sq-hint">Hamzated and lafīf verbs arrive in a later version.</p>
+  </div>
+  <div class="sq-section">
+    <p class="sq-label">Segmented · replaces, never adds</p>
+    <div class="sq-seg" style="max-width: 320px">
+      <button aria-pressed="false">5</button><button aria-pressed="true">10</button><button aria-pressed="false">20</button><button aria-pressed="false">Endless</button>
+    </div>
+  </div>
+  <div class="sq-section">
+    <p class="sq-label">Pills · read-only, a recipe on a cue card</p>
+    <div class="sq-chips">
+      <span class="sq-pill">Form I</span>
+      <span class="sq-pill"><span>present</span><span class="sq-ar" lang="ar">مُضَارِع</span></span>
+      <span class="sq-pill"><span>maʿrūf</span><span class="sq-ar" lang="ar">مَعْلُوم</span></span>
+      <span class="sq-pill"><span>he</span><span class="sq-ar" lang="ar">هُوَ</span></span>
+    </div>
+  </div>
+</div>
+
+<div style="position:fixed;top:10px;right:10px;z-index:99">
+  <button id="sq-theme-toggle" style="font:600 12px/1 -apple-system,system-ui;padding:7px 11px;border-radius:8px;
+    border:1px solid var(--line-strong);background:var(--raised);color:var(--ink);cursor:pointer">Paper / Night</button>
+</div>
+<script>
+  document.getElementById('sq-theme-toggle').onclick = () => {
+    const el = document.documentElement;
+    el.dataset.theme = el.dataset.theme === 'midad' ? 'midad-night' : 'midad';
+  };
+</script>
+</body>
+</html>

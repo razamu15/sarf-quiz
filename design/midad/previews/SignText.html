@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en" data-theme="midad">
+<head><link rel="stylesheet" href="../tokens.css"><link rel="stylesheet" href="../bundle.css"><meta charset="utf-8"><title>SignText</title><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Scheherazade+New:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&display=swap">
+<style>
+  .demo { display: grid; grid-template-columns: repeat(2, 380px); gap: 20px 32px; padding: 20px; align-items: start; }
+  .demo figure { margin: 0; display: flex; flex-direction: column; gap: 10px; }
+  .demo figcaption { font: 600 12px/16px var(--font-sans); color: var(--ink-muted); }
+  .demo figcaption b { color: var(--ink); }
+  .sample { display: flex; align-items: baseline; justify-content: center; gap: 16px; padding: 10px 16px; background: var(--raised); border: 1px solid var(--line); border-radius: var(--radius-md); }
+  .sample .sq-ar { font-size: 40px; line-height: 70px; }
+</style>
+</head>
+<body>
+<div class="demo">
+  <figure style="grid-column: 1 / -1">
+    <figcaption><b>Typed answer, one ḥaraka off</b> · the grader reports where it first diverged; the highlight covers the whole cluster, never a bare mark</figcaption>
+    <div class="sq-diff">
+      <span class="sq-diff__label sq-diff__label--wrong"><svg class="sq-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/></svg> You wrote</span>
+      <span class="sq-diff__word" lang="ar">يَظْهَ<mark>رَ</mark></span>
+      <span class="sq-diff__label sq-diff__label--correct"><svg class="sq-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg> Correct</span>
+      <span class="sq-diff__word" lang="ar">يَظْهَ<mark>رُ</mark></span>
+      <p class="sq-diff__note">Fourth letter: you wrote a fatḥa, it takes a ḍamma. On a muḍāriʿ that last ḥaraka is the iʿrāb.</p>
+    </div>
+  </figure>
+
+  <figure>
+    <figcaption><b>Today</b> · the governing particle is its own word, so it can be marked as soon as the answer is in</figcaption>
+    <div class="sample"><span class="sq-ar" lang="ar"><span class="sq-sign">لَمْ</span> يُعَلِّمَا</span></div>
+  </figure>
+
+  <figure>
+    <figcaption><b>Later</b> · the affixes, once the engine returns prefix / stem / suffix. Hand-marked here — nothing produces this yet</figcaption>
+    <div class="sample"><span class="sq-ar" lang="ar"><span class="sq-sign">تَ</span>نْصُ<span class="sq-sign">رُ</span></span></div>
+  </figure>
+</div>
+
+<div style="position:fixed;top:10px;right:10px;z-index:99">
+  <button id="sq-theme-toggle" style="font:600 12px/1 -apple-system,system-ui;padding:7px 11px;border-radius:8px;
+    border:1px solid var(--line-strong);background:var(--raised);color:var(--ink);cursor:pointer">Paper / Night</button>
+</div>
+<script>
+  document.getElementById('sq-theme-toggle').onclick = () => {
+    const el = document.documentElement;
+    el.dataset.theme = el.dataset.theme === 'midad' ? 'midad-night' : 'midad';
+  };
+</script>
+</body>
+</html>

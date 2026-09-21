@@ -1,0 +1,404 @@
+/* Sarf Quiz: component stylesheet.
+   Loaded after tokens.css. Colours, radii and spaces come only from tokens;
+   type sizes repeat the type styles in tokens.json so a component carries its
+   own typography. Each component's class contract is in its README. */
+
+/* ---------------------------------------------------------------- base --- */
+*, *::before, *::after { box-sizing: border-box; }
+html { background: var(--ground); }
+body {
+  margin: 0; background: var(--ground); color: var(--ink);
+  font-family: var(--font-sans); font-size: 15px; line-height: 22px;
+  -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility;
+}
+button, input { font: inherit; color: inherit; }
+:where(button, a, input, [tabindex]):focus-visible { outline: 2px solid transparent; box-shadow: var(--focus-ring); }
+.sq-icon { width: 22px; height: 22px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; }
+
+/* An Arabic run: isolated from the English around it, right-to-left, never
+   bold (weight changes break joining mid-word), never letter-spaced. */
+.sq-ar { font-family: var(--font-arabic); direction: rtl; unicode-bidi: isolate; font-weight: 400; letter-spacing: 0; }
+/* A meaning, a gloss, a translation: the serif italic. */
+.sq-gloss { font-family: var(--font-serif); font-style: italic; font-weight: 400; color: var(--ink-muted); }
+/* The sign: letters only, and only after the answer. */
+.sq-sign { color: var(--sign); }
+
+.sq-title { margin: 0; font: 500 30px/36px var(--font-serif); letter-spacing: -0.01em; }
+.sq-title .sq-ar { font-size: 30px; color: var(--ink-muted); margin-inline-start: var(--space-2); }
+.sq-label { margin: 0; font: 600 13px/18px var(--font-sans); color: var(--ink-muted); }
+.sq-hint { margin: 0; font: 400 13px/18px var(--font-sans); color: var(--ink-muted); }
+.sq-section { display: flex; flex-direction: column; gap: var(--space-3); }
+.sq-row-between { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-3); }
+
+/* ------------------------------------------------------------- Button --- */
+.sq-btn {
+  appearance: none; display: inline-flex; align-items: center; justify-content: center; gap: var(--space-2);
+  min-height: var(--tap-target); padding: 0 var(--space-5);
+  border: 1px solid var(--line-strong); border-radius: var(--radius-md);
+  background: var(--raised); color: var(--ink);
+  font: 600 17px/22px var(--font-sans); cursor: pointer; white-space: nowrap;
+  transition: transform 80ms ease-out, background-color 120ms ease-out;
+}
+.sq-btn--primary { min-height: 52px; background: var(--action); border-color: var(--action); color: var(--on-action); }
+.sq-btn--quiet { background: transparent; border-color: transparent; color: var(--ink-muted); padding: 0 var(--space-3); }
+.sq-btn--small { min-height: 36px; padding: 0 var(--space-3); font-size: 15px; border-radius: var(--radius-sm); }
+.sq-btn--block { display: flex; width: 100%; }
+.sq-btn:active:not(:disabled) { transform: translateY(1px); }
+.sq-btn:disabled { cursor: not-allowed; background: transparent; color: var(--ink-faint); border-style: dashed; border-color: var(--line-strong); }
+.sq-btn--primary:disabled { background: var(--fill); border: 1px solid var(--fill); color: var(--ink-muted); }
+/* Links are ink with an underline: the accent is not spent on navigation. */
+.sq-link {
+  font: 600 15px/20px var(--font-sans); color: var(--ink); cursor: pointer; background: none; border: 0; padding: 0;
+  text-decoration: underline; text-decoration-color: var(--line-strong); text-underline-offset: 4px; text-decoration-thickness: 1.5px;
+}
+
+/* --------------------------------------------------------------- Chip --- */
+/* A bilingual chip keeps its halves in FIXED slots: numeral or English first,
+   Arabic after, each isolated. Before this, "I الثلاثي المجرد" rendered as
+   "الثلاثي المجرد I" because the bidi algorithm reordered one mixed run. */
+.sq-chips { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.sq-chip {
+  appearance: none; display: inline-flex; align-items: center; gap: var(--space-2); direction: ltr;
+  min-height: 40px; padding: 0 var(--space-3);
+  border: 1px solid var(--line-strong); border-radius: var(--radius-sm);
+  background: var(--raised); color: var(--ink);
+  font: 600 14px/18px var(--font-sans); cursor: pointer;
+}
+.sq-chip > * { unicode-bidi: isolate; }
+.sq-chip__num { font-variant-numeric: tabular-nums; font-weight: 700; }
+.sq-chip__ar { font-family: var(--font-arabic); font-size: 19px; line-height: 30px; font-weight: 400; direction: rtl; color: var(--ink-muted); }
+.sq-chip[aria-pressed="true"] { background: var(--select); border-color: var(--select); color: var(--on-select); }
+.sq-chip[aria-pressed="true"] .sq-chip__ar { color: var(--on-select); }
+.sq-chip:disabled { cursor: not-allowed; background: transparent; border-style: dashed; color: var(--ink-faint); }
+.sq-chip:disabled .sq-chip__ar { color: var(--ink-faint); }
+
+/* Segmented: one value of a fixed set (a Tables axis, quiz length). A sibling
+   of the chip, not a variant: tapping it replaces, tapping a chip adds. */
+.sq-seg { display: flex; gap: 2px; padding: 3px; border-radius: var(--radius-sm); background: var(--fill); direction: ltr; }
+.sq-seg > button {
+  appearance: none; flex: 1; min-width: 0; min-height: 38px; padding: 0 var(--space-2);
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  border: 1px solid transparent; border-radius: 8px; background: transparent; color: var(--ink-muted);
+  font: 600 13px/16px var(--font-sans); cursor: pointer; white-space: nowrap;
+}
+.sq-seg > button .sq-ar { font-size: 17px; line-height: 26px; }
+.sq-seg > button[aria-pressed="true"] { background: var(--raised); border-color: var(--line-strong); color: var(--ink); box-shadow: var(--shadow-raised); }
+.sq-seg > button:disabled { color: var(--ink-faint); cursor: not-allowed; }
+
+/* Read-only pill: a recipe chip on a cue card, a question kind. Never tappable. */
+.sq-pill {
+  display: inline-flex; align-items: center; gap: 6px; direction: ltr; height: 30px; padding: 0 10px;
+  border-radius: var(--radius-full); background: var(--fill); color: var(--ink);
+  font: 600 13px/16px var(--font-sans); white-space: nowrap;
+}
+.sq-pill > * { unicode-bidi: isolate; }
+.sq-pill .sq-ar { font-size: 18px; line-height: 28px; color: var(--ink-muted); }
+
+/* ---------------------------------------------------------- RootTiles --- */
+/* The radicals as three type sorts, first radical on the RIGHT. The optional
+   slot letters under them (ف ع ل) are the mīzān: which radical fills which
+   place of the pattern. */
+.sq-root { display: inline-flex; gap: var(--space-2); direction: rtl; }
+.sq-tile {
+  position: relative; display: grid; place-items: center;
+  width: 52px; height: 58px; border: 1px solid var(--line-strong); border-radius: var(--radius-xs);
+  background: var(--raised); box-shadow: var(--shadow-raised);
+  font-family: var(--font-arabic); font-size: 34px; line-height: 1; color: var(--ink); padding-bottom: 6px;
+}
+.sq-tile[data-slot]::after {
+  content: attr(data-slot); position: absolute; left: 0; right: 0; bottom: -26px; text-align: center;
+  font-family: var(--font-arabic); font-size: 17px; line-height: 20px; color: var(--ink-muted);
+}
+.sq-root--slots { margin-bottom: 26px; }
+.sq-root--sm { gap: 4px; }
+.sq-root--sm .sq-tile { width: 30px; height: 34px; font-size: 20px; padding-bottom: 3px; border-radius: 5px; box-shadow: none; }
+.sq-root--lg .sq-tile { width: 64px; height: 72px; font-size: 42px; }
+
+/* --------------------------------------------------------- PromptCard --- */
+/* One card per prompt kind, exhaustive, like CARDS in screens/quiz.js. Before
+   the answer every letter on it is ink: the sign is the answer. */
+.sq-prompt {
+  display: flex; flex-direction: column; align-items: center; gap: var(--space-2); text-align: center;
+  padding: var(--space-5) var(--space-5) var(--space-6);
+  background: var(--raised); border: 1px solid var(--line); border-radius: var(--radius-lg); box-shadow: var(--shadow-raised);
+}
+.sq-prompt__tag { font: 500 12px/16px var(--font-sans); color: var(--ink-muted); font-variant-numeric: tabular-nums; }
+.sq-prompt__word { margin: 0; font-family: var(--font-arabic); font-size: 60px; line-height: 104px; direction: rtl; unicode-bidi: isolate; color: var(--ink); }
+.sq-prompt__verb { margin: 0; font-family: var(--font-arabic); font-size: 40px; line-height: 70px; direction: rtl; unicode-bidi: isolate; }
+.sq-prompt__gloss { margin: 0; font: italic 400 17px/24px var(--font-serif); color: var(--ink-muted); }
+.sq-prompt__meaning { margin: var(--space-2) 0 0; font: italic 400 28px/36px var(--font-serif); color: var(--ink); max-width: 16ch; }
+.sq-prompt__recipe { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; margin-top: var(--space-2); }
+.sq-prompt .sq-root { margin: var(--space-2) 0; }
+/* Once the answer is in, the card gives its height to the options and the
+   sheet: the word stays legible, nothing has to be scrolled to be seen. */
+.sq-screen[data-answered] .sq-prompt { padding: var(--space-3) var(--space-4) var(--space-4); }
+.sq-screen[data-answered] .sq-prompt__word { font-size: 42px; line-height: 74px; }
+.sq-screen[data-answered] .sq-prompt__meaning { font-size: 21px; line-height: 28px; }
+.sq-ask { margin: 0; font: 600 17px/24px var(--font-sans); text-align: center; text-wrap: balance; }
+.sq-screen[data-answered] .sq-ask { display: none; }
+.sq-ask__hint { display: block; font: 400 13px/18px var(--font-sans); color: var(--ink-muted); }
+
+/* ------------------------------------------------------- AnswerOption --- */
+/* English leads, Arabic trails, in fixed slots. Checklist questions show a
+   tick box BEFORE any tap, so the interaction is legible up front. After
+   grading, correctness lives on the container, with a mark and a word. */
+.sq-options { display: flex; flex-direction: column; gap: var(--space-2); }
+.sq-option {
+  appearance: none; width: 100%; display: flex; align-items: center; gap: var(--space-3); direction: ltr;
+  min-height: var(--option-height); padding: var(--space-1) var(--space-4);
+  border: 1px solid var(--line-strong); border-radius: var(--radius-md); background: var(--raised);
+  color: var(--ink); text-align: start; cursor: pointer; box-shadow: var(--shadow-raised);
+  transition: background-color 120ms ease-out, border-color 120ms ease-out;
+}
+.sq-option > * { unicode-bidi: isolate; }
+.sq-option__en { flex: 1; min-width: 0; font: 500 14px/18px var(--font-sans); color: var(--ink-muted); }
+.sq-option__ar { margin-inline-start: auto; font-family: var(--font-arabic); font-size: 28px; line-height: 50px; direction: rtl; color: var(--ink); }
+.sq-option--ar-only .sq-option__ar { flex: 1; text-align: right; }
+.sq-option__box {
+  flex: none; width: 22px; height: 22px; display: grid; place-items: center;
+  border: 1.5px solid var(--line-strong); border-radius: var(--radius-xs); background: var(--raised); color: var(--on-select);
+}
+.sq-option__box svg { width: 14px; height: 14px; stroke-width: 2.5; opacity: 0; }
+.sq-option__mark { flex: none; width: 22px; height: 22px; display: none; }
+.sq-option__verdict { display: none; font: 600 12px/16px var(--font-sans); }
+
+/* picked, before Check (checklist only) */
+.sq-option[data-state="picked"] { background: var(--select-soft); border-color: var(--select); }
+.sq-option[data-state="picked"] .sq-option__box { background: var(--select); border-color: var(--select); }
+.sq-option[data-state="picked"] .sq-option__box svg { opacity: 1; }
+/* after grading */
+.sq-option[data-state] { cursor: default; }
+.sq-option[data-state="picked"] { cursor: pointer; }
+.sq-option[data-state="correct"], .sq-option[data-state="missed"], .sq-option[data-state="wrong"] { box-shadow: none; }
+.sq-option[data-state="correct"] { background: var(--correct-soft); border-color: var(--correct); border-width: 2px; }
+.sq-option[data-state="missed"] { background: var(--raised); border: 2px dashed var(--correct); }
+.sq-option[data-state="wrong"] { background: var(--wrong-soft); border-color: var(--wrong); border-width: 2px; }
+.sq-option[data-state="rest"] { box-shadow: none; border-color: var(--line); }
+.sq-option[data-state="rest"] .sq-option__ar { color: var(--ink-muted); }
+.sq-option[data-state="correct"] .sq-option__mark, .sq-option[data-state="missed"] .sq-option__mark { display: block; color: var(--correct); }
+.sq-option[data-state="wrong"] .sq-option__mark { display: block; color: var(--wrong); }
+.sq-option[data-state="wrong"] .sq-option__en { text-decoration: line-through; text-decoration-thickness: 1.5px; }
+.sq-option[data-state="missed"] .sq-option__verdict { display: inline; color: var(--correct); }
+.sq-option:is([data-state="correct"], [data-state="missed"], [data-state="wrong"], [data-state="rest"]) .sq-option__box { display: none; }
+
+/* -------------------------------------------------------- AnswerSheet --- */
+/* Feedback rises from the bottom instead of being appended below the options,
+   so the word stays on screen and Continue sits under the thumb. */
+.sq-sheet {
+  display: flex; flex-direction: column; gap: var(--space-3);
+  padding: var(--space-2) var(--space-5) var(--space-5);
+  background: var(--raised); border-radius: var(--radius-lg) var(--radius-lg) 0 0; box-shadow: var(--shadow-sheet);
+}
+.sq-sheet__grab { align-self: center; width: 36px; height: 5px; border-radius: 3px; background: var(--line-strong); margin-bottom: var(--space-1); }
+.sq-sheet__verdict { display: flex; align-items: center; gap: var(--space-2); margin: 0; font: 700 20px/26px var(--font-sans); }
+.sq-sheet__verdict .sq-icon { width: 24px; height: 24px; stroke-width: 2.25; }
+.sq-sheet[data-verdict="correct"] .sq-sheet__verdict { color: var(--correct); }
+.sq-sheet[data-verdict="wrong"] .sq-sheet__verdict { color: var(--wrong); }
+.sq-sheet__answer { margin: 0; font: 500 15px/22px var(--font-sans); color: var(--ink-muted); }
+.sq-sheet__answer .sq-ar { font-size: 21px; color: var(--ink); }
+.sq-sheet__reading { margin: 0; font: italic 400 19px/26px var(--font-serif); color: var(--ink); }
+.sq-sheet__explain { margin: 0; font: 400 15px/26px var(--font-sans); color: var(--ink); }
+.sq-sheet__explain .sq-ar, .sq-tip .sq-ar { font-size: 21px; line-height: 26px; }
+.sq-tips { list-style: none; margin: 0; padding: var(--space-3) 0 0; border-top: 1px solid var(--line); display: flex; flex-direction: column; gap: var(--space-3); }
+.sq-tip { display: grid; grid-template-columns: 18px 1fr; gap: var(--space-2); font: 400 14px/21px var(--font-sans); color: var(--ink-muted); }
+.sq-tip .sq-icon { width: 18px; height: 18px; margin-top: 2px; color: var(--ink-muted); }
+.sq-tip .sq-ar { color: var(--ink); }
+.sq-sheet__actions { display: flex; align-items: center; gap: var(--space-4); padding-top: var(--space-1); }
+.sq-sheet__actions .sq-btn--primary { flex: 1; }
+
+/* ----------------------------------------------------------- SignText --- */
+/* The diff for a typed answer: both words stacked, right-aligned, with the
+   first diverging CLUSTER (letter plus its marks) highlighted. Never wrap a
+   bare mark: a ḍamma on its own detaches from its letter. */
+.sq-diff { display: grid; grid-template-columns: auto 1fr; align-items: center; gap: 0 var(--space-4); padding: var(--space-2) var(--space-4); background: var(--ground); border: 1px solid var(--line); border-radius: var(--radius-md); }
+.sq-diff__label { display: flex; align-items: center; gap: 6px; font: 600 12px/16px var(--font-sans); color: var(--ink-muted); }
+.sq-diff__label .sq-icon { width: 16px; height: 16px; stroke-width: 2.25; }
+.sq-diff__label--wrong { color: var(--wrong); }
+.sq-diff__label--correct { color: var(--correct); }
+.sq-diff__word { text-align: right; font-family: var(--font-arabic); font-size: 30px; line-height: 54px; direction: rtl; unicode-bidi: isolate; color: var(--ink); }
+.sq-diff__word mark { background: var(--sign-soft); color: var(--sign); border-radius: var(--radius-xs); }
+.sq-diff__note { grid-column: 1 / -1; margin: 0; padding: var(--space-1) 0 var(--space-2); border-top: 1px solid var(--line); font: 500 13px/18px var(--font-sans); color: var(--ink-muted); }
+.sq-diff__note .sq-ar { font-size: 19px; color: var(--sign); }
+
+/* ------------------------------------------------------------ QuizBar --- */
+.sq-quizbar { display: flex; align-items: center; gap: var(--space-3); min-height: var(--tap-target); }
+.sq-iconbtn { appearance: none; width: var(--tap-target); height: var(--tap-target); margin-inline-start: -10px; display: grid; place-items: center; border: 0; border-radius: var(--radius-sm); background: transparent; color: var(--ink-muted); cursor: pointer; }
+.sq-progress { flex: 1; display: flex; gap: 6px; }
+.sq-progress__word { flex: 1; display: flex; gap: 2px; }
+.sq-progress__tick { flex: 1; height: 6px; border-radius: 3px; background: var(--fill); }
+.sq-progress__tick[data-at="done"] { background: var(--ink); }
+.sq-progress__tick[data-at="now"] { background: var(--line-strong); }
+.sq-quizbar__count { font: 600 13px/16px var(--font-sans); color: var(--ink-muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.sq-score { display: inline-flex; align-items: center; gap: var(--space-3); font: 600 14px/18px var(--font-sans); font-variant-numeric: tabular-nums; }
+.sq-score span { display: inline-flex; align-items: center; gap: 4px; }
+.sq-score .sq-icon { width: 16px; height: 16px; stroke-width: 2.5; }
+.sq-score__right { color: var(--correct); }
+.sq-score__wrong { color: var(--wrong); }
+
+/* ---------------------------------------------------- the typed answer --- */
+.sq-input {
+  width: 100%; min-height: 64px; padding: 0 var(--space-4);
+  border: 1.5px solid var(--line-strong); border-radius: var(--radius-md); background: var(--raised); color: var(--ink);
+  font-family: var(--font-arabic); font-size: 30px; line-height: 60px; text-align: center; direction: rtl;
+}
+.sq-input::placeholder { color: var(--ink-faint); }
+.sq-input:focus { outline: none; border-color: var(--select); box-shadow: var(--focus-ring); }
+.sq-input[data-state="correct"] { border-color: var(--correct); background: var(--correct-soft); }
+.sq-input[data-state="wrong"] { border-color: var(--wrong); background: var(--wrong-soft); }
+
+/* ----------------------------------------------------------- SetupBar --- */
+/* Practice's consequences, pinned where the finger is: the count, what the
+   setup asks (retired kinds struck through), what the last tap changed. */
+.sq-setupbar {
+  display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 6px var(--space-3);
+  min-height: var(--setup-bar-height); padding: var(--space-3) var(--space-4);
+  background: var(--raised); box-shadow: var(--shadow-sheet);
+}
+.sq-setupbar__count { font: 700 17px/22px var(--font-sans); font-variant-numeric: tabular-nums; }
+.sq-setupbar__count small { font-weight: 500; font-size: 13px; color: var(--ink-muted); }
+.sq-kinds { display: flex; flex-wrap: wrap; gap: 4px; }
+.sq-kind { display: inline-flex; align-items: center; height: 22px; padding: 0 8px; border-radius: var(--radius-full); background: var(--fill); font: 600 11px/14px var(--font-sans); color: var(--ink); white-space: nowrap; }
+.sq-kind[data-live="false"] { background: transparent; color: var(--ink-muted); text-decoration: line-through; box-shadow: inset 0 0 0 1px var(--line); }
+.sq-setupbar__delta { grid-column: 1 / -1; margin: 0; font: 500 12px/16px var(--font-sans); color: var(--ink-muted); }
+.sq-setupbar__delta b { color: var(--ink); font-weight: 600; }
+.sq-setupbar .sq-btn--primary { grid-row: 1 / span 2; grid-column: 2; min-width: 116px; }
+
+/* ----------------------------------------------------------- ChartMap --- */
+/* The nine real charts (CHART_SHAPES) as one grid. Headers toggle an axis;
+   cells only SHOW coverage, since a plan is tense × voice × mood and a single
+   cell cannot be chosen on its own. Every slot is named, because auto-placement
+   around spanning headers puts things in the wrong row. */
+.sq-chartmap {
+  display: grid; direction: ltr; gap: 6px;
+  grid-template-columns: 64px repeat(5, 1fr);
+  grid-template-areas:
+    "corner madi mudari mudari mudari amr"
+    "corner madi raf    nasb   jazm   amr"
+    "malum  m1   m2     m3     m4     amrcell"
+    "majhul j1   j2     j3     j4     amrcell"
+    "foot   foot foot   foot   foot   foot";
+}
+.sq-chartmap__corner { grid-area: corner; }
+.sq-chartmap__a-madi { grid-area: madi; }
+.sq-chartmap__a-mudari { grid-area: mudari; }
+.sq-chartmap__a-amr { grid-area: amr; }
+.sq-chartmap__a-raf { grid-area: raf; }
+.sq-chartmap__a-nasb { grid-area: nasb; }
+.sq-chartmap__a-jazm { grid-area: jazm; }
+.sq-chartmap__a-malum { grid-area: malum; }
+.sq-chartmap__a-majhul { grid-area: majhul; }
+.sq-chartmap__a-m1 { grid-area: m1; } .sq-chartmap__a-m2 { grid-area: m2; }
+.sq-chartmap__a-m3 { grid-area: m3; } .sq-chartmap__a-m4 { grid-area: m4; }
+.sq-chartmap__a-j1 { grid-area: j1; } .sq-chartmap__a-j2 { grid-area: j2; }
+.sq-chartmap__a-j3 { grid-area: j3; } .sq-chartmap__a-j4 { grid-area: j4; }
+/* The amr is one chart whatever the voice row says (planCharts), so its cell
+   spans both voice rows rather than lighting up under maʿrūf alone. */
+.sq-chartmap__a-amrcell { grid-area: amrcell; }
+.sq-chartmap__foot { grid-area: foot; margin: 2px 0 0; font: 500 12px/16px var(--font-sans); color: var(--ink-muted); }
+.sq-chartmap__axis {
+  appearance: none; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  min-height: var(--tap-target); padding: 2px 4px; border: 1px solid var(--line-strong); border-radius: var(--radius-sm);
+  background: var(--raised); color: var(--ink); font: 600 12px/14px var(--font-sans); cursor: pointer;
+}
+.sq-chartmap__axis .sq-ar { font-size: 16px; line-height: 22px; color: var(--ink-muted); }
+.sq-chartmap__axis[aria-pressed="true"] { background: var(--select); border-color: var(--select); color: var(--on-select); }
+.sq-chartmap__axis[aria-pressed="true"] .sq-ar { color: var(--on-select); }
+.sq-chartmap__axis:disabled { cursor: not-allowed; background: transparent; border-style: dashed; color: var(--ink-faint); }
+.sq-chartmap__axis:disabled .sq-ar { color: var(--ink-faint); }
+.sq-chartmap__axis--mood { font-weight: 500; min-height: 38px; }
+.sq-chartmap__cell { display: grid; place-items: center; min-height: 46px; border-radius: var(--radius-sm); background: var(--fill); }
+.sq-chartmap__cell i { width: 14px; height: 14px; border-radius: 4px; border: 1.5px solid var(--line-strong); }
+.sq-chartmap__cell[data-in="true"] { background: var(--select-soft); box-shadow: inset 0 0 0 1.5px var(--select); }
+.sq-chartmap__cell[data-in="true"] i { background: var(--select); border-color: var(--select); }
+
+/* ------------------------------------------------------- ParadigmGrid --- */
+/* The 14 ṣiyagh the way a student's paper chart has them: singular, dual and
+   plural across, read right to left; he/she/you/I down. Columns line the
+   endings up, so the pattern of a chart is visible at a glance. */
+.sq-grid { display: grid; grid-template-columns: repeat(3, 1fr); direction: rtl; background: var(--raised); border: 1px solid var(--line); border-radius: var(--radius-md); overflow: hidden; }
+.sq-grid__head { padding: var(--space-2) var(--space-1); text-align: center; background: var(--ground); border-bottom: 1px solid var(--line); }
+.sq-grid__head .sq-ar { display: block; font-size: 17px; line-height: 26px; color: var(--ink); }
+.sq-grid__head small { display: block; font: 500 11px/14px var(--font-sans); color: var(--ink-muted); direction: ltr; }
+.sq-cell { display: flex; flex-direction: column; align-items: center; padding: 4px 2px 6px; border-bottom: 1px solid var(--line); border-left: 1px solid var(--line); min-width: 0; }
+/* The three column heads are children 1-3, so the plural (leftmost) cell of
+   every row is child 3n. */
+.sq-cell:nth-child(3n) { border-left: 0; }
+.sq-cell__pron { font-family: var(--font-arabic); font-size: 15px; line-height: 22px; color: var(--ink-muted); direction: rtl; }
+.sq-cell__word { font-family: var(--font-arabic); font-size: 24px; line-height: 42px; color: var(--ink); direction: rtl; white-space: nowrap; }
+.sq-cell[data-span="2"] { grid-column: span 2; border-left: 0; }
+.sq-cell[data-empty] { background: var(--ground); }
+.sq-cell[data-band] { border-top: 1.5px solid var(--line-strong); }
+.sq-cell[data-hit] { background: var(--select-soft); box-shadow: inset 0 0 0 2px var(--select); }
+.sq-grid:not(.sq-grid--amr) > .sq-cell:nth-last-child(-n + 2) { border-bottom: 0; }
+.sq-grid--amr > .sq-cell:nth-last-child(-n + 3) { border-bottom: 0; }
+.sq-list14 { display: flex; flex-direction: column; background: var(--raised); border: 1px solid var(--line); border-radius: var(--radius-md); overflow: hidden; }
+.sq-list14 > div { display: flex; align-items: center; justify-content: space-between; padding: 0 var(--space-4); border-bottom: 1px solid var(--line); direction: rtl; }
+.sq-list14 > div:last-child { border-bottom: 0; }
+.sq-list14 .sq-ar:first-child { font-size: 26px; line-height: 48px; }
+.sq-list14 small { font: 500 12px/16px var(--font-sans); color: var(--ink-muted); direction: ltr; unicode-bidi: isolate; }
+
+/* ----------------------------------------------------------- StatStrip --- */
+.sq-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-3) var(--space-2); padding: var(--space-4); background: var(--raised); border: 1px solid var(--line); border-radius: var(--radius-lg); }
+.sq-stat { display: flex; flex-direction: column; gap: 2px; }
+.sq-stat b { font: 600 28px/32px var(--font-sans); font-variant-numeric: tabular-nums; letter-spacing: -0.01em; }
+.sq-stat span { font: 500 12px/16px var(--font-sans); color: var(--ink-muted); }
+.sq-week { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; padding-top: var(--space-3); border-top: 1px solid var(--line); }
+.sq-week__day { display: flex; flex-direction: column; align-items: center; gap: 4px; font: 600 11px/14px var(--font-sans); color: var(--ink-muted); }
+.sq-week__bar { width: 100%; height: 30px; border-radius: 6px; background: var(--fill); display: flex; align-items: flex-end; overflow: hidden; }
+.sq-week__bar i { display: block; width: 100%; background: var(--ink); border-radius: 6px 6px 0 0; }
+.sq-week__day[data-today] { color: var(--ink); }
+.sq-stats--empty { grid-template-columns: 1fr; }
+
+/* ----------------------------------------------------------- DrillCard --- */
+.sq-drill { display: flex; flex-direction: column; gap: var(--space-2); padding: var(--space-5); background: var(--raised); border: 1px solid var(--line); border-radius: var(--radius-lg); box-shadow: var(--shadow-raised); }
+.sq-drill__kicker { margin: 0; font: 600 13px/18px var(--font-sans); color: var(--ink-muted); }
+.sq-drill__title { margin: 0; display: flex; align-items: baseline; gap: var(--space-2); font: 500 26px/32px var(--font-serif); }
+.sq-drill__title .sq-ar { font-size: 28px; line-height: 40px; color: var(--ink-muted); }
+.sq-drill__desc { margin: 0; font: 400 15px/22px var(--font-sans); color: var(--ink-muted); }
+.sq-drill__meta { display: flex; flex-wrap: wrap; gap: 6px; margin: var(--space-1) 0 var(--space-2); }
+.sq-list { list-style: none; margin: 0; padding: 0; background: var(--raised); border: 1px solid var(--line); border-radius: var(--radius-md); overflow: hidden; }
+.sq-list > li + li { border-top: 1px solid var(--line); }
+.sq-listrow { appearance: none; width: 100%; display: flex; align-items: center; gap: var(--space-3); min-height: 64px; padding: var(--space-2) var(--space-4); border: 0; background: transparent; color: var(--ink); text-align: start; cursor: pointer; direction: ltr; }
+.sq-listrow__text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.sq-listrow__title { display: flex; align-items: baseline; gap: var(--space-2); font: 600 17px/22px var(--font-sans); }
+.sq-listrow__title .sq-ar { font-size: 21px; line-height: 30px; color: var(--ink-muted); }
+.sq-listrow__sub { font: 400 13px/18px var(--font-sans); color: var(--ink-muted); }
+.sq-listrow > .sq-icon { color: var(--ink-faint); width: 18px; height: 18px; }
+
+/* --------------------------------------------------------------- Quote --- */
+/* Typography, not a card: no box, no rule down the side. */
+.sq-quote { margin: 0; padding: var(--space-4) var(--space-2); text-align: center; display: flex; flex-direction: column; gap: var(--space-2); }
+.sq-quote blockquote { margin: 0; font-family: var(--font-arabic); font-size: 26px; line-height: 48px; direction: rtl; unicode-bidi: isolate; color: var(--ink); text-wrap: balance; }
+.sq-quote figcaption { display: flex; flex-direction: column; gap: 6px; }
+.sq-quote__en { font: italic 400 17px/24px var(--font-serif); color: var(--ink-muted); text-wrap: balance; }
+.sq-quote cite { font: 500 12px/16px var(--font-sans); font-style: normal; color: var(--ink-muted); }
+.sq-quote cite b { font-weight: 700; color: var(--ink); }
+
+/* -------------------------------------------------------------- TabBar --- */
+/* The native tab bar, drawn: SwiftUI's TabView gives this for free. */
+.sq-tabbar { display: grid; grid-template-columns: repeat(4, 1fr); padding: 6px var(--space-2) 22px; background: var(--raised); border-top: 1px solid var(--line); }
+.sq-tab { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 4px 0; color: var(--ink-muted); font: 500 10px/12px var(--font-sans); text-decoration: none; cursor: pointer; }
+.sq-tab .sq-icon { width: 25px; height: 25px; stroke-width: 1.6; }
+.sq-tab[aria-current="page"] { color: var(--ink); }
+.sq-tab[aria-current="page"] .sq-icon { stroke-width: 2.1; }
+
+/* ------------------------------------------------- screen mock-ups only --- */
+/* The reference phone for showcase pages. Not a component of the app. */
+.sq-phone { position: relative; width: 390px; height: 844px; flex: none; display: flex; flex-direction: column; overflow: hidden; background: var(--ground); color: var(--ink); border: 1px solid var(--line-strong); border-radius: 48px; box-shadow: 0 1px 0 var(--line), 0 20px 40px -24px #00000059; }
+.sq-status { flex: none; height: 50px; display: flex; align-items: flex-end; justify-content: space-between; padding: 0 30px 8px 34px; font: 600 15px/18px var(--font-sans); color: var(--ink); }
+.sq-status i { display: inline-block; width: 26px; height: 12px; border: 1.5px solid currentColor; border-radius: 4px; position: relative; opacity: .9; }
+.sq-status i::after { content: ""; position: absolute; inset: 1.5px 5px 1.5px 1.5px; background: currentColor; border-radius: 1.5px; }
+.sq-topbar { flex: none; padding: 0 var(--space-4); }
+.sq-screen { flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: var(--space-4); padding: var(--space-2) var(--space-4) var(--space-6); scrollbar-width: none; }
+/* A screen scrolls; its sections never squash to make room. */
+.sq-screen > * { flex: 0 0 auto; }
+.sq-screen::-webkit-scrollbar { display: none; }
+.sq-dock { flex: none; }
+.sq-overlay { position: absolute; left: 0; right: 0; bottom: 0; z-index: 3; transform: translateY(105%); transition: transform 260ms cubic-bezier(.2, .8, .2, 1); }
+.sq-overlay[data-open] { transform: none; }
+.sq-scrim { position: absolute; inset: 0; z-index: 2; background: #0000; transition: background-color 260ms ease-out; pointer-events: none; }
+.sq-scrim[data-open] { background: #00000024; pointer-events: auto; }
+.sq-caption { margin: 0; font: 500 12px/16px var(--font-sans); color: var(--ink-muted); }
+.sq-stage { display: flex; gap: 28px; align-items: flex-start; padding: 20px; }
+.sq-stage__col { display: flex; flex-direction: column; gap: 10px; width: 390px; flex: none; }
+@media (prefers-reduced-motion: reduce) { .sq-overlay, .sq-scrim, .sq-option, .sq-btn { transition: none; } }

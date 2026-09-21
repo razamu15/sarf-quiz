@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en" data-theme="midad">
+<head><link rel="stylesheet" href="../tokens.css"><link rel="stylesheet" href="../bundle.css"><meta charset="utf-8"><title>AnswerSheet</title><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Scheherazade+New:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&display=swap">
+<style>
+  .demo { display: grid; grid-template-columns: repeat(2, 390px); gap: 32px; padding: 20px; align-items: start; }
+  .demo figure { margin: 0; display: flex; flex-direction: column; gap: 10px; }
+  .demo figcaption { font: 600 12px/16px var(--font-sans); color: var(--ink-muted); }
+  .demo .sq-sheet { border: 1px solid var(--line); }
+</style>
+</head>
+<body>
+<div class="demo">
+  <figure>
+    <figcaption>Wrong · the tip is about the confusion, not the word</figcaption>
+    <section class="sq-sheet" data-verdict="wrong">
+      <span class="sq-sheet__grab"></span>
+      <p class="sq-sheet__verdict"><svg class="sq-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/></svg> Not quite</p>
+      <p class="sq-sheet__reading">“she drank”</p>
+      <p class="sq-sheet__explain"><bdi class="sq-ar" lang="ar">شَرِبَتْ</bdi> — <bdi class="sq-ar" lang="ar">فِعْل مَاضٍ</bdi> from <bdi class="sq-ar" lang="ar">شَرِبَ يَشْرَبُ</bdi>.</p>
+      <ul class="sq-tips"><li class="sq-tip"><svg class="sq-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M9.5 18h5M10.5 21h3M12 3.5a5.5 5.5 0 0 0-3.2 10c.6.5.9 1.1.9 1.9v.1h4.6v-.1c0-.8.3-1.4.9-1.9A5.5 5.5 0 0 0 12 3.5z"/></svg><span>A māḍī carries its pronoun BEHIND it as a suffix — <bdi class="sq-ar" lang="ar">كَتَبْتُ، كَتَبُوا</bdi> — and never takes a prefix. A muḍāriʿ carries it in front.</span></li></ul>
+      <div class="sq-sheet__actions">
+        <button class="sq-link">See the table</button>
+        <button class="sq-btn sq-btn--primary">Continue</button>
+      </div>
+    </section>
+  </figure>
+
+  <figure>
+    <figcaption>Right · no tips, because nothing was confused</figcaption>
+    <section class="sq-sheet" data-verdict="correct">
+      <span class="sq-sheet__grab"></span>
+      <p class="sq-sheet__verdict"><svg class="sq-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg> Correct</p>
+      <p class="sq-sheet__reading">“she helps / will help”</p>
+      <p class="sq-sheet__explain"><bdi class="sq-ar" lang="ar">تَنْصُرُ</bdi> → <bdi class="sq-ar" lang="ar">هِيَ</bdi> (she)<bdi class="sq-ar" lang="ar">، أَنْتَ</bdi> (you (m)) — <bdi class="sq-ar" lang="ar">فِعْل مُضَارِع مَعْلُوم</bdi>. One written form, several pronouns.</p>
+      <div class="sq-sheet__actions">
+        <button class="sq-link">See the table</button>
+        <button class="sq-btn sq-btn--primary">Continue</button>
+      </div>
+    </section>
+  </figure>
+</div>
+
+<div style="position:fixed;top:10px;right:10px;z-index:99">
+  <button id="sq-theme-toggle" style="font:600 12px/1 -apple-system,system-ui;padding:7px 11px;border-radius:8px;
+    border:1px solid var(--line-strong);background:var(--raised);color:var(--ink);cursor:pointer">Paper / Night</button>
+</div>
+<script>
+  document.getElementById('sq-theme-toggle').onclick = () => {
+    const el = document.documentElement;
+    el.dataset.theme = el.dataset.theme === 'midad' ? 'midad-night' : 'midad';
+  };
+</script>
+</body>
+</html>

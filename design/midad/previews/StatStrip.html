@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en" data-theme="midad">
+<head><link rel="stylesheet" href="../tokens.css"><link rel="stylesheet" href="../bundle.css"><meta charset="utf-8"><title>StatStrip</title><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Scheherazade+New:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&display=swap">
+<style>
+  .demo { display: flex; flex-direction: column; gap: 16px; padding: 18px 16px; max-width: 420px; }
+  .demo figure { margin: 0; display: flex; flex-direction: column; gap: 8px; }
+  .demo figcaption { font: 600 12px/16px var(--font-sans); color: var(--ink-muted); }
+</style>
+</head>
+<body>
+<div class="demo">
+  <figure>
+    <figcaption>Sample history — the bars are questions answered per day</figcaption>
+    <div class="sq-stats">
+      <span class="sq-stat"><b>5</b><span>day streak</span></span>
+      <span class="sq-stat"><b>86</b><span>this week</span></span>
+      <span class="sq-stat"><b>71%</b><span>accuracy</span></span>
+      <div class="sq-week">
+        <span class="sq-week__day"><span class="sq-week__bar"><i style="height:41%"></i></span>S</span>
+        <span class="sq-week__day"><span class="sq-week__bar"></span>M</span>
+        <span class="sq-week__day"><span class="sq-week__bar"><i style="height:62%"></i></span>T</span>
+        <span class="sq-week__day"><span class="sq-week__bar"><i style="height:76%"></i></span>W</span>
+        <span class="sq-week__day"><span class="sq-week__bar"><i style="height:31%"></i></span>T</span>
+        <span class="sq-week__day"><span class="sq-week__bar"><i style="height:48%"></i></span>F</span>
+        <span class="sq-week__day" data-today><span class="sq-week__bar"><i style="height:38%"></i></span>S</span>
+      </div>
+    </div>
+  </figure>
+
+  <figure>
+    <figcaption>Before the first drill — an honest gap, not a zero</figcaption>
+    <div class="sq-stats">
+      <span class="sq-stat" style="grid-column: 1 / -1"><b>No drills yet</b><span>Your streak, your week and your accuracy show up here.</span></span>
+    </div>
+  </figure>
+</div>
+
+<div style="position:fixed;top:10px;right:10px;z-index:99">
+  <button id="sq-theme-toggle" style="font:600 12px/1 -apple-system,system-ui;padding:7px 11px;border-radius:8px;
+    border:1px solid var(--line-strong);background:var(--raised);color:var(--ink);cursor:pointer">Paper / Night</button>
+</div>
+<script>
+  document.getElementById('sq-theme-toggle').onclick = () => {
+    const el = document.documentElement;
+    el.dataset.theme = el.dataset.theme === 'midad' ? 'midad-night' : 'midad';
+  };
+</script>
+</body>
+</html>

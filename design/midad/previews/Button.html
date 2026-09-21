@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en" data-theme="midad">
+<head><link rel="stylesheet" href="../tokens.css"><link rel="stylesheet" href="../bundle.css"><meta charset="utf-8"><title>Button</title><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Scheherazade+New:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&display=swap">
+<style>
+  .demo { display: flex; flex-direction: column; gap: 14px; padding: 16px; }
+  .row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+</style>
+</head>
+<body>
+<div class="demo">
+  <div class="row">
+    <button class="sq-btn sq-btn--primary">Start · 10</button>
+    <button class="sq-btn">Same setup again</button>
+    <button class="sq-btn sq-btn--quiet">Not now</button>
+  </div>
+  <div class="row">
+    <button class="sq-btn sq-btn--primary" disabled>Check</button>
+    <button class="sq-btn sq-btn--small">Edit</button>
+    <button class="sq-link">See the table</button>
+  </div>
+</div>
+
+<div style="position:fixed;top:10px;right:10px;z-index:99">
+  <button id="sq-theme-toggle" style="font:600 12px/1 -apple-system,system-ui;padding:7px 11px;border-radius:8px;
+    border:1px solid var(--line-strong);background:var(--raised);color:var(--ink);cursor:pointer">Paper / Night</button>
+</div>
+<script>
+  document.getElementById('sq-theme-toggle').onclick = () => {
+    const el = document.documentElement;
+    el.dataset.theme = el.dataset.theme === 'midad' ? 'midad-night' : 'midad';
+  };
+</script>
+</body>
+</html>
