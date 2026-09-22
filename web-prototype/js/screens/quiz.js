@@ -25,33 +25,31 @@ export function initQuizScreen(root, exit) { app = root; onExit = exit; }
 // ---------------------------------------------------------------------------
 // Cards — one per prompt kind, exhaustive
 // ---------------------------------------------------------------------------
-const tagHtml = (q) => (q.tag ? `<div class="word-tag">${q.tag}</div>` : '');
+// `tag` is gone with the drill bundle (D-80): a drill is five words and a word
+// is one card, so "Word 3 / 5" is what the progress count already says.
+// `citation` is gone with the bāb question (D-76).
 const glossHtml = (g) => (g ? `<div class="gloss">“${g}”</div>` : '');
 
 const CARDS = {
-  word: (q) => el(`<div class="word-card">${tagHtml(q)}
+  word: (q) => el(`<div class="word-card">
     <div class="word">${q.prompt.text}</div>${glossHtml(q.prompt.gloss)}
     <span class="cat">${q.category}</span></div>`),
 
-  citation: (q) => el(`<div class="word-card">${tagHtml(q)}
-    <div class="word">${q.prompt.text}</div>${glossHtml(q.prompt.gloss)}
-    <span class="cat">read the bāb off both tenses</span></div>`),
-
-  spec: (q) => el(`<div class="word-card cue-card">${tagHtml(q)}
+  spec: (q) => el(`<div class="word-card cue-card">
     <div class="root">${q.prompt.radicals.join(' ')}</div>${glossHtml(q.prompt.gloss)}
     <div class="cue-spec">${q.prompt.chips.map(chipHtml).join('')}</div></div>`),
 
   // No q.prompt.text exists on this kind, by construction — the word is the
   // answer. The root is safe and orienting: all four options are built from it.
-  meaning: (q) => el(`<div class="word-card meaning-card">${tagHtml(q)}
+  meaning: (q) => el(`<div class="word-card meaning-card">
     <div class="meaning-prompt">“${q.prompt.meaning}”</div>
     <div class="root-hint">${q.prompt.radicals.join(' ')}</div></div>`),
 
-  derivedRequest: (q) => el(`<div class="word-card">${tagHtml(q)}
+  derivedRequest: (q) => el(`<div class="word-card">
     <div class="word">${q.prompt.verb}</div>${glossHtml(q.prompt.gloss)}
     <div class="cue-spec">${q.prompt.chips.map(chipHtml).join('')}</div></div>`),
 
-  derivedWord: (q) => el(`<div class="word-card">${tagHtml(q)}
+  derivedWord: (q) => el(`<div class="word-card">
     <div class="word">${q.prompt.text}</div>${glossHtml(q.prompt.gloss)}</div>`),
 };
 
@@ -63,8 +61,90 @@ export function renderQuestion() {
   app.append(topBar(run));
   app.append(CARDS[q.prompt.kind](q));
   app.append(el(`<div class="prompt">${q.prompt.ask}</div>`));
-  if (q.response.mode === 'input') renderInput(q);
+  if (q.response.mode === 'parse') renderAxes(q);
+  else if (q.response.mode === 'input') renderInput(q);
   else renderChoices(q);
+}
+
+/**
+ * The parse card — every live axis as its own labelled chip row. 🔒 D-72.
+ *
+ * ONE Check for the whole card, and it stays disabled until every row has been
+ * touched: a blank row is not a partial-credit case, it is an unanswered
+ * question (grading.js judges it wrong, which is what should happen, but the
+ * student should not be able to submit it by accident).
+ */
+function renderAxes(q) {
+  const picks = state.run.axes;
+  q.response.axes.forEach((row) => picks.set(row.axis, picks.get(row.axis) ?? new Set()));
+
+  const wrap = el('<div class="axes"></div>');
+  for (const row of q.response.axes) {
+    const chosen = picks.get(row.axis);
+    const rowEl = el(`<div class="axis" data-axis="${row.axis}">
+      <div class="axis-label">${row.label}${row.select === 'many' ? ' <i>— all that apply</i>' : ''}</div>
+      <div class="axis-chips"></div></div>`);
+    const chips = rowEl.querySelector('.axis-chips');
+    for (const o of row.options) {
+      const chip = el(`<button class="axis-chip" data-key="${o.valueKey}">
+        <span class="en">${o.en}</span><span class="ar">${o.ar}</span></button>`);
+      chip.onclick = () => {
+        // 'one' REPLACES, 'many' TOGGLES — read off the row's declared `select`,
+        // not guessed from how many answers happen to be correct.
+        if (row.select === 'one') {
+          chosen.clear();
+          chosen.add(o.valueKey);
+        } else if (chosen.has(o.valueKey)) chosen.delete(o.valueKey);
+        else chosen.add(o.valueKey);
+        [...chips.children].forEach((c) =>
+          c.classList.toggle('selected', chosen.has(c.dataset.key)));
+        check.disabled = q.response.axes.some((r) => !picks.get(r.axis).size);
+      };
+      chips.append(chip);
+    }
+    wrap.append(rowEl);
+  }
+  app.append(wrap);
+
+  const check = el('<button class="btn primary" disabled>Check</button>');
+  check.onclick = () => submitParse(wrap, q);
+  app.append(check);
+}
+
+/** Grade a parse card, mark every row, then collapse the ones that were right. */
+function submitParse(wrap, q) {
+  const run = state.run;
+  const answer = run.answer(run.axisPicks);
+
+  app.querySelectorAll('.btn.primary').forEach((b) => { if (b.textContent === 'Check') b.remove(); });
+
+  let firstMiss = null;
+  for (const part of answer.parts) {
+    const row = q.response.axes.find((r) => r.axis === part.axis);
+    const rowEl = wrap.querySelector(`.axis[data-axis="${part.axis}"]`);
+    rowEl.classList.add(part.correct ? 'right' : 'miss');
+    // A right row COLLAPSES: it is settled, and what is left on screen should be
+    // what still needs reading.
+    if (!part.correct && !firstMiss) firstMiss = rowEl;
+    [...rowEl.querySelectorAll('.axis-chip')].forEach((c) => {
+      const key = c.dataset.key;
+      c.disabled = true;
+      c.classList.remove('selected');
+      // Four states, and they are four different facts: you got it, you missed
+      // it, you picked it wrongly, or it was never in play.
+      if (row.correct.includes(key)) c.classList.add(part.given.includes(key) ? 'correct' : 'missed');
+      else if (part.given.includes(key)) c.classList.add('wrong');
+      else c.classList.add('rest');
+    });
+  }
+
+  app.append(feedbackBox(q, answer));
+  const next = el(`<button class="btn primary">${run.hasNext() ? 'Next' : 'See results'}</button>`);
+  next.onclick = () => (run.advance() ? renderQuestion() : renderResults());
+  app.append(next);
+  // The first thing you got wrong, not the bottom of the page: on a five-row
+  // card the interesting thing is above the fold, not below it.
+  (firstMiss ?? next).scrollIntoView({ behavior: 'smooth', block: firstMiss ? 'center' : 'end' });
 }
 
 function topBar(run) {
@@ -170,7 +250,7 @@ function feedbackBox(q, answer) {
 
   const fb = el(`<div class="feedback ${answer.correct ? 'good' : 'bad'}">
     ${q.feedback.meaning ? `<div class="meaning">“${q.feedback.meaning}”</div>` : ''}
-    ${diff}<b>${answer.correct ? 'Correct!' : 'Not quite.'}</b> ${q.feedback.explanation}
+    ${diff}<b>${answer.correct ? 'Correct!' : 'Not quite.'}</b>${rowTally(q, answer)} ${q.feedback.explanation}
   </div>`);
 
   // The rule behind the miss, under the explanation of this particular word.
@@ -180,7 +260,12 @@ function feedbackBox(q, answer) {
   //
   // Two at most: a third is no longer the thing you just got wrong, and the
   // point of the slot is that it is short enough to read before tapping Next.
-  const tips = tipsFor(q, answer);
+  // ONE JUDGEMENT PER AXIS on a parse card: a tip is matched PER WRONG AXIS and
+  // the first two of the card are shown, so a card missing three rows still
+  // spends only two lines (product-spec screens/02-quiz.md, the sheet's Tips
+  // row). The rows themselves already say which three they were.
+  const judgements = answer.parts ?? [answer];
+  const tips = judgements.flatMap((j) => tipsFor(q, j));
   if (tips.length) {
     fb.append(el(`<div class="tips">${tips.slice(0, 2).map((t) => `
       <div class="tip"><span class="tip-mark">✦</span><span>${t.en}${
@@ -202,6 +287,35 @@ function feedbackBox(q, answer) {
     fb.append(link);
   }
   return fb;
+}
+
+/**
+ * On a parse card, what the verdict alone cannot say: HOW MANY rows were right
+ * and WHICH ones were not.
+ *
+ * "Not quite" on a five-row card is the least useful sentence on the screen —
+ * the whole point of D-77's trade-off (one wrong row fails the card) is that
+ * the four right ones still count, and the student should be told so before
+ * reading anything else. Specified in product-spec/screens/02-quiz.md, the
+ * answer sheet's Head row.
+ *
+ * Empty for every other question kind, which has only one row to report.
+ */
+function rowTally(q, answer) {
+  if (!answer.parts || answer.correct) return '';
+  const label = (axis) => q.response.axes.find((r) => r.axis === axis).label;
+  const right = answer.parts.filter((p) => p.correct).length;
+  const missed = answer.parts.filter((p) => !p.correct)
+    .map((p) => `<b>${label(p.axis)}</b>`);
+  // The row's own label, never its id: 'doer' is the stats bucket's name, and
+  // "Who the doer is" is what the row above actually said.
+  const list = missed.length > 1
+    ? `${missed.slice(0, -1).join(', ')} and ${missed.at(-1)}`
+    : missed[0];
+  const head = right
+    ? `${right} of ${answer.parts.length} rows right — missed `
+    : 'Missed ';
+  return ` <span class="tally">${head}${list}.</span>`;
 }
 
 /** Underline the first diverging CLUSTER — a letter with its ḥaraka, not a bare mark. */

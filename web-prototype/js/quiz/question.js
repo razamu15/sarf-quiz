@@ -12,14 +12,20 @@
 //
 //   quizType, category   WHAT is being asked — carried, never inferred
 //   identity             WHAT WORD it is about (word-spec.js)
-//   prompt               WHAT THE CARD RENDERS — tagged, six kinds
+//   prompt               WHAT THE CARD RENDERS — tagged, five kinds
 //   response             HOW YOU ANSWER, and what counts as correct
 //   feedback             what is shown after
 //
-// `category` IS the id of the question rule that built it — 'tense', 'doer',
+// `category` IS the id of the question rule that built it — 'parse',
 // 'derivedPick', 'produce'. One vocabulary for the registry, the stored record
 // and the stats breakdown, so "avg score per category" needs no mapping table
 // and a new question kind appears in the dashboard by existing.
+//
+// A PARSE CARD is the one place that vocabulary has two levels (D-77, D-78):
+// the card's category is 'parse', and each of its five AXES is its own stats
+// bucket. history/store.js fans one answer out to one row per axis, and the
+// axis id is that row's category — so "accuracy per question kind" still means
+// what it meant before the five questions became one card.
 //
 // Every prompt carries its own `ask` — the sentence above the options. It sits
 // on the prompt rather than in a label table because it is data-dependent for
@@ -50,8 +56,13 @@ export const question = ({ quizType, category, identity, prompt, response, feedb
   ({ quizType, category, identity, prompt, response, feedback });
 
 // ---------------------------------------------------------------------------
-// Prompts — six kinds against four quiz types, which is the proof that prompt
-// shape is its own axis and not a projection of the type.
+// Prompts — FIVE kinds against four quiz types, which is still the proof that
+// prompt shape is its own axis and not a projection of the type.
+//
+// `citation` was the sixth. It existed for the bāb question alone — نَصَرَ
+// يَنْصُرُ, two words in two tenses — and went with it under D-76: the bāb is
+// still taught, in the parse card's explanation, but it is no longer drilled,
+// so nothing puts a citation on a card any more.
 //
 // The tag exists because the screen used to INFER the card from which keys
 // happened to be present:
@@ -61,17 +72,6 @@ export const question = ({ quizType, category, identity, prompt, response, feedb
 
 /** identify — the conjugated word itself. */
 export const wordPrompt = (ask, text, gloss) => ({ kind: 'word', ask, text, gloss });
-
-/**
- * the bāb question — نَصَرَ يَنْصُرُ, two words in two tenses.
- *
- * Its own kind rather than a `word` with a space in it, because the card can
- * then say what it is showing: you read the bāb off the ʿayn's vowel in BOTH
- * tenses, which is the lesson rather than a rendering detail. A reader of a
- * stored answer can also tell a citation from a conjugated word without
- * guessing from whitespace.
- */
-export const citationPrompt = (ask, text, gloss) => ({ kind: 'citation', ask, text, gloss });
 
 /** produce — the cue card: root letters plus the target as chips. */
 export const specPrompt = (ask, radicals, gloss, chips) => ({ kind: 'spec', ask, radicals, gloss, chips });
@@ -94,9 +94,13 @@ export const derivedRequestPrompt = (ask, verb, gloss, chips) =>
 export const derivedWordPrompt = (ask, text, gloss) => ({ kind: 'derivedWord', ask, text, gloss });
 
 // ---------------------------------------------------------------------------
-// Responses — two modes. Grading keys on the MODE, not on the quiz type: nine of
-// the ten question kinds grade identically, and a produce-style prompt with a
-// choice response ("choose the correct spelling") is already anticipated.
+// Responses — THREE modes: choice, input, parse. Grading keys on the MODE, not
+// on the quiz type, and a produce-style prompt with a choice response ("choose
+// the correct spelling") is already anticipated.
+//
+// `parse` is not a third COMPARISON — grading.js runs the choice rule once per
+// axis row and `every()`s the results. It is a third mode because what arrives
+// from the screen has a different shape: one set of picks per axis, not one.
 // ---------------------------------------------------------------------------
 
 /**
@@ -120,6 +124,35 @@ export const choiceResponse = (options, correctKeys) =>
 
 /** Typed Arabic, graded strictly against the engine's own NFC string. */
 export const inputResponse = (accepted) => ({ mode: 'input', accepted });
+
+/**
+ * ONE ROW of a parse card — 🔒 D-72.
+ *
+ * An axis row IS a choiceResponse that knows which axis it is: same options,
+ * same value keys, same exact-set correctness. That is deliberate and it is
+ * what keeps `parse` from being a third way to grade — grading.js applies the
+ * choice rule once per row and `every()`s the results.
+ *
+ * `select` is `'one'` or `'many'`, DECLARED rather than derived from
+ * `correct.length`. A single-answer row and a multi-answer row that happens to
+ * have one correct answer look identical after the draw, and the screen has to
+ * tell them apart before anything is picked: tapping a second chip on a `one`
+ * row replaces, on a `many` row it adds.
+ *
+ * `correct` is an array for the same reason choiceResponse's is — a Set does
+ * not survive JSON.stringify, and every one of these is embedded in a stored
+ * Answer.
+ */
+export const axisRow = (axis, label, select, options, correctKeys) =>
+  ({ axis, label, select, options, correct: [...new Set(correctKeys)] });
+
+/**
+ * The parse card's response — every axis at once, one card per word (D-72).
+ *
+ * A third MODE rather than a fourth quiz type: what changed is how you answer,
+ * not what is being asked about. `identify` is still the quiz type.
+ */
+export const parseResponse = (axes) => ({ mode: 'parse', axes });
 
 /** Does this choice question need "select all that apply" and a Check button? */
 export const isMultiSelect = (q) => q.response.mode === 'choice' && q.response.correct.length > 1;

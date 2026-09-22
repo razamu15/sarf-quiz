@@ -76,7 +76,7 @@ export function wordPool(plan, playableTypes) {
 
   const varies = {
     tenses: new Set(), voices: new Set(), moods: new Set(), slots: new Set(),
-    forms: new Set(), babs: new Set(), derivedKinds: new Set(), derivedForms: new Set(),
+    forms: new Set(), derivedKinds: new Set(), derivedForms: new Set(),
   };
   let cells = 0;
 
@@ -107,9 +107,10 @@ export function wordPool(plan, playableTypes) {
           if (chart.mood) varies.moods.add(chart.mood);
           varies.slots.add(slot);
           varies.forms.add(c.formId);
-          // The bāb question reads the ʿayn vowel off a citation, which only
-          // sits in plain view on a sound Form I verb.
-          if (c.formId === 'I' && c.root.type === 'salim') varies.babs.add(c.root.forms.I.bab);
+          // `varies.babs` was here, and it had exactly one reader: the bāb
+          // question's answer space. D-76 dropped the question, so the set is
+          // gone with it — the bāb is still taught, in the parse card's
+          // explanation, but nothing counts how many of them are in scope.
         }
       }
     }
@@ -121,11 +122,21 @@ export function wordPool(plan, playableTypes) {
    * person. Null when repeated attempts find nothing, which means the pool is
    * effectively dry rather than that this draw was unlucky.
    *
-   * `charts` is overridable because two builders need a narrowed set: the voice
-   * question must start from a chart that HAS a voice pair, and the iʿrāb
-   * question from one particular mood.
+   * `fromCharts` is overridable for a builder that needs a narrowed set.
+   *
+   * `requires` is THE JOINT PRECONDITION of every live axis on a parse card
+   * (D-74): an axis that is live may not vanish from one card, so the word has
+   * to satisfy all of them at once. It lives here rather than in the builder
+   * because it is a property of the DRAW — the voice question used to own a
+   * private 60-iteration retry loop (drawVoicePair) doing the narrow version of
+   * this, and a second axis with a precondition would have needed its own.
+   *
+   * Measured on the widest pool a session can hold: the joint draw succeeds on
+   * 35,056 of 50,202 cells (69.8%), so 80 attempts miss with probability
+   * ~10⁻⁴². The existing retry budget was already more than enough; it is
+   * unchanged.
    */
-  function draw(fromCharts = charts) {
+  function draw(fromCharts = charts, requires = null) {
     if (!candidates.length || !fromCharts.length) return null;
     for (let i = 0; i < 80; i++) {
       const c = rand(candidates);
@@ -133,7 +144,10 @@ export function wordPool(plan, playableTypes) {
       const slot = rand(slotsFor(chart.tense));
       const spec = { root: c.root, formId: c.formId, ...chart };
       const word = conjugate(spec, slot);
-      if (word) return { spec, slot, word };
+      if (!word) continue;
+      const drawn = { spec, slot, word };
+      if (requires && !requires(drawn)) continue;
+      return drawn;
     }
     return null;
   }

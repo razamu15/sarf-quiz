@@ -7,7 +7,13 @@
 //
 // An Answer arrives already complete: it embeds the whole Question, so nothing
 // here re-derives what was asked. This file's only job is to add the flat query
-// index that makes the dashboard cheap (see rowFor).
+// index that makes the dashboard cheap (see rowsFor).
+//
+// TWO DENOMINATORS, AND THEY MEET HERE. A parse card is ONE question in the
+// session score and FIVE rows in here (D-77, D-78), so "answers this week" over
+// these rows counts axis judgements — roughly 4–5× the number of cards played —
+// while the Results screen's fraction counts cards. Both are coherent; a query
+// that mixes them is not. Anything reading rows() is counting axes.
 //
 // ---PROTOTYPE ONLY--- storage is localStorage, uncapped by decision: a long
 // testing session can hit the ~5 MB ceiling, at which point writes fail silently
@@ -18,7 +24,8 @@ const KEY = 'sarf.history.v2';
 const nowISO = () => new Date().toISOString();
 
 /**
- * One stored row: the answer, plus the flat columns the dashboard groups by.
+ * The stored rows for one answer: the flat columns the dashboard groups by,
+ * plus the answer itself.
  *
  * THE ONLY PLACE that knows about query columns (A1a · D1). The index is a copy,
  * in one function, rebuildable from the embedded answer at any time — an index,
@@ -26,13 +33,31 @@ const nowISO = () => new Date().toISOString();
  * localStorage takes JSON either way; in Swift the same projection fills the
  * @Model's stored properties, because #Predicate cannot index into an embedded
  * value. Same move LexiconService already makes: one type knows where data lives.
+ *
+ * ONE ANSWER, N ROWS — 🔒 D-78. A parse card asks five axes at once, and each
+ * axis is its own stats bucket: "accuracy per question kind" has to keep
+ * meaning what it meant when the five axes were five questions. So a parse
+ * answer fans out to one row per part, each carrying THAT PART's `category` and
+ * `correct`; every other kind is still one row.
+ *
+ * THE FAN-OUT IS THE STEP WITH NO VISIBLE PAYOFF, and the one most likely to be
+ * "simplified" later — nothing on screen reads it until the stats screens ship.
+ * It is what keeps Home's weakest-kind row (D-48) and Results' By-question
+ * breakdown (D-49) alive today. The smoke suite asserts one card writes five
+ * rows, so it cannot be quietly removed.
+ *
+ * ACCEPTED TRADE-OFF: the whole answer is embedded on every row, so a parse
+ * card costs five copies of one Question blob. In the prototype that is
+ * localStorage filling ~5× faster against a ceiling that is already
+ * ---PROTOTYPE ONLY---. In Swift the same shape is five AnswerRecords sharing
+ * one payload; if that proves heavy, the fix is a shared question record the
+ * rows point at, NOT collapsing the fan-out.
  */
-function rowFor(answer) {
+function rowsFor(answer) {
   const { identity, quizType, category } = answer.question;
-  return {
+  const base = {
     ...identity,           // rootKey formId verbType bab tense voice mood slot derivedKind
-    quizType, category,
-    correct: answer.correct,
+    quizType,
     answeredAt: answer.answeredAt,
     // The whole thing, so a session can be redisplayed exactly as it was asked
     // (A1a · Q23) and the distractors that were offered stay knowable (Q21) —
@@ -40,6 +65,10 @@ function rowFor(answer) {
     // them.
     answer,
   };
+  // `parts` is present exactly when the response mode is `parse` — carried on
+  // the Answer, never inferred from the question's shape.
+  if (!answer.parts) return [{ ...base, category, correct: answer.correct }];
+  return answer.parts.map((p) => ({ ...base, category: p.axis, correct: p.correct }));
 }
 
 function load() {
@@ -81,7 +110,7 @@ export function startSession(plan, mode) {
  */
 export function recordAnswer(answer) {
   if (!open) startSession(null, 'unknown');
-  open.rows.push(rowFor(answer));
+  open.rows.push(...rowsFor(answer));
 }
 
 /** Close and commit. Sessions with no answers are discarded, not stored empty. */

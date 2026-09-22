@@ -162,24 +162,47 @@ export const TIPS = [
     en: 'Naṣb and jazm look alike wherever the nūn drops. On the five ṣīghah that show it, the difference is the final ḥaraka alone: fatḥa for naṣb, sukūn for jazm.',
     ar: 'لَنْ يَكْتُبَ · لَمْ يَكْتُبْ',
   },
-
-  // -- bāb ------------------------------------------------------------------
+  // NEW WITH D-75's mabnī chip. Four cells in ten take no iʿrāb at all, and
+  // until the parse card the iʿrāb question could not be asked about any of
+  // them — so neither confusion below had anywhere to fire.
   {
-    id: 'bab-is-a-pair-of-vowels', category: 'bab',
-    when: () => true,
-    en: 'A bāb is a PAIR of vowels, not one: the ʿayn’s ḥaraka in the māḍī, then its ḥaraka in the muḍāriʿ. Read them off the citation in that order.',
-    ar: 'نَصَرَ يَنْصُرُ',
+    id: 'mabni-takes-no-irab', category: 'mood',
+    when: (q, a) => wanted(a, 'mabni') && !picked(a, 'mabni'),
+    en: 'This word is mabnī: its ending is fixed and no particle in front of it can change it. Only the muḍāriʿ is muʿrab — a māḍī and an amr never are — so before choosing between rafʿ, naṣb and jazm, check that the word can be inflected at all.',
+    ar: 'نَصَرَ · اُنْصُرْ',
   },
   {
-    id: 'bab-half-right', category: 'bab',
-    // The bāb ids are two characters, one per tense — so "you had one of the two"
-    // is legible straight off the keys, without re-reading either word.
-    when: (q, a) => {
-      const [got, want] = [a.given[0], a.expected[0]];
-      if (!got || !want || got.length !== 2 || want.length !== 2) return false;
-      return (got[0] === want[0]) !== (got[1] === want[1]);
-    },
-    en: 'You had one half of it. One of the two vowels is right and the other is not — and both halves name the bāb, so the second word has to be read as carefully as the first.',
+    id: 'nun-al-niswa-is-mabni', category: 'mood',
+    // The one case where a MUḌĀRIʿ is mabnī, which is why it is its own tip:
+    // the rule "the muḍāriʿ is muʿrab" has exactly this exception.
+    when: (q, a) => wanted(a, 'mabni') && ['3fp', '2fp'].includes(q.identity.slot),
+    en: 'Nūn al-niswa fixes the ending: يَكْتُبْنَ is the same after لَنْ and لَمْ as it is on its own. It is the one place a muḍāriʿ is mabnī, and it is why "muḍāriʿ ⇒ muʿrab" is a rule with an exception rather than a definition.',
+    ar: 'يَكْتُبْنَ · لَنْ يَكْتُبْنَ · لَمْ يَكْتُبْنَ',
+  },
+  {
+    id: 'mudari-is-murab', category: 'mood',
+    when: (q, a) => picked(a, 'mabni') && !wanted(a, 'mabni'),
+    en: 'This one IS inflected. The muḍāriʿ is muʿrab everywhere except nūn al-niswa, so unless the ending is ـْنَ, read the last ḥaraka — or the presence of the nūn — and pick a state.',
+  },
+
+  // -- form -----------------------------------------------------------------
+  //
+  // NEW WITH THE PARSE CARD. `form` is an axis the old five questions never
+  // asked about — it was answerable all along (varies.forms was written by the
+  // pool walk and read by nobody), and an axis with no remediation is a gap.
+  {
+    id: 'form-is-the-pattern-not-the-root', category: 'form',
+    when: () => true,
+    en: 'The form lives in the PATTERN, not in the radicals: كَتَبَ, كَتَّبَ and أَكْتَبَ are the same three letters and three different forms. Read the shadda, the prefix and the long vowels — the root tells you nothing here.',
+    ar: 'فَعَلَ · فَعَّلَ · أَفْعَلَ',
+  },
+  {
+    id: 'form-ii-against-iv', category: 'form',
+    // The two most-confused mazīd forms: both make a verb transitive, and both
+    // add exactly one thing to the bare stem.
+    when: (q, a) => confused(a, 'II', 'IV'),
+    en: 'Form II doubles the ʿayn; Form IV puts a hamza in front and leaves the ʿayn alone. Both make a verb transitive, which is why they are confused — but only one of them thickens the middle letter.',
+    ar: 'عَلَّمَ · أَعْلَمَ',
   },
 
   // -- derived nouns · pick the derivative ----------------------------------
@@ -247,15 +270,26 @@ export const TIPS = [
 ];
 
 /**
- * The tips worth showing for one answered question, in registration order.
+ * The tips worth showing for one judgement, in registration order.
  *
- * Empty on a correct answer, always — see the header. Empty is also the normal
- * result for a category whose confusion-specific tips did not match, and the
- * caller renders nothing rather than reaching for a filler sentence.
+ * `judgement` is an **Answer** for a choice or input question, and ONE PART of
+ * a parse card for the other — 🔒 D-72. They are the same shape by design:
+ * `{given, expected, correct, axis}`, so wanted(), picked(), confused() and
+ * every one of the tips above work on either without a change. A parse card is
+ * asked five ways at once and each way earns its own remediation; one tip for a
+ * card that got four rows right would be advice about the wrong thing.
  *
- * Called by: screens/quiz.js (feedbackBox), which takes the first two.
+ * The category comes off `judgement.axis` — `null` on a whole-card Answer, the
+ * axis id on a part — rather than from which fields happen to be present.
+ *
+ * Empty on a correct judgement, always — see the header. Empty is also the
+ * normal result for a category whose confusion-specific tips did not match, and
+ * the caller renders nothing rather than reaching for a filler sentence.
+ *
+ * Called by: screens/quiz.js (feedbackBox), once per wrong axis row.
  */
-export function tipsFor(question, answer) {
-  if (answer.correct) return [];
-  return TIPS.filter((t) => t.category === question.category && t.when(question, answer));
+export function tipsFor(question, judgement) {
+  if (judgement.correct) return [];
+  const category = judgement.axis ?? question.category;
+  return TIPS.filter((t) => t.category === category && t.when(question, judgement));
 }

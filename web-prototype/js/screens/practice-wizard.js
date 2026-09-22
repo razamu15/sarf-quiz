@@ -22,6 +22,7 @@ import {
 
 import { wordPool } from '../quiz/word-pool.js';
 import { relevance, possibleQuestions, QUESTION_RULES } from '../quiz/relevance.js';
+import { PARSE_AXES } from '../quiz/parse-axes.js';
 import { renderSummary } from './practice-summary.js';
 
 // The two conditions that remove a row from the charts page. Lifted verbatim
@@ -137,12 +138,17 @@ function head(visible, index, onBack) {
  * and A2 changes nothing under quiz/.
  */
 function foot(pool, { isLast, count, onBack, onNext, onStart }) {
+  // 🔒 D-72 — the WORD is the unit for identify, because one word is one parse
+  // card. Saying "questions" here would make the 4,200 → 1,400 drop read as a
+  // loss of content when it is a change of unit: the same 1,400 words are still
+  // asked about in the same five ways (product-spec screens/03-practice.md).
   const possible = possibleQuestions(pool);
+  const unit = state.draft.quizType === 'identify' ? 'words' : 'possible questions';
   const liveIds = relevance(pool).live.map((k) => k.id);
 
   const box = el('<div class="wiz-foot"></div>');
   box.append(el(`<div class="cnt">${possible
-    ? `≈ <b>${possible.toLocaleString()}</b> possible questions`
+    ? `≈ <b>${possible.toLocaleString()}</b> ${unit}`
     : 'No questions possible — widen the selection'}</div>`));
 
   const line = deltaLine(possible, liveIds);
@@ -198,10 +204,16 @@ function deltaLine(possible, liveIds) {
 }
 
 /**
- * Rule id → the label the footer names it by, derived from the registry rather
- * than retyped: a new question kind names itself here by existing.
+ * Id → the label the footer names it by, derived from the registries rather
+ * than retyped: a new question kind or axis names itself here by existing.
+ *
+ * BOTH registries, because relevance() returns axes for identify and rules for
+ * the other three types (D-72) — one `{live, dead}` shape over two vocabularies,
+ * which is what lets this footer and the "This setup asks" panel stay branchless.
  */
-const RULE_LABELS = Object.fromEntries(QUESTION_RULES.map((r) => [r.id, r.label]));
+const RULE_LABELS = Object.fromEntries(
+  [...PARSE_AXES, ...QUESTION_RULES].map((r) => [r.id, r.label]),
+);
 
 // ---------------------------------------------------------------------------
 // The pages

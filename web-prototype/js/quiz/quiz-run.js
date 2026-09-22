@@ -13,8 +13,7 @@
 // (start one), screens/results.js (reads answers).
 
 import { grade } from './grading.js';
-import { relevance } from './relevance.js';
-import { rand } from './question.js';
+import { buildFor } from './relevance.js';
 
 const nowISO = () => new Date().toISOString();
 
@@ -31,13 +30,13 @@ const nowISO = () => new Date().toISOString();
  * nothing new, which means the pool is genuinely dry.
  */
 export function* questionStream(pool) {
-  const kinds = relevance(pool).live;
-  if (!kinds.length) return;
-
   const recent = [];
   let failures = 0;
   while (failures < 250) {
-    const q = rand(kinds).build(pool);
+    // What this pool can ask is relevance()'s business, not this file's — a
+    // parse card needs the live AXES and every other type needs one of its live
+    // kinds, and buildFor() is where that routing lives.
+    const q = buildFor(pool);
     if (!q) { failures++; continue; }
     const key = `${q.category}|${q.prompt.text ?? q.prompt.meaning ?? q.prompt.verb}|${q.identity.slot}`;
     if (recent.includes(key)) { failures++; continue; }
@@ -65,6 +64,10 @@ export class QuizRun {
     this.answers = [];
     this.selected = new Set();   // choice: value keys picked but not yet checked
     this.typed = '';             // input: what is in the box
+    // parse: one set of picks per AXIS, not one set for the card. ONE FIELD PER
+    // RESPONSE MODE, which is the shape the other two already had — the screen
+    // writes the field its mode names and answer() reads the same one.
+    this.axes = new Map();
     this.#record = record;
     if (Array.isArray(source)) {
       this.#served = source;
@@ -129,7 +132,13 @@ export class QuizRun {
     this.index++;
     this.selected = new Set();
     this.typed = '';
+    this.axes = new Map();
     return true;
+  }
+
+  /** The parse card's picks in the shape grade() takes: axis id → value keys. */
+  get axisPicks() {
+    return Object.fromEntries([...this.axes].map(([axis, set]) => [axis, [...set]]));
   }
 
   /** The session as the history store wants it. */

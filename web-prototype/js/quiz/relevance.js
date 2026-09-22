@@ -20,64 +20,26 @@
 // number is the only part any caller ever wanted, and `distinctAnswers` says
 // what the number is.
 //
-// Order matters: drill bundles take the first few live kinds, so the per-word
-// properties (tense, voice, doer) sit ahead of the per-root one (bāb).
-//
-// Called by: quiz-run.js (which kinds to draw from), drills.js (the bundle), and
-// screens/practice.js (the "This setup asks" panel and the question count).
+// Called by: quiz-run.js (through buildFor), and screens/practice.js (the
+// "This setup asks" panel and the question count).
 
-import {
-  tenseQuestion, voiceQuestion, doerQuestion, moodQuestion, babQuestion, drawVoicePair,
-} from './builders/identify.js';
+import { parseQuestion } from './builders/parse.js';
+import { PARSE_AXES } from './parse-axes.js';
 import { produceQuestion } from './builders/produce.js';
 import { fromMeaningQuestion } from './builders/from-meaning.js';
+import { rand } from './question.js';
 import {
   derivativePickQuestion, derivativeKindQuestion, derivativeFormQuestion, drawDerived,
 } from './builders/derived.js';
 
-/** Identify's repertoire. Which of these a session asks is decided here, not by the user. */
-export const IDENTIFY_CATEGORIES = ['tense', 'voice', 'doer', 'mood', 'bab'];
-
 export const QUESTION_RULES = [
   {
-    id: 'tense', quizType: 'identify', label: 'Tense',
-    distinctAnswers: (pool) => pool.varies.tenses.size,
-    reason: 'only one tense selected',
-    build: (pool) => { const d = pool.draw(); return d ? tenseQuestion(d) : null; },
-    forWord: (drawn) => tenseQuestion(drawn),
-  },
-  {
-    id: 'voice', quizType: 'identify', label: 'Voice',
-    distinctAnswers: (pool) => pool.varies.voices.size,
-    reason: 'only one voice reachable',
-    build: (pool) => { const d = drawVoicePair(pool); return d ? voiceQuestion(d) : null; },
-    // Drills flip a drawn word to its majhūl themselves, so a bundle only asks
-    // this when the word it drew actually has a pair.
-    forWord: (drawn) => (drawn.hasVoicePair ? voiceQuestion(drawn) : null),
-  },
-  {
-    id: 'doer', quizType: 'identify', label: 'Who the doer is',
-    distinctAnswers: (pool) => pool.varies.slots.size,
-    reason: 'only one pronoun reachable',
-    build: (pool) => { const d = pool.draw(); return d ? doerQuestion(d) : null; },
-    forWord: (drawn) => doerQuestion(drawn),
-  },
-  {
-    id: 'mood', quizType: 'identify', label: 'Iʿrāb',
-    distinctAnswers: (pool) => pool.varies.moods.size,
-    reason: 'iʿrāb needs the muḍāriʿ in more than one state',
-    build: (pool) => moodQuestion(pool),
-  },
-  {
-    id: 'bab', quizType: 'identify', label: 'Bāb',
-    distinctAnswers: (pool) => pool.varies.babs.size,
-    // You read the bāb off the citation نَصَرَ يَنْصُرُ, which shows BOTH
-    // tenses — so this does not belong in a single-tense quiz, where it would
-    // put a muḍāriʿ on screen in a past-tense drill. A precondition, distinct
-    // from the answer space.
-    requires: (pool) => pool.varies.tenses.has('madi') && pool.varies.tenses.has('mudari'),
-    reason: 'needs both tenses in scope, and more than one bāb',
-    build: (pool) => babQuestion(pool),
+    // ONE identify rule, not five. 🔒 D-72 — the five kinds became five AXES of
+    // one card, and they live in parse-axes.js. `build` is never called for
+    // this rule: buildFor() below routes identify to parseQuestion, which needs
+    // the live axes rather than the rule.
+    id: 'parse', quizType: 'identify', label: 'Parse the word',
+    always: true,
   },
   {
     id: 'derivedPick', quizType: 'derived', label: 'Pick the derivative',
@@ -116,28 +78,70 @@ export const QUESTION_RULES = [
   },
 ];
 
-/** The kinds this pool will actually ask, and the ones it retired, with why. */
+/** Is this pool's quiz type the parse card's? */
+const isParse = (pool) => (pool.plan.quizType ?? 'identify') === 'identify';
+
+/**
+ * What this pool will actually ask, and what it retired, with why.
+ *
+ * ONE SHAPE FOR BOTH WORLDS. For identify the entries are AXES of the parse
+ * card; for the other three types they are question kinds. Both are
+ * `{id, label, reason}` with a `distinctAnswers(pool)`, so Practice's setup
+ * panel renders either without a branch — the only thing that differs is the
+ * count, below.
+ */
 export function relevance(pool) {
-  const mine = QUESTION_RULES.filter((k) => k.quizType === (pool.plan.quizType ?? 'identify'));
+  const mine = isParse(pool)
+    ? PARSE_AXES
+    : QUESTION_RULES.filter((k) => k.quizType === pool.plan.quizType);
   const live = [];
   const dead = [];
   for (const k of mine) {
-    const ok = k.always
-      || ((k.requires ? k.requires(pool) : true) && k.distinctAnswers(pool) > 1);
+    // Liveness is ONE question — "can this pool give more than one answer" —
+    // and nothing else. There used to be a second, `requires(pool)`, carried by
+    // the bāb rule alone ("both tenses must be in scope, or the citation puts a
+    // muḍāriʿ on screen in a past-tense drill"). D-76 took that rule, and with
+    // it the only pool-level precondition in the registry. A future rule that
+    // needs one adds it back here; an AXIS's precondition is a different fact
+    // and lives on `requiresDraw`, which takes a drawn word, not a pool.
+    const ok = k.always || k.distinctAnswers(pool) > 1;
     (ok ? live : dead).push(k);
   }
   return { live, dead };
 }
 
 /**
- * Roughly how many distinct questions a pool can produce — shown under Start so
- * an over-narrow selection is visible before you tap rather than failing after.
+ * One question from this pool, or null.
  *
- * Words × the questions still worth asking about them. Counting all five
- * identify categories regardless of configuration is what made a muḍāriʿ-only
- * plan claim 798 questions when 266 of them meant anything.
+ * The routing lives here rather than in quiz-run because "what can this pool
+ * ask" is this file's job and nothing else's. A parse card takes the live axes;
+ * every other type picks one of its live kinds at random and lets it build.
+ *
+ * Called by: quiz-run's questionStream(), and nothing else.
+ */
+export function buildFor(pool) {
+  const { live } = relevance(pool);
+  if (!live.length) return null;
+  return isParse(pool) ? parseQuestion(pool, live) : rand(live).build(pool);
+}
+
+/**
+ * How many distinct questions a pool can produce — shown under Start so an
+ * over-narrow selection is visible before you tap rather than failing after.
+ *
+ * THE UNIT DIFFERS BY TYPE, and that is arithmetic rather than a loss.
+ * For identify it is the real cells: one parse card per word (D-72), so the
+ * number is `cells`, not `cells × axes`. The same 1,400 words are still asked
+ * about in the same five ways — which is why the screen must say *words* there
+ * and not *questions* (product-spec screens/03-practice.md). Multiplying would
+ * inflate it 4–5× and count the same card five times.
+ *
+ * For the other three types one word still yields one question per live kind,
+ * so the product is right. "Real" matters either way: cells the engine answers
+ * null for are never in `pool.cells`.
  */
 export function possibleQuestions(pool) {
   const { live } = relevance(pool);
-  return live.length ? pool.cells * live.length : 0;
+  if (!live.length) return 0;
+  return isParse(pool) ? pool.cells : pool.cells * live.length;
 }

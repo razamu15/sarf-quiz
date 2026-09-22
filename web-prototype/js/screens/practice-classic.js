@@ -149,9 +149,14 @@ export function renderClassic(app, { onStart, rerender }) {
       (${shown}), so "he did not help" and "he will not help" are separate answers.</p>`));
   }
 
+  // 🔒 D-72 — the WORD is the unit for identify, because one word is one parse
+  // card. Saying "questions" here would make the 4,200 → 1,400 drop read as a
+  // loss of content when it is a change of unit: the same 1,400 words are still
+  // asked about in the same five ways (product-spec screens/03-practice.md).
   const possible = possibleQuestions(pool);
+  const unit = d.quizType === 'identify' ? 'words' : 'possible questions';
   app.append(el(`<p class="subtitle count-line ${possible ? '' : 'empty'}">${
-    possible ? `≈ ${possible.toLocaleString()} possible questions`
+    possible ? `≈ ${possible.toLocaleString()} ${unit}`
       : 'No questions possible — widen the selection above'}</p>`));
 
   const start = el('<button class="btn primary">Start quiz</button>');

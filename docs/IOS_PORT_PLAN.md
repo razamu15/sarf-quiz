@@ -9,7 +9,7 @@
 > **What it is not.** It doesn't restate the engine decisions (`TECHNICAL_PLAN.md` Part A), the JS→Swift
 > discrepancies (`PORT_INVENTORY.md`), or what each screen does (`product-spec/`) — it sequences them.
 >
-> **Status: building, since 2026-09-22.** `Track D` (D1 + D2) and `Track P`'s P1 have landed;
+> **Status: building, since 2026-09-22.** `Track D` (D1 + D2) and **all of `Track P`** have landed;
 > everything else is still design. Every number below was measured in the session that wrote this,
 > not copied from a doc — regenerate before trusting one. Keep this file in sync as slices land;
 > rename it `_v1` if it needs a successor rather than editing history out of it.
@@ -21,8 +21,17 @@
 | **D1** tokens, type, fonts | ✅ done, pending E1 | `Track D — the design system ports to SwiftUI` |
 | **D2** Tables' own components | ✅ done, pending E1 | same |
 | **P1** the four boundary preps | ✅ done | `P1.1` · `P1.2` · `P1.3 + P1.4` |
-| **P2** parse card lands in JS | not started | — |
+| **P2** parse card lands in JS | ✅ done | `P2 — the parse card` |
 | **E1 · E2 · Q1–Q3 · A1–A4** | not started | — |
+
+**Track P is complete.** The quiz layer Swift will port is now the settled,
+smaller shape: five identify builders became one parse card plus one declarative
+axis table, and `builders/identify.js` (234 lines) is gone. The **−200 lines off
+the gruesome layer** that Decision 3 promised is **−123 measured** — `identify.js`
+−234 against `parse-axes.js` +209 and `builders/parse.js` +111, less the ~209
+deleted across `drills.js`, `relevance.js`, `word-pool.js` and `question.js`.
+The count matters less than the shape: Q2 now ports one draw with one joint
+precondition instead of two builders with private retry loops.
 
 **D1 and D2 are "done, pending E1" rather than done**, exactly as the exit criterion below says:
 Track D is finished when Tables looks right, and Tables does not exist yet. What can be checked now
@@ -86,7 +95,7 @@ It gates Slice **E2** (mithāl is out of scope for E1) — fix it before E2 star
 
 | Screen | Spec says | Prototype still has | Resolution |
 |---|---|---|---|
-| The parse card | **D-72…D-80** — one composite question per word | Five separate questions (`tense`/`voice`/`doer`/`mood`/`bab`) | Build in JS first — plan already written, `docs/PARSE_CARD_PLAN.md`. Track P2. |
+| The parse card | **D-72…D-80** — one composite question per word | Five separate questions (`tense`/`voice`/`doer`/`mood`/`bab`) | Build in JS first — plan already written, `docs/PARSE_CARD_PLAN_v1.md`. Track P2. |
 | Practice | **D-69** — the design's single scrolling screen | Both retired experiments (`settings.practiceFlow` defaults to `'classic'`; `practice.js` switches `renderWizard`/`renderClassic`) | **No JS pass** — `product-spec/screens/03-practice.md` already specifies the target down to its acceptance checklist. Swift builds it directly. Slice A1. |
 
 **`TECHNICAL_PLAN.md` §A.6 and `PORT_INVENTORY.md` §3.1–3.2 disagree** on where the quiz layer lives
@@ -140,7 +149,7 @@ Same principle as D-07 (prototype-first): don't port a screen that's about to be
 "needs a JS pass" is that there's real design left to resolve cheaply — not merely that the prototype
 hasn't built it yet.
 
-- **Parse card (D-72…D-80): yes.** Plan exists (`docs/PARSE_CARD_PLAN.md`). Genuine open design
+- **Parse card (D-72…D-80): yes.** Plan exists (`docs/PARSE_CARD_PLAN_v1.md`). Genuine open design
   questions were resolved this session (five of them) — a JS pass is where that kind of resolution
   belongs.
 - **Practice (D-69): no.** Nothing is left to resolve — the spec already specifies the SetupBar layout,
@@ -175,7 +184,7 @@ apply directly. Six measures, in order of leverage:
 
 1. **Shrink it in JS before Swift sees it.** The parse card (Decision 3) collapses five question-builders
    into one and deletes the drill-bundle logic — about **−200 lines** off this exact layer, per
-   `PARSE_CARD_PLAN.md`'s own count. Swift ports the settled, smaller shape once.
+   `PARSE_CARD_PLAN_v1.md`'s own count. Swift ports the settled, smaller shape once.
 2. **Its own package, no UI imports.** Decision 2's `SarfQuiz` target — `nonisolated`, `Sendable`,
    headless XCTest, no SwiftUI import possible.
 3. **A pool-parity fixture.** Extend the golden-corpus discipline one layer up: for the 6 canonical plans
@@ -282,9 +291,10 @@ behind `conjugates()`/`hasPassive()` on the service. `relevance`'s `space → Se
 The 2 failures are the وجل `faaDrops` regression below, which was deliberately left in place — so
 the real exit was **no new failures**, not "417 green".*
 
-**P2 — parse card lands in JS** · *follows P1 — the files are **not** disjoint, see Corrections*
+**P2 — parse card lands in JS** ✅ *done* · *followed P1 — the files are **not** disjoint, see Corrections*
 
-Executes `docs/PARSE_CARD_PLAN.md`.
+Executed `docs/PARSE_CARD_PLAN_v1.md`, whose header now lists the three things
+that plan did not cost out.
 **Exit:** its own parity proof (engine snapshot + assertion suite); `product-spec/screens/02-quiz.md` no
 longer says "prototype does not do this yet."
 
@@ -334,7 +344,7 @@ Paper and Night with no hardcoded colours (Decision 5).
 | Risk | Why | Mitigation |
 |---|---|---|
 | Q2 is the slice with no visible payoff | Invisible until Results/Home read history by category — easy to under-scope or rush. | Its exit criteria (fixture + property tests + signed-off walkthrough) are explicit, not "PR merged." |
-| The joint-axis draw over-constrains a narrow pool | Measured at 69.8% success on the *widest* pool; a single intransitive root with voice live is worse. | Already specified in `PARSE_CARD_PLAN.md`: retire the axis for the session and say so, never silently drop a row. |
+| The joint-axis draw over-constrains a narrow pool | Measured at 69.8% success on the *widest* pool; a single intransitive root with voice live is worse. | Already specified in `PARSE_CARD_PLAN_v1.md`: retire the axis for the session and say so, never silently drop a row. |
 | Practice skips a JS rehearsal | The prototype would have been a cheap place to feel out the SetupBar's live-recount UX before Swift. | The off-main-actor recount requirement is already specified (`product-spec/reference/platform.md`) — A1 builds it that way from the start. |
 | Two "authoritative" docs disagreed and eroded trust in both | `TECHNICAL_PLAN.md` and `PORT_INVENTORY.md` showed different package layouts. | Decision 2 is settled here — update `TECHNICAL_PLAN.md` §A.6/§B.2 to match; don't leave the losing layout on record. |
 

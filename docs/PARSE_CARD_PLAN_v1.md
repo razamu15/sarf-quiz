@@ -4,6 +4,25 @@
 > question per word**, adds a `form` axis and deletes `bab`. The product decisions are settled and live in
 > [`product-spec/DECISIONS.md`](../product-spec/DECISIONS.md) **D-72 … D-80**; this file is only *how*.
 >
+> **Status: BUILT, 2026-09-22 — this file is the record, not the current state.**
+> It is kept unedited below so the design can be read against what shipped. Where the two differ, the
+> code and [`ARCHITECTURE.md`](ARCHITECTURE.md) win.
+>
+> **Three things the plan did not cost out**, all found by building it:
+> 1. **`requires` was two different facts sharing one name.** `QUESTION_RULES` carried a
+>    `requires(pool)` (the bāb question's "both tenses in scope"); Stage 2b gives an AXIS a
+>    `requires(drawn)`. `relevance()` called the axis's word-predicate with a pool and threw on the
+>    first draw. Shipped as **`requiresDraw`**, and the pool-level one is gone with the bāb rule.
+> 2. **The two bāb TIPS had nowhere left to fire**, and the new `form` and `mabnī` answers had no
+>    remediation at all. "No tip content changes" held for the 29 existing `when` clauses, as
+>    designed — but D-76 orphaned two tips and D-75/the form axis needed five new ones. Net 29 → 32.
+> 3. **`screens/results.js` is not in the Stage 2c file table** and had to change: its *By category*
+>    panel reads `answer.category`, which is `parse` for every identify card, so it collapsed to one
+>    row reading "parse 1 / 5". It now walks `parts[]` — which is Stage 2a's query #2, so the gap was
+>    in the file list, not in the model.
+>
+> Everything else landed as written. The original status line follows.
+>
 > **Status:** design, not built — but the **design system now carries it**: component `ParseAxes`, `previews/ParseAxes.html`,
 > screenshots 02 / 03 / 16, and `guide/03-quiz.md` § 0. Written 2026-09-21 against `web-prototype/` at `d4c6119` + working tree.
 > **Every number below was produced by running the code in the session that wrote it**, not read from a doc.

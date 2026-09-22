@@ -12,7 +12,7 @@ implementation; the Swift app is a port that happens once, later.
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | **What exists now** in `web-prototype/`. The layers, the object chain, the module map, the invariants a change must not break, and how to verify a change. |
 | [docs/TECHNICAL_PLAN.md](docs/TECHNICAL_PLAN.md) | The **target iOS app**: stack, module layout, persistence, testing gates, and the engine-side milestones. Does not describe the prototype. |
 | [docs/IOS_PORT_PLAN.md](docs/IOS_PORT_PLAN.md) | **The build order.** Five tracks, small slices, each pairing UI with the logic behind it — the screen-by-screen implementation plan `TECHNICAL_PLAN.md` Part C anticipated. Reviewed and settled 2026-09-21; nothing built yet. |
-| [docs/PARSE_CARD_PLAN.md](docs/PARSE_CARD_PLAN.md) | **The one change in flight.** How `identify` becomes a single composite *Parse the word* question (D-72…D-80): measured ground truth, the entities, the file split, and the parity proof. Design, not built. |
+| [docs/PARSE_CARD_PLAN_v1.md](docs/PARSE_CARD_PLAN_v1.md) | **Built 2026-09-22 — the record, not the current state.** How `identify` became a single composite *Parse the word* question (D-72…D-80). What shipped is in `ARCHITECTURE.md`; this is kept for the reasoning and for the three things it did not cost out, listed at the top. |
 | [docs/PORT_INVENTORY.md](docs/PORT_INVENTORY.md) | JS → Swift: every discrepancy and what it costs. Read when the port starts, not before. |
 | [docs/KNOWN_CONJUGATION_ERRORS.md](docs/KNOWN_CONJUGATION_ERRORS.md) | **Every cell the engine gets wrong today**, with the code responsible — plus the differences that only look like errors. Read before touching a conjugator, and before trusting a mismatch report. |
 

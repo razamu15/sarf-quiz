@@ -228,6 +228,52 @@ h1 .ar { font-family: var(--arabic); font-size: 30px; margin-inline-start: 8px; 
 .option.wrong { background: rgba(224, 93, 93, 0.14); border-color: var(--bad); }
 .option:disabled { cursor: default; }
 
+/* --- the parse card's axis rows (D-72) ------------------------------------
+   Five labelled chip rows, one per axis, answered together. The chip is the
+   same control Practice configures a pool with — a student picks a pool in
+   this shape and is then asked in it, which is why the two look alike. */
+.axes { display: flex; flex-direction: column; gap: 14px; }
+.axis { display: flex; flex-direction: column; gap: 6px; }
+/* Iʿrāb is indented under Tense: it only means anything for the muḍāriʿ. */
+.axis[data-axis="mood"] { margin-inline-start: 14px; padding-inline-start: 12px; border-inline-start: 2px solid #303a4d; }
+.axis-label { font-size: 13px; font-weight: 600; color: var(--ink-dim); }
+.axis-label i { font-weight: 400; font-style: normal; opacity: 0.75; }
+.axis-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.axis-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid #303a4d;
+  background: var(--card);
+  border-radius: 10px;
+  padding: 8px 12px;
+  min-height: 40px;
+  cursor: pointer;
+  color: var(--ink);
+  font-family: var(--latin);
+  font-size: 14px;
+  font-weight: 600;
+}
+.axis-chip .ar { font-family: var(--arabic); font-size: 19px; direction: rtl; unicode-bidi: isolate; color: var(--ink-dim); }
+.axis-chip .en { unicode-bidi: isolate; }
+.axis-chip:not(:disabled):hover { border-color: var(--accent); }
+.axis-chip.selected { background: var(--chip-on); border-color: var(--accent); }
+.axis-chip.selected .ar { color: var(--ink); }
+.axis-chip:disabled { cursor: default; }
+/* Four states, four facts: got it · missed it · picked it wrongly · never in
+   play. `missed` is dashed rather than filled — it is the answer you did NOT
+   give, and it must not read as something you did. */
+.axis-chip.correct { background: rgba(63, 185, 111, 0.16); border-color: var(--good); }
+.axis-chip.missed { background: transparent; border: 1px dashed var(--good); }
+.axis-chip.wrong { background: rgba(224, 93, 93, 0.14); border-color: var(--bad); }
+.axis-chip.wrong .en { text-decoration: line-through; }
+.axis-chip.rest { opacity: 0.4; }
+/* A row that was right collapses to its label plus what was correct — what is
+   left at full size is what still needs reading. */
+.axis.right .axis-chip.rest { display: none; }
+.axis.right { opacity: 0.72; }
+.axis.miss .axis-label { color: var(--bad); }
+
 .feedback {
   border-radius: var(--radius);
   padding: 14px 16px;
@@ -235,6 +281,7 @@ h1 .ar { font-family: var(--arabic); font-size: 30px; margin-inline-start: 8px; 
   line-height: 1.65;
   background: var(--card2);
 }
+.feedback .tally { color: var(--ink-dim); }
 .feedback.good { border-inline-start: 3px solid var(--good); }
 .feedback.bad { border-inline-start: 3px solid var(--bad); }
 .feedback .ar { font-family: var(--arabic); font-size: 19px; }

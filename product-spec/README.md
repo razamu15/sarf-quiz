@@ -123,7 +123,7 @@ On 2026-09-21 the stale docs were **deleted**. Everything is still in git at com
 ## What is deliberately not in here
 
 - **The implementation plan** — build order, module layout, per-agent briefs.
-  *(Exception: the one change in flight has one — [`docs/PARSE_CARD_PLAN.md`](../docs/PARSE_CARD_PLAN.md) for the parse card, D-72…D-80.)* That is the next step and it should be derived
+  *(The parse card, D-72…D-80, had one and it shipped on 2026-09-22 — [`docs/PARSE_CARD_PLAN_v1.md`](../docs/PARSE_CARD_PLAN_v1.md) is kept as the record.)* The build order is derived
   screen by screen from this spec (`plan-review` skill). Nothing in `OPEN_QUESTIONS.md` blocks it.
 - **The engine** — how words are generated. Done; see `docs/ARCHITECTURE.md` and `reference/content.md`.
 - **Swift architecture** — `docs/TECHNICAL_PLAN.md` Part B and `docs/PORT_INVENTORY.md`, unchanged by this spec except where

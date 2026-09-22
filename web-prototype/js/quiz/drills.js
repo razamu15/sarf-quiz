@@ -1,8 +1,8 @@
-// Home's prebuilt drills: three presets, and the word bundle each one builds.
+// Home's prebuilt drills: three presets, and the five words each one draws.
 //
-// A bundle is THE LIVE KINDS APPLIED TO ONE WORD, not a fixed list of three. The
-// word count is the invariant: a word that can only carry two of them
-// contributes two, and "Word 3 / 5" stays true either way.
+// The WORD is the unit, and it always was — a drill used to be N words × the
+// first three live question kinds, and D-72 made one word one parse card, so
+// the count that was already the invariant is now the whole shape.
 //
 // Home drills are always quiz type 1 — writing and derived-noun practice are a
 // deliberate choice you make in Practice (product-spec D-14).
@@ -12,10 +12,10 @@
 import { MAZEED_IDS, verbTypesInGroup } from '../vocabulary.js';
 import { FORM_NAMES } from '../glossary.js';
 import { LEXICON } from '../lexicon/lexicon-service.js';
-import { conjugate, conjugates } from '../conjugation/conjugation-service.js';
+import { conjugates } from '../conjugation/conjugation-service.js';
 import { quizPlan } from './quiz-plan.js';
 import { wordPool } from './word-pool.js';
-import { relevance } from './relevance.js';
+import { buildFor } from './relevance.js';
 
 /**
  * Three drills, not a wall of presets: sound, weak (all four muʿtall types
@@ -77,46 +77,35 @@ export const presetAvailable = (preset, playableTypes) =>
   wordPool(planOf(preset, playableTypes), playableTypes).cells > 0;
 
 export const WORDS_PER_DRILL = 5;
-export const QUESTIONS_PER_WORD = 3;
 
 /**
- * N words × the live per-word question kinds. Returns a flat list of questions
- * tagged "Word i / N", which is what the quiz screen streams through.
+ * N words, one parse card each. 🔒 D-80.
+ *
+ * A drill used to be N words × the first three live question kinds applied to
+ * each — a "bundle" — with every question tagged "Word i / N" so the screen
+ * could say which word you were still on. D-72 made one word one card, so the
+ * bundle, the tag, QUESTIONS_PER_WORD and the three `forWord` hooks on the
+ * registry all describe a shape that no longer exists. What survives is the
+ * thing the bundle was for: the WORD is the unit, and it still is.
+ *
+ * The majhūl flip survives too, as D-74's draw constraint rather than a coin
+ * toss here — the parse card's voice axis requires a word whose opposite voice
+ * exists, so the pool produces one or the axis is not live.
  */
 export function buildDrill(preset, playableTypes, wordCount = WORDS_PER_DRILL) {
   const pool = wordPool(planOf(preset, playableTypes), playableTypes);
-  // Bundles stay at three questions; the registry's order puts the per-word
-  // properties (tense, voice, doer) ahead of the per-root one (bāb), which has
-  // no forWord() because a citation is not the word that was drawn.
-  const kinds = relevance(pool).live
-    .filter((k) => k.forWord)
-    .slice(0, QUESTIONS_PER_WORD);
-  if (!kinds.length) return [];
-
-  const bundles = [];
+  const out = [];
   const seen = new Set();
   let guard = 0;
 
-  while (bundles.length < wordCount && guard++ < 400) {
-    const drawn = pool.draw();
-    if (!drawn) break;
-    const majhul = { ...drawn.spec, voice: 'majhul' };
-    const majhulWord = conjugate(majhul, drawn.slot);
-    // Show the majhūl sometimes — but only when both voices exist, so the choice
-    // of chart never gives the voice question away.
-    const word = (majhulWord && Math.random() < 0.5)
-      ? { spec: majhul, slot: drawn.slot, word: majhulWord, hasVoicePair: true }
-      : { ...drawn, hasVoicePair: !!majhulWord };
-    if (seen.has(word.word)) continue;
-
-    const bundle = kinds.map((k) => k.forWord(word)).filter(Boolean);
-    if (!bundle.length) continue;
-    seen.add(word.word);
-    bundles.push(bundle);
+  while (out.length < wordCount && guard++ < 400) {
+    const q = buildFor(pool);
+    if (!q) break;
+    if (seen.has(q.prompt.text)) continue;
+    seen.add(q.prompt.text);
+    out.push(q);
   }
-
-  return bundles.flatMap((bundle, i) =>
-    bundle.map((q) => ({ ...q, tag: `Word ${i + 1} / ${bundles.length}` })));
+  return out;
 }
 
 /** One preset per mazīd form, for a "practise Form VIII" entry point. */

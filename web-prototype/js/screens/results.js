@@ -6,6 +6,17 @@ import { el } from '../ui/dom.js';
 import { state } from '../ui/state.js';
 import { endSession } from '../history/store.js';
 import { basicSummary } from '../history/queries.js';
+import { PARSE_AXES } from '../quiz/parse-axes.js';
+import { QUESTION_RULES } from '../quiz/relevance.js';
+
+/**
+ * Category id → what the breakdown calls it, taken from the registries rather
+ * than retyped. Both, because a parse card's buckets are AXES and every other
+ * type's are question kinds (D-72).
+ */
+const LABELS = Object.fromEntries(
+  [...PARSE_AXES, ...QUESTION_RULES].map((r) => [r.id, r.label]),
+);
 
 let app;
 let onExit;
@@ -30,17 +41,31 @@ export function renderResults() {
   app.append(el('<h1>Results</h1>'));
   app.append(el(`<div class="score-ring" style="--pct:${pct}"><b>${pct}%</b><span>${right} / ${total}</span></div>`));
 
+  // BY QUESTION KIND — 🔒 D-49, and the one place the two denominators are both
+  // on screen. The ring above counts CARDS; this counts the judgements inside
+  // them, which for a parse card is one per axis (D-77). Without the fan-out
+  // every identify quiz would report a single row reading "parse 1 / 5", which
+  // is the score restated rather than a breakdown.
+  //
+  // It reads `answer.parts` rather than history rows for the same reason every
+  // other number on this screen is counted from the run: a finished run is the
+  // thing being summarised, and history has the identical shape when a stored
+  // session is redisplayed (history/store.js rowsFor).
   const byCat = {};
   for (const a of run.answers) {
-    const c = (byCat[a.question.category] ??= { right: 0, total: 0 });
-    c.total++;
-    if (a.correct) c.right++;
+    // A judgement is the whole Answer, or one part of a parse card. Both carry
+    // `{correct, axis}`; `axis` is null on the whole-card one.
+    for (const j of a.parts ?? [a]) {
+      const c = (byCat[j.axis ?? a.question.category] ??= { right: 0, total: 0 });
+      c.total++;
+      if (j.correct) c.right++;
+    }
   }
   const breakdown = el('<div class="breakdown"></div>');
   for (const [cat, c] of Object.entries(byCat)) {
-    breakdown.append(el(`<div class="row"><span>${cat}</span><span>${c.right} / ${c.total}</span></div>`));
+    breakdown.append(el(`<div class="row"><span>${LABELS[cat] ?? cat}</span><span>${c.right} / ${c.total}</span></div>`));
   }
-  app.append(el('<div class="section-label">By category</div>'), breakdown);
+  app.append(el('<div class="section-label">By question</div>'), breakdown);
 
   // The recap reads the embedded question, which is why a stored session could
   // reproduce this screen — the meaning is on the record, not only in memory.

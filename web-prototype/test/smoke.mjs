@@ -36,11 +36,12 @@ import { SETTINGS_SPEC, contentGate } from '../js/settings/settings.js';
 import { state, resetPracticeFlow } from '../js/ui/state.js';
 import { WIZARD_STEPS } from '../js/screens/practice-wizard.js';
 import { wordPool } from '../js/quiz/word-pool.js';
-import { relevance, possibleQuestions, IDENTIFY_CATEGORIES } from '../js/quiz/relevance.js';
+import { relevance, possibleQuestions } from '../js/quiz/relevance.js';
 import { questionStream } from '../js/quiz/quiz-run.js';
 import { grade } from '../js/quiz/grading.js';
 import { isMultiSelect } from '../js/quiz/question.js';
-import { voiceQuestion } from '../js/quiz/builders/identify.js';
+import { PARSE_AXES, PARSE_AXIS_IDS, axisById } from '../js/quiz/parse-axes.js';
+import { recordAnswer, startSession, rows as historyRows, deleteAll } from '../js/history/store.js';
 import { TIPS, tipsFor } from '../js/tips/tips.js';
 import { QUESTION_RULES } from '../js/quiz/relevance.js';
 import { clusters } from '../js/arabic-text.js';
@@ -564,7 +565,7 @@ check(!hasPassive(byRoot('نصر'), 'IX'),
   // FORM_META is grammar data. Only its own file and the service may read it.
   const formMetaReaders = [
     'quiz/word-pool.js', 'quiz/drills.js', 'quiz/builders/derived.js',
-    'quiz/relevance.js', 'quiz/builders/identify.js', 'quiz/builders/produce.js',
+    'quiz/relevance.js', 'quiz/parse-axes.js', 'quiz/builders/parse.js', 'quiz/builders/produce.js',
     'quiz/builders/from-meaning.js',
   ].filter((f) => /FORM_META/.test(read(f)));
   check(formMetaReaders.length === 0,
@@ -589,81 +590,118 @@ check(availableCharts(qala, 'I').length === 9,
     'تَكْتُبُ renders identically for 3fs and 2ms');
 }
 
-// Drill questions: doer questions must mark every matching pronoun correct,
-// and options must carry valueKeys.
+// The doer ROW of a parse card must mark every matching pronoun correct, and
+// its options must carry valueKeys. Same assertion as when doer was its own
+// question — the row is where the rule lives now (D-72).
 {
   let sawMulti = false;
   let allConsistent = true;
   for (let i = 0; i < 40 && !sawMulti; i++) {
     const drill = buildDrill(DRILL_PRESETS[0], PLAYABLE);
     for (const q of drill) {
-      if (q.category !== 'doer') continue;
-      const correctSlots = [...q.response.correct];
-      const consistent = correctSlots.every(
+      const row = q.response.axes.find((r) => r.axis === 'doer');
+      if (!row) continue;
+      const consistent = row.correct.every(
         (slot) => conjugateChart(byRoot(q.identity.rootKey), q.identity.formId,
           chartKey(q.identity), slot) === q.prompt.text,
       );
-      allConsistent &&= consistent && correctSlots.length >= 1;
-      if (isMultiSelect(q)) sawMulti = true;
+      allConsistent &&= consistent && row.correct.length >= 1
+        && row.options.every((o) => 'valueKey' in o);
+      if (row.correct.length > 1) sawMulti = true;
     }
   }
   check(allConsistent, 'every doer correct option really conjugates to the shown word');
-  check(sawMulti, 'multi-select doer questions occur (identical forms become extra answers)');
+  check(sawMulti, 'multi-answer doer rows occur (identical forms become extra answers)');
 }
 
 // Voice questions where both voices render the SAME word must mark BOTH correct.
 // Two independent causes, one per verb type, so both are pinned: the muḍāʿaf's
 // idghām swallows the ʿayn vowel (يُمَاسُّ) and the ajwaf's māḍī drops the ʿayn
 // (خِفْتَ). A sound root must be unaffected and keep its single answer.
+// THE EXPECTATION IS UNCHANGED from when this was voiceQuestion; only the thing
+// under test moved. The rule is now the `voice` row of PARSE_AXES, and it is
+// tested directly rather than through a builder — an axis row is a rule about a
+// drawn word, and a hand-made drawn word is the smallest thing that exercises it.
 {
-  const voiceQ = (rootKey, formId, tense, voice, mood, slot) => {
+  const bothVoices = poolOf({
+    quizType: 'identify', tenses: ['madi', 'mudari'], voices: ['malum', 'majhul'],
+    moods: ['raf'], forms: ['I', 'III'], types: ['salim', 'mudaaf', 'ajwaf_waw', 'ajwaf_ya'],
+  });
+  const voiceAxis = axisById('voice');
+  const voiceCorrect = (rootKey, formId, tense, voice, mood, slot) => {
     const spec = { root: byRoot(rootKey), formId, tense, voice, mood };
-    return voiceQuestion({ spec, slot, word: conjugateSpec(spec, slot) });
+    return voiceAxis.correctKeys(bothVoices, { spec, slot, word: conjugateSpec(spec, slot) });
   };
 
   const collapsed = [
-    voiceQ('مسس', 'III', 'mudari', 'malum', 'raf', '3ms'),
-    voiceQ('خوف', 'I', 'madi', 'malum', null, '2ms'),
-    voiceQ('بيع', 'I', 'madi', 'majhul', null, '2ms'),
+    voiceCorrect('مسس', 'III', 'mudari', 'malum', 'raf', '3ms'),
+    voiceCorrect('خوف', 'I', 'madi', 'malum', null, '2ms'),
+    voiceCorrect('بيع', 'I', 'madi', 'majhul', null, '2ms'),
   ];
-  check(collapsed.every((q) => isMultiSelect(q) && q.response.correct.length === 2),
+  check(collapsed.every((c) => c.length === 2 && c.includes('malum') && c.includes('majhul')),
     'a word written alike in both voices marks both voices correct');
-  check(collapsed.every((q) => q.response.options.length === 2
-    && q.response.options.every((o) => q.response.correct.includes(o.valueKey))),
-    'the collapsed voice question offers exactly the two voices, both of them right');
-  check(collapsed.every((q) => /Select all that apply/.test(q.prompt.ask)),
-    'the collapsed voice question asks for every applicable answer');
-  // Provenance survives: the stored identity still names the cell drawn, even
-  // though the other voice grades correct too.
-  check(collapsed[2].identity.voice === 'majhul',
-    'a collapsed voice question still records the voice it was drawn from');
+  check(voiceAxis.select === 'many',
+    'the voice row is multi-select, so a collapse has somewhere to be said');
 
   const distinct = [
-    voiceQ('نصر', 'I', 'madi', 'malum', null, '3ms'),
-    voiceQ('نصر', 'I', 'mudari', 'majhul', 'raf', '3ms'),
+    voiceCorrect('نصر', 'I', 'madi', 'malum', null, '3ms'),
+    voiceCorrect('نصر', 'I', 'mudari', 'majhul', 'raf', '3ms'),
   ];
-  check(distinct.every((q) => !isMultiSelect(q) && q.response.correct.length === 1),
+  check(distinct.every((c) => c.length === 1),
     'a word whose voices differ keeps exactly one right answer');
-  check(distinct.every((q) => !/Select all that apply/.test(q.prompt.ask)),
-    'the ordinary voice question does not ask for multiple answers');
+  check(distinct[0][0] === 'malum' && distinct[1][0] === 'majhul',
+    'and it is the voice the word was drawn in');
 }
 
-// Drill shape: N words, each carrying the question kinds it can support.
-// The word count is the invariant — a word that can't take all three kinds
-// contributes fewer, which is why the question count is a range.
+// The iʿrāb row's mabnī chip — 🔒 D-75. Four cells in ten take no iʿrāb at all,
+// and before the parse card those cells simply could not be asked about.
+{
+  const moodPool = poolOf({
+    quizType: 'identify', tenses: ['madi', 'mudari', 'amr'], voices: ['malum'],
+    moods: ['raf', 'nasb', 'jazm'], forms: ['I'], types: ['salim'],
+  });
+  const moodAxis = axisById('mood');
+  const moodCorrect = (rootKey, tense, mood, slot) => {
+    const spec = { root: byRoot(rootKey), formId: 'I', tense, voice: 'malum', mood };
+    return moodAxis.correctKeys(moodPool, { spec, slot, word: conjugateSpec(spec, slot) });
+  };
+  check(moodCorrect('نصر', 'madi', null, '3ms').join() === 'mabni',
+    'a māḍī is mabnī — it bears no iʿrāb');
+  check(moodCorrect('نصر', 'amr', null, '2ms').join() === 'mabni',
+    'an amr is mabnī too');
+  check(moodCorrect('نصر', 'mudari', 'raf', '3fp').join() === 'mabni',
+    'nūn al-niswa is mabnī even in the muḍāriʿ (SEEGAH_TYPES already said so)');
+  check(moodCorrect('نصر', 'mudari', 'raf', '3ms').join() === 'raf',
+    'a muʿrab muḍāriʿ in rafʿ answers rafʿ alone');
+  // The whole reason the row is multi-select: نَصَرَا-shaped duals spell naṣb
+  // and jazm identically, which single-select had to throw the cell away to
+  // avoid. 46.4% of non-mabnī muḍāriʿ cells do this.
+  const dual = moodCorrect('نصر', 'mudari', 'nasb', '3md');
+  check(dual.includes('nasb') && dual.includes('jazm'),
+    'a dual spells naṣb and jazm alike, so both are correct');
+  check(moodAxis.options(moodPool).some((o) => o.valueKey === 'mabni'),
+    'the mabnī chip is always offered — any cell may turn out to take no iʿrāb');
+}
+
+// Drill shape: N words, ONE CARD EACH — 🔒 D-80. It used to be N words × the
+// first three live kinds, with a "Word 3 / 5" tag so the screen could say which
+// word you were still on. One word is one card now, so the count IS the word
+// count and the tag is what the progress bar already shows.
 for (const preset of DRILL_PRESETS.filter((p) => presetAvailable(p, PLAYABLE))) {
   const quiz = buildDrill(preset, PLAYABLE);
-  const words = new Set(quiz.map((q) => q.tag));
-  const shapeOk = words.size === WORDS_PER_DRILL
-    && quiz.length > 0 && quiz.length <= WORDS_PER_DRILL * 3
-    && quiz.every((q) => q.prompt.gloss && q.feedback.meaning && q.tag
+  const shapeOk = quiz.length === WORDS_PER_DRILL
+    && quiz.every((q) => q.prompt.gloss && q.feedback.meaning
       && q.identity.rootKey && q.identity.verbType
-      && q.response.correct.length >= 1 && q.response.options.every((o) => 'valueKey' in o));
-  check(shapeOk, `drill ${preset.id}: ${WORDS_PER_DRILL} words with identity + correctness`);
+      && q.response.mode === 'parse' && q.response.axes.length >= 1
+      && q.response.axes.every((r) => r.correct.length >= 1
+        && r.options.every((o) => 'valueKey' in o)));
+  check(shapeOk, `drill ${preset.id}: exactly ${WORDS_PER_DRILL} parse cards`);
+  check(quiz.every((q) => q.tag === undefined),
+    `drill ${preset.id}: no bundle tag — one word is one card (D-80)`);
 }
 for (const formId of MAZEED_IDS.filter(mazeedPresetAvailable)) {
   const quiz = buildDrill(mazeedPreset(formId), PLAYABLE);
-  check(new Set(quiz.map((q) => q.tag)).size === WORDS_PER_DRILL
+  check(quiz.length === WORDS_PER_DRILL
     && quiz.every((q) => q.identity.formId === formId), `mazeed drill ${formId}`);
 }
 check(!mazeedPresetAvailable('IX'), 'IX drill unavailable (recognition-only)');
@@ -678,7 +716,12 @@ check(!mazeedPresetAvailable('IX'), 'IX drill unavailable (recognition-only)');
   const drawn = [];
   for (const q of stream) { drawn.push(q); if (drawn.length >= 40) break; }
   check(drawn.length === 40, 'endless stream keeps producing (40 pulled)');
-  check(drawn.every((q) => q.category && q.prompt.text && q.response.correct.length >= 1),
+  // "Complete" means something different per response mode, which is the point
+  // of the mode being carried: a parse card's answer key is per row.
+  const hasAnswerKey = (q) => (q.response.mode === 'parse'
+    ? q.response.axes.length >= 1 && q.response.axes.every((r) => r.correct.length >= 1)
+    : q.response.correct.length >= 1);
+  check(drawn.every((q) => q.category && q.prompt.text && hasAnswerKey(q)),
     'every streamed question is complete');
 }
 
@@ -1146,8 +1189,10 @@ check(chartKeysFor({ tenses: ['madi'], voices: ['majhul'], moods: [] }) === 'mad
   const qs = buildQuiz(plan);
   check(qs.length === 20 && qs.every((q) => chartKey(q.identity) === 'madi_malum'),
     'identify honours the plan charts');
-  check(qs.every((q) => IDENTIFY_CATEGORIES.includes(q.category)),
-    'identify asks only from its own repertoire');
+  check(qs.every((q) => q.category === 'parse'),
+    'identify asks exactly one kind of question now — the parse card (D-72)');
+  check(qs.every((q) => q.response.axes.every((r) => PARSE_AXIS_IDS.includes(r.axis))),
+    'every row on a parse card is one of the five declared axes');
 }
 
 // ---------------------------------------------------------------------------
@@ -1164,21 +1209,29 @@ check(chartKeysFor({ tenses: ['madi'], voices: ['majhul'], moods: [] }) === 'mad
   const liveIds = r.live.map((k) => k.id);
   const deadIds = r.dead.map((k) => k.id);
   check(!liveIds.includes('tense') && deadIds.includes('tense'),
-    'one tense selected → the tense question is retired');
+    'one tense selected → the tense axis is retired');
   check(!liveIds.includes('voice') && deadIds.includes('voice'),
-    'one voice reachable → the voice question is retired');
-  check(!liveIds.includes('mood'), 'one iʿrāb state → the iʿrāb question is retired');
-  check(liveIds.includes('doer'), 'the doer question survives — no plan can pin a pronoun');
-  check(r.dead.every((k) => k.reason), 'every retired question can say why');
+    'one voice reachable → the voice axis is retired');
+  check(!liveIds.includes('mood'), 'one iʿrāb state → the iʿrāb axis is retired');
+  check(liveIds.includes('doer'), 'the doer axis survives — no plan can pin a pronoun');
+  check(r.dead.every((k) => k.reason), 'every retired axis can say why');
 
-  // …and the stream really doesn't ask them.
+  // …and a card really doesn't carry them. A retired axis is absent, not shown
+  // and ignored: D-74 cuts the other way too.
   const qs = buildQuiz({ ...narrow, count: 40 });
-  check(qs.length === 40 && qs.every((q) => q.category === 'doer'),
-    'a muḍāriʿ-only quiz asks nothing but the doer');
+  check(qs.length === 40 && qs.every((q) => q.response.axes.map((x) => x.axis).join() === 'doer'),
+    'a one-form muḍāriʿ-only quiz asks the doer row and nothing else');
 
-  // The count reflects live kinds, not the whole repertoire.
-  check(possibleQuestions(narrowPool) === narrowPool.cells * r.live.length,
-    'the question count multiplies by live kinds, not by the category list');
+  // 🔒 D-72 — THE UNIT CHANGED. One parse card per word, so the count is the
+  // pool's real cells, NOT cells × axes. Multiplying would count the same card
+  // once per row and inflate the number 4–5×, which is why the Practice screen
+  // says *words* for identify.
+  check(possibleQuestions(narrowPool) === narrowPool.cells,
+    'identify counts WORDS — one parse card per cell, never cells × axes');
+  check(possibleQuestions(poolOf({ ...narrow, quizType: 'derived' }))
+    === poolOf({ ...narrow, quizType: 'derived' }).cells
+      * relevance(poolOf({ ...narrow, quizType: 'derived' })).live.length,
+    'the other three types still count cells × live kinds');
 }
 
 // Widening a row brings a question back — the property the panel promises.
@@ -1188,19 +1241,32 @@ check(chartKeysFor({ tenses: ['madi'], voices: ['majhul'], moods: [] }) === 'mad
     moods: ['raf', 'nasb'], forms: ['I', 'II'], types: ['salim'],
   };
   const ids = relevance(poolOf(wide)).live.map((k) => k.id);
-  check(['tense', 'voice', 'doer', 'mood', 'bab'].every((id) => ids.includes(id)),
-    'a wide plan asks all five identify questions, iʿrāb and bāb included');
+  check(PARSE_AXIS_IDS.every((id) => ids.includes(id)),
+    'a wide plan asks all five axes — form, tense, iʿrāb, voice and doer');
+  check(ids.join() === PARSE_AXIS_IDS.join(),
+    'and in card order, which is the order a word is read in');
 }
 
-// The bāb question reads a citation showing both tenses, so it stays out of a
-// single-tense quiz rather than putting a muḍāriʿ on screen in a past drill.
+// 🔒 D-76 — the bāb is no longer drilled. It used to be a sixth identify
+// question that read the ʿayn's vowel off a citation (نَصَرَ يَنْصُرُ), which
+// meant putting a muḍāriʿ on screen in a past-tense drill. It is now TAUGHT and
+// not asked: every parse card's explanation names it.
 {
-  const pastOnly = {
+  const pastOnly = poolOf({
     quizType: 'identify', tenses: ['madi'], voices: ['malum', 'majhul'], moods: [],
     forms: ['I'], types: ['salim'],
-  };
-  check(!relevance(poolOf(pastOnly)).live.some((k) => k.id === 'bab'),
-    'bāb is retired in a single-tense quiz');
+  });
+  check(!relevance(pastOnly).live.some((k) => k.id === 'bab')
+    && !relevance(pastOnly).dead.some((k) => k.id === 'bab'),
+    'there is no bāb question any more, live or retired (D-76)');
+  check(!('babs' in pastOnly.varies),
+    'and the pool no longer counts abwāb — its only reader was that question');
+  const card = buildQuiz({
+    quizType: 'identify', tenses: ['madi'], voices: ['malum'], moods: [],
+    forms: ['I'], types: ['salim'], count: 6,
+  });
+  check(card.every((q) => /follows|takes no bāb/.test(q.feedback.explanation)),
+    'the bāb is taught in every parse card explanation instead');
 }
 
 // The same rule fixes quiz type 3: one form ticked, and "which form is this
@@ -1535,21 +1601,35 @@ check(chartKeysFor({ tenses: ['madi'], voices: ['majhul'], moods: [] }) === 'mad
     quizType: 'identify', tenses: ['madi', 'mudari'], voices: ['malum'], moods: ['raf'],
     forms: ['I', 'II'], types: ['salim'], count: 12,
   });
-  const answers = qs.map((q) => grade(q, [...q.response.correct]));
-  check(answers.every((a) => a.correct), 'answering with the correct value keys grades correct');
+  // Answer every row with exactly its correct keys.
+  const allRight = (q) => Object.fromEntries(q.response.axes.map((r) => [r.axis, [...r.correct]]));
+  const answers = qs.map((q) => grade(q, allRight(q)));
+  check(answers.every((a) => a.correct), 'answering every row correctly grades the card correct');
 
   const revived = JSON.parse(JSON.stringify(answers));
   check(revived.every((a, i) => a.correct === answers[i].correct
-    && a.given.join() === answers[i].given.join()
-    && a.expected.join() === answers[i].expected.join()),
-  'an Answer survives the round trip to storage');
-  check(revived.every((a) => a.question.response.correct.length >= 1),
-    'the answer key survives storage — a Set would serialise to {}');
+    && a.parts.length === answers[i].parts.length
+    && a.parts.every((p, j) => p.axis === answers[i].parts[j].axis
+      && p.correct === answers[i].parts[j].correct
+      && p.given.join() === answers[i].parts[j].given.join()
+      && p.expected.join() === answers[i].parts[j].expected.join())),
+  'a parse Answer survives the round trip to storage WITH its per-axis parts');
+  // THE SAME HAZARD IN A NEW PLACE. `response.correct` began as a Set and
+  // JSON.stringify turns a Set into {} — every replayed session would have shown
+  // no correct option, and 304 green assertions did not notice. `parts[]` and
+  // every row's `correct` are the new version of that risk.
+  check(revived.every((a) => a.question.response.axes.length >= 1
+    && a.question.response.axes.every((r) => Array.isArray(r.correct) && r.correct.length >= 1)),
+  'every stored axis row keeps its answer key — a Set would serialise to {}');
+  check(revived.every((a) => a.given === null && a.expected === null),
+    'a parse Answer stores no flat given/expected — the answer is per row, and one flat list would be a second source of truth');
   check(revived.every((a) => a.question.prompt.kind && a.question.prompt.ask),
     'a stored question still knows what card it was and what it asked');
-  check(revived.every((a) => a.question.response.options === undefined
-    || a.question.response.options.length >= 2),
-  'a stored question still carries the options it offered — Q21 needs them');
+  check(revived.every((a) => a.question.response.axes.every((r) => r.options.length >= 1
+    && r.options.every((o) => 'valueKey' in o))),
+  'a stored card still carries the options every row offered — Q21 needs them');
+  check(revived.every((a) => a.question.response.axes.every((r) => r.select === 'one' || r.select === 'many')),
+    'and each row still says whether it was one-of or all-that-apply');
 
   // Every column the dashboard groups by is on the identity, so the store's
   // index is a spread rather than a lookup.
@@ -1639,7 +1719,13 @@ check(chartKeysFor({ tenses: ['madi'], voices: ['majhul'], moods: [] }) === 'mad
     && typeof t.en === 'string' && t.en.length > 0),
   'every tip carries an id, a category, a when() and an en');
 
-  const categories = QUESTION_RULES.map((r) => r.id);
+  // THE CATEGORY VOCABULARY HAS TWO LEVELS NOW (D-77, D-78): a parse card's
+  // stats bucket is the AXIS, not the card, so an axis id is a tip category and
+  // 'parse' is not. Everything else is still its rule's id.
+  const categories = [
+    ...PARSE_AXIS_IDS,
+    ...QUESTION_RULES.filter((r) => r.quizType !== 'identify').map((r) => r.id),
+  ];
   const stray = [...new Set(TIPS.map((t) => t.category))].filter((c) => !categories.includes(c));
   check(stray.length === 0, `tips name only real question categories — stray: ${stray.join(', ')}`);
 
@@ -1669,30 +1755,63 @@ check(chartKeysFor({ tenses: ['madi'], voices: ['majhul'], moods: [] }) === 'mad
   let tipsAfterCorrect = 0;
   let impure = 0;
 
+  /**
+   * Every JUDGEMENT one question can produce by being answered wrongly.
+   *
+   * A parse card yields one per axis per wrong option: the card is asked five
+   * ways at once, each way is judged separately (D-77), and each earns its own
+   * remediation. The other rows are answered correctly so exactly one axis is
+   * the subject — which is what tipsFor() is handed in the app too.
+   */
+  const wrongJudgements = (q) => {
+    if (q.response.mode === 'parse') {
+      const right = Object.fromEntries(q.response.axes.map((r) => [r.axis, [...r.correct]]));
+      const out = [];
+      for (const row of q.response.axes) {
+        for (const o of row.options) {
+          if (row.correct.includes(o.valueKey)) continue;
+          const a = grade(q, { ...right, [row.axis]: [o.valueKey] });
+          out.push(a.parts.find((p) => p.axis === row.axis));
+        }
+      }
+      return out;
+    }
+    const wrongs = q.response.mode === 'choice'
+      ? q.response.options.map((o) => o.valueKey)
+        .filter((k) => !q.response.correct.includes(k)).map((k) => [k])
+      : [['خطأ']];
+    return wrongs.map((given) => grade(q, given));
+  };
+
+  /** Everything a fully-correct answer produces — an Answer, or its five parts. */
+  const rightJudgements = (q) => {
+    if (q.response.mode === 'parse') {
+      const a = grade(q, Object.fromEntries(q.response.axes.map((r) => [r.axis, [...r.correct]])));
+      return [a, ...a.parts];
+    }
+    return [grade(q, q.response.mode === 'choice'
+      ? [...q.response.correct] : [q.response.accepted[0]])];
+  };
+
   for (const plan of plans) {
     const pool = wordPool(quizPlan(plan), PLAYABLE);
     let n = 0;
     for (const q of questionStream(pool)) {
       if (++n > 300) break;
-      const wrongs = q.response.mode === 'choice'
-        ? q.response.options.map((o) => o.valueKey)
-          .filter((k) => !q.response.correct.includes(k)).map((k) => [k])
-        : [['خطأ']];
 
-      for (const given of wrongs) {
-        const answer = grade(q, given);
-        const tips = tipsFor(q, answer);
+      for (const judgement of wrongJudgements(q)) {
+        const tips = tipsFor(q, judgement);
         wrongAnswers++;
         if (!tips.length) wrongWithoutTip++;
         for (const t of tips) seenByCategory[t.category] = true;
         // Pure: the same pair must answer the same list, every time.
         if (JSON.stringify(tips.map((t) => t.id))
-          !== JSON.stringify(tipsFor(q, answer).map((t) => t.id))) impure++;
+          !== JSON.stringify(tipsFor(q, judgement).map((t) => t.id))) impure++;
       }
 
-      const right = grade(q, q.response.mode === 'choice'
-        ? [...q.response.correct] : [q.response.accepted[0]]);
-      if (right.correct && tipsFor(q, right).length) tipsAfterCorrect++;
+      for (const judgement of rightJudgements(q)) {
+        if (judgement.correct && tipsFor(q, judgement).length) tipsAfterCorrect++;
+      }
     }
   }
 
@@ -1716,6 +1835,65 @@ check(chartKeysFor({ tenses: ['madi'], voices: ['majhul'], moods: [] }) === 'mad
     `every wrong answer gets a tip — ${wrongWithoutTip} of ${wrongAnswers} got none`);
 }
 
+// ---------------------------------------------------------------------------
+// The parse card's three load-bearing invariants — 🔒 D-72, D-74, D-77, D-78.
+//
+// Each of these is a property nothing on screen would reveal if it broke, and
+// each corresponds to a decision that would otherwise quietly stop being true.
+// ---------------------------------------------------------------------------
+{
+  const plan = {
+    quizType: 'identify', tenses: ['madi', 'mudari'], voices: ['malum', 'majhul'],
+    moods: ['raf', 'nasb'], forms: ['I', 'II', 'X'], types: ['salim'], count: 10,
+  };
+  const pool = poolOf(plan);
+  const liveIds = relevance(pool).live.map((a) => a.id);
+
+  // D-74 — AN AXIS THAT IS LIVE MAY NOT VANISH FROM A CARD. This is what the
+  // joint draw exists for: the voice axis needs a word whose opposite voice
+  // conjugates, and before the parse card each builder drew its own word and a
+  // narrow pool simply produced fewer of some kinds.
+  const cards = buildQuiz({ ...plan, count: 60 });
+  check(cards.length === 60 && cards.every(
+    (q) => q.response.axes.map((r) => r.axis).join() === liveIds.join()),
+  'every drawn card carries EVERY live axis, in card order — none is dropped for one word');
+  check(cards.every((q) => q.response.axes.every((r) => r.correct.length >= 1)),
+    'and every row on every card has at least one correct answer');
+
+  // D-77 — four right rows and one wrong is a WRONG CARD, and the four survive
+  // as parts. The trade-off is named in grading.js; this is what pins it.
+  const q = cards[0];
+  const right = Object.fromEntries(q.response.axes.map((r) => [r.axis, [...r.correct]]));
+  const oneOff = q.response.axes[0];
+  const badKey = oneOff.options.map((o) => o.valueKey)
+    .find((k) => !oneOff.correct.includes(k));
+  const partial = grade(q, { ...right, [oneOff.axis]: [badKey] });
+  check(partial.correct === false,
+    'a card with one wrong row is a wrong card — the session score counts CARDS');
+  check(partial.parts.filter((p) => p.correct).length === q.response.axes.length - 1,
+    'and the rows that were right are still recorded right');
+  check(partial.parts.find((p) => p.axis === oneOff.axis).given.join() === badKey,
+    'the wrong row remembers what was actually picked — "you said X, it is Y" needs it');
+
+  // D-78 — ONE CARD, ONE ROW PER AXIS IN HISTORY. The fan-out is invisible until
+  // the stats screens ship and is the step most likely to be "simplified" away;
+  // it is what keeps Home's weakest-kind row (D-48) and Results' By-question
+  // breakdown (D-49) alive. Assert the count so it cannot be quietly removed.
+  deleteAll();
+  startSession(plan, 'test');
+  recordAnswer(partial);
+  const written = historyRows();
+  check(written.length === q.response.axes.length,
+    `one parse card writes one history row per axis — ${written.length} of ${q.response.axes.length}`);
+  check(written.map((r) => r.category).join() === liveIds.join(),
+    'and each row is filed under its own AXIS, not under the card');
+  check(written.filter((r) => r.correct).length === q.response.axes.length - 1,
+    'each row carries its own correctness, not the card verdict');
+  check(written.every((r) => r.rootKey === q.identity.rootKey && r.quizType === 'identify'),
+    'and every row still carries the identity columns the dashboard groups by');
+  deleteAll();
+}
+
 // A tip is about the confusion, not the word: the SAME question answered two
 // different wrong ways should be able to produce different advice. This is the
 // property that separates A3 from a per-category lookup table.
@@ -1728,10 +1906,14 @@ check(chartKeysFor({ tenses: ['madi'], voices: ['majhul'], moods: [] }) === 'mad
   let n = 0;
   for (const q of questionStream(pool)) {
     if (++n > 200 || differed) break;
-    if (q.category !== 'doer' || q.response.options.length < 3) continue;
-    const wrongs = q.response.options.map((o) => o.valueKey)
-      .filter((k) => !q.response.correct.includes(k));
-    const sets = wrongs.map((k) => tipsFor(q, grade(q, [k])).map((t) => t.id).join());
+    const row = q.response.axes.find((r) => r.axis === 'doer');
+    if (!row || row.options.length < 3) continue;
+    const right = Object.fromEntries(q.response.axes.map((r) => [r.axis, [...r.correct]]));
+    const wrongs = row.options.map((o) => o.valueKey).filter((k) => !row.correct.includes(k));
+    const sets = wrongs.map((k) => {
+      const a = grade(q, { ...right, doer: [k] });
+      return tipsFor(q, a.parts.find((p) => p.axis === 'doer')).map((t) => t.id).join();
+    });
     if (new Set(sets).size > 1) differed = true;
   }
   check(differed,

@@ -9,8 +9,10 @@
 > (every screen, rule and decision); [TECHNICAL_PLAN.md](TECHNICAL_PLAN.md)
 > Part C for what is left on the engine side.
 
-Last verified against the code: **21 Sep 2026**, 56 modules, 189 import edges,
-417 assertions green, zero import cycles.
+Last verified against the code: **22 Sep 2026**, 59 modules, 11,236 lines,
+**453 of 455 assertions green**, zero import cycles. The two failures are the
+وجل `faaDrops` regression from `5a1e52f`, which is content and is scoped to
+IOS_PORT_PLAN slice E2.
 
 ---
 
@@ -72,11 +74,15 @@ Question {
 }
 ```
 
-**Prompt is a tagged union with six kinds** — `word`, `citation`, `spec`,
-`meaning`, `derivedRequest`, `derivedWord` — against four quiz types, which is
-why prompt shape is its own axis. `screens/quiz.js` switches on `prompt.kind`
-through an exhaustive `CARDS` table. It used to infer the card from which keys
-happened to be present, which a fifth shape would have broken silently.
+**Prompt is a tagged union with five kinds** — `word`, `spec`, `meaning`,
+`derivedRequest`, `derivedWord` — against four quiz types, which is why prompt
+shape is its own axis. `screens/quiz.js` switches on `prompt.kind` through an
+exhaustive `CARDS` table. It used to infer the card from which keys happened to
+be present, which a fifth shape would have broken silently.
+
+`citation` was the sixth. It carried نَصَرَ يَنْصُرُ — two words in two tenses —
+for the bāb question alone, and went with it under **D-76**. The bāb is still
+taught: every parse card's explanation names it.
 
 The `meaning` kind deliberately **has no `text` field**: on that card the Arabic
 word is the answer, so the type cannot hold one.
@@ -85,13 +91,21 @@ Every prompt carries its own `ask` sentence, because two kinds are
 data-dependent — 3a names the derivative it wants, and the doer question rewords
 itself for the majhūl (نائب الفاعل, not a doer).
 
-**Response is two modes**, and `correct` is an **array of value keys, never
-indices**:
+**Response is three modes**, and `correct` is always an **array of value keys,
+never indices**:
 
 ```js
 | { mode: 'choice', options: [{ar, en, valueKey}], correct: [valueKey] }
 | { mode: 'input',  accepted: [string] }
+| { mode: 'parse',  axes: [{axis, label, select, options, correct}] }   // D-72
 ```
+
+`parse` is **one card asking five things at once** — the composite *identify*
+question. It is not a third way to grade: `grade()` runs the choice rule once
+per axis row and `every()`s the results. `select` (`'one' | 'many'`) is
+**declared on the row**, because a single-answer row and a multi-answer row that
+happens to have one correct answer are indistinguishable after the draw, and the
+screen has to tell them apart before anything is picked.
 
 An array rather than a `Set` for a concrete reason: an Answer embeds its
 Question and is stored unchanged, and `JSON.stringify(new Set(['3fs']))` is
@@ -104,13 +118,28 @@ are guaranteed by construction in `choiceResponse()` instead.
 ```js
 Answer {
   question: Question,       // EMBEDDED WHOLE, not copied field by field
-  given:    [string],       // value keys picked, or [the typed string]
-  expected: [string],
-  correct:  boolean,
+  given:    [string] | null,   // value keys picked, or [the typed string]
+  expected: [string] | null,   //   — BOTH null on a parse card
+  parts:    [Part] | null,     // one per axis on a parse card; null otherwise
+  correct:  boolean,           // the CARD's verdict: every part must be right
   divergeAt: number | null, // input only; null for choice — an absence, not -1
+  axis:     null,           // this judgement is the whole card, not one axis
   answeredAt,
 }
+
+Part { axis, given: [string], expected: [string], correct: boolean }
 ```
+
+**Exactly one of `given` or `parts` is present, and `response.mode` says which**
+— carried, never inferred from shape, the same rule the tagged `prompt.kind`
+already enforces. A `Part` has the same `{given, expected, correct, axis}` shape
+an `Answer` does, which is why `tipsFor()` takes either and all 29 tips' `when`
+clauses work on both.
+
+**Two denominators, and they are both right** (D-77): the session score counts
+**cards** — four right rows and one wrong is a wrong card — while history counts
+**axis judgements**, roughly 4–5× as many. The place they meet is
+`history/store.js`, and the comment there says so.
 
 Embedding rather than copying is load-bearing. `Question.identity` is already a
 flat, key-based projection (`rootKey`, never a `Root` reference), so embedding
@@ -119,9 +148,9 @@ offered**, which no rebuild can recover because they were sampled and shuffled
 from a random draw.
 
 `grade(question, given)` in `quiz/grading.js` is the **only** place an answer is
-judged, and it keys on the **response mode**, not the quiz type: nine of the ten
-question kinds grade identically, and a produce-style prompt with a choice
-response is anticipated.
+judged, and it keys on the **response mode**, not the quiz type: a produce-style
+prompt with a choice response is anticipated. For `parse`, `given` arrives keyed
+by axis id rather than as a flat list — one set of picks per row.
 
 ---
 
@@ -179,7 +208,7 @@ judge of whether a combination is real.
 > because every caller intersects with `CHART_SHAPES` first and `drawVoicePair()`
 > filters out the amr. **The parse card's voice axis reaches it directly**, so the
 > fix is scheduled with that change — one line, in the validator, not in a caller.
-> See [`PARSE_CARD_PLAN.md`](PARSE_CARD_PLAN.md) § Stage 0, FINDING 1.
+> See [`PARSE_CARD_PLAN_v1.md`](PARSE_CARD_PLAN_v1.md) § Stage 0, FINDING 1.
 
 There used to be a `chartSpec()` constructor. It defaulted the voice to maʿlūm
 and the mood to rafʿ, then rewrote combinations that did not fit — so a caller
@@ -197,18 +226,64 @@ rule.
 
 ## 5. Relevance — questions that know their own configuration
 
-`quiz/relevance.js` holds `QUESTION_RULES`, one entry per question kind. Each
-declares the answer space it discriminates; **fewer than two possible answers
-and it never enters the quiz** (product-spec D-16).
+`quiz/relevance.js` holds `QUESTION_RULES`, one entry per question kind, and
+`quiz/parse-axes.js` holds `PARSE_AXES`, one entry per axis of the parse card.
+Each entry declares how many answers it can discriminate; **fewer than two and
+it never enters the quiz** (product-spec D-16).
 
 `relevance(pool)` takes a **pool**, not a plan, and that is deliberate: a
 question dies from what the pool *contains*, not from what was ticked — the
-voice question is dead when every root in scope is intransitive, which no
-reading of the configuration alone would reveal.
+voice axis is dead when every root in scope is intransitive, which no reading of
+the configuration alone would reveal.
 
-The four builders in `quiz/builders/` have **exactly one importer between them**:
-`relevance.js`. Nothing else can reach a builder. Adding a fifth quiz type is one
-file plus one registry row, and no existing caller changes.
+**ONE `{live, dead}` SHAPE OVER TWO VOCABULARIES.** For `identify` the entries
+are AXES; for the other three types they are question kinds. Both are
+`{id, label, reason, distinctAnswers(pool)}`, so Practice's setup panel renders
+either without a branch.
+
+`buildFor(pool)` is the single door the stream draws through, and the routing —
+a parse card takes the live axes, every other type picks one of its live kinds —
+lives there rather than in `quiz-run.js`, because *what a pool can ask* is this
+file's job.
+
+The builders in `quiz/builders/` have **exactly one importer between them**:
+`relevance.js`. Nothing else can reach a builder.
+
+### The count changed unit — 🔒 D-72
+
+`possibleQuestions(pool)` is `cells` for **identify** (one parse card per word)
+and `cells × live.length` for the other three. The Practice screen therefore
+says ***words*** for identify and *possible questions* otherwise: the same 1,400
+words are still asked about in the same five ways, and multiplying would count
+one card five times.
+
+### The five axes, and what each owns
+
+`PARSE_AXES` splits four separable facts about an axis, because they have
+different owners:
+
+| | |
+|---|---|
+| `label` · `select` · `options()` | what it asks, and in what chips |
+| `correctKeys()` | what is right **for the written form** — a fact about the drawn word |
+| `distinctAnswers()` · `reason` | when it retires — a fact about the **pool** |
+| `requiresDraw()` | what it demands of the **draw** |
+
+`requiresDraw` is not called `requires`, and the name matters: `QUESTION_RULES`
+once carried a `requires(pool)` — the bāb question's "both tenses must be in
+scope" — which asks about the pool and decides liveness. `requiresDraw` takes a
+drawn word. Sharing the name made `relevance()` call an axis's word-predicate
+with a pool, and it threw on the first draw.
+
+**An axis that is live may not vanish from a card** (D-74), so `pool.draw()`
+takes the conjunction of every live axis's `requiresDraw` and finds a word that
+satisfies all of them at once. That is `drawVoicePair`'s old private retry loop,
+generalised and moved to where it belongs.
+
+**`mabnī` is not a fourth iʿrāb state** (D-75) — it is the answer for a word that
+has no iʿrāb, which is four cells in ten. It invents no vocabulary:
+`SEEGAH_TYPES.mudari` already classifies nūn al-niswa as `mabni`, and the māḍī
+and amr already carry `mood: null`.
 
 ---
 
@@ -284,18 +359,21 @@ js/
 
   quiz/
     quiz-plan.js       QuizPlan · planCharts · planFrom (validates stored plans)
-    word-pool.js       the one walk · derivativesOf
-    relevance.js       QUESTION_RULES · relevance(pool) · possibleQuestions
+    word-pool.js       the one walk · derivativesOf · draw(charts, requires)
+    relevance.js       QUESTION_RULES · relevance(pool) · buildFor
+                       · possibleQuestions
+    parse-axes.js      PARSE_AXES — THE only place an axis is defined (D-72)
     word-spec.js       the identity
-    question.js        the shape · 6 prompts · 2 responses · shared assembly
-    grading.js         grade() → Answer
-    quiz-run.js        QuizRun · questionStream
-    drills.js          DRILL_PRESETS · planOf · buildDrill
-    builders/          identify · produce · derived · from-meaning
+    question.js        the shape · 5 prompts · 3 responses · shared assembly
+    grading.js         grade() → Answer, one rule applied per axis row
+    quiz-run.js        QuizRun · questionStream · the per-axis picks
+    drills.js          DRILL_PRESETS · planOf · buildDrill (5 words, 5 cards)
+    builders/          parse · produce · derived · from-meaning
 
   history/
-    store.js           sessions · rows · rowFor() ← the only place that knows
-                       about query columns
+    store.js           sessions · rows · rowsFor() ← the only place that knows
+                       about query columns, and where ONE parse answer fans out
+                       to one row per axis (D-78)
     queries.js         basicSummary · accuracyBy · accuracyPerDay · weakSpots
                        · confusions · sessionSummaries
 
@@ -333,7 +411,11 @@ that matters — it depends on no *behaviour*, only on data — and
 4. **No flag reaches the history writer.**
 5. **Store semantically.** Value keys and typed strings, never button positions.
 6. **One vocabulary for a question kind**: the rule id *is* the `category` *is*
-   the stats bucket.
+   the stats bucket. The parse card gives that vocabulary **two levels** — the
+   card's category is `parse`, and each of its five axes is its own bucket. The
+   fan-out in `history/store.js` is what keeps the second level real; it is
+   invisible until the stats screens ship and is pinned by an assertion for
+   exactly that reason.
 7. **Granular verb types in data, display groups only in the view.** Carrying a
    group name (`'ajwaf'`) into plan data is what silently killed the muʿtall
    Home drill — `candidates()` filters on `root.type` (`'ajwaf_waw'`).

@@ -87,6 +87,30 @@ export const MOOD_LABELS = {
   raf:  { ar: 'مَرْفُوع', en: 'marfūʿ — the default state' },
   nasb: { ar: 'مَنْصُوب', en: 'manṣūb — after أَنْ، لَنْ، كَيْ…' },
   jazm: { ar: 'مَجْزُوم', en: 'majzūm — after لَمْ، لَا النَّاهِيَة…' },
+  // 🔒 D-75. Not a fourth iʿrāb state — the answer for a word that HAS no
+  // iʿrāb, which is four cells in ten: the whole māḍī, the whole amr, and
+  // nūn al-niswa in the muḍāriʿ. It invents no vocabulary: SEEGAH_TYPES.mudari
+  // already classifies 3fp and 2fp as `mabni`, and vocabulary.js already says
+  // the māḍī and the amr carry `mood: null` because neither bears iʿrāb.
+  // Without it the parse card's iʿrāb row would have no true answer on those
+  // cells and would have to vanish, which D-74 forbids.
+  mabni: { ar: 'مَبْنِيّ', en: 'mabnī — this word takes no iʿrāb' },
+};
+
+/**
+ * The romanised term a CHIP is labelled with — short enough for a chip, where
+ * the *_LABELS above carry the sentence an option row has space for.
+ *
+ * Same split, and the same reason, as VOICE_NAMES above it: *_LABELS are spread
+ * wholesale into an answer option and end up embedded in every stored Answer,
+ * so a field added there for a chip's benefit is written into history forever.
+ *
+ * Called by: the parse card's axis rows (quiz/parse-axes.js), and Practice's
+ * chip rows.
+ */
+export const TENSE_NAMES = { madi: 'māḍī', mudari: 'muḍāriʿ', amr: 'amr' };
+export const MOOD_NAMES = {
+  raf: 'marfūʿ', nasb: 'manṣūb', jazm: 'majzūm', mabni: 'mabnī',
 };
 
 export const NOUN_KIND_LABELS = {

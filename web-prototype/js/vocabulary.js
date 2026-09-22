@@ -65,6 +65,18 @@ export const CHART_SHAPES = [
 export function isValidShape({ tense, voice, mood }) {
   if (!TENSES.includes(tense)) return false;
   if (!VOICES.includes(voice)) return false;
+  // The amr has NEITHER voice nor iʿrāb — CHART_SHAPES and the glossary both
+  // say so, and this function is the single judge of what is real.
+  //
+  // It used to check only the mood half, so {amr, majhul} passed, chartExists()
+  // deferred to it, and conjugate() reached a null template and THREW
+  // ("template.replaceAll is not a function") instead of answering null —
+  // contradicting its own contract that null is a normal answer here.
+  // Unreachable only by luck: every caller intersected with CHART_SHAPES first
+  // and drawVoicePair filtered the amr out. The parse card's voice axis flips
+  // the voice on whatever it drew, so it reaches this directly.
+  // (PARSE_CARD_PLAN Stage 0, FINDING 1.)
+  if (tense === 'amr') return voice === 'malum' && mood == null;
   if (tense === 'mudari') return MOODS.includes(mood);
   return mood == null;
 }
