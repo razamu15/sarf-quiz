@@ -1,0 +1,9 @@
+.DS_Store
+
+# Xcode / SwiftPM build products. The project file and the shared scheme ARE
+# committed — the project is hand-maintained with synchronized folder groups
+# (IOS_PORT_PLAN, the Track D decision), so there is nothing to regenerate.
+ios/**/.build/
+ios/**/.swiftpm/
+ios/**/xcuserdata/
+ios/DerivedData/
