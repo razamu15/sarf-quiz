@@ -127,9 +127,8 @@ function chartExists(spec) {
   if (!usage) return false;
   if (!isValidShape(spec)) return false;
 
-  const meta = FORM_META[spec.formId];
-  if (!meta?.conjugable) return false;
-  if (spec.voice === 'majhul' && (!meta.hasMajhul || !usage.trans)) return false;
+  if (!conjugates(spec.formId)) return false;
+  if (spec.voice === 'majhul' && !hasPassive(spec.root, spec.formId)) return false;
   // Form VIII's infixed taa assimilates into certain faa letters — دعو makes
   // اِدَّعَى, not اِدْتَعَى — and no engine performs that substitution yet. Every
   // stem table would otherwise produce a whole well-formed paradigm of a verb
@@ -157,6 +156,48 @@ const wordExists = (spec, slot) =>
  * becoming a second check beside it.
  */
 export const hasEngine = (root) => !!engineFor(root);
+
+/**
+ * Does this form produce conjugated words at all?
+ *
+ * Form IX is the only `false` today: it is recognition-only until shadda
+ * unfolding is written, so it sits in the lexicon and yields nothing.
+ *
+ * Called by: word-pool's candidate filter, drills' mazeedPresetAvailable, and
+ * builders/derived (drawing distractor forms). All three used to import
+ * FORM_META from grammar/shared-grammar.js and read `.conjugable` themselves —
+ * reaching past this service into grammar data for a fact the service already
+ * checks authoritatively in chartExists() below (docs/ARCHITECTURE.md §7, "one
+ * known leak"). Now there is one reader and it is here.
+ *
+ * A form id outside the closed enum answers `false` rather than throwing: "does
+ * Form XI conjugate" has a true answer and it is no. This preserves the exact
+ * behaviour of the `!meta?.conjugable` guard it replaces.
+ */
+export const conjugates = (formId) => FORM_META[formId]?.conjugable === true;
+
+/**
+ * Can this verb be put into the majhūl in this form?
+ *
+ * TWO facts, and a caller needs both: the FORM must have a passive (Form VII is
+ * لَازِم and has none) and the verb must be TRANSITIVE in that form (خَرَجَ is
+ * intransitive, so it has no majhūl whatever the form allows). Answering them
+ * separately is what would let a screen show a majhūl segment for خَرَجَ because
+ * Form I "has" a passive.
+ *
+ * Called by: chartExists() below, so this is the one implementation. Named
+ * future callers — Tables' voice segment, which must disable it *with the
+ * reason* (product-spec/screens/04-tables.md §3), and the parse card's voice
+ * axis (D-74). It is on the list of API that must exist before the B3 freeze,
+ * beside waznRoot().
+ *
+ * `false` for a form the root is not used in: an unused form has no voice.
+ */
+export function hasPassive(root, formId) {
+  const usage = root.forms[formId];
+  if (!usage) return false;
+  return FORM_META[formId]?.hasMajhul === true && usage.trans === true;
+}
 
 /**
  * One word: the paradigm the spec names, at one ṣīghah. Null when that word

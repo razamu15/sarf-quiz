@@ -23,6 +23,7 @@ import {
 import {
   conjugate as conjugateSpec, derivedNoun, waznOf as waznOfSpec,
   fullTable as fullTableSpec, availableCharts, enginedGroups,
+  conjugates, hasPassive,
 } from '../js/conjugation/conjugation-service.js';
 import {
   verbMeaning as verbMeaningSpec, derivedNounMeaning, verbPhrase,
@@ -491,6 +492,62 @@ check(ENGINELESS.every((g) => !enginedGroups().includes(g)) && !enginedGroups().
   'mahmūz and both lafīf types are still engine-less, and nothing pretends otherwise');
 check(PLAYABLE.includes('ajwaf_waw') && PLAYABLE.includes('ajwaf_ya'),
   'ajwaf is playable — AjwafConjugator landed, and it serves both weak letters');
+
+// ---------------------------------------------------------------------------
+// P1.2 — the two new doors on the conjugation service
+//
+// word-pool, drills and builders/derived used to import FORM_META from
+// grammar/shared-grammar.js and read `.conjugable` themselves, reaching past
+// the service into grammar data for a fact the service checks authoritatively
+// (docs/ARCHITECTURE.md §7, "one known leak"). Now there is one reader.
+// ---------------------------------------------------------------------------
+check(conjugates('I') && conjugates('X') && !conjugates('IX'),
+  'conjugates(): Form IX alone yields no words — it is recognition-only');
+check(!conjugates('XI'),
+  'conjugates(): a form outside the closed enum answers no, as the guard it replaces did');
+
+// hasPassive is TWO facts and a caller needs both. Split, a screen would offer
+// خَرَجَ a majhūl because Form I "has" one.
+check(hasPassive(byRoot('نصر'), 'I'), 'hasPassive(): نصر is transitive in Form I');
+check(!hasPassive(byRoot('خرج'), 'I'),
+  'hasPassive(): خَرَجَ is intransitive — no majhūl, though the FORM has one');
+check(!hasPassive(byRoot('كسر'), 'VII'),
+  'hasPassive(): Form VII is لَازِم — no majhūl, though the VERB is transitive');
+check(!hasPassive(byRoot('نصر'), 'IX'),
+  'hasPassive(): a form the root is not used in has no voice at all');
+
+// ---------------------------------------------------------------------------
+// P1 — the boundaries themselves, read off the source
+//
+// Both preps exist so that an illegal reach becomes a COMPILE ERROR once the
+// three Swift targets are real (IOS_PORT_PLAN Decision 2). JS has no such
+// boundary, so the test is the boundary until the port lands — and this is the
+// kind of invariant an edit breaks silently.
+// ---------------------------------------------------------------------------
+{
+  const read = (f) => readFileSync(new URL(`../js/${f}`, import.meta.url), 'utf8');
+  const imports = (f, what) => new RegExp(`^\\s*import[^;]*${what}`, 'm').test(read(f));
+
+  // SarfCore and SarfQuiz cannot see the app's Settings.
+  const belowSettings = [
+    'lexicon/lexicon-service.js', 'lexicon/root.js', 'lexicon/roots.js',
+    'quiz/word-pool.js', 'quiz/quiz-plan.js', 'quiz/drills.js', 'quiz/relevance.js',
+    'quiz/quiz-run.js', 'quiz/grading.js', 'quiz/question.js', 'quiz/word-spec.js',
+    'conjugation/conjugation-service.js', 'meaning-service.js',
+  ];
+  const leaks = belowSettings.filter((f) => imports(f, "settings/settings.js|from '\\.\\./settings"));
+  check(leaks.length === 0,
+    `P1.1: nothing in lexicon/, quiz/ or conjugation/ imports settings (${leaks.join(', ') || 'clean'})`);
+
+  // FORM_META is grammar data. Only its own file and the service may read it.
+  const formMetaReaders = [
+    'quiz/word-pool.js', 'quiz/drills.js', 'quiz/builders/derived.js',
+    'quiz/relevance.js', 'quiz/builders/identify.js', 'quiz/builders/produce.js',
+    'quiz/builders/from-meaning.js',
+  ].filter((f) => /FORM_META/.test(read(f)));
+  check(formMetaReaders.length === 0,
+    `P1.2: nothing in quiz/ reads FORM_META — conjugates()/hasPassive() own it (${formMetaReaders.join(', ') || 'clean'})`);
+}
 
 // Tables browser feed: full charts, correct row counts
 check(Object.keys(fullTableChart(kataba, 'I', 'madi_malum')).length === 14, 'full madi table has 14 rows');

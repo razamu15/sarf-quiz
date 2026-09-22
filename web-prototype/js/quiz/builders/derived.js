@@ -12,8 +12,7 @@
 
 import { FORM_IDS, DEFAULT_BAB, DERIVED_NOUN_TYPE_IDS } from '../../vocabulary.js';
 import { NOUN_KIND_LABELS, FORM_NAMES } from '../../glossary.js';
-import { FORM_META } from '../../grammar/shared-grammar.js';
-import { derivedNoun, citation } from '../../conjugation/conjugation-service.js';
+import { conjugates, derivedNoun, citation } from '../../conjugation/conjugation-service.js';
 import { derivedNounMeaning } from '../../meaning-service.js';
 import { derivativesOf } from '../word-pool.js';
 import { derivedSpecOf } from '../word-spec.js';
@@ -106,7 +105,7 @@ export function derivativeFormQuestion(root, formId) {
       (f) => [f, root.forms[f] ?? { trans: true, bab: root.forms[formId]?.bab ?? DEFAULT_BAB }],
     )),
   };
-  const otherForms = shuffle(FORM_IDS.filter((f) => f !== formId && FORM_META[f].conjugable))
+  const otherForms = shuffle(FORM_IDS.filter((f) => f !== formId && conjugates(f)))
     .filter((f) => {
       const w = derivedNoun(probe, f, kind);
       return w && w !== word;

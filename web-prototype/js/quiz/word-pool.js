@@ -17,9 +17,8 @@
 // "This setup asks" panel), and relevance.js.
 
 import { slotsFor, FORM_IDS, DERIVED_NOUN_TYPE_IDS } from '../vocabulary.js';
-import { FORM_META } from '../grammar/shared-grammar.js';
 import { candidates as lexiconCandidates } from '../lexicon/lexicon-service.js';
-import { conjugate, derivedNoun } from '../conjugation/conjugation-service.js';
+import { conjugate, conjugates, derivedNoun } from '../conjugation/conjugation-service.js';
 import { planCharts } from './quiz-plan.js';
 
 const rand = (arr) => arr[Math.floor(Math.random() * arr.length)];
@@ -58,7 +57,7 @@ function poolCandidates(plan, playableTypes) {
   const types = plan.types?.length ? plan.types : playableTypes;
   const forms = plan.forms?.length ? plan.forms : FORM_IDS;
   return lexiconCandidates({ types, forms })
-    .filter((c) => FORM_META[c.formId].conjugable);
+    .filter((c) => conjugates(c.formId));
 }
 
 /**

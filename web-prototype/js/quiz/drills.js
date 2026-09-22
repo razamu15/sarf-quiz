@@ -11,9 +11,8 @@
 
 import { MAZEED_IDS, verbTypesInGroup } from '../vocabulary.js';
 import { FORM_NAMES } from '../glossary.js';
-import { FORM_META } from '../grammar/shared-grammar.js';
 import { LEXICON } from '../lexicon/lexicon-service.js';
-import { conjugate } from '../conjugation/conjugation-service.js';
+import { conjugate, conjugates } from '../conjugation/conjugation-service.js';
 import { quizPlan } from './quiz-plan.js';
 import { wordPool } from './word-pool.js';
 import { relevance } from './relevance.js';
@@ -132,4 +131,4 @@ export function mazeedPreset(formId) {
 }
 
 export const mazeedPresetAvailable = (formId) =>
-  FORM_META[formId].conjugable && LEXICON.some((r) => r.forms[formId]);
+  conjugates(formId) && LEXICON.some((r) => r.forms[formId]);
