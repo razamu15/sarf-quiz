@@ -121,7 +121,7 @@ export const MITHAL_ROOTS = [
   {
     root: ['و', 'ج', 'ل'], type: 'mithal_waw',
     forms: {
-      I: { bab: 'ia', faaDrops: true, gloss: 'to fear / be afraid', masdar: 'وَجَل', trans: false,
+      I: { bab: 'ia', faaDrops: false, gloss: 'to fear / be afraid', masdar: 'وَجَل', trans: false,
            en: { past: 'feared', pres3: 'fears', ing: 'fearing' },
            reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D9%88%D9%8E%D8%AC%D9%90%D9%84%D9%8E.html' },
       IV: { gloss: 'to frighten', trans: true,

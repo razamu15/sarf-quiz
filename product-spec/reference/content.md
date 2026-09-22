@@ -52,11 +52,9 @@ An **empty chart is not a broken one**. Tables says *"no chart for that selectio
 
 ## Known errors — the engine writes a word nobody says
 
-`docs/KNOWN_CONJUGATION_ERRORS.md` **owns** this list and its numbers (last run Aug 2026). Every one is reachable today: a student drilling that root and chart is **shown the wrong word and marked wrong for typing the right one**. Three real errors:
+`docs/KNOWN_CONJUGATION_ERRORS.md` **owns** this list and its numbers (baselined Aug 2026; two of the original three were fixed 2026-09-21 and dropped from both files — this list tracks what's broken now, not history). Every one still listed is reachable today: a student drilling that root and chart is **shown the wrong word and marked wrong for typing the right one**. One real error remains:
 
-1. **The amr loses track of a mithāl verb's weak fāʾ** — `اِوْجَلْ` for `اِيجَلْ` (وجل, وجع, يتم, يقن…). 48 cells.
-2. **Form VIII mithāl amr has no hamza** — `تَّصِلْ` for `اِتَّصِلْ` (وصل, وضع, وعد). 18 cells.
-3. **يءس is spelled with a bare hamza** — the *lexicon* stores ء; Arabic seats it (`يَئِسَ`). 197 cells, 100% of that root. Needs the hamza-seating logic mahmūz will bring.
+1. **يءس is spelled with a bare hamza** — the *lexicon* stores ء; Arabic seats it (`يَئِسَ`). 197 cells, 100% of that root. Needs the hamza-seating logic mahmūz will bring.
 
 > ❓ **Q-17 · A ship gate for these?** Not a product-design question, but the implementation plan needs it: **decline the cells** (the engine returns `null`, the chart shows as a gap, like Form VIII assimilation) or **fix them**, before release. **Spec assumes:** neither v1 build ships a known-wrong cell.
 

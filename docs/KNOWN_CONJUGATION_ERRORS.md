@@ -16,14 +16,17 @@ Two sections, nothing else:
 
 | | |
 |---|---|
-| **Real errors** — 263 cells | the engine writes a word nobody says. **Fix these.** |
+| **Real errors** — 197 cells | the engine writes a word nobody says. **Fix these.** |
 | **Recorded decisions** | the engine's output differs from qutrub on purpose, or because qutrub itself is wrong. **Do not "fix" these without reopening the decision.** |
 
 **Real errors** was baselined Aug 2026 (70 roots, 215 root-form pairs, all 8
-types × all 10 forms) and is untouched by this revision — see its own entries
-for what's still open there. Everything in it is reachable from the app today:
-a student drilling the affected root and chart is shown the wrong word and
-marked wrong for typing the right one.
+types × all 10 forms). Two of its original three entries — the amr losing
+track of the mithāl weak fāʾ, and the Form VIII mithāl amr's missing hamza —
+were fixed 2026-09-21 and are removed rather than kept as a changelog: this
+file tracks what's broken **now**, not history, and git has the record if you
+need it. What's left is reachable from the app today: a student drilling the
+affected root and chart is shown the wrong word and marked wrong for typing
+the right one.
 
 **Recorded decisions doesn't carry one grand total**, on purpose. A per-form
 sweep of the v3 pipeline (`run_form.py`) ran Forms II–VII in Sep 2026 and
@@ -50,83 +53,7 @@ verification/.venv/bin/python verification/compare.py <type> <form>
 
 ## §1 · Real errors
 
-### 1.1 · The amr loses track of which letter the weak fāʾ is — 48 cells
-
-**In plain terms.** A mithāl verb's first letter is a و or a ي, and which one
-gets *written* depends on the vowel in front of it: a ḍamma wants a و, a kasra
-wants a ي, a fatḥa leaves whichever the root actually has. The stem tables bake
-that letter in — correctly, for the muḍāriʿ, where the vowel comes from the
-prefix. **The amr then throws that prefix away and puts a different vowel in
-front of the same letter, and nothing re-derives it.**
-
-**Affected: the amr chart only** (all 6 ṣīghah), in three directions:
-
-| | root | muḍāriʿ (right) | amr: engine | amr: correct | why |
-|---|---|---|---|---|---|
-| **kasra wants a yāʾ** | وجل · وجع, Form I | يَوْجَلُ | `اِوْجَلْ` | `اِيجَلْ` | waṣl hamza takes a kasra; a sākin و after it becomes ي |
-| **ḍamma wants a wāw** | يتم, Form I | يَيْتُمُ | `اُيْتُمْ` | `اُوتُمْ` | bāb `uu` gives the waṣl hamza a ḍamma; a sākin ي after it becomes و |
-| **fatḥa wants the root's own letter** | يقن · يقظ · يفع · يتم · يسر, Form IV | يُوقِنُ | `أَوْقِنْ` | `أَيْقِنْ` | Form IV's hamza carries a fatḥa, so the و the table hardcoded for the ḍamma should revert to the root's ي |
-
-**Worked example.** Form IV of يقن is أَيْقَنَ / يُوقِنُ. The muḍāriʿ is right:
-`MITHAL_STEMS.IV.mudari_malum` is `'و' + S + '2' + K + '3'`, hardcoding the و
-because the prefix يُـ puts a ḍamma in front of it. The amr strips يُـ and
-prepends أَ — a **fatḥa**. The و is now after a fatḥa, where a root with a ي
-should show its ي. Engine: `أَوْقِنْ`. Correct: `أَيْقِنْ`.
-
-**Only mithāl yāʾ and the two `ia`-bāb mithāl wāw roots are hit**, because they
-are the cases where the hardcoded letter differs from the root's own. وعد Form
-IV gives `أَوْعِدْ` correctly — but by luck, not by rule: its root letter is و
-anyway.
-
-**Responsible code.**
-- [`templates.js:72` `amrOpening()`](../web-prototype/js/conjugation/templates.js:72)
-  — prepends the hamza and its ḥaraka, and returns a string. It never looks at
-  the stem's first letter, so it cannot know it has just invalidated it.
-- [`mithal-grammar.js:87` `MITHAL_STEMS.IV`](../web-prototype/js/grammar/mithal-grammar.js:87)
-  and [`:38` `MITHAL_STEMS.I.mithal_waw.mudari_malum`](../web-prototype/js/grammar/mithal-grammar.js:38)
-  — where the letter is hardcoded, correctly, for the muḍāriʿ.
-- [`templates.js:108` `unmarkMaddLetters()`](../web-prototype/js/conjugation/templates.js:108)
-  is the closest existing thing, and deliberately does not do this: it *removes
-  a sukūn* from a madd pair, it never *converts a letter*.
-
-**The shape of a fix.** The conversion has to happen after the amr's opening is
-known, not in the table — the same "only the assembled word knows" argument
-`unmarkMaddLetters`' own header makes. Whatever lands must leave `اِيقَنْ`,
-`اُوجُهْ` and the `يَيْقَنُ` canary untouched.
-
----
-
-### 1.2 · The Form VIII mithāl amr comes out with no hamza at all — 18 cells
-
-**In plain terms.** Arabic cannot begin a word on a consonant with no vowel, so
-the amr props a hamzat al-waṣl in front: كْتُبْ becomes اُكْتُبْ. The engine
-decides whether one is needed by checking for a **sukūn** on the stem's second
-character. A Form VIII mithāl stem has a **shadda** there instead — the fāʾ has
-dissolved into the tāʾ (اِوْتَعَدَ → اِتَّعَدَ) — so the check says "no hamza
-needed" and the word comes out starting on a doubled consonant.
-
-**Affected: the amr chart of Form VIII, mithāl wāw** — وصل, وضع, وعد, all 6
-ṣīghah each.
-
-```
-engine   تَّصِلْ    تَّضِعْ    تَّعِدْ
-correct  اِتَّصِلْ  اِتَّضِعْ  اِتَّعِدْ
-```
-
-`تَّصِلْ` is not a hard word or a variant reading — it is unpronounceable.
-
-**Responsible code.**
-[`templates.js:74`](../web-prototype/js/conjugation/templates.js:74) — the line
-is `if (stem[1] !== SUKUN) return '';`. The stem is
-[`MITHAL_STEMS.VIII.mudari_malum`](../web-prototype/js/grammar/mithal-grammar.js:97),
-`'ت' + SH + F + '2' + K + '3'`, whose `stem[1]` is the shadda.
-
-**The shape of a fix.** The condition means "does this stem open on something a
-word cannot start with"; a shadda qualifies exactly as much as a sukūn does.
-
----
-
-### 1.3 · يءس is spelled with a bare hamza — 197 cells
+### 1.1 · يءس is spelled with a bare hamza — 197 cells
 
 **In plain terms.** Not an engine bug: the **lexicon** stores the root as
 `['ي', 'ء', 'س']` with a bare ء, and the engine faithfully writes a bare ء into
@@ -142,8 +69,10 @@ correct  يَئِسَا      أَيْئَسَا     يُوئِسُ     اِسْ�
 ```
 
 **It is one of eight mithāl yāʾ roots**, so this is an eighth of that verb
-type shipping misspelled. Its Form IV amr is wrong twice over — `أَوْءِسْ`
-should be `أَيْئِسْ`, which is §1.1 *and* this.
+type shipping misspelled. Its Form IV amr used to be wrong twice over — a
+letter-reseating bug this file no longer tracks (fixed 2026-09-21) wrote
+`أَوْءِسْ`. Today the letter is right and the hamza is still bare: `أَيْءِسْ`,
+where it should be `أَيْئِسْ`.
 
 **Responsible code.**
 [`roots/mithal.js:219`](../web-prototype/js/lexicon/roots/mithal.js:219) — the
