@@ -5,9 +5,9 @@
 
 import { MITHAL_STEMS, MITHAL_ENDINGS, DERIVED_NOUN_STEMS } from '../grammar/mithal-grammar.js';
 import { PREFIX_LETTERS, MUDARI_PREFIX_HARAKA } from '../grammar/shared-grammar.js';
-import { slotsFor } from '../vocabulary.js';
+import { slotsFor, FATHA, DAMMA, KASRA, SUKUN } from '../vocabulary.js';
 import { babOf } from '../lexicon/root.js';
-import { fill, norm, joinEnding, amrOpening, unmarkMaddLetters } from './templates.js';
+import { fill, norm, joinEnding, unmarkMaddLetters } from './templates.js';
 
 /**
  * get the stem string template and the endings needed for this spec
@@ -62,6 +62,90 @@ export function getConjugationData(spec) {
   };
 }
 
+/**
+ * A mithāl amr word, complete, built from the majzūm muḍāriʿ `body` it stands on.
+ *
+ * Called by: MithalConjugator.conjugate(), and nowhere else. This is the
+ * mithāl's own replacement for the shared amrOpening() in templates.js, which
+ * the other four engines still use and which this file no longer imports.
+ *
+ * WHY THE MITHĀL NEEDS ITS OWN. For every other verb type the opening and the
+ * word under it are two independent facts, so a function that returns a prefix
+ * is enough. For a mithāl they are ONE decision: the amr throws away the
+ * muḍāriʿ prefix and puts a different ḥaraka in front of the fāʾ, and a sākin
+ * fāʾ is written as whichever letter that new ḥaraka calls for — ḍamma wants a
+ * و, kasra wants a ي, a fatḥa leaves whichever letter the root actually has.
+ * amrOpening() never looks at the stem, so it cannot make the second half of
+ * that decision, and the stem tables were filled in for the muḍāriʿ's prefix,
+ * which is the one that just left. That is how أَوْقِنْ and اِوْجَلْ got out.
+ *
+ * `body` is the filled stem with its ending already joined — the whole word
+ * bar its opening. `faa` is the root's own first radical, which is the answer
+ * in the one direction where the ḥaraka dictates no letter of its own. `bab`
+ * is null for every mazīd form, which is correct and not a gap: only Form I
+ * ever puts a ḍamma on the waṣl hamza.
+ */
+function openMithalAmr(body, formId, bab, faa) {
+  // Form IV's hamza belongs to the FORM (أَفْعَلَ → أَفْعِلْ) — a hamzat al-qaṭʿ,
+  // not a crutch propped in front of a sākin — so it is written whatever the
+  // stem opens on, and it carries a FATḤA. A sākin fāʾ after a fatḥa is a līn
+  // letter, a real consonant, and shows the root's own letter. The stem has a
+  // و hardcoded there because MITHAL_STEMS.IV.mudari_malum was written for the
+  // muḍāriʿ, whose يُـ supplies a ḍamma (يُوقِنُ، أُوقِنَ). That ḍamma is gone
+  // with the prefix, so radical 1 comes back: أَوْعِدْ from وعد — the same
+  // letter, by rule rather than by luck — and أَيْقِنْ from يقن.
+  // body[0] is always the fāʾ slot here: Form IV's stem IS أَفْعَلَ minus its
+  // hamza, so it can open on nothing else.
+  if (formId === 'IV') return 'أ' + FATHA + faa + body.slice(1);
+
+  // Nothing to prop up and nothing to rewrite — the word already opens on a
+  // vowelled letter. Two unrelated reasons arrive here, and both are correct:
+  // the wāw dropped out of the muḍāriʿ stem and the word now opens on a
+  // vowelled ʿayn (وَعَدَ يَعِدُ → عِدْ، وَرِثَ يَرِثُ → رِثْ), or the form puts its
+  // own ḥaraka on the fāʾ (وَعِّدْ، وَاعِدْ، تَوَعَّدْ).
+  //
+  // FUTURE FIX — Form VIII arrives here too and should not: its stem opens on
+  // a SHADDA (اِوْتَعَدَ became اِتَّعَدَ, so MITHAL_STEMS.VIII.mudari_malum is
+  // 'ت' + SH + …), which is every bit as unpronounceable word-initially as a
+  // sukūn, and the word comes out تَّصِلْ instead of اِتَّصِلْ. That is
+  // KNOWN_CONJUGATION_ERRORS.md §1.2, 18 cells, and it is left alone here
+  // deliberately: it is a question of WHEN a hamza is needed, not of which
+  // letter the fāʾ is, and it wants its own parity run.
+  if (body[1] !== SUKUN) return body;
+
+  // The waṣl hamza's ḥaraka copies the muḍāriʿ ʿayn's: a ḍamma when the ʿayn
+  // takes one (اُوجُهْ from يَوْجُهُ), a kasra otherwise. Only Form I ever has a
+  // ḍamma there — every mazīd form fixes a kasra on its ʿayn — and for Form I
+  // the bāb's second letter IS that vowel, which is why the bāb is named for it.
+  const haraka = bab?.[1] === 'u' ? DAMMA : KASRA;
+
+  // Forms VII and X open on their OWN prefix, not on the fāʾ — نْوَعِدْ، سْتَوْجِبْ
+  // — so the hamza goes in front of that and the fāʾ is untouched. It is
+  // further in and sits after a fatḥa either way (اِنْوَعِدْ carries its own,
+  // اِسْتَوْجِبْ takes the تَ's), which is the līn case: the root's own letter,
+  // which those stem templates already wrote as radical 1. Asking whether the
+  // word opens on the root's fāʾ is the whole test, and it is self-checking —
+  // no form list to keep in step with the tables.
+  if (body[0] !== faa) return 'ا' + haraka + body;
+
+  // The fāʾ is sākin and the hamza's ḥaraka is now the thing in front of it, so
+  // that ḥaraka picks the letter — and the two together are a madd, a long
+  // vowel, which vocalized Arabic never writes with a sukūn. Both characters
+  // the stem put there, the letter and its sukūn, are replaced by the one
+  // letter:
+  //
+  //   ḍamma → و (ū)   اُوجُهْ from وجه, where the root's letter was already a و
+  //                   اُوقُظْ from يقظ, where the root's ي is written as a و
+  //   kasra → ي (ī)   اِيقَنْ from يقن, where the root's letter was already a ي
+  //                   اِيجَلْ from وجل, where the root's و is written as a ي
+  //
+  // Both branches write their letter unconditionally rather than only when it
+  // differs: the ḥaraka is the authority on what is written, and a root that
+  // already has that letter is agreeing with the rule, not bypassing it.
+  if (haraka === DAMMA) return 'ا' + DAMMA + 'و' + body.slice(2);
+  return 'ا' + KASRA + 'ي' + body.slice(2);
+}
+
 export const MithalConjugator = {
   handles: 'mithal',
 
@@ -88,17 +172,10 @@ export const MithalConjugator = {
       result = PREFIX_LETTERS[slot] + MUDARI_PREFIX_HARAKA[spec.formId][spec.voice] + result;
     }
     if (spec.tense === 'amr') {
-      // FUTURE FIX — missing iʿlāl bi-l-qalb: a sākin wāw after a kasra becomes a
-      // yāʾ. The amr of bāb `ia` opens with the waṣl hamza's kasra and then the
-      // root's own wāw, so اِوْجَلْ should surface as اِيجَلْ (qutrub, and the same
-      // shape as mithāl yāʾ's اِيقَنْ — which reaches it by a different road, its
-      // radical being a yāʾ already, so this conversion is genuinely absent rather
-      // than merely unexercised). 12 cells today: the amr charts of وجل and وجع.
-      // Deliberately not folded into the bāb `ia` stem fix in mithal-grammar.js —
-      // that one is about which letters exist, this one about what a letter turns
-      // into next to a vowel, and they want separate parity runs.
-      // [SCHOLAR VERIFY]
-      result = amrOpening(spec.formId, stem, babOf(spec.root, spec.formId)) + result;
+      // Opening and first letter in one call — see openMithalAmr() above for
+      // why the mithāl cannot use the shared amrOpening() the way the sound,
+      // muḍāʿaf, ajwaf and nāqiṣ engines do.
+      result = openMithalAmr(result, spec.formId, babOf(spec.root, spec.formId), spec.root.root[0]);
     }
 
     // Last, and after BOTH prefixes above, because the ḥaraka that decides
