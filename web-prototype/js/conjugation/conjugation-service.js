@@ -79,6 +79,7 @@ import { MudaafConjugator } from './mudaaf-conjugator.js';
 import { MithalConjugator } from './mithal-conjugator.js';
 import { AjwafConjugator } from './ajwaf-conjugator.js';
 import { NaqisConjugator } from './naqis-conjugator.js';
+import { MahmuzConjugator } from './mahmuz-conjugator.js';
 import { fill, norm } from './templates.js';
 
 /**
@@ -90,7 +91,8 @@ const MADI = (root, formId) => ({ root, formId, tense: 'madi', voice: 'malum', m
 const MUDARI = (root, formId) => ({ root, formId, tense: 'mudari', voice: 'malum', mood: 'raf' });
 
 const ENGINES = Object.fromEntries(
-  [SalimConjugator, MudaafConjugator, MithalConjugator, AjwafConjugator, NaqisConjugator]
+  [SalimConjugator, MudaafConjugator, MithalConjugator, AjwafConjugator, NaqisConjugator,
+    MahmuzConjugator]
     .map((engine) => [engine.handles, engine]),
 );
 

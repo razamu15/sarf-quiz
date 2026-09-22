@@ -27,7 +27,16 @@ verification/.venv/bin/python verification/analyze_category.py <lexicon-type> [f
 ```
 
 `<lexicon-type>` is one of: `salim`, `mudaaf`, `mithal_waw`, `mithal_ya`,
-`ajwaf_waw`, `ajwaf_ya`, `naqis_waw`, `naqis_ya`. `[form]` is a roman numeral
+`ajwaf_waw`, `ajwaf_ya`, `naqis_waw`, `naqis_ya`, `mahmuz`.
+
+`mahmuz` joined the list on 2026-09-22, when its engine landed — it is the type
+§2 below names as the one that fell through the gap, and it was still absent
+from `ENGINE_SOURCE_FILES` after `run_form.py` started reading the type list off
+the lexicon. Its entry carries **two** source files: for mahmūz the conjugator
+is the sālim one and every rule that makes the type what it is lives in
+`hamza-seating.js`, so an analysis handed only the conjugator would have nothing
+to explain a mismatch with. The two lafīf types remain engine-less and still
+report as such. `[form]` is a roman numeral
 `I`–`X` and **defaults to `I`**, so v1's invocations still mean what they meant.
 `.venv` (created via `python3 -m venv .venv && .venv/bin/pip install -r
 requirements.txt`) and `output/` are both gitignored — regenerable, not source.

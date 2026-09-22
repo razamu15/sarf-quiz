@@ -16,7 +16,7 @@ Two sections, nothing else:
 
 | | |
 |---|---|
-| **Real errors** — 197 cells | the engine writes a word nobody says. **Fix these.** |
+| **Real errors** — **none** | the engine writes a word nobody says. **Fix these.** |
 | **Recorded decisions** | the engine's output differs from qutrub on purpose, or because qutrub itself is wrong. **Do not "fix" these without reopening the decision.** |
 
 **Real errors** was baselined Aug 2026 (70 roots, 215 root-form pairs, all 8
@@ -53,34 +53,28 @@ verification/.venv/bin/python verification/compare.py <type> <form>
 
 ## §1 · Real errors
 
-### 1.1 · يءس is spelled with a bare hamza — 197 cells
+### ~~1.1 · يءس is spelled with a bare hamza — 197 cells~~ — FIXED 2026-09-22
 
-**In plain terms.** Not an engine bug: the **lexicon** stores the root as
-`['ي', 'ء', 'س']` with a bare ء, and the engine faithfully writes a bare ء into
-every word it builds. Arabic seats a hamza on a letter chosen by the vowels
-around it — here almost always ئ.
+**The list is empty.** This was the last entry, and it was waiting on exactly
+the pass the mahmūz engine brought (B4). The root is still stored as
+`['ي', 'ء', 'س']` with a bare ء — that was never the bug — and
+[`hamza-seating.js`](../web-prototype/js/conjugation/hamza-seating.js) now seats
+it from the assembled word, which is the only place that knows what sits beside
+it. `يَئِسَ يَيْأَسُ`, and `يَائِس`.
 
-**Affected: every cell of يءس, in every form and chart it has** — Forms I, IV
-and X, 197 cells, which is 100% of that root's output.
+**A second root of the same shape was found while fixing it, and is fixed too.**
+أدي — nāqiṣ *and* mahmūz al-fāʾ, and its own lexicon entry says so — was stored
+with the seat already baked in (`['أ', 'د', 'ي']`), which is right in `يَأْدِي`
+and wrong in `يُؤَدِّي`. **86 cells**, never listed here because the cross-check
+sweep that would have caught it could not run on the type: `mahmuz` was absent
+from `verification/compare.py`'s tables until the same day (`verification/PLAN.md` §2).
 
-```
-engine   يَءِسَا      أَيْءَسَا     يُوءِسُ     اِسْتَيْءِسْ
-correct  يَئِسَا      أَيْئَسَا     يُوئِسُ     اِسْتَيْئِسْ
-```
-
-**It is one of eight mithāl yāʾ roots**, so this is an eighth of that verb
-type shipping misspelled. Its Form IV amr used to be wrong twice over — a
-letter-reseating bug this file no longer tracks (fixed 2026-09-21) wrote
-`أَوْءِسْ`. Today the letter is right and the hamza is still bare: `أَيْءِسْ`,
-where it should be `أَيْئِسْ`.
-
-**Responsible code.**
-[`roots/mithal.js:219`](../web-prototype/js/lexicon/roots/mithal.js:219) — the
-root entry.
-The engine has no seat logic anywhere, so this cannot be fixed by spelling the
-root differently in one place: hamza seating is the mahmūz work
-(B4 — [TECHNICAL_PLAN.md](TECHNICAL_PLAN.md) Part C), and يءس is the one root that
-needs it before then.
+What found it was not qutrub but an invariant, and that invariant is now the
+guard against the next one: **every word every engine produces must already be
+seated** — `seatHamzas(word) === word` over all 54,566 cells, asserted in
+`test/smoke.mjs`. A hamzated root typed to an engine that does not run the pass
+goes red and names the cell. جاء (ج-ي-ء) would land in the ajwaf engine, which
+does not run it today; the assertion is what will say so.
 
 ---
 

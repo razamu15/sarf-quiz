@@ -41,6 +41,7 @@ import { questionStream } from '../js/quiz/quiz-run.js';
 import { grade } from '../js/quiz/grading.js';
 import { isMultiSelect } from '../js/quiz/question.js';
 import { PARSE_AXES, PARSE_AXIS_IDS, axisById } from '../js/quiz/parse-axes.js';
+import { seatHamzas } from '../js/conjugation/hamza-seating.js';
 import { recordAnswer, startSession, rows as historyRows, deleteAll } from '../js/history/store.js';
 import { TIPS, tipsFor } from '../js/tips/tips.js';
 import { QUESTION_RULES } from '../js/quiz/relevance.js';
@@ -480,18 +481,30 @@ check(CONTENT_GATE_IDS.every((id) => typeof contentGate()[id] === 'boolean'),
   'settings/contentGate() answers every gate the lexicon declares');
 check((() => { try { availableTypes({}); return false; } catch { return true; } })(),
   'an unanswered content gate throws — "unknown" never silently becomes "off"');
-// The gate is live plumbing standing over content that is ALSO engine-less, so
-// today it changes nothing on its own. Pinned rather than assumed: this check
-// flips the moment MahmuzConjugator or LafifConjugator lands, which is exactly
-// when someone should re-read what the gate is now doing.
-check(availableTypes({ mahmuz: true, lafif: true }).join() === PLAYABLE.join(),
-  'opening every gate changes nothing yet — hasEngine() is what excludes mahmūz and lafīf today, and the gate takes over the moment an engine lands');
+// THE GATE IS NOW LOAD-BEARING FOR MAHMŪZ, and this is the assertion that said
+// it would be: it used to read "opening every gate changes nothing yet",
+// pinned so that it would flip the moment an engine landed. MahmuzConjugator
+// landed 2026-09-22, so mahmūz is engined-and-gated — the state the gate was
+// built for — while lafīf is still engine-less and would not appear whatever
+// the flag said.
+{
+  const opened = availableTypes({ mahmuz: true, lafif: true });
+  check(opened.includes('mahmuz') && !PLAYABLE.includes('mahmuz'),
+    'opening the mahmūz gate admits mahmūz — the engine exists and the flag alone holds it back');
+  check(!opened.includes('lafif_mafruq') && !opened.includes('lafif_maqrun'),
+    'opening the lafīf gate admits nothing — hasEngine() still excludes it, whatever the flag says');
+}
 
-const ENGINELESS = ['lafif_mafruq', 'lafif_maqrun', 'mahmuz'].sort();
-check(stockedTypes().filter((t) => !PLAYABLE.includes(t)).sort().join() === ENGINELESS.join(),
-  'exactly lafīf and mahmūz are stocked but unplayable — every other stocked type has an engine');
-check(ENGINELESS.every((g) => !enginedGroups().includes(g)) && !enginedGroups().includes('mahmuz'),
-  'mahmūz and both lafīf types are still engine-less, and nothing pretends otherwise');
+// Stocked-but-unplayable now has TWO causes, and they are different facts:
+// lafīf has no engine, mahmūz has one and is gated off. Both are absent from
+// PLAYABLE; only one of them would appear if its flag were flipped.
+const UNPLAYABLE = ['lafif_mafruq', 'lafif_maqrun', 'mahmuz'].sort();
+check(stockedTypes().filter((t) => !PLAYABLE.includes(t)).sort().join() === UNPLAYABLE.join(),
+  'exactly lafīf and mahmūz are stocked but unplayable under the shipped gate');
+check(!enginedGroups().includes('lafif_mafruq') && !enginedGroups().includes('lafif_maqrun'),
+  'both lafīf types are still engine-less, and nothing pretends otherwise');
+check(enginedGroups().includes('mahmuz'),
+  'mahmūz has an engine — B4, landed 2026-09-22; the flag is what keeps it out of quizzes');
 check(PLAYABLE.includes('ajwaf_waw') && PLAYABLE.includes('ajwaf_ya'),
   'ajwaf is playable — AjwafConjugator landed, and it serves both weak letters');
 
@@ -1163,6 +1176,225 @@ check(!madd.forms.I.manualTables && !radd.forms.I.manualTables,
     }
   }
   check(clean, 'every muḍāʿaf cell is valid NFC Arabic with no template residue');
+}
+
+// ---------------------------------------------------------------------------
+// Mahmūz parity suite (B4) — one chart per HAMZA POSITION
+//
+// The engine's promotion bar, same as every other type's: it ships only if it
+// reproduces charts typed from the paper tables rather than derived from the
+// templates. What makes mahmūz its own suite is that nothing here tests a STEM
+// — every stem is the sālim one — so every cell below is really testing where
+// the hamza sat, which is the whole of the type.
+//
+// Three roots, one per position of the hamza in the root, because the seating
+// rules are position rules: أخذ (fāʾ), سأل (ʿayn), قرأ (lām).
+// ---------------------------------------------------------------------------
+const akhadha = byRoot('ءخذ');
+const saala = byRoot('سءل');
+const qaraa = byRoot('قرء');
+
+// -- fāʾ-mahmūz: the hamza is initial in the māḍī, medial and sākin in the
+//    muḍāriʿ, and swallowed by the 1s prefix ---------------------------------
+parity(akhadha, 'I', 'madi_malum', {
+  '3ms': 'أَخَذَ',     '3md': 'أَخَذَا',      '3mp': 'أَخَذُوا',
+  '3fs': 'أَخَذَتْ',   '3fd': 'أَخَذَتَا',    '3fp': 'أَخَذْنَ',
+  '2ms': 'أَخَذْتَ',   '2md': 'أَخَذْتُمَا',  '2mp': 'أَخَذْتُم',
+  '2fs': 'أَخَذْتِ',   '2fd': 'أَخَذْتُمَا',  '2fp': 'أَخَذْتُنَّ',
+  '1s': 'أَخَذْتُ',    '1p': 'أَخَذْنَا',
+}, 'أخذ I māḍī maʿlūm — initial hamza, alif seat throughout');
+
+parity(akhadha, 'I', 'mudari_malum_raf', {
+  '3ms': 'يَأْخُذُ',     '3md': 'يَأْخُذَانِ',   '3mp': 'يَأْخُذُونَ',
+  '3fs': 'تَأْخُذُ',     '3fd': 'تَأْخُذَانِ',   '3fp': 'يَأْخُذْنَ',
+  '2ms': 'تَأْخُذُ',     '2md': 'تَأْخُذَانِ',   '2mp': 'تَأْخُذُونَ',
+  '2fs': 'تَأْخُذِينَ',  '2fd': 'تَأْخُذَانِ',   '2fp': 'تَأْخُذْنَ',
+  // THE CELL THIS WHOLE ENGINE IS FOR. Every other slot prefixes a plain
+  // letter; 1s prefixes a hamza in front of a root that opens with one, and
+  // the pair becomes a madd — أَ + ءْ → آ. One root, one slot, one rule.
+  '1s': 'آخُذُ',         '1p': 'نَأْخُذُ',
+}, 'أخذ I muḍāriʿ maʿlūm rafʿ — sākin hamza on an alif, and آخُذُ in the 1s');
+
+parity(akhadha, 'I', 'madi_majhul', {
+  '3ms': 'أُخِذَ',     '3md': 'أُخِذَا',      '3mp': 'أُخِذُوا',
+  '3fs': 'أُخِذَتْ',   '3fd': 'أُخِذَتَا',    '3fp': 'أُخِذْنَ',
+  '2ms': 'أُخِذْتَ',   '2md': 'أُخِذْتُمَا',  '2mp': 'أُخِذْتُم',
+  '2fs': 'أُخِذْتِ',   '2fd': 'أُخِذْتُمَا',  '2fp': 'أُخِذْتُنَّ',
+  '1s': 'أُخِذْتُ',    '1p': 'أُخِذْنَا',
+}, 'أخذ I māḍī majhūl — an initial hamza takes an alif for ḍamma too');
+
+check(nfc(conjugateChart(akhadha, 'I', 'mudari_majhul_raf', '1s')) === nfc('أُوخَذُ'),
+  'أخذ 1s muḍāriʿ majhūl is أُوخَذُ — the same two-hamza rule, with ḍamma lengthening to a wāw');
+
+// -- ʿayn-mahmūz: a sukūn in front never wins, so the hamza's own vowel decides
+parity(saala, 'I', 'mudari_malum_raf', {
+  '3ms': 'يَسْأَلُ',     '3md': 'يَسْأَلَانِ',   '3mp': 'يَسْأَلُونَ',
+  '3fs': 'تَسْأَلُ',     '3fd': 'تَسْأَلَانِ',   '3fp': 'يَسْأَلْنَ',
+  '2ms': 'تَسْأَلُ',     '2md': 'تَسْأَلَانِ',   '2mp': 'تَسْأَلُونَ',
+  '2fs': 'تَسْأَلِينَ',  '2fd': 'تَسْأَلَانِ',   '2fp': 'تَسْأَلْنَ',
+  '1s': 'أَسْأَلُ',      '1p': 'نَسْأَلُ',
+}, 'سأل I muḍāriʿ maʿlūm rafʿ — the sīn is sākin, so the hamza\'s own fatḥa seats it');
+
+parity(saala, 'I', 'madi_majhul', {
+  '3ms': 'سُئِلَ',     '3md': 'سُئِلَا',      '3mp': 'سُئِلُوا',
+  '3fs': 'سُئِلَتْ',   '3fd': 'سُئِلَتَا',    '3fp': 'سُئِلْنَ',
+  '2ms': 'سُئِلْتَ',   '2md': 'سُئِلْتُمَا',  '2mp': 'سُئِلْتُم',
+  '2fs': 'سُئِلْتِ',   '2fd': 'سُئِلْتُمَا',  '2fp': 'سُئِلْتُنَّ',
+  '1s': 'سُئِلْتُ',    '1p': 'سُئِلْنَا',
+}, 'سأل I māḍī majhūl — kasra beats the ḍamma in front of it: سُئِلَ, not سُؤِلَ');
+
+// -- lām-mahmūz: the ending's own iʿrāb gets no vote, and the dual's alif
+//    contracts with the seat ---------------------------------------------------
+parity(qaraa, 'I', 'mudari_malum_raf', {
+  '3ms': 'يَقْرَأُ',     '3md': 'يَقْرَآنِ',   '3mp': 'يَقْرَؤُونَ',
+  '3fs': 'تَقْرَأُ',     '3fd': 'تَقْرَآنِ',   '3fp': 'يَقْرَأْنَ',
+  '2ms': 'تَقْرَأُ',     '2md': 'تَقْرَآنِ',   '2mp': 'تَقْرَؤُونَ',
+  '2fs': 'تَقْرَئِينَ',  '2fd': 'تَقْرَآنِ',   '2fp': 'تَقْرَأْنَ',
+  '1s': 'أَقْرَأُ',      '1p': 'نَقْرَأُ',
+}, 'قرأ I muḍāriʿ maʿlūm rafʿ — three seats in one chart: أ، آ، ؤ، ئ');
+
+parity(qaraa, 'I', 'madi_majhul', {
+  '3ms': 'قُرِئَ',     '3md': 'قُرِئَا',      '3mp': 'قُرِئُوا',
+  '3fs': 'قُرِئَتْ',   '3fd': 'قُرِئَتَا',    '3fp': 'قُرِئْنَ',
+  '2ms': 'قُرِئْتَ',   '2md': 'قُرِئْتُمَا',  '2mp': 'قُرِئْتُم',
+  '2fs': 'قُرِئْتِ',   '2fd': 'قُرِئْتُمَا',  '2fp': 'قُرِئْتُنَّ',
+  '1s': 'قُرِئْتُ',    '1p': 'قُرِئْنَا',
+}, 'قرأ I māḍī majhūl');
+
+// THE CANARY for the "look only backwards" rule on a final hamza. يَقْرَأُ keeps
+// its alif seat in every mood because the rāʾ has fatḥa — if the ending's own
+// ḥaraka ever gets a vote, rafʿ becomes يَقْرَؤُ and this goes red.
+{
+  const finals = ['mudari_malum_raf', 'mudari_malum_nasb', 'mudari_malum_jazm'];
+  const got = finals.map((c) => nfc(conjugateChart(qaraa, 'I', c, '3ms')));
+  check(got.join() === [nfc('يَقْرَأُ'), nfc('يَقْرَأَ'), nfc('يَقْرَأْ')].join(),
+    `a final hamza reads only what is BEHIND it — got ${got.join(' ')}`);
+}
+
+// -- the amr, where the three positions come apart ---------------------------
+{
+  const amr = (rk) => nfc(conjugateChart(byRoot(rk), 'I', 'amr_malum', '2ms'));
+  // 🔒 The three verbs whose amr drops the hamza outright (AMR_DROPS_FAA).
+  check(amr('ءخذ') === nfc('خُذْ'), `أخذ amr is خُذْ — got ${amr('ءخذ')}`);
+  check(amr('ءكل') === nfc('كُلْ'), `أكل amr is كُلْ — got ${amr('ءكل')}`);
+  check(amr('ءمر') === nfc('مُرْ'), `أمر amr is مُرْ — got ${amr('ءمر')}`);
+  // THE CONTROL. أذن is fāʾ-mahmūz on the same pattern and is NOT one of the
+  // three: it keeps its hamza and takes a waṣl alif. If the drop ever becomes a
+  // rule instead of a list, this goes red.
+  check(amr('ءذن') === nfc('اِئْذَنْ'), `أذن keeps its hamza — got ${amr('ءذن')}`);
+  check(amr('سءل') === nfc('اِسْأَلْ'), `سأل amr is اِسْأَلْ — got ${amr('سءل')}`);
+  check(amr('قرء') === nfc('اِقْرَأْ'), `قرأ amr is اِقْرَأْ — got ${amr('قرء')}`);
+}
+
+// -- the mazīd forms, where the form's own hamza meets the root's ------------
+{
+  const cases = [
+    ['ءخذ', 'III', 'madi_malum', '3ms', 'آخَذَ'],        // ءَ + ا contracts
+    ['ءخذ', 'III', 'mudari_malum_raf', '3ms', 'يُؤَاخِذُ'], // ḍamma in front wins
+    ['ءذن', 'IV', 'madi_malum', '3ms', 'آذَنَ'],          // the FORM's hamza + the root's
+    ['ءذن', 'IV', 'madi_majhul', '3ms', 'أُوذِنَ'],
+    ['ءذن', 'II', 'mudari_malum_raf', '3ms', 'يُؤَذِّنُ'],
+    ['ءمن', 'IV', 'mudari_malum_raf', '3ms', 'يُؤْمِنُ'],
+    ['ءمر', 'VI', 'madi_malum', '3ms', 'تَآمَرَ'],
+    ['ءمر', 'X', 'madi_malum', '3ms', 'اِسْتَأْمَرَ'],
+    ['ءمر', 'X', 'madi_majhul', '3ms', 'اُسْتُؤْمِرَ'],
+    ['سءل', 'VI', 'madi_malum', '3ms', 'تَسَاءَلَ'],      // alif then alif-seat = bare
+    ['قرء', 'IV', 'mudari_malum_raf', '3ms', 'يُقْرِئُ'],
+    ['بدء', 'VIII', 'madi_malum', '3ms', 'اِبْتَدَأَ'],
+    ['ملء', 'VIII', 'mudari_malum_raf', '3ms', 'يَمْتَلِئُ'],
+    ['رءس', 'V', 'madi_majhul', '3ms', 'تُرُئِّسَ'],
+  ];
+  for (const [rk, f, chart, slot, want] of cases) {
+    const got = conjugateChart(byRoot(rk), f, chart, slot);
+    check(nfc(got) === nfc(want), `${rk} ${f} ${chart}: got ${got} want ${want}`);
+  }
+}
+
+// -- the derived nouns take the same pass ------------------------------------
+{
+  const cases = [
+    ['ءخذ', 'I', 'ismFail', 'آخِذ'],      // ءَ + ا again
+    ['ءخذ', 'I', 'ismMaful', 'مَأْخُوذ'],
+    ['سءل', 'I', 'ismFail', 'سَائِل'],     // kasra beats the long alif in front
+    ['سءل', 'I', 'ismMaful', 'مَسْؤُول'],
+    ['قرء', 'I', 'ismFail', 'قَارِئ'],
+    ['قرء', 'I', 'ismMaful', 'مَقْرُوء'],  // a wāw madd forces the bare seat
+    ['ءذن', 'II', 'ismFail', 'مُؤَذِّن'],
+    ['ءمن', 'IV', 'ismFail', 'مُؤْمِن'],
+  ];
+  for (const [rk, f, kind, want] of cases) {
+    const got = derivedNoun(byRoot(rk), f, kind);
+    check(nfc(got) === nfc(want), `${rk} ${f} ${kind}: got ${got} want ${want}`);
+  }
+}
+
+// Form VIII of أخذ is اِتَّخَذَ — the hamza becomes a tāʾ and merges with the
+// form's own. The sālim template would give اِئْتَخَذَ, which is not a word, so
+// the engine declines. Same posture as دعو VIII above: a hole that is stated,
+// not a paradigm nobody says.
+check(fullTableChart(akhadha, 'VIII', 'madi_malum') == null,
+  'أخذ VIII is declined — اِتَّخَذَ is irregular and unwritten (UNWRITTEN_FORMS)');
+check(derivedNoun(akhadha, 'VIII', 'ismFail') == null,
+  'and its derived nouns are declined with it, rather than built on a stem that is wrong');
+
+// يءس — a mithāl root that is ALSO hamzated, and typed by its weakness because
+// that is the harder rule (classify()). So its hamza arrives at the MITHĀL
+// engine, and the lexicon stores it bare: for 197 cells, 100% of the root, the
+// engine wrote يَءِسَ. That was the last entry in KNOWN_CONJUGATION_ERRORS, and
+// it was waiting on exactly the pass this engine brought.
+{
+  const yaisa = byRoot('يءس');
+  check(nfc(conjugateChart(yaisa, 'I', 'madi_malum', '3ms')) === nfc('يَئِسَ'),
+    `يءس seats its hamza — got ${conjugateChart(yaisa, 'I', 'madi_malum', '3ms')}`);
+  check(nfc(conjugateChart(yaisa, 'I', 'madi_malum', '1s')) === nfc('يَئِسْتُ'),
+    'and in the mutaḥarrik slots too');
+  // The control: the muḍāriʿ's yāʾ is a LĪN letter, not a madd — fatḥa + yāʾ —
+  // so the hamza after it reads a sukūn and takes its own fatḥa's alif.
+  check(nfc(conjugateChart(yaisa, 'I', 'mudari_malum_raf', '3ms')) === nfc('يَيْأَسُ'),
+    `يَيْأَسُ, not يَيْئَسُ — got ${conjugateChart(yaisa, 'I', 'mudari_malum_raf', '3ms')}`);
+  check(nfc(derivedNoun(yaisa, 'I', 'ismFail')) === nfc('يَائِس'),
+    'the derived nouns are seated with it');
+}
+
+// THE GENERAL INVARIANT, and the one that catches the next يءس before a student
+// does: every word ANY engine produces must already be seated. seatHamzas is
+// idempotent on correct output, so a cell it would still change is a cell whose
+// engine is not running the pass — which is what a hamzated ajwaf or nāqiṣ root
+// would hit the day one is authored.
+{
+  let unseated = null;
+  let checked = 0;
+  for (const root of LEXICON) {
+    for (const formId of Object.keys(root.forms)) {
+      for (const chart of CHART_IDS) {
+        for (const word of Object.values(fullTableChart(root, formId, chart) ?? {})) {
+          checked++;
+          if (nfc(seatHamzas(word)) !== nfc(word)) {
+            unseated ??= `${root.root.join('')} ${formId} ${chart}: ${word} → ${seatHamzas(word)}`;
+          }
+        }
+      }
+    }
+  }
+  check(unseated === null,
+    `every generated word is already seated (${checked} checked) — ${unseated}`);
+}
+
+// Every mahmūz cell is real Arabic: no bare 'ء' radical left unseated, no
+// template residue. The canary for the seating pass silently not running.
+{
+  let leftover = null;
+  for (const root of LEXICON.filter((r) => r.type === 'mahmuz')) {
+    for (const formId of Object.keys(root.forms)) {
+      for (const chart of CHART_IDS) {
+        const table = fullTableChart(root, formId, chart);
+        for (const word of Object.values(table ?? {})) {
+          if (/[123]/.test(word)) leftover ??= `${root.root.join('')} ${formId} ${chart}: ${word}`;
+        }
+      }
+    }
+  }
+  check(leftover === null, `no mahmūz cell carries template residue — ${leftover}`);
 }
 
 // ---------------------------------------------------------------------------

@@ -29,6 +29,13 @@ ENGINE_SOURCE_FILES = {
     'ajwaf_ya': ['web-prototype/js/conjugation/ajwaf-conjugator.js'],
     'naqis_waw': ['web-prototype/js/conjugation/naqis-conjugator.js'],
     'naqis_ya': ['web-prototype/js/conjugation/naqis-conjugator.js'],
+    # Two files, because for mahmūz the conjugator is the sālim one and ALL of
+    # the type's behaviour is in the seating pass — an analysis that read only
+    # the conjugator would find nothing to explain a mismatch with.
+    'mahmuz': [
+        'web-prototype/js/conjugation/mahmuz-conjugator.js',
+        'web-prototype/js/conjugation/hamza-seating.js',
+    ],
 }
 # mirrors VERB_TYPE_GROUP in web-prototype/js/vocabulary.js — a domain fact,
 # duplicated here rather than parsed out of the JS (see PLAN.md #2: shared
@@ -38,6 +45,7 @@ ENGINE_GROUP = {
     'mithal_waw': 'mithal', 'mithal_ya': 'mithal',
     'ajwaf_waw': 'ajwaf', 'ajwaf_ya': 'ajwaf',
     'naqis_waw': 'naqis', 'naqis_ya': 'naqis',
+    'mahmuz': 'mahmuz',
 }
 SHARED_SOURCE_FILES = [
     'web-prototype/js/conjugation/conjugation-service.js',

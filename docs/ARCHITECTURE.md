@@ -9,10 +9,8 @@
 > (every screen, rule and decision); [TECHNICAL_PLAN.md](TECHNICAL_PLAN.md)
 > Part C for what is left on the engine side.
 
-Last verified against the code: **22 Sep 2026**, 59 modules, 11,236 lines,
-**453 of 455 assertions green**, zero import cycles. The two failures are the
-وجل `faaDrops` regression from `5a1e52f`, which is content and is scoped to
-IOS_PORT_PLAN slice E2.
+Last verified against the code: **22 Sep 2026**, 61 modules,
+**502 of 502 assertions green**, zero import cycles.
 
 ---
 
@@ -34,7 +32,7 @@ exception (§7).
 
 Two facts worth knowing before anything else:
 
-- **`conjugation-service.js` is the only door to conjugation.** Seven files live
+- **`conjugation-service.js` is the only door to conjugation.** Nine files live
   in `js/conjugation/` and exactly one is imported from outside. No caller knows
   there is one engine per verb type.
 - **`history/store.js` imports nothing.** Not even `settings`. That is
@@ -349,8 +347,8 @@ js/
                        a section divider; lafif carries mafruq + maqrun.
                        lexicon-service (classify, validate, availableTypes)
                        · root.js (accessors)
-  conjugation/         5 conjugators · templates.js · conjugation-service.js
-                       ← THE only door
+  conjugation/         6 conjugators · templates.js · hamza-seating.js
+                       · conjugation-service.js ← THE only door
   meaning-service.js   English readings + the governing-particle registry.
                        verbMeaning() gives the English, verbPhrase() the Arabic
                        that says it — both read the particle off ONE owner, so

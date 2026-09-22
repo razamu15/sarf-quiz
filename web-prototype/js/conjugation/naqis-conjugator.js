@@ -70,6 +70,18 @@ import {
 } from '../vocabulary.js';
 import { babOf } from '../lexicon/root.js';
 import { fill, norm, joinEnding, amrOpening } from './templates.js';
+// أدي is nāqiṣ AND mahmūz al-fāʾ — its own lexicon note says so — and classify()
+// types it by its weakness, the harder rule, so its hamza arrives HERE. The
+// lexicon stores it already wearing an alif seat, which is right in يَأْدِي and
+// wrong in يُؤَدِّي: 86 cells of the root. Same call, same reason, as the mithāl
+// engine's.
+//
+// The ajwaf and lafīf engines do NOT call this, because no hamzated root is
+// typed to them today. The day one is — جاء is ج-ي-ء and would land in ajwaf —
+// the "every generated word is already seated" assertion in test/smoke.mjs goes
+// red and names the cell. That is the guard; adding an untested call to an
+// engine with nothing to exercise it is not.
+import { seatHamzas } from './hamza-seating.js';
 
 /**
  * get the stem string template and the endings needed for this spec
@@ -357,7 +369,7 @@ export const NaqisConjugator = {
     // also this makes majhool work because in the template we have hardcoded mudari majhool ending to be ya,
     // and so this swap saves on the seegahs where it needs to be alif maqsura ى while keeping it simple because
     // all the other forms use the ya. 
-    return naqisWeakLetterSwap(norm(result));
+    return seatHamzas(naqisWeakLetterSwap(norm(result)));
   },
 
   /**
@@ -376,6 +388,6 @@ export const NaqisConjugator = {
   /** One of DERIVED_NOUN_TYPES. Null when this form has no such noun. */
   derivedNoun(root, formId, nounType) {
     const template = derivedNounTemplate(root, formId, nounType);
-    return template ? norm(fill(template, root.root)) : null;
+    return template ? seatHamzas(norm(fill(template, root.root))) : null;
   },
 };

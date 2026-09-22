@@ -3,11 +3,11 @@
 // hamza's SEAT changes with the surrounding vowels (يَأْخُذُ but أُوخَذُ), and
 // getting the seat wrong is the whole difficulty of the type.
 //
-// NO ENGINE YET, and no content yet — this file is the empty home the mahmūz
-// roots land in. classify() in ../lexicon-service.js already returns 'mahmuz'
-// for a hamzated root, and availableTypes() gates the type off behind
-// settings.mahmuzVerbs, so roots added here stay out of every quiz until both
-// the engine and the flag are ready. Nothing else needs to change to fill it.
+// ENGINE LANDED 2026-09-22 (TECHNICAL_PLAN B4): ../conjugation/mahmuz-conjugator.js,
+// whose stems are the sālim ones and whose whole job is ../conjugation/hamza-seating.js.
+// The type is still GATED OFF behind settings.mahmuzVerbs — an engine existing
+// and its content being released are two different facts, and availableTypes()
+// owns the second. Flip `mahmuzVerbs` in settings/settings.js to play it.
 //
 // One classification note, because it decides what belongs here: a root that is
 // BOTH weak and hamzated (يَئِسَ — yāʾ first, hamza second) is NOT mahmūz. It is
@@ -22,7 +22,7 @@ export const MAHMUZ_ROOTS = [
   {
     root: ['ء', 'خ', 'ذ'], type: 'mahmuz',
     forms: {
-      I: { bab: 'aa', gloss: 'to take', masdar: 'أَخْذ', trans: true,
+      I: { bab: 'au', gloss: 'to take', masdar: 'أَخْذ', trans: true,
            en: { past: 'took', pp: 'taken', pres3: 'takes', ing: 'taking' } },
       III: { gloss: 'to blame / to call to account', trans: true,
              en: { past: 'blamed', pp: 'blamed', pres3: 'blames', ing: 'blaming' } },
@@ -33,7 +33,7 @@ export const MAHMUZ_ROOTS = [
   {
     root: ['ء', 'ك', 'ل'], type: 'mahmuz',
     forms: {
-      I: { bab: 'aa', gloss: 'to eat', masdar: 'أَكْل', trans: true,
+      I: { bab: 'au', gloss: 'to eat', masdar: 'أَكْل', trans: true,
            en: { past: 'ate', pp: 'eaten', pres3: 'eats', ing: 'eating' } },
       II: { gloss: 'to feed', trans: true,
             en: { past: 'fed', pp: 'fed', pres3: 'feeds', ing: 'feeding' } },

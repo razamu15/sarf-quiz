@@ -32,7 +32,7 @@
 | `mahmuzVerbs` | content gate — mahmūz appears in Practice, Home drills, search | **off** |
 | `lafifVerbs` | content gate — both lafīf types | **off** (one flag: two names to a student, one body of content waiting on one engine effort) |
 
-Both feed **`availableTypes()`** — a type is playable only if it is **in the lexicon, served by an engine, and not gated off**; "is this verb type playable" has **one owner**. So a flag alone cannot expose a type: for mahmūz and lafīf the **engine** is what is missing, not the roots. Hamzated verbs also need hamza-seat logic (the strict grader accepts only the engine's spelling — it must match madrasa convention).
+Both feed **`availableTypes()`** — a type is playable only if it is **in the lexicon, served by an engine, and not gated off**; "is this verb type playable" has **one owner**. **Mahmūz now has its engine** (2026-09-22) and is held back by the flag alone; for **lafīf** the engine is still what is missing, and no flag can expose it. The hamza-seat logic the strict grader needs is `conjugation/hamza-seating.js`, and it is what makes mahmūz's spelling match madrasa convention.
 
 ## Recorded decisions — both readings classical, do not "fix"
 
@@ -54,7 +54,7 @@ An **empty chart is not a broken one**. Tables says *"no chart for that selectio
 
 `docs/KNOWN_CONJUGATION_ERRORS.md` **owns** this list and its numbers (baselined Aug 2026; two of the original three were fixed 2026-09-21 and dropped from both files — this list tracks what's broken now, not history). Every one still listed is reachable today: a student drilling that root and chart is **shown the wrong word and marked wrong for typing the right one**. One real error remains:
 
-1. **يءس is spelled with a bare hamza** — the *lexicon* stores ء; Arabic seats it (`يَئِسَ`). 197 cells, 100% of that root. Needs the hamza-seating logic mahmūz will bring.
+**None.** The one that was listed — يءس spelled with a bare hamza, 197 cells — was fixed on 2026-09-22 by the hamza-seating pass the mahmūz engine brought, along with a second root of the same shape (أدي, 86 cells) that the sweep had never been able to reach. `docs/KNOWN_CONJUGATION_ERRORS.md` has both.
 
 > ❓ **Q-17 · A ship gate for these?** Not a product-design question, but the implementation plan needs it: **decline the cells** (the engine returns `null`, the chart shows as a gap, like Form VIII assimilation) or **fix them**, before release. **Spec assumes:** neither v1 build ships a known-wrong cell.
 
@@ -67,14 +67,14 @@ An **empty chart is not a broken one**. Tables says *"no chart for that selectio
 | File | Target (set 2026-09-20) | Now |
 |---|---:|---:|
 | sālim | 25 | 25 ✅ |
-| mahmūz *(off)* | 15 | 15 ✅ |
+| mahmūz *(engined, flag off)* | 15 | 15 ✅ |
 | muḍāʿaf | 20 | 30 ✅ |
 | mithāl | 25 | 25 ✅ |
 | ajwaf | 25 | 25 ✅ |
 | nāqiṣ | *leave as is* | 30 ✅ |
 | lafīf *(off)* | 15 | 15 ✅ |
 
-Per-**file**, not per granular type (mithāl counts waw + yāʾ together). **All targets are met.** For mahmūz and lafīf what is missing now is the **engine**, not the roots.
+Per-**file**, not per granular type (mithāl counts waw + yāʾ together). **All targets are met.** Mahmūz now has both its roots and its engine and waits only on the flag; for **lafīf** what is missing is still the engine.
 
 ## Content bugs filed, not yet fixed
 

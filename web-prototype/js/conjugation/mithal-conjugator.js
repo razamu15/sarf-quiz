@@ -8,6 +8,14 @@ import { PREFIX_LETTERS, MUDARI_PREFIX_HARAKA } from '../grammar/shared-grammar.
 import { slotsFor, FATHA, DAMMA, KASRA, SUKUN, SHADDA } from '../vocabulary.js';
 import { babOf } from '../lexicon/root.js';
 import { fill, norm, joinEnding, unmarkMaddLetters } from './templates.js';
+// يءس is a mithāl root AND a hamzated one, and classify() types it by its
+// weakness — the harder rule, and the one that picks the engine (see the header
+// of ../lexicon/roots/mahmuz.js). So the hamza arrives here rather than at the
+// mahmūz engine, and the lexicon stores it bare: without this pass the engine
+// wrote يَءِسَ for all 197 cells of the root, which is the last error
+// docs/KNOWN_CONJUGATION_ERRORS.md listed. Same call, same reason, as
+// MahmuzConjugator's — only the assembled word knows what sits beside a hamza.
+import { seatHamzas } from './hamza-seating.js';
 
 /**
  * get the stem string template and the endings needed for this spec
@@ -204,7 +212,7 @@ export const MithalConjugator = {
     // the two branches rather than inside them: Form IV's أُوجِبَ and Form X's
     // اُسْتُوجِبَ are māḍī majhūl, so they take their ḍamma from the template and
     // never touch a prefix at all.
-    return unmarkMaddLetters(norm(result));
+    return seatHamzas(unmarkMaddLetters(norm(result)));
   },
 
   /**
@@ -223,6 +231,6 @@ export const MithalConjugator = {
   /** One of DERIVED_NOUN_TYPES. Null when this form has no such noun. */
   derivedNoun(root, formId, nounType) {
     const template = DERIVED_NOUN_STEMS[formId]?.[nounType];
-    return template ? unmarkMaddLetters(norm(fill(template, root.root))) : null;
+    return template ? seatHamzas(unmarkMaddLetters(norm(fill(template, root.root)))) : null;
   },
 };
