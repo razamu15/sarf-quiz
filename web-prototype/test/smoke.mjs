@@ -12,6 +12,7 @@ import {
   FORM_IDS, BAB_IDS, DEFAULT_BAB, FATHA as FATHA_C, DAMMA as DAMMA_C,
   VERB_TYPE_IDS, VERB_TYPE_GROUP_IDS, groupOfVerbType, verbTypesInGroup,
   CHART_SHAPES, isValidShape, DERIVED_NOUN_TYPE_IDS,
+  ABWAB, BAB_ID_LETTER, HARAKA_NAMES,
 } from '../js/vocabulary.js';
 import { MUDARI_PREFIX_HARAKA } from '../js/grammar/shared-grammar.js';
 import { getConjugationData as salimData } from '../js/conjugation/salim-conjugator.js';
@@ -492,6 +493,27 @@ check(ENGINELESS.every((g) => !enginedGroups().includes(g)) && !enginedGroups().
   'mahmūz and both lafīf types are still engine-less, and nothing pretends otherwise');
 check(PLAYABLE.includes('ajwaf_waw') && PLAYABLE.includes('ajwaf_ya'),
   'ajwaf is playable — AjwafConjugator landed, and it serves both weak letters');
+
+// ---------------------------------------------------------------------------
+// P1.4 — a bāb declares its two vowels
+//
+// vocabulary.js has always claimed the ids make the stem tables self-checking —
+// "bāb `ia` must carry a kasra on the ʿayn in the māḍī and a fatḥa in the
+// muḍāriʿ". ABWAB states that instead of implying it, and these two checks turn
+// the claim into a test: the id's letters must agree with the declaration, and
+// the English label in glossary (typed by hand, because that file imports
+// nothing — ARCHITECTURE §8) must agree with both.
+// ---------------------------------------------------------------------------
+check(BAB_IDS.every((id) =>
+  BAB_ID_LETTER[id[0]] === ABWAB[id].madiVowel
+  && BAB_ID_LETTER[id[1]] === ABWAB[id].mudariVowel),
+  'every bāb id spells the vowel pair it declares — the ids are self-checking, not a convention');
+check(BAB_IDS.every((id) =>
+  ABWAB_LABELS[id].en
+    === `${HARAKA_NAMES[ABWAB[id].madiVowel]} / ${HARAKA_NAMES[ABWAB[id].mudariVowel]}`),
+  'every bāb label names the vowels it declares — the one duplication glossary keeps cannot drift');
+check(Object.keys(ABWAB).length === BAB_IDS.length,
+  'ABWAB covers exactly the six abwāb');
 
 // ---------------------------------------------------------------------------
 // P1.2 — the two new doors on the conjugation service

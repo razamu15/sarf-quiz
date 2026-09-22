@@ -205,8 +205,47 @@ export const verbTypesInGroup = (group) =>
 // Naming them this way makes the stem tables self-checking: bāb `ia` must
 // carry a kasra on the ʿayn in the māḍī and a fatḥa in the muḍāriʿ, and you can
 // see that in the literal without consulting a legend.
+//
+// ABWAB below DECLARES that pair rather than leaving it implied by the id's
+// two letters, so the claim above is checkable rather than a convention a
+// reader has to already know (smoke asserts the two agree). In Swift it is a
+// `String`-backed enum with `madiVowel` / `mudariVowel` computed on it: the id
+// stays the raw value, because a bāb is written into every stored WordSpec and
+// a history record must carry a KEY, never a reference.
 // ---------------------------------------------------------------------------
 export const BAB_IDS = ['au', 'ai', 'aa', 'ia', 'uu', 'ii'];
+
+/**
+ * The ʿayn's ḥaraka in each tense, per bāb — what the bāb actually IS.
+ *
+ * Called by: glossary's ABWAB_LABELS, which names the pair in English rather
+ * than restating it by hand; the smoke suite, which checks each id against its
+ * own declaration. The conjugators do NOT read it — their stem tables spell the
+ * vowels out in the literal, which is the auditability the file's header buys
+ * and must keep.
+ *
+ * The ḥarakāt are the real combining marks, not letters, so a lookup can be
+ * rendered straight into a word without a second mapping.
+ */
+export const ABWAB = Object.freeze({
+  au: Object.freeze({ madiVowel: FATHA, mudariVowel: DAMMA }),
+  ai: Object.freeze({ madiVowel: FATHA, mudariVowel: KASRA }),
+  aa: Object.freeze({ madiVowel: FATHA, mudariVowel: FATHA }),
+  ia: Object.freeze({ madiVowel: KASRA, mudariVowel: FATHA }),
+  uu: Object.freeze({ madiVowel: DAMMA, mudariVowel: DAMMA }),
+  ii: Object.freeze({ madiVowel: KASRA, mudariVowel: KASRA }),
+});
+
+/**
+ * The ḥarakāt a bāb id is spelled from, so `'au'` can be checked against
+ * `{ FATHA, DAMMA }` rather than trusted.
+ */
+export const BAB_ID_LETTER = Object.freeze({ a: FATHA, u: DAMMA, i: KASRA });
+
+/** What to call a ḥaraka in English. The only three a bāb can carry. */
+export const HARAKA_NAMES = Object.freeze({
+  [FATHA]: 'fatḥa', [DAMMA]: 'ḍamma', [KASRA]: 'kasra',
+});
 
 /**
  * Form I's citation bāb — نَصَرَ, the one every handout opens with.

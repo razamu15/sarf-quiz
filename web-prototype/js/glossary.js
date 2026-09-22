@@ -108,7 +108,16 @@ export const FORM_NAMES = {
   X:    { name: 'بَابُ الاسْتِفْعَال',    nameEn: 'Form X (istifʿāl)' },
 };
 
-/** Display names of the six abwāb, keyed by their vowel pair (vocabulary.js). */
+/**
+ * Display names of the six abwāb, keyed by their vowel pair (vocabulary.js).
+ *
+ * `en` restates what `ABWAB[id]` declares and what the id itself spells, and it
+ * is typed out anyway: this file is one of the eight that import nothing
+ * (docs/ARCHITECTURE.md §8), which is what keeps every display string in one
+ * place a translator can open without pulling in the engine's vocabulary.
+ * Deriving it would cost that for a three-word label. The smoke suite asserts
+ * the two agree instead, so the duplication cannot drift.
+ */
 export const ABWAB_LABELS = {
   au: { name: 'نَصَرَ يَنْصُرُ', en: 'fatḥa / ḍamma' },
   ai: { name: 'ضَرَبَ يَضْرِبُ', en: 'fatḥa / kasra' },
