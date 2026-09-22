@@ -13,6 +13,13 @@ Pinned to Opus 5 at max effort: this is the one step in the pipeline that has
 to find patterns across a whole category's mismatches and reason about root
 cause, so it gets the strongest model/effort combination available rather
 than whatever model the invoking user's CLI happens to be configured with.
+
+Every pattern is checked against docs/KNOWN_CONJUGATION_ERRORS.md's "Recorded
+decisions" section before it gets the full investigation. A pattern that's
+already there gets a short report instead: which entry it matches and how it
+applies to this batch, not a re-run of the investigation that entry already
+contains. Full effort is reserved for what isn't already settled — a new
+pattern is exactly where it's worth spending it.
 """
 import json
 import subprocess
@@ -38,11 +45,35 @@ libqutrub is a reference for comparison, not assumed correct — a difference
 may be a genuine bug in this project's engine, a notation/convention
 difference (e.g. diacritic placement), or a qutrub limitation.
 
-Read the mismatches file, then read these files — the ones that actually
-implement this verb type, plus the shared modules they depend on — to
-investigate: {source_files}
+Read the mismatches file and group it into patterns, same as always. Then,
+BEFORE investigating a pattern any further, read
+`docs/KNOWN_CONJUGATION_ERRORS.md`'s "Recorded decisions" section and check
+the pattern against it. That section is every difference from libqutrub
+that's already settled — either both readings are classical and the engine
+commits to one, or libqutrub itself is wrong. Decide per pattern, not for the
+batch as a whole: one batch can hold a settled pattern and a new one side by
+side, and each gets the treatment below that matches it.
 
-Report, for each pattern you find:
+—— A PATTERN THAT MATCHES AN EXISTING ENTRY gets a short report. Give only:
+
+1. Which entry it matches — the exact heading.
+2. A few example mismatches from this batch as evidence (root, chart, slot,
+   both values) — enough to show the match, not an exhaustive list.
+3. How it applies HERE: which roots/slots in this batch it covers, the cell
+   count it contributes, and anything specific to this form or root the
+   entry's own text doesn't already say (a form its "affected" list didn't
+   have yet, a count that's grown). If there's genuinely nothing to add
+   beyond "this is that entry, recurring here," say so in one line.
+
+Do not redo what the entry already settled: no responsible-code deep dive, no
+reproduction recipe, no confirming-a-fix checklist. That work is done: the
+entry exists specifically so this batch doesn't have to repeat it.
+
+—— A PATTERN THAT MATCHES NOTHING RECORDED is a real candidate for a bug or a
+new decision, and earns the full investigation. Read the files that actually
+implement this verb type, plus the shared modules they depend on:
+{source_files}. Then report, in full:
+
 1. What the pattern is (e.g. "every {{slot}} in the {{chart}} chart differs
    the same way") rather than restating each diff individually, but give some examples.
 2. Your assessment of whether it's a genuine engine bug, a notation/convention
@@ -70,6 +101,10 @@ Report, for each pattern you find:
    and a reminder to re-run compare.py for the whole category afterward (not
    just spot-check the fixed cells) since a fix to shared logic can change
    cells that currently match.
+
+Head the report with a one-line count — how many patterns matched an existing
+decision, how many were new — so it can be read at a glance before it's read
+in full.
 
 Do not edit any files — this is a diagnosis pass only."""
 

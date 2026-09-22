@@ -186,11 +186,17 @@ process spawn per type+form, not per root.
 libqutrub is imported once per sweep instead of once per type.
 
 **3. `analyze_category.py <type> [form]`** — if the batch is non-empty, invokes
-`claude -p` with the mismatch file, the engine sources, and read-only tools
-(`Read Grep Glob`), asking it per pattern to name it, classify it (engine bug /
-notation difference / qutrub limitation) with reasoning, name the responsible
-file and logic, give a by-hand reproduction recipe, and say which cells should
-flip once a fix lands. Output: `output/<type>_<form>_analysis.md`.
+`claude -p` with the mismatch file and read-only tools (`Read Grep Glob`),
+which groups it into patterns and checks each one against
+[`docs/KNOWN_CONJUGATION_ERRORS.md`](../docs/KNOWN_CONJUGATION_ERRORS.md)'s
+"Recorded decisions" section *before* investigating it. A pattern already
+recorded there gets a short report — which entry it matches, and how it
+applies to this batch — not a repeat of the investigation that entry already
+contains. Only a pattern matching nothing recorded gets the full treatment:
+the engine sources are read, and it's classified (engine bug / notation
+difference / qutrub limitation) with reasoning, the responsible file and logic
+named, a by-hand reproduction recipe given, and the cells that should flip
+once a fix lands. Output: `output/<type>_<form>_analysis.md`.
 
 ## Mismatch JSON schema
 
@@ -256,7 +262,11 @@ pinned explicitly so analysis quality does not depend on whose machine runs it.
 
 `run_form.py` spawns one of these per non-empty batch, in sequence. That is the
 slow and expensive part of a sweep by a wide margin; a form where every category
-is clean finishes in seconds.
+is clean finishes in seconds — and now that every pattern is checked against
+`KNOWN_CONJUGATION_ERRORS.md`'s recorded decisions before the full
+investigation runs, a form where every mismatch is already-settled territory
+should finish nearly as fast, without spending full-effort Opus on ground
+already covered.
 
 ## Resolved during implementation
 
