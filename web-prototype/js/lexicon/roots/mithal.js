@@ -320,8 +320,17 @@ export const MITHAL_ROOTS = [
       II: { gloss: 'to go to the right', trans: true,
             en: { past: 'went to the right', pp: 'went to the right', pres3: 'goes to the right', ing: 'going to the right' },
             reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D9%8A%D9%8E%D9%85%D9%91%D9%8E%D9%86%D9%8E.html' },
+      // يَامَنَ مُيَامَنَةً — the standard nahw example of Form III on a yaa fa',
+      // paired with ياسر (see below in this file). Transitive: "yaamana bihi"
+      // is "took him to the right", not merely "went right" (that's II).
+      III: { gloss: 'to lead to the right', trans: true,
+             en: { past: 'led to the right', pp: 'led to the right', pres3: 'leads to the right', ing: 'leading to the right' } },
       V: { gloss: 'to see a good omen', trans: false,
            en: { past: 'saw a good omen', pres3: 'sees a good omen', ing: 'seeing a good omen' } },
+      // تَيَامَنَ — opposite of تَيَاسَرَ (also in this file). Intransitive: a
+      // gradual/reflexive lean, not an action done to someone else.
+      VI: { gloss: 'to lean to the right', trans: false,
+            en: { past: 'leaned to the right', pres3: 'leans to the right', ing: 'leaning to the right' } },
     },
   },
   {
@@ -404,11 +413,19 @@ export const MITHAL_ROOTS = [
       II: { gloss: 'to make easy', trans: true,
             en: { past: 'made easy', pp: 'made easy', pres3: 'makes easy', ing: 'making easy' },
             reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D9%8A%D9%8E%D8%B3%D9%91%D9%8E%D8%B1%D9%8E.html' },
+      // يَاسَرَ مُيَاسَرَةً — "laayanahu, saahalahu": dealt gently/leniently with
+      // him. From THIS root's own sense (ease, the bab authored at I above),
+      // not from the gambling doublet the comment there rules out.
+      III: { gloss: 'to deal leniently with', trans: true,
+             en: { past: 'dealt leniently with', pp: 'dealt leniently with', pres3: 'deals leniently with', ing: 'dealing leniently with' } },
       IV: { gloss: 'to become well off', trans: false,
             en: { past: 'became well off', pres3: 'becomes well off', ing: 'becoming well off' } },
       V: { gloss: 'to become easy', trans: false,
            en: { past: 'became easy', pres3: 'becomes easy', ing: 'becoming easy' },
            reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%AA%D9%8E%D9%8A%D9%8E%D8%B3%D9%91%D9%8E%D8%B1%D9%8E.html' },
+      // تَيَاسَرَ — opposite of تَيَامَنَ (root يمن, above in this file).
+      VI: { gloss: 'to lean to the left', trans: false,
+            en: { past: 'leaned to the left', pres3: 'leans to the left', ing: 'leaning to the left' } },
       X: { gloss: 'to be made easy', trans: false,
            en: { past: 'was made easy', pres3: 'is made easy', ing: 'being made easy' } },
     },

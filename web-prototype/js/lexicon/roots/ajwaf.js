@@ -305,6 +305,12 @@ export const AJWAF_ROOTS = [
             reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%A3%D9%8E%D8%A8%D9%8E%D8%A7%D8%B9%D9%8E.html' },
       VI: { gloss: 'to trade with each other', trans: false,
             en: { past: 'traded with each other', pres3: 'trade with each other', ing: 'trading with each other' } },
+      // اِنْبَاعَ — passive/reflexive of بَاعَ: became sold, marketable. Also
+      // used of water flowing, a snake coiling to strike, or a price
+      // dropping, but "was sold" is the sense that pairs with this root's
+      // other forms here.
+      VII: { gloss: 'to be sold / to become marketable', trans: false,
+             en: { past: 'was sold', pres3: 'is sold', ing: 'being sold' } },
       VIII: { gloss: 'to buy / purchase', trans: true,
               en: { past: 'bought', pp: 'bought', pres3: 'buys', ing: 'buying' },
               reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%A7%D9%90%D8%A8%D9%92%D8%AA%D9%8E%D8%A7%D8%B9%D9%8E.html' },
