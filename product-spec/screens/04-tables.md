@@ -62,7 +62,8 @@ The states are **exclusive**: a search field that merely sat above the results w
   **Form I's wazn changes from root to root** (`فَعَلَ`, `فَعِلَ`) because it carries the bāb's vowels: free information, in the space a Roman numeral would have taken alone.
 - What a menu could show and a chip cannot — each form's own citation and meaning — **moved to the bar**: tapping a chip puts that form's citation and gloss there (`نَصَرَ “to help”` → `اِنْتَصَرَ “to triumph”`). Reading the family is a row of taps.
 - Chips wrap onto further lines; none are hidden.
-- A form the verb **declares but the engine cannot chart** still shows its chip; selecting it says so rather than guessing. Today: **Form IX** (recognition-only; 2 roots) and **Form VIII of ضرب and دعو** (tāʾ assimilation not implemented — a recorded gap, `KNOWN_CONJUGATION_ERRORS` §2).
+- A form the verb **declares but the engine cannot chart** still shows its chip; selecting it says so rather than guessing. Today: **Form IX** (recognition-only; 2 roots) and **Form VIII of ضرب and دعو** (tāʾ assimilation not implemented — a recorded gap, `KNOWN_CONJUGATION_ERRORS`
+  "Recorded decisions" § the engine declines rather than guess).
 
 ## 3. Tense, voice, iʿrāb — segmented
 

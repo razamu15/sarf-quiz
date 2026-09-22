@@ -3,8 +3,8 @@
 > Every cell this engine is known to get **wrong**, plus the differences that
 > look like errors and are not. Measured against
 > [libqutrub](https://github.com/linuxscout/qutrub) by the cross-check in
-> [`verification/`](../verification/PLAN.md), run across all 8 lexicon types ×
-> all 10 forms. Last run: **Aug 2026**, 70 roots, 215 root-form pairs.
+> [`verification/`](../verification/PLAN.md), which aims to cover all 8
+> lexicon types × all 10 forms.
 >
 > This file owns one thing: **what is broken now**. It is not a roadmap —
 > nothing here is scheduled. [TECHNICAL_PLAN.md](TECHNICAL_PLAN.md) Part C owns what
@@ -12,24 +12,26 @@
 
 ## How to read this
 
-The cross-check reports **596 differences** between this engine and libqutrub.
-That number is not an error count, and most of it is not our problem:
+Two sections, nothing else:
 
-| | cells | |
-|---|---|---|
-| §1 · **Real errors** — the engine writes a word nobody says | **263** | fix these |
-| §3 · Recorded decisions — both readings classical, we picked one | 262 | do not "fix" |
-| §4 · libqutrub's own gaps — the engine is right | 71 | ignore |
-| | **596** | |
+| | |
+|---|---|
+| **Real errors** — 263 cells | the engine writes a word nobody says. **Fix these.** |
+| **Recorded decisions** | the engine's output differs from qutrub on purpose, or because qutrub itself is wrong. **Do not "fix" these without reopening the decision.** |
 
-**§2 is not in that total**, and cannot be: a declined cell produces no word, so
-there is nothing for the cross-check to compare. It is 242 cells the engine
-deliberately leaves empty, listed here so an empty chart is not mistaken for a
-broken one.
+**Real errors** was baselined Aug 2026 (70 roots, 215 root-form pairs, all 8
+types × all 10 forms) and is untouched by this revision — see its own entries
+for what's still open there. Everything in it is reachable from the app today:
+a student drilling the affected root and chart is shown the wrong word and
+marked wrong for typing the right one.
 
-Everything in §1 is reachable from the app today: a student drilling the
-affected root and chart is shown the wrong word and marked wrong for typing the
-right one.
+**Recorded decisions doesn't carry one grand total**, on purpose. A per-form
+sweep of the v3 pipeline (`run_form.py`) ran Forms II–VII in Sep 2026 and
+surfaced more differences than the Aug baseline knew about. The counts below
+reflect what has actually been reviewed and triaged out of that sweep so far —
+not a re-run of every form × type, and not every mismatch that sweep
+surfaced. A count marked "confirmed so far" will grow as the sweep reaches
+Forms VIII–X; that's expected, not a sign the figure is wrong.
 
 Regenerate any figure here with a whole-form sweep — every verb type, plus a
 `output/<form>_SUMMARY.md` saying which types it could not check and why:
@@ -153,12 +155,22 @@ needs it before then.
 
 ---
 
-## §2 · Deliberate gaps — the engine declines rather than guess
+## Recorded decisions
 
-Not errors. Recorded here so a reader who finds an empty chart knows it was a
-decision and where the decision lives.
+Everything below is a place the cross-check flags a difference from libqutrub
+that is **not** a to-do. Three different reasons land an entry here, and each
+subsection below is one of them:
 
-### 2.1 · Form VIII's tāʾ assimilation is not implemented — ضرب and دعو VIII declined
+- **The engine declines rather than guess** — no word is produced, so there is
+  nothing to compare. Listed so an empty chart isn't mistaken for a broken one.
+- **Both readings are classical** — the engine commits to one, qutrub to the
+  other.
+- **libqutrub's own gap** — the engine is right and qutrub's output is simply
+  wrong; not an alternate reading at all.
+
+### The engine declines rather than guess
+
+#### Form VIII's tāʾ assimilation is not implemented — ضرب and دعو VIII declined
 
 Form VIII infixes a tāʾ after the fāʾ (نَظَرَ → اِنْتَظَرَ). When the fāʾ is one
 of **د ذ ز ص ض ط ظ** the tāʾ cannot stand beside it and assimilates: دعو gives
@@ -185,7 +197,7 @@ states the rule and the plan; the two guards that read it are
 [`conjugation-service.js:214`](../web-prototype/js/conjugation/conjugation-service.js:214)
 (derived nouns). Both come out when the rule is written.
 
-### 2.2 · Form IX is recognition-only
+#### Form IX is recognition-only
 
 حمر and صفر declare Form IX and it produces no charts. Deliberate, and older
 than this file: Form IX is recognition-only, with no charts in v1
@@ -196,18 +208,23 @@ stays chartless. The stems exist for the citation
 ([`salim-grammar.js`](../web-prototype/js/grammar/salim-grammar.js), `IX`), the
 unfolding does not.
 
----
+### Both readings are classical, and the engine commits to one
 
-## §3 · Recorded decisions — both readings classical
-
-The cross-check flags these every run. **They are not defects and must not be
-"fixed" without re-opening the decision.**
-
-### 3.1 · The muḍāʿaf keeps its idghām in the majzūm and amr — 226 cells
+#### The muḍāʿaf keeps its idghām in the majzūm and amr
 
 `لَمْ يَمُدَّ` where libqutrub unfolds to `لَمْ يَمْدُدْ`; `مُدَّ` where it gives
-`اُمْدُدْ`. Both are classical — the merged reading is Ḥijāzī, the unfolded
-Tamīmī — and the engine commits to the merged one.
+`اُمْدُدْ`. Both are classical: in the majzūm of a doubled verb, Arabic licenses
+both *fakk al-idghām* (unfold the pair, sukūn on the second letter) and keeping
+the idghām with a breaking ḥaraka to escape the two-sākin clash. The Qurʾān
+reads both for the same verb — `وَمَن يُشَاقِقِ الرَّسُولَ` (4:115) and
+`وَمَن يُشَاقِّ اللَّهَ` (59:4). The engine commits to the merged reading
+everywhere it can.
+
+> **Which dialect reads which way is disputed inside this project's own
+> analysis runs, not only outside it** — one pass labeled the merged reading
+> Ḥijāzī, two others independently concluded the reverse from the Qurʾānic
+> evidence above. Rather than assert either, this entry drops the label.
+> Verify against a ṣarf reference before quoting one anywhere.
 
 Affected: every merging form (I, III, IV, VI, VII, VIII, X), majzūm and amr.
 Forms **II and V do not merge** and correctly take the sukūn (`يُظَلِّلْ`),
@@ -219,7 +236,58 @@ the jazm row is the manṣūb row — with the II/V overrides at
 [`:193`](../web-prototype/js/grammar/mudaaf-grammar.js:193) and
 [`:197`](../web-prototype/js/grammar/mudaaf-grammar.js:197).
 
-### 3.2 · The ajwaf majhūl māḍī takes a pure kasra — 36 cells
+**Confirmed cell counts, form by form** (the old "226 cells" total was already
+wrong — these four forms alone add to 235 — so it's dropped rather than
+corrected to another guess; I and VIII/X haven't been re-swept since the
+lexicon grew, so this table only grows from here):
+
+| form | cells | roots | source |
+|---|---|---|---|
+| III | 33 | ردد، مسس، حجج | `verification/output/mudaaf_III_analysis.md` |
+| IV | 143 | 13 roots, all transitive | `verification/output/mudaaf_IV_analysis.md` |
+| VI | 23 | ردد، مسس، حبب | `verification/output/mudaaf_VI_analysis.md` |
+| VII | 36 | 6 roots | `verification/output/mudaaf_VII_analysis.md` |
+
+Three consequences worth surfacing, none of them defects: the majzūm chart
+becomes character-identical to the manṣūb chart for the affected slots, so a
+produce-question asking for the majzūm can only grade one of two correct
+answers; the amr 2ms is a homograph of the māḍī 3ms in every affected form
+except I and IV; and at Form IV specifically, `mudari_malum_jazm` 1s
+(`أُمِدَّ`) is a homograph of `madi_majhul` 3ms — same string, two charts, one
+active and one passive.
+
+#### Form III's māḍī majhūl keeps its radicals apart — the one entry here that cuts against its own pattern
+
+`رُودِدَ` (this engine, Form III māḍī majhūl, e.g. ردد) where libqutrub merges
+to `رُودَّ`. Reviewed 2026-09, kept as built.
+
+**This is the one entry in this file where the review disagreed with the
+cross-check's own analysis, and that's worth stating plainly rather than
+smoothing over.** `verification/output/mudaaf_III_analysis.md` calls the
+unmerged form "a real bug, and qutrub is right," on four pieces of internal
+evidence: the code's own comment states the idghām rule and then contradicts
+it; every *other* merging form's `madi_majhul.sakin` is merged (I `مُدَّ`, IV
+`أُمِدَّ`, VI `تُمُودَّ`, VIII `اُمْتُدَّ`, X `اُسْتُمِدَّ`); Form III's own
+`madi_malum`, `mudari_malum` and `mudari_majhul` all merge in the same
+environment; and the derived noun `ismMaful` merges here too (`مُحَاجّ`).
+
+The separated form was kept anyway after that was weighed. No grammatical
+justification for the separated reading is recorded here — if one exists, it
+belongs in this entry, replacing this paragraph. Until then, treat this as a
+deliberate override rather than a settled classical alternative like its
+neighbors in this section.
+
+Affected: **15 cells** — the `sakin` ṣīghah (3ms, 3md, 3mp, 3fs, 3fd) of
+`madi_majhul`, Form III, across the 3 roots that declare this form (ردد، مسس،
+حجج). The 9 `mutaharrik` slots of the same chart, and all of `madi_malum`,
+already match qutrub and are not part of this entry.
+
+**Where the decision lives.**
+[`mudaaf-grammar.js:75-80`](../web-prototype/js/grammar/mudaaf-grammar.js:75)
+— `MUDAAF_STEMS.III.madi_majhul`, `sakin` and `mutaharrik` both holding the
+same unfolded template.
+
+#### The ajwaf majhūl māḍī takes a pure kasra
 
 `خِفْتُ`, `بِعْتُ` where libqutrub writes a ḍamma for the ishmām (`خُفْتُ`).
 The engine follows the mainstream كسر خالص. Not a defect either side.
@@ -231,7 +299,7 @@ reads as both voices — which is why the voice question offers both as correct
 **Where the decision lives.**
 [`ajwaf-grammar.js:44` `AJWAF_STEMS.I.madi_majhul`](../web-prototype/js/grammar/ajwaf-grammar.js:44).
 
-### 3.3 · 2mp ends in a bare mīm
+#### 2mp ends in a bare mīm
 
 `كَتَبْتُم`, not `كَتَبْتُمْ`. Mīm al-jamāʿa is waṣl-dependent, so writing the
 sukūn asserts a pausal reading a chart has no business asserting. libqutrub
@@ -243,17 +311,72 @@ not read the reasoning.
 [`shared-grammar.js`](../web-prototype/js/grammar/shared-grammar.js), the
 `THE BARE MĪM ON 2mp` note, with pointers from both ending tables.
 
----
+### libqutrub's own gaps — the engine is right
 
-## §4 · libqutrub's gaps — the engine is right
+#### A root's lām meets a suffix that opens with the same letter — the engine merges, libqutrub doesn't
 
-Ignore these in any mismatch report.
+`بِتُّ`, `مُتُّ`, `أَبَتُّ`, `أَمَتُّ`, `تَمَاوَتُّ` where libqutrub writes
+`بِتْتُ`, `مُتْتُ`, `أَبَتْتُ`, `أَمَتْتُ`, `تَمَاوَتْتُ` — the same two
+letters written apart. Not a variant: a sākin letter immediately followed by
+an identical mutaḥarrik one is idghām *wājib*, obligatory, and `أَمَتَّ`
+specifically is Qurʾānic (`رَبَّنَا أَمَتَّنَا اثْنَتَيْنِ`, 40:11).
 
-| | cells | engine | libqutrub | what happened |
-|---|---|---|---|---|
-| **tāʾ idghām across the join** | 49 | `بِتُّ` `مُتُّ` `أَبَتُّ` | `بِتْتُ` `مُتْتُ` | a root whose lām is ت, meeting an ending that opens with ت. libqutrub writes both letters |
-| **amr of a fatḥa-ʿayn ajwaf** | 8 | `نَمْ` `نَلْ` | `نِمْ` `نِلْ` | libqutrub contradicts its own majzūm here |
-| **Form V majhūl of a mithāl** | 14 | `تُوُعِّدَ` | `تُعِّدَ` | libqutrub drops the wāw — a whole radical |
+**General, not form-specific**: it fires whenever a stem's last letter —
+however it was produced, sound or contracted — is the same letter the next
+ḍamīr rafʿ mutaḥarrik ending opens with. libqutrub merges fine when its own
+sound-verb path builds the stem (`ajwaf_waw`'s Form II, `مَوَّتَّ`, matches
+qutrub exactly); the gap is specifically that its hollow-verb contraction
+builds a correct stem through a different path that never re-enters the merge
+step.
+
+**Where the decision lives.**
+[`templates.js:36` `joinEnding()`](../web-prototype/js/conjugation/templates.js:36)
+— shared by every engine (salim, mudaaf, mithal, ajwaf, naqis all route through
+it), docstring already worked through `مُتْ + تُ → مُتُّ`.
+
+**Confirmed so far** — every case found is a root whose lām is ت meeting a
+tāʾ-initial ending in the māḍī:
+
+| root | forms | cells |
+|---|---|---|
+| موت (ajwaf_waw) | I, IV, VI, X | 7 + 14 + 7 + 7 = 35 |
+| بيت (ajwaf_ya) | I, IV | 7 + 14 = 21 |
+
+**56 confirmed.** Only the forms actually swept so far are counted in —
+موت/بيت VII and VIII haven't been re-run since the lexicon grew, and any other
+root whose lām happens to be ت, in any verb type, hits the identical thing.
+
+#### The amr of a fatḥa-ʿayn ajwaf
+
+**8 cells.** `نَمْ`, `نَلْ` where libqutrub gives `نِمْ`, `نِلْ` — libqutrub
+contradicts its own majzūm here.
+
+#### Form V majhūl of a mithāl drops the wāw entirely
+
+`تُوُعِّدَ` (وعد), `تُوُقِّعَ` (وقع) where libqutrub writes `تُعِّدَ`,
+`تُقِّعَ` — not a revocalization, a deleted radical. The attested word settles
+it: the passive of تَوَفَّى is **تُوُفِّيَ**, one of the more common passives
+in the language; qutrub's rule would give `تُفِّيَ`, which is not a word. The
+same deletion hits a yāʾ fāʾ too (`تَيَقَّنَ` → `تُقِّنَ`), which is itself
+evidence this is a string-transform bug rather than a morphological rule — a
+real iʿlāl rule would not treat و and ي identically in this slot.
+
+**Where the gap lives — in qutrub, not here.** `libqutrub/ar_verb.py:1093-1094`,
+inside `homogenize()`: a wāw carrying a ḍamma, preceded by a ḍamma, with a
+shadda two positions ahead, is deleted outright rather than kept —
+`new_word` never receives the letter. `shadda_in_next` is why only Form V's
+māḍī majhūl (`تُفُعِّلَ`, ḍamma-ḍamma-shadda) triggers it: Form II's wāw sits
+at index 0 (skipped by the same function), Forms III and IV have no shadda in
+that position, and the muḍāriʿ majhūl (`يُتَفَعَّلُ`) puts the fāʾ after a
+fatḥa, not a ḍamma, so the guard never fires there either.
+
+Affected: **28 cells** — the two mithāl-wāw roots that declare Form V as
+transitive (وقع، وعد — the other 8 mithāl-wāw roots declaring Form V are
+`trans: false`, so no majhūl chart exists to compare). The equivalent
+mithāl-yāʾ cells (`تَيَقَّنَ`) are currently *unobserved* rather than clean:
+every mithāl-yāʾ root declaring Form V today is intransitive, so the chart
+that would show this doesn't exist yet — the first transitive one added to the
+lexicon will surface 14 more of the same non-bug, not a new one.
 
 ---
 

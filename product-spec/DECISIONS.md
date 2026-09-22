@@ -91,7 +91,7 @@ Your answers to the four 🔴 questions, folded in. Newest first.
 | **D-21** | **Match the meaning:** every option differs from every other in **both** word and English reading; distractors are cells of the same root; options **Arabic-only**. | 🔒 | SPEC §3.1 |
 | **D-22** | **The governing particle appears on both sides** of a meaning question; launch ships لَنْ (manṣūb) and لَمْ (majzūm); more are registry rows. | 🔒 | SPEC §3.1 (fixed Aug 2026) |
 | **D-23** | **Derived nouns:** 3a options Arabic-only; 3b is **two questions on one word** (which derivative, then which form); a session interleaves them. | 🔒 | app-review §05 |
-| **D-24** | **Form IX is recognition-only** — no charts in v1. | 🔒 | SPEC §6 · KCE §2.2 |
+| **D-24** | **Form IX is recognition-only** — no charts in v1. | 🔒 | SPEC §6 · KCE "Recorded decisions" § the engine declines rather than guess |
 | **D-25** | **Typed answers use the system Arabic keyboard entirely** — no accessory row, no custom keys. | 🔒 | app-review "Settled: the OS keyboard, entirely" |
 | **D-26** | **Grading is fully strict** — NFC, final ḥaraka counts; a miss reports the first diverging cluster. | 🔒 | app-review "Settled: fully strict grading" |
 | **D-27** | **A user with no Arabic keyboard must be handled** — detect, walk to Settings. (Design of the sheet is open, Q-10.) | 🔒 | SPEC §5.2 · app-review |
@@ -165,7 +165,7 @@ Your answers to the four 🔴 questions, folded in. Newest first.
 
 | ID | Decision | | Source |
 |---|---|:-:|---|
-| **D-68** | **Recorded content decisions — both readings classical, never "fix":** muḍāʿaf keeps its idghām in the majzūm and amr (Ḥijāzī); the ajwaf majhūl māḍī takes a pure kasra; 2mp ends in a bare mīm. Also: **the engine declines rather than guesses** (Form VIII assimilation). | 🔒 | KCE §2–3 |
+| **D-68** | **Recorded content decisions — both readings classical, never "fix":** muḍāʿaf keeps its idghām in the majzūm and amr (dialect attribution disputed — see KCE); the ajwaf majhūl māḍī takes a pure kasra; 2mp ends in a bare mīm. Also: **the engine declines rather than guesses** (Form VIII assimilation). | 🔒 | KCE "Recorded decisions" |
 
 ---
 
