@@ -20,12 +20,12 @@
 // Called by: screens/practice.js, when settings.practiceFlow === 'classic'.
 
 import { el, chipRow, toggle, sectionLabel } from '../ui/dom.js';
-import { state, draftPlan } from '../ui/state.js';
+import { state, draftPlan, playableTypes } from '../ui/state.js';
 import { FORM_IDS, VERB_TYPE_GROUP_IDS, verbTypesInGroup } from '../vocabulary.js';
 import {
   FORM_NAMES, VERB_TYPE_INFO, TENSE_LABELS, VOICE_LABELS, MOOD_LABELS,
 } from '../glossary.js';
-import { availableTypes } from '../lexicon/lexicon-service.js';
+
 import { wordPool } from '../quiz/word-pool.js';
 import { relevance, possibleQuestions } from '../quiz/relevance.js';
 import { particleFor } from '../meaning-service.js';
@@ -43,7 +43,7 @@ const QUIZ_TYPES = [
 
 export function renderClassic(app, { onStart, rerender }) {
   const d = state.draft;
-  const playable = new Set(availableTypes());
+  const playable = new Set(playableTypes());
   app.append(el('<h1>Practice</h1>'));
 
   app.append(sectionLabel('Quiz type', { note: 'one per session' }));
@@ -130,7 +130,7 @@ export function renderClassic(app, { onStart, rerender }) {
     (v) => d.count === v, (v) => { d.count = v; }, { onChange: rerender },
   ));
 
-  const pool = wordPool(draftPlan());
+  const pool = wordPool(draftPlan(), [...playable]);
   const { live, dead } = relevance(pool);
   app.append(el(`<div class="asks"><b>This setup asks</b>
     ${live.length

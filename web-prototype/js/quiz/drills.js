@@ -12,7 +12,7 @@
 import { MAZEED_IDS, verbTypesInGroup } from '../vocabulary.js';
 import { FORM_NAMES } from '../glossary.js';
 import { FORM_META } from '../grammar/shared-grammar.js';
-import { LEXICON, availableTypes } from '../lexicon/lexicon-service.js';
+import { LEXICON } from '../lexicon/lexicon-service.js';
 import { conjugate } from '../conjugation/conjugation-service.js';
 import { quizPlan } from './quiz-plan.js';
 import { wordPool } from './word-pool.js';
@@ -54,14 +54,17 @@ const DRILL_CHARTS = { tenses: ['madi', 'mudari'], voices: ['malum'], moods: ['r
 
 /**
  * A preset's plan. Group names are expanded here and nowhere else, and the
- * result is intersected with availableTypes() so a preset naming a type whose
+ * result is intersected with `playableTypes` so a preset naming a type whose
  * engine has not landed simply contributes nothing instead of emptying the plan.
+ *
+ * `playableTypes` is passed in, already decided by the app — this file used to
+ * call availableTypes() itself, which reached through the lexicon into settings
+ * (IOS_PORT_PLAN P1). Drills narrow a list; they do not decide what is on it.
  */
-export function planOf(preset) {
-  const playable = availableTypes();
+export function planOf(preset, playableTypes) {
   const types = preset.groups
-    ? preset.groups.flatMap(verbTypesInGroup).filter((t) => playable.includes(t))
-    : playable;
+    ? preset.groups.flatMap(verbTypesInGroup).filter((t) => playableTypes.includes(t))
+    : playableTypes;
   return quizPlan({
     quizType: 'identify',
     ...DRILL_CHARTS,
@@ -71,7 +74,8 @@ export function planOf(preset) {
 }
 
 /** Can this preset actually produce questions? Guards the Start button. */
-export const presetAvailable = (preset) => wordPool(planOf(preset)).cells > 0;
+export const presetAvailable = (preset, playableTypes) =>
+  wordPool(planOf(preset, playableTypes), playableTypes).cells > 0;
 
 export const WORDS_PER_DRILL = 5;
 export const QUESTIONS_PER_WORD = 3;
@@ -80,8 +84,8 @@ export const QUESTIONS_PER_WORD = 3;
  * N words × the live per-word question kinds. Returns a flat list of questions
  * tagged "Word i / N", which is what the quiz screen streams through.
  */
-export function buildDrill(preset, wordCount = WORDS_PER_DRILL) {
-  const pool = wordPool(planOf(preset));
+export function buildDrill(preset, playableTypes, wordCount = WORDS_PER_DRILL) {
+  const pool = wordPool(planOf(preset, playableTypes), playableTypes);
   // Bundles stay at three questions; the registry's order puts the per-word
   // properties (tense, voice, doer) ahead of the per-root one (bāb), which has
   // no forWord() because a citation is not the word that was drawn.

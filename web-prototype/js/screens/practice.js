@@ -14,7 +14,7 @@
 // Called by: main.js (the router).
 
 import { settings } from '../settings/settings.js';
-import { draftPlan, state } from '../ui/state.js';
+import { draftPlan, playableTypes, state } from '../ui/state.js';
 import { wordPool } from '../quiz/word-pool.js';
 import { questionStream, QuizRun } from '../quiz/quiz-run.js';
 import { startSession, recordAnswer } from '../history/store.js';
@@ -28,7 +28,7 @@ export function renderPractice(app, { onStartRun, rerender }) {
 
 function startPlan(onStartRun) {
   const plan = draftPlan();
-  const pool = wordPool(plan);
+  const pool = wordPool(plan, playableTypes());
   const endless = plan.count === 'endless';
 
   const build = () => {

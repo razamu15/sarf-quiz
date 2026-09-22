@@ -21,7 +21,6 @@
 import {
   FORM_IDS, QUIZ_TYPE_IDS, TENSES, VOICES, MOODS, isValidShape,
 } from '../vocabulary.js';
-import { availableTypes } from '../lexicon/lexicon-service.js';
 
 /**
  * Build a plan. Frozen because it is copied into history records as the thing
@@ -90,10 +89,15 @@ export function planCharts({ tenses = [], voices = ['malum'], moods = ['raf'] } 
  * "3 verb types from this session are no longer available" instead of quietly
  * running a smaller quiz than the one being replayed.
  *
+ * `playableTypes` is the app's answer to "which verb types can be drilled"
+ * (ui/state.js `playableTypes()`). It arrives as a list rather than being read
+ * here, so this file never reaches through the lexicon into settings — the
+ * boundary IOS_PORT_PLAN's P1 exists to draw.
+ *
  * Called by: screens/history.js (the replay button) and screens/results.js
  * ("New round, same setup").
  */
-export function planFrom(stored) {
+export function planFrom(stored, playableTypes) {
   const dropped = [];
   const keep = (label, values, allowed) => {
     const ok = (values ?? []).filter((v) => allowed.includes(v));
@@ -110,9 +114,10 @@ export function planFrom(stored) {
     voices: keep('voice', stored?.voices, VOICES),
     moods: keep('iʿrāb', stored?.moods, MOODS),
     forms: keep('form', stored?.forms, FORM_IDS),
-    // availableTypes() is the single owner of "is this verb type playable"; a
-    // stored type whose engine or content has gone is dropped by asking it.
-    types: keep('verb type', stored?.types, availableTypes()),
+    // availableTypes() is still the single owner of "is this verb type
+    // playable"; the app asked it and handed the answer down. A stored type
+    // whose engine or content has gone is dropped against that list.
+    types: keep('verb type', stored?.types, playableTypes),
     count: stored?.count ?? 10,
   });
 

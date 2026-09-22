@@ -18,7 +18,7 @@
 
 import { slotsFor, FORM_IDS, DERIVED_NOUN_TYPE_IDS } from '../vocabulary.js';
 import { FORM_META } from '../grammar/shared-grammar.js';
-import { candidates as lexiconCandidates, availableTypes } from '../lexicon/lexicon-service.js';
+import { candidates as lexiconCandidates } from '../lexicon/lexicon-service.js';
 import { conjugate, derivedNoun } from '../conjugation/conjugation-service.js';
 import { planCharts } from './quiz-plan.js';
 
@@ -46,9 +46,16 @@ export function derivativesOf(root, formId) {
  *
  * Form IX is the `conjugable` case — it is recognition-only until shadda
  * unfolding is written, so it is in the lexicon and produces no words.
+ *
+ * An empty `plan.types` means "every playable type", which is why the caller's
+ * `playableTypes` is needed here at all. That default is itself questionable —
+ * a plan that names no types is a plan that has not said what it wants — but
+ * changing it is a behaviour change, not a boundary fix. FUTURE FIX: require
+ * `types` on QuizPlan and delete this fallback, so the pool needs no second
+ * argument.
  */
-function poolCandidates(plan) {
-  const types = plan.types?.length ? plan.types : availableTypes();
+function poolCandidates(plan, playableTypes) {
+  const types = plan.types?.length ? plan.types : playableTypes;
   const forms = plan.forms?.length ? plan.forms : FORM_IDS;
   return lexiconCandidates({ types, forms })
     .filter((c) => FORM_META[c.formId].conjugable);
@@ -58,10 +65,15 @@ function poolCandidates(plan) {
  * Resolve the pool. `varies` holds the distinct values each property takes over
  * the words this plan admits — the sets relevance() reads to decide whether a
  * question still has more than one possible answer.
+ *
+ * `playableTypes` comes from the app (ui/state.js `playableTypes()`), already
+ * decided. The pool does not ask what content is released and cannot: that
+ * question belongs to the lexicon, one layer down, and to settings, one layer
+ * up — see the note on availableTypes().
  */
-export function wordPool(plan) {
+export function wordPool(plan, playableTypes) {
   const charts = planCharts(plan);
-  const candidates = poolCandidates(plan);
+  const candidates = poolCandidates(plan, playableTypes);
 
   const varies = {
     tenses: new Set(), voices: new Set(), moods: new Set(), slots: new Set(),

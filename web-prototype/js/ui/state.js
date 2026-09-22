@@ -7,7 +7,8 @@
 // choice answer was correct.
 
 import { quizPlan } from '../quiz/quiz-plan.js';
-import { settings } from '../settings/settings.js';
+import { availableTypes } from '../lexicon/lexicon-service.js';
+import { settings, contentGate } from '../settings/settings.js';
 
 export const state = {
   tab: 'home',              // 'home' | 'practice' | 'tables' | 'more'
@@ -50,6 +51,25 @@ export const state = {
 
 /** The draft, frozen into the object the quiz layer takes. */
 export const draftPlan = () => quizPlan(state.draft);
+
+/**
+ * The verb types this build can actually drill.
+ *
+ * THE APP'S SIDE of the content gate, and the only place the two halves meet:
+ * `contentGate()` says which content is released, `availableTypes()` decides
+ * what that makes playable. Every screen and every plan builder takes the
+ * RESULT — a list of engine verb types — so nothing below the app layer learns
+ * that gating exists (IOS_PORT_PLAN Decision 2: `SarfQuiz` cannot import the
+ * app's `Settings` any more than `SarfCore` can).
+ *
+ * Called by: screens/home.js, practice.js, practice-classic.js,
+ * practice-wizard.js. It is a function, not a constant, because a dev lever can
+ * flip between renders.
+ *
+ * This is `AppModel`'s job in Swift — the composition root that holds
+ * LexiconService and hands its answers down.
+ */
+export const playableTypes = () => availableTypes(contentGate());
 
 /**
  * Send the wizard back to its first step and drop everything it remembered.

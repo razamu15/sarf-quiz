@@ -12,8 +12,11 @@
 //
 // Called by:
 //   · screens/more.js — renders userSettings() and writes through setSetting()
-//   · lexicon-service.js — the two CONTENT gates, read inside availableTypes()
-//     so "is this verb type playable" keeps one owner (see the note there)
+//   · screens/practice-*.js — via contentGate() below, which is handed to
+//     lexicon-service's availableTypes(). The lexicon no longer imports this
+//     file: it sits UNDER the settings layer, and reading up was the boundary
+//     bug IOS_PORT_PLAN's P1 exists to fix. "Is this verb type playable" still
+//     has one owner; it is just told the answer instead of fetching it.
 //   · screens/compare.js, screens/stats.js, the explain sheet — when they land
 //
 // NOT called by history/store.js, and that file does not import this one. The
@@ -101,6 +104,28 @@ export function setSetting(id, value) {
     // Private mode or quota. The setting still applies for this session.
   }
 }
+
+/**
+ * The content gates, as the flags currently answer them.
+ *
+ * THE ONE PLACE the settings vocabulary (`mahmuzVerbs`) meets the lexicon's
+ * (`mahmuz`) — the two are deliberately not the same word, because a flag id is
+ * a storage key that must never change and a gate id names a body of content.
+ * Every id in lexicon-service's CONTENT_GATE_IDS must be answered here; a gated
+ * group with no row throws at the call rather than reading as "off".
+ *
+ * Called by: screens/practice-classic.js and practice-wizard.js, the only two
+ * callers of availableTypes(). Nothing in js/quiz/ calls either — the quiz layer
+ * takes the resulting `playableTypes` and never learns gating exists.
+ *
+ * In Swift this is `ContentGate(from:)` in the app target: `SarfCore` declares
+ * the struct, the app fills it from `Settings`, and `SarfCore` never sees
+ * `Settings` at all.
+ */
+export const contentGate = () => ({
+  mahmuz: settings.mahmuzVerbs,
+  lafif: settings.lafifVerbs,
+});
 
 /**
  * The rows the Settings screen renders — exactly the user-facing ones.

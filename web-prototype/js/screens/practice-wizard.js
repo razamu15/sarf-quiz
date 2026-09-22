@@ -14,12 +14,12 @@
 // Called by: screens/practice.js, when settings.practiceFlow === 'wizard'.
 
 import { el, chipRow, toggle, sectionLabel } from '../ui/dom.js';
-import { state, draftPlan } from '../ui/state.js';
+import { state, draftPlan, playableTypes } from '../ui/state.js';
 import { FORM_IDS, VERB_TYPE_GROUP_IDS, verbTypesInGroup } from '../vocabulary.js';
 import {
   QUIZ_TYPE_INFO, FORM_NAMES, VERB_TYPE_INFO, TENSE_LABELS, VOICE_LABELS, VOICE_NAMES, MOOD_LABELS,
 } from '../glossary.js';
-import { availableTypes } from '../lexicon/lexicon-service.js';
+
 import { wordPool } from '../quiz/word-pool.js';
 import { relevance, possibleQuestions, QUESTION_RULES } from '../quiz/relevance.js';
 import { renderSummary } from './practice-summary.js';
@@ -83,7 +83,7 @@ export function renderWizard(app, { onStart, rerender }) {
     rerender();
   };
 
-  const pool = wordPool(draftPlan());
+  const pool = wordPool(draftPlan(), playableTypes());
 
   app.append(head(visible, index, () => go(-1)));
   app.append(el(`<h1 class="wiz-title">${step.title}</h1>`));
@@ -218,7 +218,7 @@ function stepType(app, d, rerender) {
 }
 
 function stepVerbs(app, d, rerender) {
-  const playable = new Set(availableTypes());
+  const playable = new Set(playableTypes());
 
   // DUPLICATED from practice-classic.js, deliberately: that file is frozen
   // verbatim so the practiceFlow comparison is against the screen as it really

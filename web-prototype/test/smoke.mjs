@@ -17,7 +17,9 @@ import { MUDARI_PREFIX_HARAKA } from '../js/grammar/shared-grammar.js';
 import { getConjugationData as salimData } from '../js/conjugation/salim-conjugator.js';
 import { getConjugationData as mudaafData } from '../js/conjugation/mudaaf-conjugator.js';
 import { ABWAB_LABELS, VERB_TYPE_INFO } from '../js/glossary.js';
-import { LEXICON, classify, availableTypes, stockedTypes } from '../js/lexicon/lexicon-service.js';
+import {
+  LEXICON, classify, availableTypes, stockedTypes, CONTENT_GATE_IDS,
+} from '../js/lexicon/lexicon-service.js';
 import {
   conjugate as conjugateSpec, derivedNoun, waznOf as waznOfSpec,
   fullTable as fullTableSpec, availableCharts, enginedGroups,
@@ -28,7 +30,7 @@ import {
 } from '../js/meaning-service.js';
 import { readFileSync } from 'node:fs';
 import { quizPlan, planCharts } from '../js/quiz/quiz-plan.js';
-import { SETTINGS_SPEC } from '../js/settings/settings.js';
+import { SETTINGS_SPEC, contentGate } from '../js/settings/settings.js';
 import { state, resetPracticeFlow } from '../js/ui/state.js';
 import { WIZARD_STEPS } from '../js/screens/practice-wizard.js';
 import { wordPool } from '../js/quiz/word-pool.js';
@@ -89,10 +91,20 @@ const verbMeaningChart = (root, formId, chart, slot) => verbMeaningSpec(specOf(r
 const verbMeaningChart2 = (root, formId, chart, slot, particleId) =>
   verbMeaningSpec(specOf(root, formId, chart), slot, particleId);
 
+// --- the content gate (TEST-LOCAL) -----------------------------------------
+// availableTypes() takes its gate as an argument rather than reading `settings`
+// (IOS_PORT_PLAN P1 — SarfCore cannot import the app's Settings). So the test
+// writes the SHIPPED gate out: these assertions are about what v1 actually
+// plays, not about what a flag happens to say in this process. If a gate is
+// added, the literal below stops covering CONTENT_GATE_IDS and the assertion
+// beside it fails rather than the new content silently reading as "off".
+const SHIPPED_GATE = { mahmuz: false, lafif: false };
+const PLAYABLE = availableTypes(SHIPPED_GATE);
+
 // --- quiz helpers ----------------------------------------------------------
 // The plan is a constructed object now and the pool is a thing you hold, so the
 // two steps that every quiz assertion needs get one helper each.
-const poolOf = (planLike) => wordPool(quizPlan(planLike));
+const poolOf = (planLike) => wordPool(quizPlan(planLike), PLAYABLE);
 const buildQuiz = (planLike) => {
   const pool = poolOf(planLike);
   const out = [];
@@ -431,7 +443,7 @@ check(verbTypesInGroup('naqis').join() === 'naqis_waw,naqis_ya', 'nāqiṣ cover
 // Lexicon content is typed granularly, and a type becomes playable the moment
 // either an engine or a fixture table can produce words for it.
 check(stockedTypes().includes('mithal_waw'), 'mithāl content is in the lexicon');
-check(availableTypes().includes('mithal_waw') && availableTypes().includes('mithal_ya'),
+check(PLAYABLE.includes('mithal_waw') && PLAYABLE.includes('mithal_ya'),
   'mithāl is playable — MithalConjugator landed (Form I; mazīd tables still empty)');
 
 // The mithāl wāw drops its wāw for a KASRA on the ʿayn, not for "anything but a
@@ -456,12 +468,28 @@ check(conjugate(byRoot('وجه'), 'I', 'mudari', 'malum', '3ms') === 'يَوْج
 //
 // Sorted alphabetically, because this compares against availableTypes() by
 // value and the lexicon's own order is an authoring detail, not a fact.
+// THE BOUNDARY ITSELF (IOS_PORT_PLAN P1). Two facts, both of which used to be
+// unrepresentable because the gate was an import: that every declared gate has
+// an answer, and that a missing answer fails loudly instead of reading as off.
+check(CONTENT_GATE_IDS.every((id) => id in SHIPPED_GATE),
+  'the test gate answers every gate the lexicon declares');
+check(CONTENT_GATE_IDS.every((id) => typeof contentGate()[id] === 'boolean'),
+  'settings/contentGate() answers every gate the lexicon declares');
+check((() => { try { availableTypes({}); return false; } catch { return true; } })(),
+  'an unanswered content gate throws — "unknown" never silently becomes "off"');
+// The gate is live plumbing standing over content that is ALSO engine-less, so
+// today it changes nothing on its own. Pinned rather than assumed: this check
+// flips the moment MahmuzConjugator or LafifConjugator lands, which is exactly
+// when someone should re-read what the gate is now doing.
+check(availableTypes({ mahmuz: true, lafif: true }).join() === PLAYABLE.join(),
+  'opening every gate changes nothing yet — hasEngine() is what excludes mahmūz and lafīf today, and the gate takes over the moment an engine lands');
+
 const ENGINELESS = ['lafif_mafruq', 'lafif_maqrun', 'mahmuz'].sort();
-check(stockedTypes().filter((t) => !availableTypes().includes(t)).sort().join() === ENGINELESS.join(),
+check(stockedTypes().filter((t) => !PLAYABLE.includes(t)).sort().join() === ENGINELESS.join(),
   'exactly lafīf and mahmūz are stocked but unplayable — every other stocked type has an engine');
 check(ENGINELESS.every((g) => !enginedGroups().includes(g)) && !enginedGroups().includes('mahmuz'),
   'mahmūz and both lafīf types are still engine-less, and nothing pretends otherwise');
-check(availableTypes().includes('ajwaf_waw') && availableTypes().includes('ajwaf_ya'),
+check(PLAYABLE.includes('ajwaf_waw') && PLAYABLE.includes('ajwaf_ya'),
   'ajwaf is playable — AjwafConjugator landed, and it serves both weak letters');
 
 // Tables browser feed: full charts, correct row counts
@@ -488,7 +516,7 @@ check(availableCharts(qala, 'I').length === 9,
   let sawMulti = false;
   let allConsistent = true;
   for (let i = 0; i < 40 && !sawMulti; i++) {
-    const drill = buildDrill(DRILL_PRESETS[0]);
+    const drill = buildDrill(DRILL_PRESETS[0], PLAYABLE);
     for (const q of drill) {
       if (q.category !== 'doer') continue;
       const correctSlots = [...q.response.correct];
@@ -544,8 +572,8 @@ check(availableCharts(qala, 'I').length === 9,
 // Drill shape: N words, each carrying the question kinds it can support.
 // The word count is the invariant — a word that can't take all three kinds
 // contributes fewer, which is why the question count is a range.
-for (const preset of DRILL_PRESETS.filter(presetAvailable)) {
-  const quiz = buildDrill(preset);
+for (const preset of DRILL_PRESETS.filter((p) => presetAvailable(p, PLAYABLE))) {
+  const quiz = buildDrill(preset, PLAYABLE);
   const words = new Set(quiz.map((q) => q.tag));
   const shapeOk = words.size === WORDS_PER_DRILL
     && quiz.length > 0 && quiz.length <= WORDS_PER_DRILL * 3
@@ -555,7 +583,7 @@ for (const preset of DRILL_PRESETS.filter(presetAvailable)) {
   check(shapeOk, `drill ${preset.id}: ${WORDS_PER_DRILL} words with identity + correctness`);
 }
 for (const formId of MAZEED_IDS.filter(mazeedPresetAvailable)) {
-  const quiz = buildDrill(mazeedPreset(formId));
+  const quiz = buildDrill(mazeedPreset(formId), PLAYABLE);
   check(new Set(quiz.map((q) => q.tag)).size === WORDS_PER_DRILL
     && quiz.every((q) => q.identity.formId === formId), `mazeed drill ${formId}`);
 }
@@ -1563,7 +1591,7 @@ check(chartKeysFor({ tenses: ['madi'], voices: ['majhul'], moods: [] }) === 'mad
   let impure = 0;
 
   for (const plan of plans) {
-    const pool = wordPool(quizPlan(plan));
+    const pool = wordPool(quizPlan(plan), PLAYABLE);
     let n = 0;
     for (const q of questionStream(pool)) {
       if (++n > 300) break;
@@ -1616,7 +1644,7 @@ check(chartKeysFor({ tenses: ['madi'], voices: ['majhul'], moods: [] }) === 'mad
   const pool = wordPool(quizPlan({
     quizType: 'identify', tenses: ['mudari'], voices: ['malum', 'majhul'], moods: ['raf'],
     forms: ['I'], types: ['salim'], count: 10,
-  }));
+  }), PLAYABLE);
   let differed = false;
   let n = 0;
   for (const q of questionStream(pool)) {

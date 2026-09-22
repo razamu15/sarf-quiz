@@ -6,7 +6,6 @@
 import { ROOTS } from './roots.js';
 import { groupOfVerbType } from '../vocabulary.js';
 import { hasEngine } from '../conjugation/conjugation-service.js';
-import { settings } from '../settings/settings.js';
 
 const WEAK = new Set(['و', 'ي']);
 const HAMZA = new Set(['ء', 'أ', 'إ', 'ؤ', 'ئ']);
@@ -55,40 +54,80 @@ export const LEXICON = ROOTS;
 export const byRoot = (letters) => LEXICON.find((r) => r.root.join('') === letters);
 
 /**
- * CONTENT GATES. A verb type behind an off flag is content sitting in wait, not
- * a playable option — and the flags are read HERE, inside availableTypes(),
- * rather than beside it at each call site. "Is this verb type playable" already
- * had exactly one owner; a second check elsewhere would be a second source of
- * truth for one fact, and the two would disagree eventually.
+ * CONTENT GATES. A verb type behind a closed gate is content sitting in wait,
+ * not a playable option. The lexicon knows WHICH groups are gated; it does not
+ * know whether a gate is open — that answer arrives as an argument.
+ *
+ * It used to read `settings` directly. That was an upward dependency: the
+ * lexicon sits under the settings layer, not over it, and in Swift `SarfCore`
+ * cannot import the app's `Settings` at all (IOS_PORT_PLAN Decision 2 — the
+ * three-target boundary turns this from a review reminder into a compile
+ * error). Taking the answer as a parameter is the same fact stated where it can
+ * be enforced.
+ *
+ * What did NOT change: "is this verb type playable" still has exactly one
+ * owner — availableTypes() below. Callers supply the gate; none of them decides.
  *
  * Keyed by display GROUP, because that is the unit a student picks and the unit
- * a feature flag is written in.
+ * a gate is written in.
  */
-// Both lafīf groups share ONE flag: they are two names to a student but one
+// Both lafīf groups share ONE gate: they are two names to a student but one
 // body of content waiting on one engine effort, and turning half of it on
-// would be a state nobody wants. Split the flag when the engines split.
-const CONTENT_FLAG = {
-  mahmuz: 'mahmuzVerbs',
-  lafif_mafruq: 'lafifVerbs',
-  lafif_maqrun: 'lafifVerbs',
+// would be a state nobody wants. Split the gate when the engines split.
+const CONTENT_GATE = {
+  mahmuz: 'mahmuz',
+  lafif_mafruq: 'lafif',
+  lafif_maqrun: 'lafif',
 };
 
-const contentEnabled = (type) => {
-  const flag = CONTENT_FLAG[groupOfVerbType(type)];
-  return flag ? settings[flag] : true;
+/**
+ * Every gate that must be answered. Exported so the one place that maps
+ * settings onto a gate value (settings/contentGate) can be read against it,
+ * and so a new gated group fails review rather than fails silently.
+ */
+export const CONTENT_GATE_IDS = [...new Set(Object.values(CONTENT_GATE))];
+
+/** Is this verb type's content released? Ungated content always is. */
+const gateOpen = (type, enabled) => {
+  const gate = CONTENT_GATE[groupOfVerbType(type)];
+  return gate ? enabled[gate] : true;
 };
 
 /**
  * Verb types that can actually be drilled: present in the lexicon, served by an
- * engine, and not gated off. THE single answer to "is this verb type playable".
+ * engine, and behind an open gate. THE single answer to "is this verb type
+ * playable".
  *
- * Called by: quiz-plan's planFrom() (dropping stored types that no longer
- * exist), word-pool's candidate filter, drills.js (expanding a preset's groups),
- * and screens/practice.js (which chips to offer).
+ * `enabled` is a content-gate value — `{ mahmuz, lafif }`, every gate answered.
+ * `contentGate()` in settings/settings.js builds it from the flags; that is the
+ * one place the settings vocabulary (`mahmuzVerbs`) meets this one (`mahmuz`).
+ *
+ * Called by the APP layer only — screens/practice-classic.js and
+ * practice-wizard.js. Everything below the app (word-pool, drills, quiz-plan)
+ * receives the RESULT as `playableTypes` rather than calling this itself, so
+ * the quiz layer never has to know that content gating exists. In Swift that
+ * separation is the `SarfQuiz` package boundary.
  */
-export const availableTypes = () => [...new Set(
-  LEXICON.filter((r) => hasEngine(r) && contentEnabled(r.type)).map((r) => r.type),
-)];
+export function availableTypes(enabled) {
+  // Every declared gate, checked ONCE here rather than per root, and against
+  // CONTENT_GATE_IDS rather than against whatever the lexicon happens to hold.
+  // Per-root it would be unreachable: hasEngine() already excludes mahmūz and
+  // lafīf, so the guard would sit dead until the first gated engine landed and
+  // then start throwing on a call site that had been wrong all along.
+  //
+  // An unanswered gate is an error, never `false`. A caller that forgot the
+  // argument would otherwise get a smaller lexicon indistinguishable from a
+  // correctly gated one — "unknown" silently becoming "off". In Swift it cannot
+  // arise at all: `ContentGate` is a struct of non-optional Bools.
+  for (const gate of CONTENT_GATE_IDS) {
+    if (typeof enabled?.[gate] !== 'boolean') {
+      throw new Error(`availableTypes: content gate "${gate}" was not answered`);
+    }
+  }
+  return [...new Set(
+    LEXICON.filter((r) => hasEngine(r) && gateOpen(r.type, enabled)).map((r) => r.type),
+  )];
+}
 
 /** Every type the lexicon has content for, playable or not. */
 export const stockedTypes = () => [...new Set(LEXICON.map((r) => r.type))];

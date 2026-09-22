@@ -4,7 +4,7 @@
 // deliberate choice you make in Practice (product-spec D-14).
 
 import { el } from '../ui/dom.js';
-import { state } from '../ui/state.js';
+import { playableTypes, state } from '../ui/state.js';
 import { DRILL_PRESETS, planOf, presetAvailable, buildDrill, WORDS_PER_DRILL } from '../quiz/drills.js';
 import { wordPool } from '../quiz/word-pool.js';
 import { QuizRun } from '../quiz/quiz-run.js';
@@ -66,7 +66,7 @@ function statsCard(onOpenStats) {
 }
 
 function presetCard(preset, onStartRun) {
-  const available = presetAvailable(preset);
+  const available = presetAvailable(preset, playableTypes());
   const card = el(`<div class="preset ${available ? '' : 'off'}">
     <div class="preset-head"><div>
       <b>${preset.title}</b><span class="ar">${preset.ar}</span>
@@ -79,13 +79,14 @@ function presetCard(preset, onStartRun) {
 }
 
 function startDrill(preset, onStartRun) {
-  const plan = planOf(preset);
+  const playable = playableTypes();
+  const plan = planOf(preset, playable);
   const build = () => {
-    const questions = buildDrill(preset);
+    const questions = buildDrill(preset, playable);
     if (!questions.length) return null;
     startSession(plan, preset.id);
     return new QuizRun({
-      plan, pool: wordPool(plan), mode: preset.id, source: questions, record: recordAnswer,
+      plan, pool: wordPool(plan, playable), mode: preset.id, source: questions, record: recordAnswer,
     });
   };
   const run = build();
