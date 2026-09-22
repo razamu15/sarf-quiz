@@ -33,8 +33,8 @@ cd web-prototype && node test/smoke.mjs     # 417 assertions; the first 112 are 
 **Run the app** with the `sarf-quiz-web` config in `.claude/launch.json`
 (`preview_start`), never with a bare `node`. The `sarf-design` config in the same
 file serves `design/` on 4174, which is how you look at `design/midad/previews/`
-and `design/proposals/` without opening them from Finder (`serve.mjs` takes an
-optional root argument for it). Then drive it and read the console —
+without opening them from Finder, and how `design/midad/shots/` are rendered to
+PNG (`serve.mjs` takes an optional root argument for it). Then drive it and read the console —
 twice a green test suite has hidden a real break that only a page reload
 surfaced.
 

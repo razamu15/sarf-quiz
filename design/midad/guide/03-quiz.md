@@ -2,6 +2,47 @@
 
 The quiz is the app. Everything here is in the **Quiz** screen, which runs four real questions with real grading.
 
+> ⚠️ **Updated 2026-09-21 for the parse card (D-72).** `identify` is no longer five separate questions. It is **one card
+> per word** and every applicable axis is answered at once. Sections 0, 2 and 6 below are rewritten for it; the rest is
+> unchanged and still governs the other three quiz types. **`previews/QuizFlow.html` and screenshots 04–08 still drive the
+> old single-axis question** — they have not been rebuilt.
+
+## 0. `identify` is one card per word — *Parse the word* · تَحْلِيل صَرْفِي
+
+<table><tr>
+<td><img src="../screenshots/02-quiz-parse.png" width="230"><br><sub><b>02</b> · at rest</sub></td>
+<td><img src="../screenshots/03-quiz-parse-answered.png" width="230"><br><sub><b>03</b> · graded, one row missed</sub></td>
+<td><img src="../screenshots/16-quiz-parse-night.png" width="230"><br><sub><b>16</b> · Night</sub></td>
+</tr></table>
+
+Five questions became five **rows of one question**: `Form · Tense · (Iʿrāb) · Voice · Who the doer can be`, then one
+**Check**. Component: `ParseAxes` (`previews/ParseAxes.html`).
+
+- **Chips, not `AnswerOption`s.** Five stacked 60pt options would be a thousand points of screen. A chip already carries a
+  bilingual label in fixed slots and already toggles; it gains a tick box and the six `AnswerOption` states, so there is
+  **one correctness vocabulary on the screen and not two.**
+- **Chips even for a fixed set like Tense** — a *named exception* to rule 5. A segmented control always shows a selection,
+  so it **has no empty state**, and an answer control must be able to say *nothing chosen yet*.
+- **The same visual grammar as `ChartScope`**, iʿrāb indented under Tense behind a rule. A student shapes a pool in that
+  form on Practice and is then asked in that form. Build the stack once.
+- **The iʿrāb row is always there when live**, with a `mabnī — no iʿrāb` chip. A row that appeared only on a muḍāriʿ would
+  answer the Tense row for free — the leak the checklist rule exists to remove.
+
+### Graded: the right rows become the parse; only a miss stays a row
+
+**The single hardest constraint on this screen is vertical space, and it was solved by rendering, not by reasoning.**
+Five expanded rows plus the docked sheet overflow a 390×844 phone by ~220pt, so the sheet sat on top of the row it was
+explaining. Collapsing each right row to its own line still overflowed by ~96pt; scrolling the missed row into view then
+pushed the word off the screen, breaking rule 1. What works:
+
+1. **The rows you got right collapse into one line** — the parse itself, written as a student writes it:
+   `I مُجَرَّد · مُضَارِع · مَرْفُوع · مَعْلُوم`. Arabic only; the English stays everywhere it is load-bearing.
+2. **That line and the word are one sticky head** (`.sq-parsehead`). Whatever scrolls, the word under study does not leave.
+3. **Only rows still in play scroll**, and those are exactly the rows you are here to look at.
+
+The row label carries a ✓ or ✕, so which rows you missed is scannable without reading chips. The sheet's second line names
+them: *Four rows right · **Who the doer can be** missed one.*
+
 ## 1. Feedback rises; it is not appended
 
 The word card, the options and the feedback all stay on one screen: feedback docks to the bottom, the card compacts, and Continue sits under the thumb. Nothing scrolls away at the moment you are being told what you missed.
@@ -18,7 +59,12 @@ Today `isMultiSelect` is `correct.length > 1`, so the same question kind is some
 
 - It keeps the instruction and the interaction in agreement.
 - It hides how many answers there are, which is the thing being taught: *deciding* whether a form is ambiguous is the skill.
-- It costs one extra tap when the answer is single.
+- ~~It costs one extra tap when the answer is single.~~ **No longer true** — one **Check** now covers the whole parse card.
+
+**Generalised 2026-09-21 (D-74).** The rule is not about the doer question. It is: *every axis is answered for the written
+form, and every reading the written form admits is correct.* `تَنْصُرُ` is هِيَ **and** أَنْتَ; `خِفْتَ` is maʿrūf **and**
+majhūl; a dual muḍāriʿ conflates manṣūb and majzūm — measured at **46% of non-mabnī muḍāriʿ cells**. So `doer`, `voice`
+**and** `mood` are all `select: 'many'`, declared per axis, never derived from the draw.
 
 **This is a quiz-layer change, not a view one.** Either `QUESTION_RULES` declares the response style per kind, or `Response` carries it (`choiceResponse(options, correct, { select: 'many' })`). Keep `isMultiSelect` derived for grading; add the *interaction* as a declared fact. It is a decision — see 07-decisions.
 
@@ -44,7 +90,11 @@ The better version is structural: have the builders return feedback in **parts**
 
 ## 6. Progress shows the bundle
 
-A Home drill is five words with two or three questions each. Show it that way: five groups of ticks, "Word 2 of 5". A Practice run of ten is ten ticks. Endless replaces the bar with the running score and an End button, since there is nothing to be a fraction of.
+~~A Home drill is five words with two or three questions each. Show it that way: five groups of ticks, "Word 2 of 5".~~
+
+**Rewritten 2026-09-21 (D-80).** One word is now one question, so **there is no bundle and no "Word 2 of 5" tag** — a Home
+drill is five words and five ticks, reading `2 of 5`. A Practice run of ten is ten ticks. Endless replaces the bar with the
+running score and an End button, since there is nothing to be a fraction of.
 
 ## 7. Writing the word
 

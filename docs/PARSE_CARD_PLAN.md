@@ -4,7 +4,8 @@
 > question per word**, adds a `form` axis and deletes `bab`. The product decisions are settled and live in
 > [`product-spec/DECISIONS.md`](../product-spec/DECISIONS.md) **D-72 … D-80**; this file is only *how*.
 >
-> **Status:** design, not built. Written 2026-09-21 against `web-prototype/` at `d4c6119` + working tree.
+> **Status:** design, not built — but the **design system now carries it**: component `ParseAxes`, `previews/ParseAxes.html`,
+> screenshots 02 / 03 / 16, and `guide/03-quiz.md` § 0. Written 2026-09-21 against `web-prototype/` at `d4c6119` + working tree.
 > **Every number below was produced by running the code in the session that wrote it**, not read from a doc.
 > When this lands, fold the outcome into `ARCHITECTURE.md` and rename this `PARSE_CARD_PLAN_v1.md`.
 
@@ -272,4 +273,5 @@ Start; endless → End quiz. **Read the console, and inspect what actually lande
 | **The step with no visible payoff** — `rowsFor`'s fan-out | invisible until the stats screens ship; the one most likely to drift or be "simplified" | it is what keeps D-48 and D-49 alive **today**; assert "one card → 5 rows" in the suite so the fan-out cannot be quietly removed |
 | The joint draw over-constrains a *narrow* pool | measured on the widest pool (69.8%); a single intransitive root with voice live is far worse | when the draw fails, **retire the axis for the session and say so in the setup bar** — never drop the row from one card |
 | `screens/quiz.js` grows | it is 214 lines and gains the axis renderer | extract the axis renderer at ~400 lines, not before |
-| Screenshots 02–08, 16 and `QuizFlow.html` now show a quiz that no longer exists | `design/midad/` is generated outside the repo | the proposal is `design/proposals/parse-card.html`; **regenerate, never hand-merge** |
+| `QuizFlow.html` and screenshots 04–08 still show a quiz that no longer exists | `design/midad/` is generated outside the repo, so they cannot be remade here | 02, 03 and 16 **were** remade (headless Chrome, 470×940); the rest are flagged in `previews/index.html` and listed under **Hand-edits** in `product-spec/reference/design-system.md` |
+| A regeneration of `design/midad/` silently drops the parse card | its toolchain is not in the repo and does not know about D-72 | the **Hand-edits** table lists every file added by hand and how the screenshots were rendered — fold it into the generator |

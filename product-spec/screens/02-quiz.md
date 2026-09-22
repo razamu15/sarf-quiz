@@ -9,18 +9,18 @@
 
 <table>
 <tr>
-<td align="center"><img src="../../design/midad/screenshots/02-quiz-question.png" width="200"><br><sub><b>02</b> · single answer, at rest</sub></td>
-<td align="center"><img src="../../design/midad/screenshots/03-quiz-answered.png" width="200"><br><sub><b>03</b> · single answer, graded</sub></td>
+<td align="center"><img src="../../design/midad/screenshots/02-quiz-parse.png" width="200"><br><sub><b>02</b> · <b>parse card</b>, at rest</sub></td>
+<td align="center"><img src="../../design/midad/screenshots/03-quiz-parse-answered.png" width="200"><br><sub><b>03</b> · <b>parse card</b>, one row missed</sub></td>
 <td align="center"><img src="../../design/midad/screenshots/04-quiz-peek-grid.png" width="200"><br><sub><b>04</b> · <i>Full table</i> peek</sub></td>
 </tr>
 <tr>
-<td align="center"><img src="../../design/midad/screenshots/05-quiz-checklist.png" width="200"><br><sub><b>05</b> · checklist, at rest</sub></td>
-<td align="center"><img src="../../design/midad/screenshots/06-quiz-checklist-graded.png" width="200"><br><sub><b>06</b> · checklist, graded</sub></td>
+<td align="center"><img src="../../design/midad/screenshots/16-quiz-parse-night.png" width="200"><br><sub><b>16</b> · parse card, Night</sub></td>
+<td align="center"><sub><b>ParseAxes</b><br>the seven row states —<br><a href="../../design/midad/previews/ParseAxes.html">open the preview</a></sub></td>
 <td align="center"><img src="../../design/midad/screenshots/07-quiz-meaning-graded.png" width="200"><br><sub><b>07</b> · <i>Match the meaning</i>, correct</sub></td>
 </tr>
 <tr>
 <td align="center"><img src="../../design/midad/screenshots/08-quiz-typed-diff.png" width="200"><br><sub><b>08</b> · typed answer, one ḥaraka off</sub></td>
-<td align="center"><img src="../../design/midad/screenshots/16-quiz-answered-night.png" width="200"><br><sub><b>16</b> · Night</sub></td>
+<td></td>
 <td></td>
 </tr>
 </table>

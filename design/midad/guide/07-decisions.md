@@ -44,6 +44,19 @@ Replays the missed questions exactly as they were asked. An `Answer` embeds its 
 
 ---
 
+## 9. `identify` is one card per word — **the parse card**
+
+**Decided 2026-09-21, after this system was drawn.** The five identify questions (tense, voice, doer, iʿrāb, bāb) become
+**five axes of one question**, plus a new **form** axis; **bāb is dropped** as a question because it is read off a citation —
+both tenses — and one conjugated word does not carry it. It stays in the sheet's explanation.
+
+Consequences this system had to absorb: a new component (`ParseAxes`), chips promoted to answer controls with the six
+`AnswerOption` states, a named exception to rule 5 (chips for fixed sets, because a segmented control has no empty state),
+a sticky graded head so the word never leaves, and the end of the drill bundle. Full record: `product-spec/DECISIONS.md`
+**D-72 … D-80**; the code plan is `docs/PARSE_CARD_PLAN.md`.
+
+**Not regenerated:** `previews/QuizFlow.html` and screenshots 04–08 still drive the old single-axis question.
+
 ## Not design work — filed separately
 
 **Answers are lost when a session is not ended.** `recordAnswer()` writes to memory; only `endSession()` saves; the "See the full table" link exits without it, and a reload loses the open session too. Verified in the running app (01-audit §11). This breaks "history storage is unconditional" and should be fixed regardless of anything in this system.

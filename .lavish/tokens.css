@@ -1,0 +1,186 @@
+:root, [data-theme="midad"] {
+  --ground: #f6f2ea;
+  --raised: #fffdf8;
+  --fill: #ece6da;
+  --line: #e0d8ca;
+  --line-strong: #8f8474;
+  --ink: #1d1a16;
+  --ink-muted: #5f574c;
+  --ink-faint: #9a9084;
+  --sign: #b02e1c;
+  --sign-soft: #f7e3da;
+  --select: #1d1a16;
+  --select-soft: #e9e2d5;
+  --on-select: #fffdf8;
+  --action: #1d1a16;
+  --on-action: #fffdf8;
+  --correct: #16705d;
+  --correct-soft: #dcefe7;
+  --wrong: #4f473e;
+  --wrong-soft: #e9e2d5;
+  --focus: #1d1a16;
+  --shadow-raised: 0 1px 2px #1d1a160f;
+  --shadow-sheet: 0 -1px 0 #e0d8ca, 0 -10px 30px #1d1a1614;
+  --focus-ring: 0 0 0 2px #f6f2ea, 0 0 0 4px #1d1a16;
+}
+[data-theme="midad-night"] {
+  --ground: #171512;
+  --raised: #211e1a;
+  --fill: #2a2621;
+  --line: #332e28;
+  --line-strong: #7c7266;
+  --ink: #eee7db;
+  --ink-muted: #ada395;
+  --ink-faint: #6f675c;
+  --sign: #f47a5f;
+  --sign-soft: #3a221c;
+  --select: #eee7db;
+  --select-soft: #2f2a24;
+  --on-select: #171512;
+  --action: #eee7db;
+  --on-action: #171512;
+  --correct: #62cfb1;
+  --correct-soft: #15302a;
+  --wrong: #c2b8a9;
+  --wrong-soft: #2f2a24;
+  --focus: #eee7db;
+  --shadow-raised: 0 1px 0 #00000059;
+  --shadow-sheet: 0 -1px 0 #332e28, 0 -10px 30px #00000080;
+  --focus-ring: 0 0 0 2px #171512, 0 0 0 4px #eee7db;
+}
+:root {
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --radius-xs: 6px;
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-lg: 24px;
+  --radius-full: 9999px;
+  --tap-target: 44px;
+  --option-height: 60px;
+  --setup-bar-height: 76px;
+  --font-arabic: "Scheherazade New", "Noto Naskh Arabic", "Geeza Pro", serif;
+  --font-serif: Newsreader, "Iowan Old Style", Georgia, serif;
+  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, "Segoe UI", sans-serif;
+}
+.arabic-hero {
+  font-family: var(--font-arabic);
+  font-size: 60px;
+  line-height: 104px;
+  font-weight: 400;
+  letter-spacing: normal;
+}
+.arabic-display {
+  font-family: var(--font-arabic);
+  font-size: 40px;
+  line-height: 70px;
+  font-weight: 400;
+  letter-spacing: normal;
+}
+.arabic-title {
+  font-family: var(--font-arabic);
+  font-size: 28px;
+  line-height: 50px;
+  font-weight: 400;
+  letter-spacing: normal;
+}
+.arabic-cell {
+  font-family: var(--font-arabic);
+  font-size: 24px;
+  line-height: 42px;
+  font-weight: 400;
+  letter-spacing: normal;
+}
+.arabic-body {
+  font-family: var(--font-arabic);
+  font-size: 21px;
+  line-height: 36px;
+  font-weight: 400;
+  letter-spacing: normal;
+}
+.arabic-label {
+  font-family: var(--font-arabic);
+  font-size: 19px;
+  line-height: 30px;
+  font-weight: 400;
+  letter-spacing: normal;
+}
+.screen-title {
+  font-family: var(--font-serif);
+  font-size: 30px;
+  line-height: 36px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+.meaning-display {
+  font-family: var(--font-serif);
+  font-size: 28px;
+  line-height: 36px;
+  font-weight: 400;
+  letter-spacing: normal;
+  font-style: italic;
+}
+.reading {
+  font-family: var(--font-serif);
+  font-size: 19px;
+  line-height: 26px;
+  font-weight: 400;
+  letter-spacing: normal;
+  font-style: italic;
+}
+.gloss {
+  font-family: var(--font-serif);
+  font-size: 17px;
+  line-height: 24px;
+  font-weight: 400;
+  letter-spacing: normal;
+  font-style: italic;
+}
+.headline {
+  font-family: var(--font-sans);
+  font-size: 17px;
+  line-height: 24px;
+  font-weight: 600;
+  letter-spacing: normal;
+}
+.verdict {
+  font-family: var(--font-sans);
+  font-size: 20px;
+  line-height: 26px;
+  font-weight: 700;
+  letter-spacing: normal;
+}
+.body {
+  font-family: var(--font-sans);
+  font-size: 15px;
+  line-height: 22px;
+  font-weight: 400;
+  letter-spacing: normal;
+}
+.label {
+  font-family: var(--font-sans);
+  font-size: 13px;
+  line-height: 18px;
+  font-weight: 600;
+  letter-spacing: normal;
+}
+.caption {
+  font-family: var(--font-sans);
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 500;
+  letter-spacing: normal;
+}
+.numeral {
+  font-family: var(--font-sans);
+  font-size: 32px;
+  line-height: 38px;
+  font-weight: 600;
+  letter-spacing: normal;
+}

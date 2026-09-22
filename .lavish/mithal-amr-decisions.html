@@ -1,0 +1,413 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mithāl amr — two open decisions</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Scheherazade+New:wght@400;500&family=Newsreader:ital,wght@0,400;0,500;1,400&display=swap">
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="bundle.css">
+<style>
+  /* ---------------------------------------------------------------------
+     Everything here sits on Midād's tokens. The one rule that matters for
+     this page: an Arabic run is ALWAYS inside .ar, which isolates it from
+     the Latin around it. bundle.css's own .sq-ar comment records the bug
+     this prevents — "I الثلاثي المجرد" rendering as "الثلاثي المجرد I".
+     --------------------------------------------------------------------- */
+  body { padding: 0; margin: 0; }
+  .wrap { max-width: 860px; margin: 0 auto; padding: 28px 20px 96px; }
+
+  /* An Arabic word. isolate keeps the bidi algorithm from reordering it
+     against neighbouring English, digits or punctuation. */
+  .ar {
+    font-family: var(--font-arabic);
+    direction: rtl; unicode-bidi: isolate;
+    font-weight: 400; letter-spacing: 0;
+    font-size: 26px; line-height: 1.7;
+    white-space: nowrap;
+  }
+  .ar--sm { font-size: 21px; }
+  .ar--lg { font-size: 32px; }
+  .ar--bad  { color: var(--sign); }
+  .ar--good { color: var(--correct); }
+
+  /* A bilingual pair in FIXED slots: Latin label first, Arabic after, each
+     isolated, the whole row forced LTR so the slots never swap. */
+  .pair { display: flex; align-items: baseline; gap: var(--space-3); direction: ltr; }
+  .pair > * { unicode-bidi: isolate; }
+  .pair__label { font: 600 12px/16px var(--font-sans); color: var(--ink-faint);
+                 text-transform: uppercase; letter-spacing: .06em; flex: none; min-width: 74px; }
+
+  h1 { font: 500 34px/40px var(--font-serif); letter-spacing: -.01em; margin: 0 0 6px; }
+  h2 { font: 500 24px/30px var(--font-serif); margin: 0 0 4px; }
+  h3 { font: 600 15px/20px var(--font-sans); margin: 0 0 8px; color: var(--ink); }
+  p  { font: 400 15px/23px var(--font-sans); color: var(--ink-muted); margin: 0 0 12px; }
+  p strong, li strong { color: var(--ink); font-weight: 600; }
+  code { font: 500 13.5px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace;
+         background: var(--fill); padding: 1px 5px; border-radius: var(--radius-xs);
+         color: var(--ink); unicode-bidi: isolate; }
+  a { color: var(--ink); text-decoration-color: var(--line-strong); text-underline-offset: 3px; }
+
+  .lede { font: 400 17px/26px var(--font-serif); color: var(--ink-muted); margin: 0 0 24px; }
+  .rule { border: 0; border-top: 1px solid var(--line); margin: 36px 0 28px; }
+
+  .card { background: var(--raised); border: 1px solid var(--line);
+          border-radius: var(--radius-md); padding: var(--space-5);
+          box-shadow: var(--shadow-raised); margin: 0 0 16px; }
+  .card--flag { border-left: 3px solid var(--sign); }
+  .card--done { border-left: 3px solid var(--correct); }
+
+  .eyebrow { display: inline-flex; align-items: center; gap: var(--space-2);
+             font: 700 11px/16px var(--font-sans); letter-spacing: .09em;
+             text-transform: uppercase; color: var(--ink-faint); margin: 0 0 10px; }
+  .tag { display: inline-block; font: 700 11px/18px var(--font-sans); letter-spacing: .05em;
+         text-transform: uppercase; padding: 1px 8px; border-radius: 999px; }
+  .tag--decide { background: var(--sign-soft); color: var(--sign); }
+  .tag--done   { background: var(--correct-soft); color: var(--correct); }
+  .tag--defer  { background: var(--fill); color: var(--ink-muted); }
+
+  table { width: 100%; border-collapse: collapse; direction: ltr; margin: 14px 0 6px; }
+  th, td { text-align: left; padding: 9px 12px; border-bottom: 1px solid var(--line);
+           font: 400 14px/20px var(--font-sans); vertical-align: middle; }
+  th { font: 600 12px/16px var(--font-sans); color: var(--ink-faint);
+       text-transform: uppercase; letter-spacing: .05em; border-bottom-color: var(--line-strong); }
+  td.num { font-variant-numeric: tabular-nums; }
+  tr:last-child td { border-bottom: 0; }
+  .tick { color: var(--correct); font-weight: 700; }
+  .cross { color: var(--sign); font-weight: 700; }
+  .scroller { overflow-x: auto; margin-inline: calc(var(--space-5) * -1); padding-inline: var(--space-5); }
+
+  .opts { display: grid; gap: 12px; grid-template-columns: 1fr; margin: 4px 0 0; }
+  @media (min-width: 720px) { .opts { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  .opt { border: 1px solid var(--line); border-radius: var(--radius-sm);
+         padding: var(--space-4); background: var(--ground); min-width: 0; }
+  .opt h4 { font: 600 15px/20px var(--font-sans); margin: 0 0 6px; }
+  .opt p { font-size: 14px; line-height: 21px; margin: 0 0 8px; }
+  .opt .why { font: 400 13px/19px var(--font-sans); color: var(--ink-faint); margin: 0; }
+  .rec { display: inline-block; font: 700 10px/15px var(--font-sans); letter-spacing: .07em;
+         text-transform: uppercase; color: var(--correct); background: var(--correct-soft);
+         padding: 1px 6px; border-radius: 999px; margin-inline-start: 6px; vertical-align: 2px; }
+
+  form.q { margin: 18px 0 0; padding: var(--space-4) 0 0; border-top: 1px solid var(--line); }
+  form.q fieldset { border: 0; margin: 0; padding: 0; }
+  form.q legend { font: 600 13px/18px var(--font-sans); color: var(--ink); padding: 0 0 8px; }
+  form.q label { display: flex; align-items: flex-start; gap: 10px; padding: 7px 0;
+                 font: 400 14px/21px var(--font-sans); color: var(--ink); cursor: pointer; }
+  form.q input[type=radio], form.q input[type=checkbox] { margin: 3px 0 0; flex: none;
+                 accent-color: var(--select); width: 16px; height: 16px; }
+  form.q textarea { width: 100%; margin: 8px 0 0; padding: 10px 12px; border-radius: var(--radius-sm);
+                 border: 1px solid var(--line-strong); background: var(--raised); color: var(--ink);
+                 font: 400 14px/21px var(--font-sans); resize: vertical; min-height: 62px; }
+  .qfoot { display: flex; align-items: center; gap: 12px; margin-top: 12px; flex-wrap: wrap; }
+  .sent { font: 500 13px/18px var(--font-sans); color: var(--correct); display: none; }
+  .sent.on { display: inline; }
+
+  ul.plain { list-style: none; padding: 0; margin: 0 0 12px;
+             display: flex; flex-direction: column; gap: 8px; }
+  ul.plain li { font: 400 14px/21px var(--font-sans); color: var(--ink-muted);
+                padding-inline-start: 16px; position: relative; }
+  ul.plain li::before { content: ""; position: absolute; inset-inline-start: 2px; top: 9px;
+                width: 4px; height: 4px; border-radius: 50%; background: var(--line-strong); }
+
+  .stats { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 1px;
+           background: var(--line); border: 1px solid var(--line);
+           border-radius: var(--radius-sm); overflow: hidden; margin: 0 0 4px; }
+  @media (min-width: 620px) { .stats { grid-template-columns: repeat(4, minmax(0,1fr)); } }
+  .stat { background: var(--raised); padding: var(--space-3) var(--space-4); min-width: 0; }
+  .stat__n { font: 500 24px/30px var(--font-serif); font-variant-numeric: tabular-nums; color: var(--ink); }
+  .stat__k { font: 500 12px/17px var(--font-sans); color: var(--ink-faint); }
+</style>
+</head>
+<body data-theme="midad">
+<div class="wrap">
+
+  <p class="eyebrow">Sarf engine · mithāl amr</p>
+  <h1>Two decisions, one deferred fix</h1>
+  <p class="lede">
+    <code>openMithalAmr()</code> is in and verified. What is left is grammar I should not
+    decide for you, and one adjacent bug I left alone on purpose.
+  </p>
+
+  <!-- ============================================ shipped ============== -->
+  <div class="card card--done">
+    <p class="eyebrow"><span class="tag tag--done">Shipped</span></p>
+    <h3>The fix landed and the corpus held still</h3>
+    <div class="stats">
+      <div class="stat"><div class="stat__n">72</div><div class="stat__k">cells changed</div></div>
+      <div class="stat"><div class="stat__n">75,640</div><div class="stat__k">snapshot lines, rest identical</div></div>
+      <div class="stat"><div class="stat__n">417/417</div><div class="stat__k">smoke assertions</div></div>
+      <div class="stat"><div class="stat__n">36</div><div class="stat__k">qutrub mismatches cleared</div></div>
+    </div>
+    <p style="margin:12px 0 0">
+      Controls that did <em>not</em> move, checked in the after-snapshot:
+    </p>
+    <div class="pair" style="flex-wrap:wrap;gap:var(--space-4);margin-top:6px">
+      <span class="ar ar--sm ar--good">أَوْعِدْ</span>
+      <span class="ar ar--sm ar--good">اُوجُهْ</span>
+      <span class="ar ar--sm ar--good">اِسْتَوْجِبْ</span>
+      <span class="ar ar--sm ar--good">اِسْتَيْقِنْ</span>
+      <span class="ar ar--sm ar--good">عِدْ</span>
+      <span class="ar ar--sm ar--good">رِثْ</span>
+      <span class="ar ar--sm ar--good">ضَعْ</span>
+      <span class="ar ar--sm ar--good">عَلِّمْ</span>
+    </div>
+  </div>
+
+  <hr class="rule">
+
+  <!-- ============================================ decision 1 =========== -->
+  <p class="eyebrow"><span class="tag tag--decide">Decide</span> &nbsp;D1</p>
+  <h2>وسع still comes out wrong — and the new function cannot fix it</h2>
+  <p>
+    You are right that the amr is <span class="ar ar--sm">سَعْ</span>. The second branch of
+    <code>openMithalAmr()</code> already handles that shape correctly: a dropped wāw leaves
+    the word opening on a vowelled ʿayn, so no hamza is propped and nothing is rewritten —
+    exactly how <span class="ar ar--sm">عِدْ</span> and <span class="ar ar--sm">ضَعْ</span> come out right.
+  </p>
+  <p>
+    But <span class="ar ar--sm">وسع</span> never reaches that branch. It is
+    <code>bab: 'ia'</code> in
+    <a href="#">mithal.js:267</a>, and the <code>ia</code> row keeps the wāw. So the
+    stem handed to the function is already wrong:
+  </p>
+
+  <div class="card">
+    <div class="pair"><span class="pair__label">Was</span><span class="ar ar--bad">اِوْسَعْ</span></div>
+    <div class="pair"><span class="pair__label">Now</span><span class="ar ar--bad">اِيسَعْ</span></div>
+    <div class="pair"><span class="pair__label">Correct</span><span class="ar ar--lg ar--good">سَعْ</span></div>
+    <p class="why" style="margin:10px 0 0;font:400 13px/19px var(--font-sans);color:var(--ink-faint)">
+      The wāw→yāʾ conversion is doing its job. The stem underneath it is the problem.
+    </p>
+  </div>
+
+  <h3>No bāb in the table can express this verb</h3>
+  <div class="scroller">
+  <table>
+    <thead><tr><th>bāb</th><th>māḍī</th><th></th><th>muḍāriʿ</th><th></th><th>verdict</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><code>ia</code></td>
+        <td><span class="ar ar--sm">وَسِعَ</span></td><td class="tick">✓</td>
+        <td><span class="ar ar--sm">يَوْسَعُ</span></td><td class="cross">✗</td>
+        <td>wāw kept — what we ship today</td>
+      </tr>
+      <tr>
+        <td><code>ii</code></td>
+        <td><span class="ar ar--sm">وَسِعَ</span></td><td class="tick">✓</td>
+        <td><span class="ar ar--sm">يَسِعُ</span></td><td class="cross">✗</td>
+        <td>drops, but wrong ʿayn vowel</td>
+      </tr>
+      <tr>
+        <td><code>aa</code></td>
+        <td><span class="ar ar--sm">وَسَعَ</span></td><td class="cross">✗</td>
+        <td><span class="ar ar--sm">يَسَعُ</span></td><td class="tick">✓</td>
+        <td>right muḍāriʿ, wrong māḍī</td>
+      </tr>
+      <tr style="background:var(--select-soft)">
+        <td><strong>wanted</strong></td>
+        <td><span class="ar ar--sm ar--good">وَسِعَ</span></td><td class="tick">✓</td>
+        <td><span class="ar ar--sm ar--good">يَسَعُ</span></td><td class="tick">✓</td>
+        <td><strong>no bāb produces this pair</strong></td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+
+  <p>
+    The <code>ia</code> row is hiding <strong>two different behaviours</strong>: the wāw stays
+    (<span class="ar ar--sm">وَجِلَ يَوْجَلُ</span> — the Qurʾānic
+    <span class="ar ar--sm">لَا تَوْجَل</span> the code comment cites) and the wāw drops
+    (<span class="ar ar--sm">وَسِعَ يَسَعُ</span>). The bāb's vowel pair does not decide which,
+    so no amount of re-labelling fixes it — the fact has to live somewhere new.
+  </p>
+
+  <h3>Where should that fact live?</h3>
+  <div class="opts">
+    <div class="opt">
+      <h4>A · State the outcome on the root</h4>
+      <p>A field on the Form I usage in the lexicon, e.g. <code>faaDrops: true</code>, read by
+      the mithāl stem lookup before it consults the bāb.</p>
+      <p class="why">Blunt and obvious. Says <em>what</em> happens, never <em>why</em>, so the next
+      verb like this needs the same judgement call made again from scratch.</p>
+    </div>
+    <div class="opt">
+      <h4>B · State the cause on the root <span class="rec">Suggested</span></h4>
+      <p>Record that the muḍāriʿ fatḥa is an <em>opened kasra</em> — the ḥarf ḥalq pulled it
+      down — and let "wāw drops" follow from the rule the <code>aa</code> row already states.</p>
+      <p class="why">Matches the reasoning already written in
+      <code>mithal-grammar.js</code>, and answers D2 below with the same field rather than a
+      second one.</p>
+    </div>
+  </div>
+
+  <form class="q" data-lavish-question="d1" onsubmit="event.preventDefault();
+      const f=new FormData(event.currentTarget); const a=f.get('d1'); const n=(f.get('d1note')||'').trim();
+      if(!a) return;
+      window.lavish.queuePrompt('D1 (وسع): '+a+(n?' — '+n:''),
+        {tag:'decision', text:'D1 وسع: '+a, element:event.currentTarget, data:{question:'d1-wasia', answer:a, note:n}});
+      event.currentTarget.querySelector('.sent').classList.add('on');">
+    <fieldset>
+      <legend>D1 — how should وسع record that its wāw drops?</legend>
+      <label><input type="radio" name="d1" value="Option A — faaDrops on the root, state the outcome"> <span><strong>A</strong> — state the outcome (<code>faaDrops</code>)</span></label>
+      <label><input type="radio" name="d1" value="Option B — record the opened kasra, let the drop follow"> <span><strong>B</strong> — record the opened kasra, let the drop follow</span></label>
+      <label><input type="radio" name="d1" value="Leave وسع alone for now"> <span>Leave it — <span class="ar ar--sm">اِيسَعْ</span> is not worse than before, park it</span></label>
+      <textarea name="d1note" placeholder="Any correction to the grammar, or a different shape you want…"></textarea>
+    </fieldset>
+    <div class="qfoot">
+      <button class="sq-btn sq-btn--small sq-btn--primary" type="submit">Queue this answer</button>
+      <span class="sent">Queued — press Send to Agent when you are done.</span>
+    </div>
+  </form>
+
+  <hr class="rule">
+
+  <!-- ============================================ decision 2 =========== -->
+  <p class="eyebrow"><span class="tag tag--decide">Decide</span> &nbsp;D2</p>
+  <h2>وجع may have the same problem — I am not confident enough to change it</h2>
+  <p>
+    The <code>aa</code> row's comment explains the wāw dropping in
+    <span class="ar ar--sm">وَضَعَ يَضَعُ</span> by the ḥarf ḥalq pulling a kasra down to a fatḥa.
+    <span class="ar ar--sm">وجع</span> has <span class="ar ar--sm">ع</span> as its lām — the same
+    ḥalq letter. If that rule applies, the amr I now produce is wrong too.
+  </p>
+
+  <div class="scroller">
+  <table>
+    <thead><tr><th>root</th><th>lām</th><th>ḥarf ḥalq?</th><th>amr now</th><th>status</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><span class="ar ar--sm">وجل</span></td>
+        <td><span class="ar ar--sm">ل</span></td><td>no</td>
+        <td><span class="ar ar--sm ar--good">اِيجَلْ</span></td>
+        <td><span class="tick">✓</span> confident — wāw stays</td>
+      </tr>
+      <tr>
+        <td><span class="ar ar--sm">وجع</span></td>
+        <td><span class="ar ar--sm">ع</span></td><td><strong>yes</strong></td>
+        <td><span class="ar ar--sm">اِيجَعْ</span></td>
+        <td><strong>your call</strong> — or <span class="ar ar--sm">جَعْ</span>?</td>
+      </tr>
+      <tr>
+        <td><span class="ar ar--sm">وسع</span></td>
+        <td><span class="ar ar--sm">ع</span></td><td><strong>yes</strong></td>
+        <td><span class="ar ar--sm ar--bad">اِيسَعْ</span></td>
+        <td><span class="cross">✗</span> you already ruled: <span class="ar ar--sm ar--good">سَعْ</span></td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+
+  <p>
+    If <span class="ar ar--sm">وجع</span> drops too, it is the same fix as D1 with a second root
+    and Option B covers both. If it does not, the ḥarf-ḥalq rule is not sufficient on its own
+    and Option A is the more honest model.
+  </p>
+
+  <form class="q" data-lavish-question="d2" onsubmit="event.preventDefault();
+      const f=new FormData(event.currentTarget); const a=f.get('d2'); const n=(f.get('d2note')||'').trim();
+      if(!a) return;
+      window.lavish.queuePrompt('D2 (وجع): '+a+(n?' — '+n:''),
+        {tag:'decision', text:'D2 وجع: '+a, element:event.currentTarget, data:{question:'d2-waja', answer:a, note:n}});
+      event.currentTarget.querySelector('.sent').classList.add('on');">
+    <fieldset>
+      <legend>D2 — does وجع drop its wāw?</legend>
+      <label><input type="radio" name="d2" value="Yes, وجع drops too — amr is جَعْ, same fix as D1"> <span>Yes — muḍāriʿ <span class="ar ar--sm">يَجَعُ</span>, amr <span class="ar ar--sm">جَعْ</span>, fold into D1</span></label>
+      <label><input type="radio" name="d2" value="No, وجع keeps its wāw — اِيجَعْ is correct"> <span>No — <span class="ar ar--sm">يَوْجَعُ</span> stands, <span class="ar ar--sm">اِيجَعْ</span> is right</span></label>
+      <label><input type="radio" name="d2" value="Unsure — flag it in KNOWN_CONJUGATION_ERRORS and leave the code"> <span>Unsure — record it as an open question, leave the code</span></label>
+      <textarea name="d2note" placeholder="The rule as you understand it…"></textarea>
+    </fieldset>
+    <div class="qfoot">
+      <button class="sq-btn sq-btn--small sq-btn--primary" type="submit">Queue this answer</button>
+      <span class="sent">Queued — press Send to Agent when you are done.</span>
+    </div>
+  </form>
+
+  <hr class="rule">
+
+  <!-- ============================================ deferred ============= -->
+  <p class="eyebrow"><span class="tag tag--defer">Deferred</span> &nbsp;D3 · D4</p>
+  <h2>Two things I left alone</h2>
+
+  <div class="card card--flag">
+    <h3>D3 · Form VIII has no waṣl hamza at all</h3>
+    <div class="pair"><span class="pair__label">Engine</span><span class="ar ar--bad">تَّصِلْ</span></div>
+    <div class="pair"><span class="pair__label">Correct</span><span class="ar ar--good">اِتَّصِلْ</span></div>
+    <p style="margin:12px 0 0">
+      Form VIII's stem opens on a <strong>shadda</strong>, not a sukūn — the fāʾ dissolved into
+      the tāʾ (<span class="ar ar--sm">اِوْتَعَدَ</span> → <span class="ar ar--sm">اِتَّعَدَ</span>) —
+      so it falls through my <code>body[1] !== SUKUN</code> branch and comes out with no opening.
+      That is <code>KNOWN_CONJUGATION_ERRORS.md §1.2</code>, <strong>18 cells</strong>.
+    </p>
+    <p style="margin:8px 0 0">
+      Two characters to fix, but it is a different question — <em>when</em> is a hamza needed,
+      not <em>which letter</em> is the fāʾ — so it wants its own parity run. There is a named
+      <code>FUTURE FIX</code> comment on the exact branch that owns it.
+    </p>
+  </div>
+
+  <div class="card">
+    <h3>D4 · The errors doc is stale</h3>
+    <p style="margin:0 0 10px">
+      <code>KNOWN_CONJUGATION_ERRORS.md §1.1</code> says <strong>48 cells</strong> and names the
+      wrong root sets — the lexicon gained two roots since the Aug 2026 run.
+    </p>
+    <div class="scroller">
+    <table>
+      <thead><tr><th>direction</th><th>doc says</th><th>actually</th><th class="num">cells</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>kasra wants a yāʾ</td>
+          <td><span class="ar ar--sm">وجل · وجع</span></td>
+          <td><span class="ar ar--sm">وجل · وجع · وسع</span></td>
+          <td class="num">12 → 18</td>
+        </tr>
+        <tr>
+          <td>ḍamma wants a wāw</td>
+          <td><span class="ar ar--sm">يتم</span></td>
+          <td><span class="ar ar--sm">يتم · يقظ</span></td>
+          <td class="num">6 → 12</td>
+        </tr>
+        <tr>
+          <td>fatḥa wants the root's letter</td>
+          <td>5 roots</td>
+          <td>7 roots <span class="ar ar--sm">(+ يبس · يءس)</span></td>
+          <td class="num">30 → 42</td>
+        </tr>
+        <tr style="background:var(--select-soft)">
+          <td colspan="3"><strong>total</strong></td>
+          <td class="num"><strong>48 → 72</strong></td>
+        </tr>
+      </tbody>
+    </table>
+    </div>
+  </div>
+
+  <form class="q" data-lavish-question="next" onsubmit="event.preventDefault();
+      const sel=[...event.currentTarget.querySelectorAll('input[name=next]:checked')]
+        .map(i=>({id:i.value, label:i.dataset.label}));
+      const n=(new FormData(event.currentTarget).get('nextnote')||'').trim();
+      if(!sel.length && !n) return;
+      window.lavish.queuePrompt('Do these next, and give an item-by-item receipt accounting for every submitted ID: '
+        + sel.map(s=>s.id+' ('+s.label+')').join('; ') + (n?' — also: '+n:''),
+        {tag:'tracked-batch', text:'Queue '+sel.length+' follow-ups', element:event.currentTarget, data:{items:sel, note:n}});
+      event.currentTarget.querySelector('.sent').classList.add('on');">
+    <fieldset>
+      <legend>What should I pick up next?</legend>
+      <label><input type="checkbox" name="next" value="D1" data-label="fix وسع's stem selection"> <span><strong>D1</strong> — implement the وسع fix, whichever option you chose</span></label>
+      <label><input type="checkbox" name="next" value="D2" data-label="resolve وجع"> <span><strong>D2</strong> — apply your وجع ruling</span></label>
+      <label><input type="checkbox" name="next" value="D3" data-label="Form VIII wasl hamza, §1.2, 18 cells"> <span><strong>D3</strong> — Form VIII waṣl hamza (<span class="ar ar--sm">اِتَّصِلْ</span>), 18 cells</span></label>
+      <label><input type="checkbox" name="next" value="D4" data-label="update KNOWN_CONJUGATION_ERRORS §1.1"> <span><strong>D4</strong> — correct §1.1's counts and root lists</span></label>
+      <label><input type="checkbox" name="next" value="P2" data-label="Pattern 2 hamza seat for يءس"> <span><strong>P2</strong> — the <span class="ar ar--sm">يءس</span> hamza seat (<span class="ar ar--sm">ء</span> → <span class="ar ar--sm">ئ</span>), 220 cells</span></label>
+      <textarea name="nextnote" placeholder="Anything else…"></textarea>
+    </fieldset>
+    <div class="qfoot">
+      <button class="sq-btn sq-btn--small sq-btn--primary" type="submit">Queue selected</button>
+      <span class="sent">Queued — press Send to Agent when you are done.</span>
+    </div>
+  </form>
+
+</div>
+</body>
+</html>
