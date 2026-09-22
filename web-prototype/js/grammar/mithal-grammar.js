@@ -40,6 +40,13 @@ export const MITHAL_STEMS = {
         ai: '2' + K + '3',             // kasra — wow drops: وَصَلَ يَصِلُ
         aa: '2' + F + '3',             // opened kasra — wow drops: وَضَعَ يَضَعُ
         ia: '1' + S + '2' + F + '3',   // original fatha — wow STAYS: وَجِلَ يَوْجَلُ // [SCHOLAR VERIFY]
+        // The second reading of that same baab, chosen by `faaDrops` on the root and
+        // NOT by the baab itself — see getConjugationData() in mithal-conjugator.js.
+        // Same string as the `aa` row above, and that is the grammatical point rather
+        // than a coincidence: both are an opened kasra, so the wow was already crushed
+        // out between the prefix's fatha and that kasra before the harf halq pulled the
+        // vowel down. وَسِعَ يَسَعُ, amr سَعْ.
+        ia_faaDropped: '2' + F + '3',
         uu: '1' + S + '2' + D + '3',   // dammah — wow stays: وَجُهَ يَوْجُهُ
         ii: '2' + K + '3'              // kasra — wow drops: وَرِثَ يَرِثُ
       },

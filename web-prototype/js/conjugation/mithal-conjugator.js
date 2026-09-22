@@ -5,7 +5,7 @@
 
 import { MITHAL_STEMS, MITHAL_ENDINGS, DERIVED_NOUN_STEMS } from '../grammar/mithal-grammar.js';
 import { PREFIX_LETTERS, MUDARI_PREFIX_HARAKA } from '../grammar/shared-grammar.js';
-import { slotsFor, FATHA, DAMMA, KASRA, SUKUN } from '../vocabulary.js';
+import { slotsFor, FATHA, DAMMA, KASRA, SUKUN, SHADDA } from '../vocabulary.js';
 import { babOf } from '../lexicon/root.js';
 import { fill, norm, joinEnding, unmarkMaddLetters } from './templates.js';
 
@@ -50,8 +50,28 @@ export function getConjugationData(spec) {
   // this is for form 1, and maroof cases where things differ by baab
   if (spec.formId === 'I' && spec.voice === 'malum') {
     const bab = babOf(spec.root, spec.formId);
+
+    // Bāb `ia` is the one row that does not decide by itself whether the wāw
+    // survives, and the vowel pair cannot tell the two apart because they SHARE
+    // it: وَجِلَ يَوْجَلُ keeps its wāw, وَسِعَ يَسَعُ drops it, and both are
+    // fatḥa-on-the-ʿayn over a kasra-in-the-māḍī. What separates them is whether
+    // that muḍāriʿ fatḥa is original or an opened kasra, which is a fact about
+    // the verb and not about its bāb — so the lexicon states it per root, as
+    // `faaDrops` on the Form I usage, and this is the only place that reads it.
+    //
+    // Only the muḍāriʿ (and the amr built on it) cares: the māḍī of a mithāl is
+    // sound either way — وَسِعَ is on the pattern of عَلِمَ — so the māḍī table is
+    // keyed by the bāb alone and must not be sent looking for a variant it has
+    // no entry for.
+    //
+    // The flag is authored only on bāb `ia` mithāl wāw roots, where it means
+    // something. Nothing enforces that, by decision: it is content, and a
+    // validator here would be a second owner of a rule the lexicon already states.
+    const dropsFaa = spec.tense !== 'madi' && bab === 'ia'
+      && spec.root.forms[spec.formId].faaDrops;
+
     return {
-      stem: stemSetByBaab?.[bab] ?? null,
+      stem: stemSetByBaab?.[dropsFaa ? 'ia_faaDropped' : bab] ?? null,
       endingSet,
     };
   }
@@ -101,17 +121,17 @@ function openMithalAmr(body, formId, bab, faa) {
   // Nothing to prop up and nothing to rewrite — the word already opens on a
   // vowelled letter. Two unrelated reasons arrive here, and both are correct:
   // the wāw dropped out of the muḍāriʿ stem and the word now opens on a
-  // vowelled ʿayn (وَعَدَ يَعِدُ → عِدْ، وَرِثَ يَرِثُ → رِثْ), or the form puts its
-  // own ḥaraka on the fāʾ (وَعِّدْ، وَاعِدْ، تَوَعَّدْ).
+  // vowelled ʿayn (وَعَدَ يَعِدُ → عِدْ، وَرِثَ يَرِثُ → رِثْ، وَسِعَ يَسَعُ → سَعْ),
+  // or the form puts its own ḥaraka on the fāʾ (وَعِّدْ، وَاعِدْ، تَوَعَّدْ).
   //
-  // FUTURE FIX — Form VIII arrives here too and should not: its stem opens on
-  // a SHADDA (اِوْتَعَدَ became اِتَّعَدَ, so MITHAL_STEMS.VIII.mudari_malum is
-  // 'ت' + SH + …), which is every bit as unpronounceable word-initially as a
-  // sukūn, and the word comes out تَّصِلْ instead of اِتَّصِلْ. That is
-  // KNOWN_CONJUGATION_ERRORS.md §1.2, 18 cells, and it is left alone here
-  // deliberately: it is a question of WHEN a hamza is needed, not of which
-  // letter the fāʾ is, and it wants its own parity run.
-  if (body[1] !== SUKUN) return body;
+  // A SHADDA counts as "cannot start a word" exactly as a sukūn does, and that
+  // is the whole of the test: Arabic cannot open on an unvowelled consonant,
+  // and a doubled one is two of them. Form VIII is the case — its fāʾ dissolved
+  // into the tāʾ (اِوْتَعَدَ became اِتَّعَدَ), so MITHAL_STEMS.VIII.mudari_malum is
+  // 'ت' + SH + … and the word would otherwise come out as تَّصِلْ, which is not a
+  // hard word but an unpronounceable one. It takes the waṣl hamza and a kasra
+  // like every other mazīd form: اِتَّصِلْ، اِتَّضِعْ، اِتَّعِدْ.
+  if (body[1] !== SUKUN && body[1] !== SHADDA) return body;
 
   // The waṣl hamza's ḥaraka copies the muḍāriʿ ʿayn's: a ḍamma when the ʿayn
   // takes one (اُوجُهْ from يَوْجُهُ), a kasra otherwise. Only Form I ever has a

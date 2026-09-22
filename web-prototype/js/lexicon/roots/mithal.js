@@ -10,6 +10,11 @@
 // documented once in the barrel, ../roots.js — read that first.
 
 export const MITHAL_ROOTS = [
+  // `faaDrops` — bāb `ia` alone cannot say whether the wāw survives the muḍāriʿ,
+  // because the two readings share the vowel pair: وَجِلَ يَوْجَلُ keeps it (Qur'an
+  // 15:53 لَا تَوْجَل), وَسِعَ يَسَعُ drops it. Authored on the three bāb `ia` mithāl
+  // wāw roots and nowhere else, since nowhere else has the ambiguity. Read once,
+  // by getConjugationData() in mithal-conjugator.js. [SCHOLAR VERIFY: وجع]
   // --- Mithāl wāw · و as first radical ---------------------------------------
   {
     root: ['و', 'ج', 'ب'], type: 'mithal_waw',
@@ -116,7 +121,7 @@ export const MITHAL_ROOTS = [
   {
     root: ['و', 'ج', 'ل'], type: 'mithal_waw',
     forms: {
-      I: { bab: 'ia', gloss: 'to fear / be afraid', masdar: 'وَجَل', trans: false,
+      I: { bab: 'ia', faaDrops: true, gloss: 'to fear / be afraid', masdar: 'وَجَل', trans: false,
            en: { past: 'feared', pres3: 'fears', ing: 'fearing' },
            reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D9%88%D9%8E%D8%AC%D9%90%D9%84%D9%8E.html' },
       IV: { gloss: 'to frighten', trans: true,
@@ -126,7 +131,7 @@ export const MITHAL_ROOTS = [
   {
     root: ['و', 'ج', 'ع'], type: 'mithal_waw',
     forms: {
-      I: { bab: 'ia', gloss: 'to hurt / feel pain', masdar: 'وَجَع', trans: true,
+      I: { bab: 'ia', faaDrops: false, gloss: 'to hurt / feel pain', masdar: 'وَجَع', trans: true,
            en: { past: 'hurt', pp: 'hurt', pres3: 'hurts', ing: 'hurting' },
            reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D9%88%D9%8E%D8%AC%D9%90%D8%B9%D9%8E.html' },
       IV: { gloss: 'to cause pain to', trans: true,
@@ -264,7 +269,7 @@ export const MITHAL_ROOTS = [
   {
     root: ['و', 'س', 'ع'], type: 'mithal_waw',
     forms: {
-      I: { bab: 'ia', gloss: 'to accommodate / to hold', masdar: 'سَعَة', trans: true,
+      I: { bab: 'ia', faaDrops: true, gloss: 'to accommodate / to hold', masdar: 'سَعَة', trans: true,
            en: { past: 'accommodated', pp: 'accommodated', pres3: 'accommodates', ing: 'accommodating' } },
       II: { gloss: 'to widen / to expand', trans: true,
             en: { past: 'widened', pp: 'widened', pres3: 'widens', ing: 'widening' } },
