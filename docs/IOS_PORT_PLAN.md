@@ -9,14 +9,65 @@
 > **What it is not.** It doesn't restate the engine decisions (`TECHNICAL_PLAN.md` Part A), the JS→Swift
 > discrepancies (`PORT_INVENTORY.md`), or what each screen does (`product-spec/`) — it sequences them.
 >
-> **Status:** design, reviewed and settled 2026-09-21 (two rounds of review). Nothing built yet — no
-> `.xcodeproj` exists in the repo. Every number below was measured in the session that wrote it, not
-> copied from a doc. When the port starts, keep this file in sync; rename it `_v1` if it needs a
-> successor rather than editing history out of it.
+> **Status: building, since 2026-09-22.** `Track D` (D1 + D2) and `Track P`'s P1 have landed;
+> everything else is still design. Every number below was measured in the session that wrote this,
+> not copied from a doc — regenerate before trusting one. Keep this file in sync as slices land;
+> rename it `_v1` if it needs a successor rather than editing history out of it.
+
+## What has landed
+
+| Slice | State | Commit |
+|---|---|---|
+| **D1** tokens, type, fonts | ✅ done, pending E1 | `Track D — the design system ports to SwiftUI` |
+| **D2** Tables' own components | ✅ done, pending E1 | same |
+| **P1** the four boundary preps | ✅ done | `P1.1` · `P1.2` · `P1.3 + P1.4` |
+| **P2** parse card lands in JS | not started | — |
+| **E1 · E2 · Q1–Q3 · A1–A4** | not started | — |
+
+**D1 and D2 are "done, pending E1" rather than done**, exactly as the exit criterion below says:
+Track D is finished when Tables looks right, and Tables does not exist yet. What can be checked now
+has been — the type scale renders at its real row heights on device with no clipping at the largest
+Dynamic Type, every token has a Paper and a Night value, and no colour downstream is hard-coded.
+
+### Decisions taken while building, that this plan did not settle
+
+| | |
+|---|---|
+| **The app is `Awzan`** (أوزان, "patterns"). | Which resolves Decision 2's naming clash with `TECHNICAL_PLAN` §B.2, where both the quiz package and the app target were called `SarfQuiz`. Targets are now **`SarfCore` · `SarfQuiz` · `Awzan`**, no collision. |
+| **The Xcode project is hand-written and committed**, using Xcode 16+ synchronized folder groups. | No generator to install, and adding a Swift file never touches the project file. Rejected: XcodeGen/Tuist (a tool everyone must install for a project this size). |
+| **It lives under `ios/`** — `ios/Awzan.xcodeproj`, `ios/Awzan/`, `ios/Packages/`. | `TECHNICAL_PLAN` §B.2's layout is preserved exactly, rooted one level down, because a bare `Packages/` at the repo root would read as the repo's packages rather than the iOS app's. |
+| **The token layer is generated** from `design/midad/tokens.json` by `ios/tools/generate-tokens.mjs`, output committed. | The design system's own toolchain is not in this repo, so `tokens.json` is the only durable link to it — and one wrong digit in a hex value is invisible in review and wrong on every screen. Not a build step; nothing in Xcode runs it. |
+| **Q-15 is answered: Newsreader is bundled.** | With Scheherazade New, both under the OFL, licences shipping beside them. Newsreader exists only as a variable font, so its weight is driven through the `wght` axis. |
+
+### Corrections to this plan, found by building it
+
+- **P1 and P2 are not disjoint, so they are not parallel.** The roadmap has them side by side on the
+  grounds of "disjoint files". They are not: P1 threads `playableTypes` through `word-pool.js` and
+  `drills.js`, and P2 edits both. **P2 follows P1.** P1 is still parallel-safe with Track D.
+- **P1's own description understates it.** "`availableTypes()` takes its content gate as an argument"
+  reads as a one-line signature change. Three of its five callers live in what becomes `SarfQuiz`,
+  which cannot import the app's `Settings` any more than `SarfCore` can — so passing the gate down
+  would only have relocated the illegal import. The fix is that the quiz layer takes the **result**
+  (a list of playable verb types) and never learns gating exists, which touched nine files.
+- **The design's SwiftUI note for Tables' segmented controls is wrong for this screen.** Its README
+  says `Picker(.segmented)`; `product-spec/screens/04-tables.md` requires one segment disabled *with
+  a printed reason* (خَرَجَ has no majhūl) and bilingual labels in fixed slots. `Picker` can do
+  neither, so `SegmentedRow` is custom and says why at the top of the file.
+- **`bundle.css` does not use the type scale it ships with.** Four component texts are sized off-scale
+  — chip English `14/18` against `label`'s `13/18`, the 14-row list `26/48` against the spec's
+  `arabic-title` `28/50`, the word bar `26/44`, the button `17/22` against `headline`'s `17/24`.
+  Track D followed the **named scale and the product spec**, per "text wins over pixels". Worth
+  folding back into the generator, since a scale nothing uses stops being a scale.
 
 ---
 
 ## Ground truth, measured 2026-09-21
+
+> These are the numbers the plan was written against and they are **kept as the record**, not
+> updated in place. Two have moved since: the suite is at **430 / 432** (13 assertions added by P1,
+> the same 2 failures), and Swift is no longer zero — see *What has landed*. The corpus the snapshot
+> walks has grown from 75,640 to **76,006** lines, because the lexicon gained a root mid-session;
+> regenerate it rather than trusting either number.
 
 | | |
 |---|---|
@@ -204,7 +255,7 @@ pool-parity fixture, which is measured against sālim-only setups.*
 
 ### Every slice, with its exit criteria
 
-**D1 / D2 — the design system ports to SwiftUI** · *new, parallel to Track P, ahead of E1*
+**D1 / D2 — the design system ports to SwiftUI** ✅ *done, pending E1* · *parallel to Track P, ahead of E1*
 
 - **D1** — colours as an asset catalog (Paper/Night pairs for every semantic token: `ground`, `ink`,
   `sign`, `correct`/`wrong`, etc.), Scheherazade New + Newsreader bundled as fonts, the type scale
@@ -221,14 +272,17 @@ pool-parity fixture, which is measured against sālim-only setups.*
   Night value. Proven by E1 actually building on top of it — Track D is "done" when Tables looks right,
   not before.
 
-**P1 — the four boundary preps** · *small, parallel-safe*
+**P1 — the four boundary preps** ✅ *done* · *parallel-safe with Track D, but **not** with P2 — see Corrections*
 
 `availableTypes()` takes its content gate as an argument, not an import of `settings`. `FORM_META` moves
 behind `conjugates()`/`hasPassive()` on the service. `relevance`'s `space → Set<…>` becomes
 `distinctAnswers → Int`. `bab` becomes a typed value with `madiVowel`/`mudariVowel`.
-**Exit:** 417 assertions green, engine snapshot zero-diff, each change its own tiny commit.
+**Exit:** engine snapshot zero-diff, each change its own tiny commit. *Met: 430 assertions green
+(417 + 13 new, covering the boundaries themselves), snapshot zero-diff at 76,006 lines, three commits.
+The 2 failures are the وجل `faaDrops` regression below, which was deliberately left in place — so
+the real exit was **no new failures**, not "417 green".*
 
-**P2 — parse card lands in JS** · *parallel to P1, disjoint files*
+**P2 — parse card lands in JS** · *follows P1 — the files are **not** disjoint, see Corrections*
 
 Executes `docs/PARSE_CARD_PLAN.md`.
 **Exit:** its own parity proof (engine snapshot + assertion suite); `product-spec/screens/02-quiz.md` no
