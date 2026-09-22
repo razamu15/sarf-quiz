@@ -147,9 +147,16 @@ def main():
     outcomes = []
     for entry in types:
         lexicon_type = entry['type']
+        # Two absences can be true at once, and they are not equally informative.
+        # "No root declares this form" is the reason THIS sweep skipped the type;
+        # "no engine" is a standing fact about the type that would be just as true
+        # for a form it does declare. Checking the root count first keeps the
+        # reported reason the one that answers "why is there no report here".
+        if entry['rootsByForm'][form] == 0:
+            outcome = {'status': 'no_roots', 'type': lexicon_type, 'form': form}
         # An engineless type is decided here, from the lexicon's own account,
         # rather than by running the comparison and reading the wreckage.
-        if not entry['hasEngine']:
+        elif not entry['hasEngine']:
             outcome = {
                 'status': 'no_engine', 'type': lexicon_type, 'form': form,
                 'roots': entry['rootsByForm'][form],

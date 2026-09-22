@@ -390,7 +390,8 @@
   <!-- ============================================================ ROADMAP DIAGRAM -->
   <section class="mb-8" data-lavish-revision="r2">
     <h2 class="text-2xl font-bold mb-1">The roadmap</h2>
-    <p class="text-base-content/70 mb-5 max-w-3xl">Five tracks. <span class="file">Track D</span> (new) ports the design system's tokens and components into SwiftUI in parallel with <span class="file">Track P</span> — neither depends on the other — so that <span class="file">E1</span>'s Tables screen is the <b>real, fully-designed buildout</b> from day one, not a placeholder redone later. Solid arrows are hard blockers.</p>
+    <p class="text-base-content/70 mb-5 max-w-3xl">Five tracks. <span class="file">Track D</span> ports the design system's tokens and components into SwiftUI in parallel with <span class="file">Track P</span> — neither depends on the other — so that <span class="file">E1</span>'s Tables screen is the <b>real, fully-designed buildout</b> from day one, not a placeholder redone later. Solid arrows are hard blockers.</p>
+    <p class="text-base-content/70 mb-5 max-w-3xl"><b>Updated 2026-09-22.</b> Green boxes have landed: <span class="file">D1</span>, <span class="file">D2</span> and <span class="file">P1</span>. Two things changed in the process. <b><span class="file">P1</span> and <span class="file">P2</span> are no longer parallel</b> — they were listed as disjoint files and they are not, since P1 threads <span class="file">playableTypes</span> through <span class="file">word-pool.js</span> and <span class="file">drills.js</span> and P2 edits both, so there is now a hard arrow between them. And <span class="file">D1</span>/<span class="file">D2</span> are marked <i>landed, pending E1</i> rather than done, because this plan's own exit criterion says Track D is finished when Tables looks right — and Tables does not exist yet.</p>
 
     <svg viewBox="0 0 1150 700" style="width:100%;height:auto" role="img" aria-labelledby="roadmap-title roadmap-desc">
       <title id="roadmap-title">Port sequencing across five tracks</title>
@@ -416,30 +417,30 @@
 
       <!-- Track D boxes -->
       <g id="box-D1"><title>Colors as an asset catalog (Paper/Night pairs for all ~14 semantic tokens), Scheherazade New + Newsreader bundled, the type scale as Font extensions with explicit row heights, spacing/radii constants</title>
-        <rect x="40" y="65" width="210" height="55" rx="10" fill="var(--color-base-100)" stroke="var(--color-accent)" stroke-width="1.5"></rect>
-        <text x="145" y="87" text-anchor="middle" class="diagram-text" font-size="12" font-weight="700">D1</text>
+        <rect x="40" y="65" width="210" height="55" rx="10" fill="var(--color-success)" fill-opacity=".12" stroke="var(--color-success)" stroke-width="2.2"></rect>
+        <text x="145" y="87" text-anchor="middle" class="diagram-text" font-size="12" font-weight="700">✓ D1</text>
         <text x="145" y="103" text-anchor="middle" class="diagram-text" font-size="10.5">Tokens, type &amp; fonts</text>
-        <text x="145" y="116" text-anchor="middle" class="diagram-text" font-size="9" opacity=".6">most of the visual difference</text>
+        <text x="145" y="116" text-anchor="middle" class="diagram-text" font-size="9" opacity=".75">landed — generated from tokens.json</text>
       </g>
       <g id="box-D2"><title>WordBar, Chip (as a configurator), RootTiles, the segmented tense/voice/iʿrāb control, the 14-row table list, the primary Button style — exactly what Tables needs, the rest rides with its own screen's slice</title>
-        <rect x="270" y="65" width="230" height="55" rx="10" fill="var(--color-base-100)" stroke="var(--color-accent)" stroke-width="1.5"></rect>
-        <text x="385" y="87" text-anchor="middle" class="diagram-text" font-size="12" font-weight="700">D2</text>
+        <rect x="270" y="65" width="230" height="55" rx="10" fill="var(--color-success)" fill-opacity=".12" stroke="var(--color-success)" stroke-width="2.2"></rect>
+        <text x="385" y="87" text-anchor="middle" class="diagram-text" font-size="12" font-weight="700">✓ D2</text>
         <text x="385" y="103" text-anchor="middle" class="diagram-text" font-size="10.5">Tables' own components</text>
-        <text x="385" y="116" text-anchor="middle" class="diagram-text" font-size="9" opacity=".6">WordBar, Chip, segmented, 14-row list</text>
+        <text x="385" y="116" text-anchor="middle" class="diagram-text" font-size="9" opacity=".75">landed — verified Paper, Night, XXXL</text>
       </g>
 
       <!-- Track P boxes -->
       <g id="box-P1"><title>4 small JS changes that unblock the SarfCore/SarfQuiz package split — availableTypes(enabled:), FORM_META behind service methods, relevance space→Int, bab as a typed value</title>
-        <rect x="40" y="160" width="190" height="55" rx="10" fill="var(--color-base-100)" stroke="var(--color-secondary)" stroke-width="1.5"></rect>
-        <text x="135" y="182" text-anchor="middle" class="diagram-text" font-size="12" font-weight="700">P1</text>
+        <rect x="40" y="160" width="190" height="55" rx="10" fill="var(--color-success)" fill-opacity=".12" stroke="var(--color-success)" stroke-width="2.2"></rect>
+        <text x="135" y="182" text-anchor="middle" class="diagram-text" font-size="12" font-weight="700">✓ P1</text>
         <text x="135" y="198" text-anchor="middle" class="diagram-text" font-size="10.5">4 boundary preps</text>
-        <text x="135" y="211" text-anchor="middle" class="diagram-text" font-size="9" opacity=".6">§5.2, small &amp; mechanical</text>
+        <text x="135" y="211" text-anchor="middle" class="diagram-text" font-size="9" opacity=".75">landed — 9 files, not 4 lines</text>
       </g>
       <g id="box-P2"><title>Execute docs/PARSE_CARD_PLAN.md in the web prototype: one composite parse-card question replacing five separate identify questions</title>
         <rect x="270" y="160" width="220" height="55" rx="10" fill="var(--color-base-100)" stroke="var(--color-secondary)" stroke-width="1.5"></rect>
         <text x="380" y="182" text-anchor="middle" class="diagram-text" font-size="12" font-weight="700">P2</text>
         <text x="380" y="198" text-anchor="middle" class="diagram-text" font-size="10.5">Parse card lands (D-72)</text>
-        <text x="380" y="211" text-anchor="middle" class="diagram-text" font-size="9" opacity=".6">plan already written</text>
+        <text x="380" y="211" text-anchor="middle" class="diagram-text" font-size="9" opacity=".6">plan written · follows P1</text>
       </g>
       <g><title>Dropped 2026-09-21: Practice's design has no open questions left to resolve in JS — Swift builds Slice A1 directly from product-spec/screens/03-practice.md</title>
         <rect x="500" y="160" width="190" height="55" rx="10" fill="none" stroke="var(--color-base-content)" stroke-width="1" stroke-dasharray="3 4" opacity=".3"></rect>
@@ -505,6 +506,10 @@
       </g>
 
       <!-- arrows -->
+      <!-- NEW 2026-09-22: P1 blocks P2. They were drawn as parallel on the grounds
+           of disjoint files; P1 threads playableTypes through word-pool.js and
+           drills.js, and P2 edits both. -->
+      <line x1="232" y1="187" x2="266" y2="187" class="diag-arrow" marker-end="url(#arrow)" stroke-width="2"></line>
       <line x1="245" y1="120" x2="560" y2="250" class="diag-arrow" marker-end="url(#arrow)"></line>
       <line x1="460" y1="120" x2="615" y2="250" class="diag-arrow" marker-end="url(#arrow)"></line>
       <line x1="225" y1="215" x2="530" y2="250" class="diag-arrow" marker-end="url(#arrow)"></line>
@@ -517,6 +522,15 @@
       <line x1="560" y1="430" x2="580" y2="480" class="diag-arrow" marker-end="url(#arrow)"></line>
       <line x1="1000" y1="430" x2="820" y2="480" class="diag-arrow" marker-end="url(#arrow)"></line>
       <line x1="1050" y1="430" x2="1035" y2="480" class="diag-arrow" marker-end="url(#arrow)"></line>
+
+      <!-- legend -->
+      <rect x="40" y="600" width="16" height="16" rx="4" fill="var(--color-success)" fill-opacity=".12" stroke="var(--color-success)" stroke-width="2.2"></rect>
+      <text x="66" y="613" class="diagram-text" font-size="10">landed 2026-09-22</text>
+      <rect x="220" y="600" width="16" height="16" rx="4" fill="var(--color-base-100)" stroke="var(--color-base-content)" stroke-width="1.5" opacity=".5"></rect>
+      <text x="246" y="613" class="diagram-text" font-size="10" opacity=".7">not started</text>
+      <rect x="360" y="600" width="16" height="16" rx="4" fill="none" stroke="var(--color-base-content)" stroke-width="1" stroke-dasharray="3 4" opacity=".4"></rect>
+      <text x="386" y="613" class="diagram-text" font-size="10" opacity=".7">dropped / anytime</text>
+      <text x="540" y="613" class="diagram-text" font-size="10" opacity=".7">D1 and D2 are landed <tspan font-style="italic">pending E1</tspan> — Track D is done when Tables looks right, and Tables does not exist yet.</text>
     </svg>
     <p class="text-xs text-base-content/50 mt-2">The وجل regression is scoped to <span class="file">E2</span> alone (it's a mithāl content bug) — it does not touch <span class="file">Q2</span>'s pool-parity fixture, which is measured against sālim-only setups.</p>
   </section>

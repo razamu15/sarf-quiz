@@ -122,6 +122,19 @@ export const AJWAF_ROOTS = [
     },
   },
   {
+  root: ['ف', 'و', 'ت'], type: 'ajwaf_waw',
+  forms: {
+    I: { bab: 'au', gloss: 'to pass / escape', masdar: 'فَوْت', trans: false,
+         en: { past: 'passed', pres3: 'passes', ing: 'passing' } },
+    III: { gloss: 'to distinguish between', trans: true,
+           en: { past: 'distinguished between', pp: 'distinguished between',
+                 pres3: 'distinguishes between', ing: 'distinguishing between' } },
+    VI: { gloss: 'to differ / vary', trans: false,
+          en: { past: 'differed', pres3: 'differs', ing: 'differing' },
+          reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%AA%D9%8E%D9%81%D9%8E%D8%A7%D9%88%D9%8E%D8%AA%D9%8E.html' },
+  },
+},
+  {
     root: ['م', 'و', 'ت'], type: 'ajwaf_waw',
     forms: {
       I: { bab: 'au', gloss: 'to die', masdar: 'مَوْت', trans: false,

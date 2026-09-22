@@ -6,11 +6,6 @@ type. v3 adds the missing entry point — one command checks one form across
 every verb type the lexicon declares — and derives the type list from the
 lexicon instead of a hand-maintained constant.
 
-[PLAN_v2.md](PLAN_v2.md) and [PLAN_v1.md](PLAN_v1.md) are the previous versions,
-kept for traceability. Read **this** file; the older ones are only there to show
-what changed and why. When this is next revised, rename it `PLAN_v3.md` and
-write a new `PLAN.md`, per project convention.
-
 ## How to run
 
 **One form, every verb type — this is the normal way in:**
@@ -128,7 +123,6 @@ iteration, the qutrub call, comparison, and the trigger into Claude Code.
 ```
 verification/
   PLAN.md                 # this file
-  PLAN_v2.md, PLAN_v1.md  # previous versions, for traceability
   run_form.py             # Python: ONE FORM across every type — the entry point
   lexicon_coverage.mjs    # Node: what the lexicon holds, and what has an engine
   dump_engine.mjs         # Node: dumps this project's tables for one type+form
