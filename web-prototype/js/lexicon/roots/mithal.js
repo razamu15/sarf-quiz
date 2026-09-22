@@ -169,7 +169,7 @@ export const MITHAL_ROOTS = [
       III: { gloss: 'to face / confront', trans: true,
              en: { past: 'faced', pp: 'faced', pres3: 'faces', ing: 'facing' },
              reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D9%88%D9%8E%D8%A7%D8%AC%D9%8E%D9%87%D9%8E.html' },
-      V: { gloss: 'to head towards', trans: false,
+      V: { gloss: 'to head towards', trans: true,
            en: { past: 'headed towards', pres3: 'heads towards', ing: 'heading towards' },
            reverso: 'https://conjugator.reverso.net/conjugation-arabic-verb-%D8%AA%D9%8E%D9%88%D9%8E%D8%AC%D9%91%D9%8E%D9%87%D9%8E.html' },
       VI: { gloss: 'to face one another', trans: false,

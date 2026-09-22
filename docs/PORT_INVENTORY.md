@@ -619,6 +619,10 @@ run is at risk.
 
 ## 3.1 Quiz belongs on the app side — the measurement
 
+> **Resolved 2026-09-21**, re-measured and confirmed: three targets, per the argument below.
+> See [`IOS_PORT_PLAN.md`](IOS_PORT_PLAN.md) § Decision 2 for the settled record — this section is now
+> the *why*, not an open recommendation.
+
 TECHNICAL_PLAN §A.10 puts `Quiz/` inside `SarfCore`. That layout predates the A1
 restructure and **does not survive contact with the dependency graph.** Four
 measurements, all from the code as it stands:

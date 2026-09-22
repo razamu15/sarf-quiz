@@ -284,9 +284,13 @@ constants on purpose, so agreement means both are almost certainly right.
 
 ## Part C — Sequencing
 
-The build order for the iOS app is the **implementation plan**, to be derived
-screen by screen from [product-spec/](../product-spec/README.md). What belongs
-here is the engine-side sequencing and the port-specific argument:
+> **The implementation plan now exists:** [`docs/IOS_PORT_PLAN.md`](IOS_PORT_PLAN.md) — five tracks,
+> small slices, each pairing UI with the logic behind it, reviewed and settled 2026-09-21. It supersedes
+> nothing here; it sequences it. **Package boundary is settled there as three targets** (`SarfCore` ·
+> `SarfQuiz` · the app), amending §A.6 and §B.2 below, which still show the original two-target sketch —
+> read `IOS_PORT_PLAN.md` § Decision 2 for the measurement that decided it.
+
+What belongs here is the engine-side sequencing and the port-specific argument:
 
 **The morphology is finished and proven in JavaScript before any Swift is
 written**, because correctness risk and iteration cost are inverted. Nearly all
@@ -429,12 +433,8 @@ into the comparison that explains it.
 
 ## Open decisions
 
-1. **The corpus gate (Q1).** This plan says Swift never carries a half-covered
-   `VerbType`. Freezing the corpus over five engines — with mahmūz and lafīf
-   flagged out of v1 — breaks that. Options: **freeze over five and regenerate
-   when the other two land** (a reviewed diff — the mechanism exists; the
-   recommended option), hold the port for all seven, or treat the weak pair as a
-   separate engine effort with its own corpus. **Blocks B3, and so the port.**
+1. ~~**The corpus gate (Q1).**~~ **Settled** — freeze over the five shipped engines now, regenerate as a
+   reviewed diff when mahmūz and lafīf land. Recorded in [`IOS_PORT_PLAN.md`](IOS_PORT_PLAN.md) § Decision 4.
 2. **Explain prompt language** — English at launch; Arabic-medium later?
 3. **Trial mechanics** — 3 lifetime explains *and* a 7-day trial (they compose),
    or one of them?

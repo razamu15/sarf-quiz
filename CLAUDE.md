@@ -11,13 +11,15 @@ implementation; the Swift app is a port that happens once, later.
 | [product-spec/README.md](product-spec/README.md) | **What the app is and how every screen behaves** — split by screen, with the design system's screenshots. [`DECISIONS.md`](product-spec/DECISIONS.md) lists every call the owner has made, with its source; [`OPEN_QUESTIONS.md`](product-spec/OPEN_QUESTIONS.md) lists what nobody has, each with the default to build. The design system in `design/midad/` is the source of truth for look and behaviour. |
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | **What exists now** in `web-prototype/`. The layers, the object chain, the module map, the invariants a change must not break, and how to verify a change. |
 | [docs/TECHNICAL_PLAN.md](docs/TECHNICAL_PLAN.md) | The **target iOS app**: stack, module layout, persistence, testing gates, and the engine-side milestones. Does not describe the prototype. |
+| [docs/IOS_PORT_PLAN.md](docs/IOS_PORT_PLAN.md) | **The build order.** Five tracks, small slices, each pairing UI with the logic behind it — the screen-by-screen implementation plan `TECHNICAL_PLAN.md` Part C anticipated. Reviewed and settled 2026-09-21; nothing built yet. |
 | [docs/PARSE_CARD_PLAN.md](docs/PARSE_CARD_PLAN.md) | **The one change in flight.** How `identify` becomes a single composite *Parse the word* question (D-72…D-80): measured ground truth, the entities, the file split, and the parity proof. Design, not built. |
 | [docs/PORT_INVENTORY.md](docs/PORT_INVENTORY.md) | JS → Swift: every discrepancy and what it costs. Read when the port starts, not before. |
 | [docs/KNOWN_CONJUGATION_ERRORS.md](docs/KNOWN_CONJUGATION_ERRORS.md) | **Every cell the engine gets wrong today**, with the code responsible — plus the differences that only look like errors. Read before touching a conjugator, and before trusting a mismatch report. |
 
 Each doc owns one thing and they do not overlap: **product-spec** is what the app
 is and does, **ARCHITECTURE** is what is built, **TECHNICAL_PLAN** is what gets
-built in Swift, **PORT_INVENTORY** is how one becomes the other.
+built in Swift, **PORT_INVENTORY** is how one becomes the other, **IOS_PORT_PLAN**
+is the order it happens in.
 
 **The old `docs/PRODUCT_SPEC.md`, `docs/ROADMAP.md`, `docs/archive/` and `.lavish/`
 were deleted on 2026-09-21** because they were stale. They are recoverable from

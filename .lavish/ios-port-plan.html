@@ -1,0 +1,630 @@
+<!doctype html>
+<html lang="en" data-theme="nord">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sarf Quiz → iOS: the port plan</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/daisyui@5.5.19/daisyui.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/daisyui@5.5.19/themes.css">
+<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.2.4/dist/index.global.js"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+  :where(.grid, .flex) > * { min-width: 0; }
+  :where(p, h1, h2, h3, h4, li, dd, blockquote, figcaption, td, th, .badge, .label) { overflow-wrap: anywhere; }
+  :where(img, svg, video, canvas, iframe) { max-width: 100%; height: auto; }
+  html, body { background: var(--color-base-200); }
+  code, .mono { font-family: ui-monospace, "SF Mono", Menlo, monospace; }
+  .file { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 0.82em; background: color-mix(in oklch, var(--color-base-content) 7%, transparent); padding: 1px 6px; border-radius: 5px; white-space: nowrap; }
+  .decision-card { border: 1px solid var(--color-base-300); border-radius: var(--radius-box, 1rem); background: var(--color-base-100); }
+  .opt-label { display: flex; gap: .75rem; align-items: flex-start; border: 1px solid var(--color-base-300); border-radius: .75rem; padding: .75rem .9rem; cursor: pointer; background: var(--color-base-100); transition: border-color .12s, background-color .12s; }
+  .opt-label:hover { border-color: color-mix(in oklch, var(--color-primary) 50%, var(--color-base-300)); }
+  .opt-label:has(input:checked) { border-color: var(--color-primary); background: color-mix(in oklch, var(--color-primary) 8%, var(--color-base-100)); box-shadow: 0 0 0 1px var(--color-primary) inset; }
+  .opt-label input { margin-top: 3px; accent-color: var(--color-primary); flex: none; }
+  .rec-badge { font-size: .68rem; font-weight: 700; letter-spacing: .02em; }
+  .lane-d { fill: color-mix(in oklch, var(--color-accent) 16%, var(--color-base-100)); stroke: var(--color-accent); }
+  .lane-p { fill: color-mix(in oklch, var(--color-secondary) 16%, var(--color-base-100)); stroke: var(--color-secondary); }
+  .lane-e { fill: color-mix(in oklch, var(--color-primary) 14%, var(--color-base-100)); stroke: var(--color-primary); }
+  .lane-q { fill: color-mix(in oklch, var(--color-error) 14%, var(--color-base-100)); stroke: var(--color-error); }
+  .lane-a { fill: color-mix(in oklch, var(--color-success) 14%, var(--color-base-100)); stroke: var(--color-success); }
+  .diagram-text { fill: var(--color-base-content); font-family: ui-sans-serif, system-ui, sans-serif; }
+  .track-lbl { fill: var(--color-base-content); font-family: ui-sans-serif, system-ui, sans-serif; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; opacity: .55; font-size: 11px; }
+  .diag-arrow { stroke: var(--color-base-content); opacity: .5; fill: none; stroke-width: 1.6; }
+  .diag-arrow-warn { stroke: var(--color-error); opacity: .8; fill: none; stroke-width: 2; stroke-dasharray: 4 3; }
+  .anchor-target:target { outline: 2px solid var(--color-primary); outline-offset: 4px; border-radius: .5rem; }
+</style>
+</head>
+<body class="min-h-screen">
+<script type="application/json" data-lavish-revisions>
+[{ "id": "r1", "label": "Round 1", "timestamp": "2026-09-21T23:00:00Z", "summary": "Dropped the Practice JS-rehearsal step per feedback; answered the SarfQuiz package-boundary questions in full; pulled Night forward to slice 1; accepted the templates.js tier downgrade with the reasoning made explicit." },
+ { "id": "r2", "label": "Round 2", "timestamp": "2026-09-21T23:30:00Z", "summary": "3 targets confirmed. Added Track D — the design system ports to SwiftUI in parallel with Track P, ahead of E1, so E1's Tables screen is the real buildout rather than a placeholder." }]
+</script>
+<main class="mx-auto max-w-6xl px-4 py-8 lg:px-8 lg:py-10">
+
+  <!-- ============================================================ HEADER -->
+  <header class="mb-10">
+    <div class="flex flex-wrap items-start justify-between gap-4">
+      <div>
+        <p class="text-sm font-semibold uppercase tracking-wide text-primary mb-1">Implementation plan · draft for review</p>
+        <h1 class="text-4xl font-bold tracking-tight">Sarf Quiz → iOS</h1>
+        <p class="text-base-content/70 mt-2 max-w-2xl">How the port gets sequenced: small, reviewable slices that pair UI with the logic behind it, a dedicated gate around the conjugation engine, and a named strategy for the one layer everyone agrees is the scary part.</p>
+      </div>
+      <div class="stat bg-base-100 rounded-box border border-base-300 w-auto px-5 py-3">
+        <div class="stat-title text-xs">No Xcode project yet</div>
+        <div class="stat-value text-2xl">Day 0</div>
+        <div class="stat-desc">everything below starts from a blank <span class="file">Package.swift</span></div>
+      </div>
+    </div>
+    <div role="alert" class="alert alert-soft mt-5 text-sm">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0 stroke-current" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+      <span><b>How to use this:</b> select or highlight anything to leave a note. Five decision cards below have a recommended option pre-selected — change it and submit, or leave it and submit to confirm. Everything else is proposal you can push back on.</span>
+    </div>
+  </header>
+
+  <!-- ============================================================ STOCK-TAKE -->
+  <section class="mb-12">
+    <h2 class="text-2xl font-bold mb-1">Where things actually stand</h2>
+    <p class="text-base-content/70 mb-5 max-w-3xl">Measured this session, not copied from a doc — the two architecture docs (<span class="file">TECHNICAL_PLAN.md</span>, <span class="file">PORT_INVENTORY.md</span>) are from Aug–Sep 2026 and drift from the code in a few places, called out below.</p>
+
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+      <div class="stat bg-base-100 rounded-box border border-base-300 place-items-start">
+        <div class="stat-title text-xs">web-prototype/js</div>
+        <div class="stat-value text-2xl">10,379<span class="text-sm font-normal text-base-content/60"> lines</span></div>
+        <div class="stat-desc">PORT_INVENTORY was written at 6,468</div>
+      </div>
+      <div class="stat bg-base-100 rounded-box border border-base-300 place-items-start">
+        <div class="stat-title text-xs">Engines shipped</div>
+        <div class="stat-value text-2xl">5<span class="text-sm font-normal text-base-content/60"> / 7</span></div>
+        <div class="stat-desc">135 playable roots, mahmūz + lafīf authored, no engine</div>
+      </div>
+      <div class="stat bg-base-100 rounded-box border border-base-300 place-items-start">
+        <div class="stat-title text-xs">Smoke suite</div>
+        <div class="stat-value text-2xl">415<span class="text-sm font-normal text-base-content/60"> / 417</span></div>
+        <div class="stat-desc text-error">2 failing right now — see note ↓</div>
+      </div>
+      <div class="stat bg-base-100 rounded-box border border-base-300 place-items-start">
+        <div class="stat-title text-xs">Swift written</div>
+        <div class="stat-value text-2xl">0<span class="text-sm font-normal text-base-content/60"> lines</span></div>
+        <div class="stat-desc">no <span class="file">.xcodeproj</span> anywhere in the repo</div>
+      </div>
+    </div>
+
+    <div role="alert" class="alert alert-warning alert-soft mb-6 text-sm items-start">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0 stroke-current mt-0.5" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+      <div>
+        <b>The 2 failures are a live, unrelated bug — not part of this plan, and not blocking it.</b>
+        Commit <span class="file">5a1e52f</span> ("mithal amt fix", made during this session) set <span class="file">faaDrops: true</span> on وجل's Form&nbsp;I entry in <span class="file">js/lexicon/roots/mithal.js</span>. Its own doc-comment three lines above says وجل <i>keeps</i> its wāw (Qur'ān 15:53 <span dir="rtl">لَا تَوْجَلْ</span>) — the flag should be <span class="file">false</span>, matching وجع right below it. One-line fix, doesn't touch anything this plan schedules for Slice E1 (mithāl is E2-scope). Flagging it here so it doesn't get lost; say the word and it's a two-minute fix.
+      </div>
+    </div>
+
+    <h3 class="font-semibold mb-3 text-base-content/80">Two screens the accepted spec has already moved past the prototype on</h3>
+    <div class="grid md:grid-cols-2 gap-4 mb-6">
+      <div class="card card-border bg-base-100">
+        <div class="card-body p-4">
+          <div class="flex items-center justify-between">
+            <h4 class="card-title text-base">The parse card</h4>
+            <span class="badge badge-success badge-soft">already planned</span>
+          </div>
+          <p class="text-sm text-base-content/70">Spec says <b>D-72…D-80</b>: one composite question per word. Prototype still runs <span class="file">tense</span>/<span class="file">voice</span>/<span class="file">doer</span>/<span class="file">mood</span>/<span class="file">bab</span> as five separate questions.</p>
+          <p class="text-xs text-base-content/60 mt-1">Full JS implementation plan exists already — <span class="file">docs/PARSE_CARD_PLAN.md</span>, written this session, not yet executed.</p>
+        </div>
+      </div>
+      <div class="card card-border bg-base-100" data-lavish-revision="r1">
+        <div class="card-body p-4">
+          <div class="flex items-center justify-between">
+            <h4 class="card-title text-base">Practice, one screen</h4>
+            <span class="badge badge-info badge-soft">builds straight from spec</span>
+          </div>
+          <p class="text-sm text-base-content/70">Spec says <b>D-69</b>: the design's single scrolling screen, no <span class="file">practiceFlow</span> setting. Prototype still ships <i>both</i> experiments — <span class="file">settings.practiceFlow</span> defaults to <span class="file">'classic'</span>, and <span class="file">practice.js</span> switches between <span class="file">renderWizard</span>/<span class="file">renderClassic</span>.</p>
+          <p class="text-xs text-base-content/60 mt-1"><b>No JS pass needed</b> — unlike the parse card, the target design here has no open questions left; <span class="file">product-spec/screens/03-practice.md</span> already specifies it down to the acceptance checklist. Swift builds it directly (Slice A1); the classic/wizard JS is retired, unported.</p>
+        </div>
+      </div>
+    </div>
+
+    <h3 class="font-semibold mb-3 text-base-content/80">The two architecture docs disagree with each other, and I re-measured to find out who's right</h3>
+    <div class="overflow-x-auto rounded-box border border-base-300 bg-base-100">
+      <table class="table">
+        <thead><tr><th>Claim</th><th>TECHNICAL_PLAN §A.6</th><th>PORT_INVENTORY §3.1–3.2</th><th>Re-measured today</th></tr></thead>
+        <tbody>
+          <tr>
+            <td class="font-medium">Where the quiz layer lives</td>
+            <td>Inside <span class="file">SarfCore</span>, alongside the engine</td>
+            <td>Its own package, <span class="file">SarfQuiz</span> — three targets total</td>
+            <td class="text-success font-medium">PORT_INVENTORY confirmed ↓</td>
+          </tr>
+          <tr>
+            <td class="font-medium"><span class="file">glossary.js</span> reach</td>
+            <td>—</td>
+            <td>"6 of 9 quiz files import it"</td>
+            <td><span class="badge badge-ghost badge-sm">5 of 9 today</span> — <span class="file">quiz-plan.js</span>'s import was already removed; still every builder + drills</td>
+          </tr>
+          <tr>
+            <td class="font-medium"><span class="file">FORM_META</span> leak</td>
+            <td>—</td>
+            <td>3 files reach past the engine into grammar data</td>
+            <td><span class="badge badge-success badge-sm">confirmed, exactly 3</span> — <span class="file">word-pool.js</span>, <span class="file">drills.js</span>, <span class="file">builders/derived.js</span>, unchanged</td>
+          </tr>
+          <tr>
+            <td class="font-medium"><span class="file">lexicon-service.js</span> → <span class="file">settings</span></td>
+            <td>—</td>
+            <td>An illegal upward dependency once <span class="file">Settings</span> is app-side</td>
+            <td><span class="badge badge-success badge-sm">confirmed, still there</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="text-xs text-base-content/60 mt-2">This is Decision&nbsp;2 below — it decides what every quiz-layer folder is called for the rest of this document.</p>
+  </section>
+
+  <!-- ============================================================ THE ORGANIZING DECISION -->
+  <section class="mb-12">
+    <h2 class="text-2xl font-bold mb-1">The one thing to resolve before any slice can be ordered</h2>
+    <p class="text-base-content/70 mb-5 max-w-3xl">
+      <span class="file">TECHNICAL_PLAN.md</span> Part C argues, at length, that the whole engine ports as <b>one atomic, gated unit</b> before any Swift UI exists — because chart-correctness bugs are found by reading whole tables, and that loop is fastest in the browser. You just asked for the opposite: pair UI with logic per slice, so each step is something to look at. These aren't actually in conflict — but which one wins where matters, so it's a real decision rather than a default.
+    </p>
+
+    <form class="decision-card p-5" data-lavish-question="sequencing-model" onsubmit="event.preventDefault(); const choice = new FormData(event.currentTarget).get('sequencing-model'); if (choice) window.lavish.queuePrompt('Use the ' + choice + ' sequencing model for the iOS port plan', { tag: 'choice', text: 'Sequencing model: ' + choice, element: event.currentTarget, data: { question: 'sequencing-model', answer: choice } });">
+      <div class="flex items-center gap-2 mb-4">
+        <span class="badge badge-primary badge-sm">Decision 1</span>
+        <h3 class="font-semibold">How does "engine-first" coexist with "tangible per slice"?</h3>
+      </div>
+      <div class="grid md:grid-cols-3 gap-3">
+        <label class="opt-label">
+          <input type="radio" name="sequencing-model" value="A — engine gated, paired with minimal Tables" checked>
+          <div>
+            <div class="flex items-center gap-2 mb-1"><span class="font-semibold text-sm">A · Engine gated + minimal Tables</span><span class="badge badge-success rec-badge">recommended</span></div>
+            <p class="text-sm text-base-content/70">The engine still ports as its own atomic, corpus-gated unit — but paired immediately with a minimal <b>Tables</b> screen as the tangible proof. Everything after that is vertical slices.</p>
+            <p class="text-xs text-base-content/50 mt-2">Honors the existing gate <i>and</i> gives you something to tap through within the first slice. Tables has no quiz-layer dependency, so pairing it costs nothing.</p>
+          </div>
+        </label>
+        <label class="opt-label">
+          <input type="radio" name="sequencing-model" value="B — pure engine-first, no UI until full port">
+          <div>
+            <div class="font-semibold text-sm mb-1">B · Pure engine-first</div>
+            <p class="text-sm text-base-content/70">Read <span class="file">TECHNICAL_PLAN</span> Part C literally: the <i>entire</i> <span class="file">SarfCore</span> port finishes and the corpus is zero-diffed before any SwiftUI view exists, Tables included.</p>
+            <p class="text-xs text-base-content/50 mt-2">Cost: weeks with nothing to look at. Loses exactly what you asked for.</p>
+          </div>
+        </label>
+        <label class="opt-label">
+          <input type="radio" name="sequencing-model" value="C — vertical slices from the start, no engine gate">
+          <div>
+            <div class="font-semibold text-sm mb-1">C · Vertical slices, no gate</div>
+            <p class="text-sm text-base-content/70">Thread a thin engine slice (say, just Salim) alongside Tables immediately, skip the corpus zero-diff gate, extend engines opportunistically per screen.</p>
+            <p class="text-xs text-base-content/50 mt-2">Cost: you build Practice/Quiz on an engine that was never proven complete — exactly the risk class the whole prototype-first strategy exists to close off.</p>
+          </div>
+        </label>
+      </div>
+      <div class="flex justify-end mt-4"><button type="submit" class="btn btn-primary btn-sm">Queue this answer</button></div>
+    </form>
+  </section>
+
+  <!-- ============================================================ DECISION CARDS -->
+  <section class="mb-12">
+    <h2 class="text-2xl font-bold mb-5">Four more calls, each small on its own</h2>
+
+    <div class="flex flex-col gap-5">
+
+      <!-- Decision 2 — package boundary -->
+      <form class="decision-card p-5" data-lavish-revision="r1" data-lavish-question="package-boundary" onsubmit="event.preventDefault(); const choice = new FormData(event.currentTarget).get('package-boundary'); if (choice) window.lavish.queuePrompt('Use the ' + choice + ' package boundary for the iOS port', { tag: 'choice', text: 'Package boundary: ' + choice, element: event.currentTarget, data: { question: 'package-boundary', answer: choice } });">
+        <div class="flex items-center gap-2 mb-3"><span class="badge badge-primary badge-sm">Decision 2</span><h3 class="font-semibold">Two Swift packages or three?</h3><span class="badge badge-success badge-sm">✓ confirmed: 3 targets</span></div>
+
+        <div class="rounded-box bg-base-200 p-4 mb-4 text-sm space-y-3">
+          <p class="font-semibold text-base-content/80">Your three questions, answered directly:</p>
+          <div>
+            <p class="font-medium">"What benefit does a separate <span class="file">SarfQuiz</span> actually give us?"</p>
+            <p class="text-base-content/70">Four, in order of how much they'd bite you: <b>(1)</b> "no UI in the quiz rules" stops being a convention you keep by grep and becomes a compile error — importing SwiftUI into <span class="file">SarfQuiz</span> won't build. <b>(2)</b> <span class="file">SarfCore</span> heads for a hard freeze at B3; the quiz layer is explicitly the <i>least</i> settled part of the app (Practice keeps reshaping, tips keep growing, Compare adds a diff) — one package means the frozen thing's version moves every time the unfrozen one does. <b>(3)</b> <span class="file">grade()</span> and <span class="file">relevance()</span> get real headless tests with zero simulator/SwiftUI dependency, provably. <b>(4)</b> the boundary doubles as the concurrency boundary (§3.3f) — <span class="file">SarfCore</span> stays <span class="file">nonisolated</span>/<span class="file">Sendable</span> so <span class="file">wordPool()</span>'s per-chip-tap recount can run via <span class="file">Task.detached</span> without janking the main thread.</p>
+          </div>
+          <div>
+            <p class="font-medium">"How hard is it to move to the app target later?"</p>
+            <p class="text-base-content/70">Cheap in that direction — deleting a target and folding files into the app is boilerplate, no logic changes, nothing breaks by loosening a boundary. <b>The asymmetry is the reason to start with 3:</b> going the other way — splitting quiz rules back out of an app target they've been living in for months — means first auditing every place a View reached past the intended surface, because nothing stopped it from happening. Cheap to remove a wall later; expensive to build one after things have grown through the gap.</p>
+          </div>
+          <div>
+            <p class="font-medium">"What if the view layer needs more access to quiz building / question rules than expected?"</p>
+            <p class="text-base-content/70">That's a <span class="file">public</span> surface question, not a package question — exactly like <span class="file">ConjugationService</span> already works today: <span class="file">FORM_META</span> stays internal, but <span class="file">conjugates()</span>/<span class="file">hasPassive()</span> are exposed as behaviour. If a screen genuinely needs more of <span class="file">SarfQuiz</span>, you widen what's <span class="file">public</span> — you don't need to move the file. The one thing that <i>would</i> need a real change is a screen constructing its own plan directly — but that's already forbidden by D-34 regardless of how many targets exist, so it isn't a new risk this boundary introduces.</p>
+          </div>
+          <p class="text-xs text-base-content/50">One honest note: this isn't hypothetical future friction — 2 of the boundary's benefits are already true <i>today</i>, on the JS as it stands (the <span class="file">FORM_META</span> leak, the <span class="file">glossary.js</span> reach), which is some of why the recommendation didn't change.</p>
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-3">
+          <label class="opt-label">
+            <input type="radio" name="package-boundary" value="3 targets — SarfCore + SarfQuiz + app" checked>
+            <div>
+              <div class="flex items-center gap-2 mb-1"><span class="font-semibold text-sm">3 targets</span><span class="badge badge-success rec-badge">still recommended</span></div>
+              <p class="text-sm text-base-content/70"><span class="file">SarfCore</span> (frozen, no strings) · <span class="file">SarfQuiz</span> (the rules + their copy, churns) · the app target.</p>
+              <p class="text-xs text-base-content/50 mt-2">Costs ~6 lines of <span class="file">Package.swift</span>.</p>
+            </div>
+          </label>
+          <label class="opt-label">
+            <input type="radio" name="package-boundary" value="2 targets — SarfCore (with Quiz inside) + app">
+            <div>
+              <div class="font-semibold text-sm mb-1">2 targets, per TECHNICAL_PLAN</div>
+              <p class="text-sm text-base-content/70">Keep the layout as written: <span class="file">Quiz/</span> lives inside <span class="file">SarfCore</span>.</p>
+              <p class="text-xs text-base-content/50 mt-2">Defers the setup cost, but onto the direction that's expensive to reverse.</p>
+            </div>
+          </label>
+        </div>
+        <div class="flex justify-end mt-4"><button type="submit" class="btn btn-primary btn-sm">Queue this answer</button></div>
+      </form>
+
+      <!-- Decision 3 — JS-first prerequisites (resolved to a single item) -->
+      <form class="decision-card p-5" data-lavish-revision="r1" data-lavish-question="js-first-prereqs" onsubmit="event.preventDefault(); const items=[...event.currentTarget.querySelectorAll('input[name=prereq]:checked')].map(i=>({id:i.value,label:i.dataset.label})); window.lavish.queuePrompt('Build these in the JS prototype first, verified against the existing test suite, before Swift touches the layer each one feeds. Confirm exactly this set: ' + items.map(x=>x.label).join('; '), { tag: 'tracked-batch', text: 'JS-first prerequisites: ' + items.length + ' selected', element: event.currentTarget, data: { question: 'js-first-prereqs', items } });">
+        <div class="flex items-center gap-2 mb-3"><span class="badge badge-primary badge-sm">Decision 3</span><h3 class="font-semibold">What has to land in JS before Swift touches it</h3></div>
+        <p class="text-sm text-base-content/70 mb-3">Same principle as D-07 (prototype-first): don't port a screen that's about to be rebuilt. The bar for "needs a JS pass" is that there's real design left to work out cheaply — not just "the prototype hasn't built it yet."</p>
+        <div class="flex flex-col gap-2">
+          <label class="opt-label">
+            <input type="checkbox" name="prereq" value="parse-card" data-label="Parse card (D-72) — plan already written" checked>
+            <div><span class="font-semibold text-sm">Parse card, D-72…D-80</span><span class="badge badge-success rec-badge ml-2">plan exists</span>
+            <p class="text-sm text-base-content/70 mt-1">Execute <span class="file">docs/PARSE_CARD_PLAN.md</span> in the prototype: one composite question, verified zero-diff against the engine snapshot. This is also what shrinks the gruesome layer before it gets ported (see the mitigation box below).</p></div>
+          </label>
+        </div>
+        <div role="alert" class="alert alert-success alert-soft mt-3 text-sm py-2">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0 stroke-current" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+          <span><b>Practice dropped from this list</b> — unlike the parse card, its design has no open questions left to resolve: <span class="file">product-spec/screens/03-practice.md</span> already specifies the SetupBar layout, defaults and acceptance checklist in full. There's nothing a JS rehearsal would settle that the spec doesn't already say. Swift builds it directly — see Track P (now P1+P2 only) and Slice A1.</span>
+        </div>
+        <div class="flex justify-end mt-4"><button type="submit" class="btn btn-primary btn-sm">Queue selected items</button></div>
+      </form>
+
+      <div class="grid md:grid-cols-2 gap-5">
+        <!-- Decision 4 — corpus scope (Q1) -->
+        <form class="decision-card p-5" data-lavish-question="corpus-scope" onsubmit="event.preventDefault(); const choice = new FormData(event.currentTarget).get('corpus-scope'); if (choice) window.lavish.queuePrompt('Resolve Q1 (corpus scope) as: ' + choice, { tag: 'choice', text: 'Corpus scope (Q1): ' + choice, element: event.currentTarget, data: { question: 'corpus-scope', answer: choice } });">
+          <div class="flex items-center gap-2 mb-3"><span class="badge badge-primary badge-sm">Decision 4</span><h3 class="font-semibold text-sm">Corpus scope — TECHNICAL_PLAN's open Q1</h3></div>
+          <div class="flex flex-col gap-2">
+            <label class="opt-label">
+              <input type="radio" name="corpus-scope" value="freeze over 5 engines now, regenerate when mahmūz/lafīf land" checked>
+              <div class="flex items-center gap-2"><span class="text-sm font-medium">Freeze over 5, regenerate later</span><span class="badge badge-success rec-badge">already recommended in TECHNICAL_PLAN</span></div>
+            </label>
+            <label class="opt-label">
+              <input type="radio" name="corpus-scope" value="hold the whole port until all 7 engines exist">
+              <span class="text-sm">Hold the port for all 7 engines</span>
+            </label>
+          </div>
+          <div class="flex justify-end mt-4"><button type="submit" class="btn btn-primary btn-sm">Queue this answer</button></div>
+        </form>
+
+        <!-- Decision 5 — polish scope per slice -->
+        <form class="decision-card p-5" data-lavish-revision="r1" data-lavish-question="polish-scope" onsubmit="event.preventDefault(); const items=[...event.currentTarget.querySelectorAll('input[name=polish]:checked')].map(i=>({id:i.value,label:i.dataset.label})); window.lavish.queuePrompt('Include these in every slice from the start rather than deferring: ' + (items.length? items.map(x=>x.label).join('; ') : 'none — defer all of them as proposed'), { tag: 'tracked-batch', text: 'Include-from-day-1 polish: ' + items.length + ' selected', element: event.currentTarget, data: { question: 'polish-scope', items } });">
+          <div class="flex items-center gap-2 mb-3"><span class="badge badge-primary badge-sm">Decision 5</span><h3 class="font-semibold text-sm">"Bells and whistles" — pull any of these forward?</h3></div>
+          <p class="text-xs text-base-content/60 mb-2">Unchecked = deferred to a later pass. Check any you'd rather build in from day one.</p>
+          <div class="flex flex-col gap-2">
+            <label class="opt-label"><input type="checkbox" name="polish" value="night" data-label="Night theme from slice 1 — it's part of the design system, ships with the UI" checked><span class="text-sm">Night theme from slice 1</span><span class="badge badge-success badge-sm ml-auto">confirmed in chat</span></label>
+            <label class="opt-label"><input type="checkbox" name="polish" value="motion" data-label="Haptics + sheet/option motion timing"><span class="text-sm">Haptics &amp; motion (D-65)</span></label>
+            <label class="opt-label"><input type="checkbox" name="polish" value="a11y" data-label="Full accessibility pass (VoiceOver spelled-letter mode, largest Dynamic Type row-height tuning)"><span class="text-sm">Full accessibility pass</span></label>
+          </div>
+          <p class="text-xs text-base-content/50 mt-2">Night is checked and reasoned through below — resubmit only if you're also pulling motion or accessibility forward.</p>
+          <div class="flex justify-end mt-4"><button type="submit" class="btn btn-primary btn-sm">Queue this answer</button></div>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ THE GRUESOME LAYER -->
+  <section class="mb-12 anchor-target" id="gruesome">
+    <div class="rounded-box border-2 border-error/40 bg-error/5 p-6">
+      <div class="flex items-center gap-3 mb-1">
+        <span class="badge badge-error">The layer you flagged</span>
+        <h2 class="text-2xl font-bold">Mitigating <span class="file">relevance.js</span> / <span class="file">word-pool.js</span> / <span class="file">quiz-plan.js</span></h2>
+      </div>
+      <p class="text-base-content/70 max-w-3xl mb-5">This is where the domain rules live with the least test-by-inspection: <span class="file">relevance.js</span> is 135 lines deciding which questions are even worth asking, <span class="file">word-pool.js</span> walks every candidate × chart × ṣīghah once and has to run off the main actor, and both feed a builder layer that samples and shuffles randomly — so you can't just diff the output the way the engine's golden corpus does. Six things, in order of leverage:</p>
+
+      <div class="grid md:grid-cols-3 gap-4">
+        <div class="card bg-base-100 border border-base-300">
+          <div class="card-body p-4">
+            <span class="badge badge-error badge-sm w-fit mb-1">biggest lever</span>
+            <h4 class="card-title text-sm">1 · Shrink it in JS before Swift sees it</h4>
+            <p class="text-sm text-base-content/70">The parse card (Decision 3) collapses 5 question-builders into 1 and deletes the drill-bundle logic — about <b>−200 lines</b> off this exact layer, per <span class="file">PARSE_CARD_PLAN.md</span>'s own count. Swift ports the settled, smaller shape once, not the churning one now and a rewrite later.</p>
+          </div>
+        </div>
+        <div class="card bg-base-100 border border-base-300">
+          <div class="card-body p-4">
+            <span class="badge badge-warning badge-sm w-fit mb-1">structural</span>
+            <h4 class="card-title text-sm">2 · Its own package, no UI imports</h4>
+            <p class="text-sm text-base-content/70">Decision 2's <span class="file">SarfQuiz</span> target: <span class="file">nonisolated</span>, <span class="file">Sendable</span>, headless XCTest, no SwiftUI import possible. "Reviewed the rules in isolation" becomes provable, not just intended.</p>
+          </div>
+        </div>
+        <div class="card bg-base-100 border border-base-300">
+          <div class="card-body p-4">
+            <span class="badge badge-warning badge-sm w-fit mb-1">new</span>
+            <h4 class="card-title text-sm">3 · A pool-parity fixture</h4>
+            <p class="text-sm text-base-content/70">Extend the golden-corpus discipline one layer up. For the 6 canonical plans already measured in <span class="file">product-spec/screens/03-practice.md</span> (1,400 / 2,548 / 700 / 2,100 / 300 / 5,396 cells), dump JS's <span class="file">{cells, varies.*, live/dead axes}</span> and assert Swift produces the identical numbers. Deterministic, so it diffs like the engine does — the randomized part (individual draws) is what property tests are for, below.</p>
+          </div>
+        </div>
+        <div class="card bg-base-100 border border-base-300">
+          <div class="card-body p-4">
+            <h4 class="card-title text-sm">4 · Property tests for the builders</h4>
+            <p class="text-sm text-base-content/70">Can't diff a random draw byte-for-byte, so assert invariants instead: doer's correct set is exactly the slots rendering identical text; every axis's correct set is non-empty; a card missing a live axis never ships. Same technique <span class="file">TECHNICAL_PLAN</span> §B.6 already plans for the engine.</p>
+          </div>
+        </div>
+        <div class="card bg-base-100 border border-base-300">
+          <div class="card-body p-4">
+            <h4 class="card-title text-sm">5 · Port literally, refactor separately</h4>
+            <p class="text-sm text-base-content/70">The first PR for this layer is a 1:1 transliteration — same function names, same shape, easy to eyeball against the JS source line by line. Any Swift-idiom cleanup (the <span class="file">space → Set</span> to <span class="file">distinctAnswers → Int</span> rework, already scheduled for JS in Decision-adjacent prep work) is its own, separately reviewed PR.</p>
+          </div>
+        </div>
+        <div class="card bg-base-100 border border-base-300">
+          <div class="card-body p-4">
+            <h4 class="card-title text-sm">6 · One synchronous walkthrough</h4>
+            <p class="text-sm text-base-content/70">Not async PR comments for this one. A single sit-down pass through <span class="file">relevance.js</span> + <span class="file">word-pool.js</span> + <span class="file">quiz-run.js</span> side-by-side with their Swift port, before merge — scheduled explicitly as Slice Q2's exit criterion, not left to whoever happens to open the PR.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ REVIEW TIERS -->
+  <section class="mb-12">
+    <h2 class="text-2xl font-bold mb-1">What "quick check" actually covers, module by module</h2>
+    <p class="text-base-content/70 mb-5 max-w-3xl">Every real file, tiered. <span class="badge badge-error badge-sm align-middle">heavy</span> = read it against source (a paper chart or the JS line-by-line); <span class="badge badge-warning badge-sm align-middle">gruesome</span> = the mitigation box above applies in full; <span class="badge badge-ghost badge-sm align-middle">light</span> = confirm shape and move on. Change any row's tier locally, then send the changes as one batch.</p>
+
+    <div class="overflow-x-auto rounded-box border border-base-300 bg-base-100">
+      <table class="table table-sm" id="tier-table">
+        <thead><tr><th>Module</th><th>Swift destination</th><th>Tier</th><th>Why</th></tr></thead>
+        <tbody>
+          <tr data-lavish-revision="r2" class="bg-accent/5"><td class="file">design/midad/ (tokens, bundle.css, previews)</td><td class="file">Colors.xcassets, Type.swift, WordBar/Chip/RootTiles/…</td><td><select class="select select-xs" data-default="light"><option>light</option><option>heavy</option><option>gruesome</option></select></td><td class="text-sm">New Track D. Checked against <span class="file">screenshots/</span> and the interactive previews — no domain logic to get subtly wrong.</td></tr>
+          <tr data-lavish-revision="r1"><td class="file">conjugation/templates.js</td><td class="file">Templates.swift</td><td><select class="select select-xs" data-default="light"><option>light</option><option>heavy</option><option>gruesome</option></select></td><td class="text-sm">Traps 1–3 live here — but the E1 zero-diff parity snapshot covers <i>every</i> case this file can produce, so the automated gate substitutes for line-by-line reading. <span class="text-base-content/50">(Downgraded from heavy per feedback: get the scalar-vs-grapheme rule right once, let the gate prove it, rather than a manual read on top.)</span></td></tr>
+          <tr><td class="file">conjugation/naqis-conjugator.js</td><td class="file">NaqisConjugator.swift</td><td><select class="select select-xs" data-default="heavy"><option>heavy</option><option>gruesome</option><option>light</option></select></td><td class="text-sm">Trap 4, densest scalar-indexing in the codebase, 381 lines.</td></tr>
+          <tr><td class="file">conjugation-service.js</td><td class="file">ConjugationService.swift</td><td><select class="select select-xs" data-default="heavy"><option>heavy</option><option>gruesome</option><option>light</option></select></td><td class="text-sm">The one public door; gains <span class="file">conjugates()</span>/<span class="file">hasPassive()</span>/<span class="file">waznRoot()</span>.</td></tr>
+          <tr><td class="file">grammar/*-grammar.js</td><td class="file">Grammar/*.swift</td><td><select class="select select-xs" data-default="heavy"><option>heavy</option><option>gruesome</option><option>light</option></select></td><td class="text-sm">~1,000 lines of literals — read against the madrasa chart, not "code reviewed."</td></tr>
+          <tr><td class="file">vocabulary.js</td><td class="file">Vocabulary + ChartShape.swift</td><td><select class="select select-xs" data-default="heavy"><option>heavy</option><option>gruesome</option><option>light</option></select></td><td class="text-sm">Found live this session: <span class="file">isValidShape()</span> accepts <span class="file">amr+majhūl</span>, which crashes rather than nulling.</td></tr>
+          <tr><td class="file">arabic-text.js</td><td class="file">ArabicText.swift</td><td><select class="select select-xs" data-default="light"><option>light</option><option>heavy</option><option>gruesome</option></select></td><td class="text-sm">Verified byte-identical cluster splits already — transcribes free.</td></tr>
+          <tr><td class="file">lexicon-service.js / root.js</td><td class="file">Lexicon/*.swift</td><td><select class="select select-xs" data-default="light"><option>light</option><option>heavy</option><option>gruesome</option></select></td><td class="text-sm">Mechanical, but carries the <span class="file">availableTypes(enabled:)</span> boundary fix.</td></tr>
+          <tr class="bg-error/5"><td class="file">quiz/word-pool.js</td><td class="file">Pool/WordPool.swift</td><td><select class="select select-xs" data-default="gruesome"><option>gruesome</option><option>heavy</option><option>light</option></select></td><td class="text-sm">The joint-axis draw (Decision 3), and the off-main-actor requirement.</td></tr>
+          <tr class="bg-error/5"><td class="file">quiz/relevance.js</td><td class="file">Rules/Relevance.swift</td><td><select class="select select-xs" data-default="gruesome"><option>gruesome</option><option>heavy</option><option>light</option></select></td><td class="text-sm">135 lines of rules; every question kind's existence runs through here.</td></tr>
+          <tr class="bg-error/5"><td class="file">quiz/quiz-run.js</td><td class="file">QuizRun.swift</td><td><select class="select select-xs" data-default="gruesome"><option>gruesome</option><option>heavy</option><option>light</option></select></td><td class="text-sm">Generator → <span class="file">IteratorProtocol</span>, <span class="file">@Observable @MainActor</span>.</td></tr>
+          <tr><td class="file">quiz/quiz-plan.js, question.js, grading.js</td><td class="file">Models + Grading.swift</td><td><select class="select select-xs" data-default="light"><option>light</option><option>gruesome</option><option>heavy</option></select></td><td class="text-sm">Mechanical reshapes (tagged unions, enums) — the tagged-union rework is "the big win" per PORT_INVENTORY, not a risk.</td></tr>
+          <tr><td class="file">quiz/builders/*, drills.js, glossary.js</td><td class="file">Builders/*, Drills, Glossary.swift</td><td><select class="select select-xs" data-default="light"><option>light</option><option>gruesome</option><option>heavy</option></select></td><td class="text-sm">Shrinks under the parse card; mostly string tables after.</td></tr>
+          <tr><td class="file">settings.js, history/*.js</td><td class="file">Settings, HistoryService, StatsService</td><td><select class="select select-xs" data-default="light"><option>light</option><option>gruesome</option><option>heavy</option></select></td><td class="text-sm">Storage backend swap, shape preserved. Local-day streak fix rides along.</td></tr>
+          <tr><td class="file">screens/*.js (7)</td><td class="file">Features/*</td><td><select class="select select-xs" data-default="light"><option>light</option><option>gruesome</option><option>heavy</option></select></td><td class="text-sm">Rewritten, not ported — checked visually against <span class="file">product-spec/screens/</span>, not diffed line by line.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="flex justify-end mt-3">
+      <button class="btn btn-sm btn-outline" onclick="
+        const rows=[...document.querySelectorAll('#tier-table tbody tr')];
+        const changed=rows.map(r=>{const sel=r.querySelector('select'); return {module:r.children[0].textContent.trim(), from:sel.dataset.default, to:sel.value};}).filter(x=>x.from!==x.to);
+        if(!changed.length){ this.textContent='No changes to send'; setTimeout(()=>this.textContent='Send tier changes as one batch',1500); return; }
+        window.lavish.queuePrompt('Adjust these module review tiers from my proposal: ' + changed.map(c=>c.module+': '+c.from+' → '+c.to).join('; '), { tag:'tracked-batch', text:'Tier changes: '+changed.length, data:{ question:'tier-adjust', items: changed } });
+        this.textContent='Queued ✓'; setTimeout(()=>this.textContent='Send tier changes as one batch',1500);
+      ">Send tier changes as one batch</button>
+    </div>
+  </section>
+
+  <!-- ============================================================ ROADMAP DIAGRAM -->
+  <section class="mb-8" data-lavish-revision="r2">
+    <h2 class="text-2xl font-bold mb-1">The roadmap</h2>
+    <p class="text-base-content/70 mb-5 max-w-3xl">Five tracks. <span class="file">Track D</span> (new) ports the design system's tokens and components into SwiftUI in parallel with <span class="file">Track P</span> — neither depends on the other — so that <span class="file">E1</span>'s Tables screen is the <b>real, fully-designed buildout</b> from day one, not a placeholder redone later. Solid arrows are hard blockers.</p>
+
+    <svg viewBox="0 0 1150 700" style="width:100%;height:auto" role="img" aria-labelledby="roadmap-title roadmap-desc">
+      <title id="roadmap-title">Port sequencing across five tracks</title>
+      <desc id="roadmap-desc">Track D (design system) and Track P (JS prototype prep) run in parallel with each other and both feed Track E (engine); Track E and Track Q (quiz rules) together unlock Track A (app screens).</desc>
+      <defs>
+        <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M0,0 L10,5 L0,10 z" fill="currentColor" opacity="0.6"></path>
+        </marker>
+      </defs>
+
+      <!-- lane bands -->
+      <rect x="10" y="50" width="1130" height="85" rx="14" class="lane-d" stroke-width="1.5"></rect>
+      <rect x="10" y="145" width="1130" height="85" rx="14" class="lane-p" stroke-width="1.5"></rect>
+      <rect x="10" y="240" width="1130" height="95" rx="14" class="lane-e" stroke-width="1.5"></rect>
+      <rect x="10" y="345" width="1130" height="95" rx="14" class="lane-q" stroke-width="1.5"></rect>
+      <rect x="10" y="455" width="1130" height="115" rx="14" class="lane-a" stroke-width="1.5"></rect>
+
+      <text x="26" y="40" class="track-lbl">Track D — design system → SwiftUI (new)</text>
+      <text x="26" y="135" class="track-lbl">Track P — JS prototype catches up to spec</text>
+      <text x="26" y="230" class="track-lbl">Track E — SarfCore, the engine</text>
+      <text x="26" y="335" class="track-lbl">Track Q — SarfQuiz, the quiz rules</text>
+      <text x="26" y="445" class="track-lbl">Track A — app screens + services</text>
+
+      <!-- Track D boxes -->
+      <g id="box-D1"><title>Colors as an asset catalog (Paper/Night pairs for all ~14 semantic tokens), Scheherazade New + Newsreader bundled, the type scale as Font extensions with explicit row heights, spacing/radii constants</title>
+        <rect x="40" y="65" width="210" height="55" rx="10" fill="var(--color-base-100)" stroke="var(--color-accent)" stroke-width="1.5"></rect>
+        <text x="145" y="87" text-anchor="middle" class="diagram-text" font-size="12" font-weight="700">D1</text>
+        <text x="145" y="103" text-anchor="middle" class="diagram-text" font-size="10.5">Tokens, type &amp; fonts</text>
+        <text x="145" y="116" text-anchor="middle" class="diagram-text" font-size="9" opacity=".6">most of the visual difference</text>
+      </g>
+      <g id="box-D2"><title>WordBar, Chip (as a configurator), RootTiles, the segmented tense/voice/iʿrāb control, the 14-row table list, the primary Button style — exactly what Tables needs, the rest rides with its own screen's slice</title>
+        <rect x="270" y="65" width="230" height="55" rx="10" fill="var(--color-base-100)" stroke="var(--color-accent)" stroke-width="1.5"></rect>
+        <text x="385" y="87" text-anchor="middle" class="diagram-text" font-size="12" font-weight="700">D2</text>
+        <text x="385" y="103" text-anchor="middle" class="diagram-text" font-size="10.5">Tables' own components</text>
+        <text x="385" y="116" text-anchor="middle" class="diagram-text" font-size="9" opacity=".6">WordBar, Chip, segmented, 14-row list</text>
+      </g>
+
+      <!-- Track P boxes -->
+      <g id="box-P1"><title>4 small JS changes that unblock the SarfCore/SarfQuiz package split — availableTypes(enabled:), FORM_META behind service methods, relevance space→Int, bab as a typed value</title>
+        <rect x="40" y="160" width="190" height="55" rx="10" fill="var(--color-base-100)" stroke="var(--color-secondary)" stroke-width="1.5"></rect>
+        <text x="135" y="182" text-anchor="middle" class="diagram-text" font-size="12" font-weight="700">P1</text>
+        <text x="135" y="198" text-anchor="middle" class="diagram-text" font-size="10.5">4 boundary preps</text>
+        <text x="135" y="211" text-anchor="middle" class="diagram-text" font-size="9" opacity=".6">§5.2, small &amp; mechanical</text>
+      </g>
+      <g id="box-P2"><title>Execute docs/PARSE_CARD_PLAN.md in the web prototype: one composite parse-card question replacing five separate identify questions</title>
+        <rect x="270" y="160" width="220" height="55" rx="10" fill="var(--color-base-100)" stroke="var(--color-secondary)" stroke-width="1.5"></rect>
+        <text x="380" y="182" text-anchor="middle" class="diagram-text" font-size="12" font-weight="700">P2</text>
+        <text x="380" y="198" text-anchor="middle" class="diagram-text" font-size="10.5">Parse card lands (D-72)</text>
+        <text x="380" y="211" text-anchor="middle" class="diagram-text" font-size="9" opacity=".6">plan already written</text>
+      </g>
+      <g><title>Dropped 2026-09-21: Practice's design has no open questions left to resolve in JS — Swift builds Slice A1 directly from product-spec/screens/03-practice.md</title>
+        <rect x="500" y="160" width="190" height="55" rx="10" fill="none" stroke="var(--color-base-content)" stroke-width="1" stroke-dasharray="3 4" opacity=".3"></rect>
+        <text x="595" y="185" text-anchor="middle" class="diagram-text" font-size="10" opacity=".45">P3 — dropped</text>
+        <text x="595" y="199" text-anchor="middle" class="diagram-text" font-size="9" opacity=".4">spec settles it; straight to A1</text>
+      </g>
+
+      <!-- Track E boxes -->
+      <g id="box-E1"><title>S1a: Vocabulary, GrammarTypes, Templates (scalar-correct), Salim+Mudaaf conjugators, ConjugationService, Root, LexiconService, ArabicText, the 112 parity assertions — paired with the REAL Tables screen, built from Track D's components</title>
+        <rect x="500" y="250" width="280" height="75" rx="10" fill="var(--color-base-100)" stroke="var(--color-primary)" stroke-width="1.8"></rect>
+        <text x="640" y="273" text-anchor="middle" class="diagram-text" font-size="12" font-weight="700">E1</text>
+        <text x="640" y="290" text-anchor="middle" class="diagram-text" font-size="10.5">S1a engine core + real Tables</text>
+        <text x="640" y="304" text-anchor="middle" class="diagram-text" font-size="9" opacity=".6">built from Track D — no placeholder UI</text>
+      </g>
+      <g id="box-E2"><title>S1b: Mithal, Ajwaf, Naqis conjugators, full golden-corpus zero-diff, Tables extended to every engine — gated on the Q1 corpus-scope decision (settled: freeze over 5) and the وجل faaDrops regression</title>
+        <rect x="940" y="250" width="190" height="75" rx="10" fill="var(--color-base-100)" stroke="var(--color-primary)" stroke-width="1.8"></rect>
+        <text x="1035" y="273" text-anchor="middle" class="diagram-text" font-size="12" font-weight="700">E2</text>
+        <text x="1035" y="290" text-anchor="middle" class="diagram-text" font-size="10.5">S1b + full corpus</text>
+        <text x="1035" y="304" text-anchor="middle" class="diagram-text" font-size="8.5" opacity=".65" fill="var(--color-error)">وجل fix must land first</text>
+      </g>
+
+      <!-- Track Q boxes -->
+      <g id="box-Q1"><title>WordSpec, QuizPlan, Question (tagged-union rework), Grading — mechanical reshapes, light review</title>
+        <rect x="500" y="355" width="190" height="75" rx="10" fill="var(--color-base-100)" stroke="var(--color-error)" stroke-width="1.5"></rect>
+        <text x="595" y="385" text-anchor="middle" class="diagram-text" font-size="12" font-weight="700">Q1</text>
+        <text x="595" y="401" text-anchor="middle" class="diagram-text" font-size="10">Models — Spec/Plan/</text>
+        <text x="595" y="414" text-anchor="middle" class="diagram-text" font-size="10">Question/Grading</text>
+      </g>
+      <g id="box-Q2"><title>WordPool + Relevance — the gruesome core. Pool-parity fixture, property tests, literal-port-first discipline, one synchronous walkthrough before merge.</title>
+        <rect x="730" y="355" width="210" height="75" rx="10" fill="var(--color-base-100)" stroke="var(--color-error)" stroke-width="2.4"></rect>
+        <text x="835" y="385" text-anchor="middle" class="diagram-text" font-size="12" font-weight="700">Q2 ⚠</text>
+        <text x="835" y="401" text-anchor="middle" class="diagram-text" font-size="10.5">Pool + Relevance</text>
+        <text x="835" y="415" text-anchor="middle" class="diagram-text" font-size="9" opacity=".7">the gruesome core</text>
+      </g>
+      <g id="box-Q3"><title>Builders (now one parse.js instead of five files), Drills, Glossary, QuizRun, plus the Quiz screen UI driven by a hardcoded debug plan</title>
+        <rect x="960" y="355" width="170" height="75" rx="10" fill="var(--color-base-100)" stroke="var(--color-error)" stroke-width="1.5"></rect>
+        <text x="1045" y="385" text-anchor="middle" class="diagram-text" font-size="12" font-weight="700">Q3</text>
+        <text x="1045" y="401" text-anchor="middle" class="diagram-text" font-size="10">Builders +</text>
+        <text x="1045" y="414" text-anchor="middle" class="diagram-text" font-size="10">Quiz UI</text>
+      </g>
+
+      <!-- Track A boxes -->
+      <g id="box-A4"><title>Settings/UserDefaults, About, Delete-my-history — lowest risk, slot in whenever there's a gap</title>
+        <rect x="40" y="480" width="190" height="60" rx="10" fill="var(--color-base-100)" stroke="var(--color-success)" stroke-width="1.3" stroke-dasharray="3 3"></rect>
+        <text x="135" y="504" text-anchor="middle" class="diagram-text" font-size="11.5" font-weight="700">A4</text>
+        <text x="135" y="520" text-anchor="middle" class="diagram-text" font-size="10">More / Settings</text>
+        <text x="135" y="532" text-anchor="middle" class="diagram-text" font-size="9" opacity=".6">anytime</text>
+      </g>
+      <g id="box-A1"><title>The Practice screen, built directly from product-spec/screens/03-practice.md, wiring the design's SetupBar to a real user-driven plan via draft.plan()</title>
+        <rect x="500" y="480" width="190" height="60" rx="10" fill="var(--color-base-100)" stroke="var(--color-success)" stroke-width="1.5"></rect>
+        <text x="595" y="507" text-anchor="middle" class="diagram-text" font-size="12" font-weight="700">A1</text>
+        <text x="595" y="523" text-anchor="middle" class="diagram-text" font-size="10">Practice screen</text>
+      </g>
+      <g id="box-A2"><title>Results screen — misses, score, By-question breakdown, vocabulary recap</title>
+        <rect x="730" y="480" width="170" height="60" rx="10" fill="var(--color-base-100)" stroke="var(--color-success)" stroke-width="1.5"></rect>
+        <text x="815" y="507" text-anchor="middle" class="diagram-text" font-size="12" font-weight="700">A2</text>
+        <text x="815" y="523" text-anchor="middle" class="diagram-text" font-size="10">Results screen</text>
+      </g>
+      <g id="box-A3"><title>Home screen: hero drill, stat strip, HistoryService-backed queries</title>
+        <rect x="940" y="480" width="190" height="60" rx="10" fill="var(--color-base-100)" stroke="var(--color-success)" stroke-width="1.5"></rect>
+        <text x="1035" y="507" text-anchor="middle" class="diagram-text" font-size="12" font-weight="700">A3</text>
+        <text x="1035" y="523" text-anchor="middle" class="diagram-text" font-size="10">Home + History</text>
+      </g>
+
+      <!-- arrows -->
+      <line x1="245" y1="120" x2="560" y2="250" class="diag-arrow" marker-end="url(#arrow)"></line>
+      <line x1="460" y1="120" x2="615" y2="250" class="diag-arrow" marker-end="url(#arrow)"></line>
+      <line x1="225" y1="215" x2="530" y2="250" class="diag-arrow" marker-end="url(#arrow)"></line>
+      <line x1="135" y1="215" x2="550" y2="355" class="diag-arrow" marker-end="url(#arrow)"></line>
+      <line x1="380" y1="215" x2="800" y2="355" class="diag-arrow" marker-end="url(#arrow)"></line>
+      <line x1="780" y1="287" x2="938" y2="287" class="diag-arrow" marker-end="url(#arrow)"></line>
+      <line x1="615" y1="325" x2="580" y2="355" class="diag-arrow" marker-end="url(#arrow)"></line>
+      <line x1="690" y1="392" x2="728" y2="392" class="diag-arrow" marker-end="url(#arrow)"></line>
+      <line x1="940" y1="392" x2="958" y2="392" class="diag-arrow" marker-end="url(#arrow)"></line>
+      <line x1="560" y1="430" x2="580" y2="480" class="diag-arrow" marker-end="url(#arrow)"></line>
+      <line x1="1000" y1="430" x2="820" y2="480" class="diag-arrow" marker-end="url(#arrow)"></line>
+      <line x1="1050" y1="430" x2="1035" y2="480" class="diag-arrow" marker-end="url(#arrow)"></line>
+    </svg>
+    <p class="text-xs text-base-content/50 mt-2">The وجل regression is scoped to <span class="file">E2</span> alone (it's a mithāl content bug) — it does not touch <span class="file">Q2</span>'s pool-parity fixture, which is measured against sālim-only setups.</p>
+  </section>
+
+  <!-- ============================================================ SLICE DETAIL -->
+  <section class="mb-12">
+    <h2 class="text-2xl font-bold mb-5">Every slice, with its exit criteria</h2>
+    <div class="flex flex-col gap-4">
+
+      <details class="collapse collapse-arrow bg-base-100 border-2 border-accent/40" data-lavish-revision="r2" open>
+        <summary class="collapse-title font-semibold flex items-center gap-2">
+          <span class="badge badge-accent badge-sm">D</span> D1 / D2 — the design system ports to SwiftUI <span class="badge badge-ghost badge-sm ml-auto mr-8">new, parallel to Track P, ahead of E1</span>
+        </summary>
+        <div class="collapse-content text-sm text-base-content/80 space-y-2">
+          <p><b>D1</b> — colours as an asset catalog (Paper/Night pairs for every semantic token: <span class="file">ground</span>, <span class="file">ink</span>, <span class="file">sign</span>, <span class="file">correct</span>/<span class="file">wrong</span>, etc.), Scheherazade New + Newsreader bundled as fonts, the type scale (<span class="file">arabic-hero</span> through <span class="file">caption</span>) as <span class="file">Font</span> extensions with the explicit row heights D-59 requires, spacing/radii constants.</p>
+          <p><b>D2</b> — only the components <span class="file">Tables</span> needs to be the real screen: <span class="file">WordBar</span>, <span class="file">Chip</span> (as a configurator), <span class="file">RootTiles</span>, the tense/voice/iʿrāb segmented control, the 14-row list, the primary <span class="file">Button</span> style. Everything else in the component table (<span class="file">AnswerOption</span>, <span class="file">AnswerSheet</span>, <span class="file">ParseAxes</span>, <span class="file">SetupBar</span>, <span class="file">ChartScope</span>, <span class="file">StatStrip</span>, <span class="file">DrillCard</span>, <span class="file">QuizBar</span>, <span class="file">PromptCard</span>, <span class="file">TabBar</span>) ports alongside the screen slice that actually consumes it — Q3 brings the quiz components, A1 brings <span class="file">SetupBar</span>/<span class="file">ChartScope</span>, A3 brings <span class="file">StatStrip</span>/<span class="file">DrillCard</span>, and so on.</p>
+          <p class="text-base-content/60"><b>Review tier:</b> light — checked visually against <span class="file">design/midad/screenshots/</span> and the interactive previews, not diffed line by line. There's no domain logic here to get subtly wrong the way a conjugator can.</p>
+          <p class="text-base-content/60"><b>Exit:</b> no hardcoded colour anywhere downstream (a grep, not just a glance); Scheherazade + Newsreader render at spec'd sizes without clipping at the largest Dynamic Type; every token has both a Paper and a Night value. Proven by E1 actually building on top of it — Track D isn't "done" in the abstract, it's done when Tables looks right.</p>
+        </div>
+      </details>
+
+      <details class="collapse collapse-arrow bg-base-100 border border-base-300" open>
+        <summary class="collapse-title font-semibold flex items-center gap-2">
+          <span class="badge badge-secondary badge-sm">P</span> P1 — the four boundary preps <span class="badge badge-ghost badge-sm ml-auto mr-8">small, parallel-safe</span>
+        </summary>
+        <div class="collapse-content text-sm">
+          <ul class="list-disc pl-5 space-y-1 text-base-content/80">
+            <li><span class="file">availableTypes()</span> takes its content gate as an argument, not an import of <span class="file">settings</span>.</li>
+            <li><span class="file">FORM_META</span> moves behind <span class="file">conjugates()</span> / <span class="file">hasPassive()</span> on the service.</li>
+            <li><span class="file">relevance</span>'s <span class="file">space → Set&lt;…&gt;</span> becomes <span class="file">distinctAnswers → Int</span> — only <span class="file">.count &gt; 1</span> was ever read.</li>
+            <li><span class="file">bab</span> becomes a typed value with <span class="file">madiVowel</span>/<span class="file">mudariVowel</span>, closing Trap 3.</li>
+          </ul>
+          <p class="mt-2 text-base-content/60"><b>Exit:</b> 417 assertions green, engine snapshot zero-diff, each change its own tiny commit.</p>
+        </div>
+      </details>
+
+      <details class="collapse collapse-arrow bg-base-100 border border-base-300" data-lavish-revision="r1">
+        <summary class="collapse-title font-semibold flex items-center gap-2">
+          <span class="badge badge-secondary badge-sm">P</span> P2 — parse card lands in JS <span class="badge badge-ghost badge-sm ml-auto mr-8">parallel to P1, disjoint files</span>
+        </summary>
+        <div class="collapse-content text-sm text-base-content/80">
+          <p>Executes the existing <span class="file">docs/PARSE_CARD_PLAN.md</span>.</p>
+          <p class="mt-2 text-base-content/60"><b>Exit:</b> its own parity proof (engine snapshot + assertion suite), and <span class="file">product-spec/screens/02-quiz.md</span> no longer says "prototype does not do this yet."</p>
+          <p class="mt-2 text-base-content/60"><b>P3 (Practice, dropped):</b> its target design has no open questions left, so there's nothing a JS pass would settle. Goes straight to Slice A1.</p>
+        </div>
+      </details>
+
+      <details class="collapse collapse-arrow bg-base-100 border border-base-300">
+        <summary class="collapse-title font-semibold flex items-center gap-2">
+          <span class="badge badge-primary badge-sm">E</span> E1 — S1a engine core, paired with a minimal Tables screen <span class="badge badge-ghost badge-sm ml-auto mr-8">the thorough-review slice</span>
+        </summary>
+        <div class="collapse-content text-sm text-base-content/80" data-lavish-revision="r2">
+          <p><span class="file">Vocabulary</span>, <span class="file">ChartShape</span> (with the <span class="file">amr+majhūl</span> fix), <span class="file">GrammarTypes</span> + <span class="file">SharedGrammar</span>, <span class="file">Templates</span> (Traps 1–3 fixed here), <span class="file">SalimConjugator</span> + <span class="file">MudaafConjugator</span>, <span class="file">ConjugationService</span>, <span class="file">Root</span>, <span class="file">LexiconService</span>, <span class="file">ArabicText</span>. UI: <b>the real Tables screen</b>, built from Track D1/D2 — search → form chips → tense/voice/mood segmented → the 14-row table, for sālim and muḍāʿaf roots only, not a throwaway approximation.</p>
+          <p class="mt-2 text-base-content/60" data-lavish-revision="r1"><b>Exit:</b> zero-diff parity snapshot scoped to the two engines in play; all 112 hand-typed parity assertions pass in XCTest; Tables renders and reads correctly on-device for a sālim and a muḍāʿaf root, in <b>both Paper and Night</b> (Decision 5); no conjugator type is <span class="file">public</span> except <span class="file">ConjugationService</span>.</p>
+        </div>
+      </details>
+
+      <details class="collapse collapse-arrow bg-base-100 border border-base-300">
+        <summary class="collapse-title font-semibold flex items-center gap-2">
+          <span class="badge badge-primary badge-sm">E</span> E2 — S1b, the remaining three engines <span class="badge badge-ghost badge-sm ml-auto mr-8">gated on Q1 + the وجل fix</span>
+        </summary>
+        <div class="collapse-content text-sm text-base-content/80">
+          <p><span class="file">MithalConjugator</span>, <span class="file">AjwafConjugator</span>, <span class="file">NaqisConjugator</span> (Trap 4). Tables extends to every playable verb type.</p>
+          <p class="mt-2 text-base-content/60"><b>Exit:</b> zero diffs across the full golden corpus for every engine in scope per Decision 4; chart-audit snapshots green per verb type × form × chart.</p>
+        </div>
+      </details>
+
+      <details class="collapse collapse-arrow bg-base-100 border-2 border-error/40">
+        <summary class="collapse-title font-semibold flex items-center gap-2">
+          <span class="badge badge-error badge-sm">Q</span> Q1 → Q2 → Q3 — the SarfQuiz package <span class="badge badge-error badge-soft badge-sm ml-auto mr-8">the mitigation box above applies here</span>
+        </summary>
+        <div class="collapse-content text-sm text-base-content/80 space-y-2">
+          <p><b>Q1</b> (mechanical): <span class="file">WordSpec</span>, <span class="file">QuizPlan</span>, <span class="file">Question</span> (the tagged-union rework), <span class="file">Grading</span>.</p>
+          <p><b>Q2</b> (the core): <span class="file">WordPool</span> + <span class="file">Relevance</span>, ported literally first. The pool-parity fixture runs across the same 6 canonical plans measured in <span class="file">product-spec/</span>. This is the one slice with a scheduled synchronous walkthrough before merge.</p>
+          <p><b>Q3</b>: Builders (just <span class="file">parse.js</span> plus <span class="file">produce</span>/<span class="file">derived</span>/<span class="file">fromMeaning</span> once P2 lands), <span class="file">Drills</span>, <span class="file">Glossary</span>, <span class="file">QuizRun</span>. UI: the Quiz screen — <span class="file">ParseAxes</span>, the answer sheet, the full-table peek — driven by a <b>hardcoded debug plan</b> (e.g. the Sound-verbs preset) so it's reviewable before Practice exists.</p>
+          <p class="text-base-content/60"><b>Exit:</b> pool-parity fixture zero-diff on all 6 plans; property tests green; every axis's <span class="file">select</span> mode matches the JS registry; the walkthrough is explicitly signed off, not implied by a merged PR.</p>
+        </div>
+      </details>
+
+      <details class="collapse collapse-arrow bg-base-100 border border-base-300">
+        <summary class="collapse-title font-semibold flex items-center gap-2">
+          <span class="badge badge-success badge-sm">A</span> A1 – A4 — Practice, Results, Home, More <span class="badge badge-ghost badge-sm ml-auto mr-8">quick-check tier</span>
+        </summary>
+        <div class="collapse-content text-sm text-base-content/80" data-lavish-revision="r1">
+          <p><b>A1 Practice</b> builds the design's single-screen <span class="file">SetupBar</span> layout directly from <span class="file">product-spec/screens/03-practice.md</span> — no JS rehearsal, wires straight to <span class="file">draft.plan()</span>. <b>A2 Results</b> — misses, score, By-question, vocabulary. <b>A3 Home</b> needs <span class="file">HistoryService</span> (SwiftData) alongside it — hero drill, stat strip, streak on the local calendar day. <b>A4 More</b> has no design yet (Q-09) and no dependencies — good filler whenever a track stalls.</p>
+          <p class="mt-2 text-base-content/60"><b>Exit per screen:</b> matches its <span class="file">product-spec/screens/*.md</span> acceptance checklist; renders correctly in <b>Paper and Night</b> with no hardcoded colours (Decision 5 — Night ships with the UI from the first slice, not deferred).</p>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <!-- ============================================================ RISKS -->
+  <section class="mb-4">
+    <h2 class="text-2xl font-bold mb-4">Risks</h2>
+    <div class="overflow-x-auto rounded-box border border-base-300 bg-base-100">
+      <table class="table table-sm">
+        <thead><tr><th>Risk</th><th>Why</th><th>Mitigation</th></tr></thead>
+        <tbody>
+          <tr><td class="font-medium">Q2 is the slice with no visible payoff</td><td class="text-sm">It's invisible until Results/Home read history by category — easy to under-scope or rush.</td><td class="text-sm">Its exit criteria (fixture + property tests + signed-off walkthrough) are explicit, not "PR merged."</td></tr>
+          <tr><td class="font-medium">The joint-axis draw over-constrains a narrow pool</td><td class="text-sm">Measured at 69.8% success on the <i>widest</i> pool; a single intransitive root with voice live is worse.</td><td class="text-sm">Already specified in <span class="file">PARSE_CARD_PLAN.md</span>: retire the axis for the session and say so, never silently drop a row.</td></tr>
+          <tr data-lavish-revision="r1"><td class="font-medium">Practice skips a JS rehearsal</td><td class="text-sm">The JS prototype would have been a cheap place to feel out the SetupBar's live recount-on-every-chip-tap performance and UX before Swift. Dropping P3 means Swift is the first place it's tried.</td><td class="text-sm">The off-main-actor recount requirement is already specified (<span class="file">product-spec/reference/platform.md</span>) — Slice A1 builds it that way from the start rather than discovering the need mid-slice.</td></tr>
+          <tr><td class="font-medium">Two "authoritative" docs disagreeing erodes trust in both</td><td class="text-sm"><span class="file">TECHNICAL_PLAN</span> and <span class="file">PORT_INVENTORY</span> still show the 2-target vs 3-target split.</td><td class="text-sm">Once Decision 2 lands, update <span class="file">TECHNICAL_PLAN.md</span> §A.6/§B.2 to match — don't leave the losing layout on record.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <footer class="text-center text-xs text-base-content/40 py-6">Sarf Quiz — iOS port plan · drafted from measured ground truth, 2026-09-21</footer>
+</main>
+</body>
+</html>
