@@ -5,6 +5,7 @@
 //   node tools/lexicon-audit/reverso.mjs            # probe, checkpoint as it goes
 //   node tools/lexicon-audit/reverso.mjs --write    # ... and write links into roots/
 //   node tools/lexicon-audit/reverso.mjs --limit 50 # stop after N probes
+//   node tools/lexicon-audit/reverso.mjs --gap 4    # seconds between probes (default 2)
 //
 // WHY THIS CANNOT JUST BUILD URLS. Reverso answers 200 for a headword it does
 // not have and silently serves a sibling — أَيْبَسَ gives يَبِسَ, جَالَسَ gives
@@ -30,7 +31,9 @@ const ROOTS_DIR = new URL('../../js/lexicon/roots/', import.meta.url).pathname;
 const BASE = 'https://conjugator.reverso.net/conjugation-arabic-verb-';
 const UA = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 '
   + '(KHTML, like Gecko) Chrome/120 Safari/537.36';
-const GAP_MS = 2000;
+// Two seconds got a 429 after ~96 probes on 2026-10-17, so the gap is a flag:
+// --gap 4 finishes a long backlog without tripping it. Slower is always safe.
+const DEFAULT_GAP_S = 2;
 const FORM_ORDER = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X'];
 
 const args = process.argv.slice(2);
@@ -158,6 +161,7 @@ if (has('--status')) {
 }
 
 const limit = numArg('--limit', Infinity);
+const GAP_MS = numArg('--gap', DEFAULT_GAP_S) * 1000;
 console.log(`${todo.length} unprobed; ${Object.keys(ledger.checked).length} already in the ledger`);
 let verified = 0, absent = 0, n = 0, stopped = null;
 
