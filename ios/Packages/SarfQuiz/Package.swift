@@ -13,7 +13,7 @@
 // actor-isolated, so WordPool's per-chip-tap recount can run off the main actor
 // via Task.detached without blocking a keystroke.
 //
-// Nothing is built here yet: Q1–Q3 fill it (IOS_PORT_PLAN).
+// Nothing is built here yet: S2–S4 fill it (IOS_PORT_PLAN).
 
 import PackageDescription
 

@@ -78,7 +78,7 @@ scalar-level. Both are hard-won invariants.
 
 ### A.5 The golden corpus is the acceptance gate
 
-When the last v1 engine lands, the prototype exports `golden-corpus.json`: every
+The prototype exports `golden-corpus.json` (IOS_PORT_PLAN S0.1; regenerated as a reviewed diff when lafīf lands): every
 (root × form × chart × ṣīghah) the JS engine answers, with its exact NFC string,
 **plus every combination it deliberately answers `null` for**, plus derived nouns
 and citations.
@@ -89,34 +89,33 @@ regression?"* from a judgement call into a diff. **Zero diffs or the port is not
 done.** Regenerating the corpus is a reviewed diff, never a silent
 `--update-snapshots`.
 
-### A.6 SarfCore module layout
+### A.6 Package layout — three targets
+
+Settled in [`IOS_PORT_PLAN.md`](IOS_PORT_PLAN.md) Decision 2: `SarfCore` (morphology, no UI, no display
+strings, no Settings), `SarfQuiz` (quiz rules and their copy), and the `Awzan` app. Entities and behaviour live
+in separate folders; **the engine folders are the ones the owner reads in full**, so they sit apart.
 
 ```
-Sources/SarfCore/
-  Vocabulary.swift          closed enums · ṣīghah · verb types · abwāb
-                            · chart shapes · isValidShape
-  Glossary.swift            display strings, and nothing else
-  ArabicText.swift          grapheme clustering (grading + the chart diff)
-  Grammar/                  GrammarTypes + one file per verb type
-  Lexicon/
-    Root.swift              Root, RootFormUsage, accessors (babOf)
-    LexiconService.swift    loads + validates roots.json
+ios/Packages/SarfCore/Sources/SarfCore/
+  Models/                   ENTITIES ONLY: Vocabulary · ChartShape · Root · GrammarTypes · MudariParticle
+  Grammar/                  data tables, one file per verb type — read against the paper chart
   Conjugation/
-    VerbTypeConjugator.swift        the protocol
-    <Type>Conjugator.swift          one per verb type
-    ConjugationService.swift        router, preconditions, tables, wazn, citation
-  MeaningService.swift      English readings + the governing-particle registry
-  Quiz/
-    QuizPlan.swift · WordPool.swift · Relevance.swift
-    WordSpec.swift · Question.swift · Grading.swift · QuizRun.swift
-    Builders/               one per quiz type
-  Settings.swift            the feature-gate table
-  Resources/roots.json
+    VerbTypeConjugator.swift · ConjugationService.swift     the protocol and the one public door
+    EngineBacking.swift · CorpusConjugator.swift            the seam and its stand-in
+    Engines/                <Type>Conjugator.swift · Templates.swift · HamzaSeating.swift
+  Lexicon/                  LexiconService.swift (loads + validates roots.json)
+  Meaning/                  MeaningService.swift (English readings, governing particles)
+  Text/                     ArabicText.swift (grapheme clustering)
+  Resources/                roots.json · golden-corpus.json
+
+ios/Packages/SarfQuiz/Sources/SarfQuiz/
+  Models/                   WordSpec · QuizPlan · Question (Prompt, Response) · Answer · QuestionRule
+  Pool/ · Rules/ · Builders/ · Tips/
+  Grading.swift · QuizRun.swift · Drills.swift · Glossary.swift
 
 Tests/SarfCoreTests/
-  GoldenCorpusTests.swift   zero-diff run against the frozen corpus
+  GoldenCorpusTests.swift   zero-diff run against the frozen corpus, per verb group
   ChartAuditTests.swift     one snapshot per verb type × form × chart
-  Fixtures/golden-corpus.json
 ```
 
 Naming convention: behaviour lives in `…Service` types; data lives in plain
@@ -134,38 +133,29 @@ Explain.
 
 ### B.2 App module layout
 
-The app target is **thin**: all domain logic lives in the `SarfCore` local
-package and the app never reaches around it.
+The app target is **thin**: domain logic lives in the `SarfCore` and `SarfQuiz` packages and the app never
+reaches around them. Every screen is one folder cut into model, screen and sections — the rules are in
+[`IOS_PORT_PLAN.md`](IOS_PORT_PLAN.md) § *How the SwiftUI code is cut*.
 
 ```
-SarfQuiz/                     ← app target: UI and platform services only
-  App/
-    SarfQuizApp.swift         @main
-    AppModel.swift            composition root: LexiconService once, then
-                              ConjugationService / MeaningService on top
-  Features/                   ← four tabs: Home · Practice · Tables · More
-    Home/       hero drill + list, the free stats strip, the quote
-    Practice/   one scrolling screen + the pinned setup bar (product-spec D-69)
-    Quiz/       QuizView, QuestionCard, FeedbackView, the full-table peek,
-                QuizRun binding
-    Tables/     search → per-attribute chart pickers → all 14 rows
-    Results/    the misses, the score fraction, breakdown by kind, vocab recap
-    More/       settings, about, and the entry to Stats
-    Stats/      the detailed dashboard (flagged)
-    Explain/    the streaming sheet (flagged)
-    Paywall/    subscription UI, restore (flagged)
-  Services/                   ← platform-facing only; none of these are in Core
+ios/Awzan/                    ← app target: UI and platform services only
+  App/                        AwzanApp · AppModel (composition root: LexiconService once, then the
+                              ConjugationService on top)
+  DesignSystem/               built (Track D): tokens, type scale, stateless components
+  Features/                   one folder per screen: XScreen · XModel · Sections/
+    Home · Practice · Quiz · Tables · Results · More
+    Stats · Explain · Paywall                          (flagged)
+  Services/                   platform-facing only; none of these are in a package
     HistoryService    SwiftData writes and queries
     StatsService      aggregation over history
-    StoreService      StoreKit 2 entitlement and trial state
-    ExplainService    backend client, local cache, trial counter
-  Resources/    localized strings, assets
-
-Packages/SarfCore/            ← Part A; pure logic, no UI imports
+    Settings          the feature-gate table
+    StoreService · ExplainService                      (flagged)
+  Models/                     PersistedSession · PersistedAnswer · PlanDraft · TablesSelection
+  Resources/                  assets · quotes.json
 ```
 
 `QuizRun` is already a view model in all but name — see ARCHITECTURE.md §2 — so
-the Quiz feature binds to it rather than reimplementing quiz state.
+the Quiz screen's `QuizModel` is derived from it rather than reimplementing quiz state.
 
 ### B.3 Persistence — an answer embeds the question that produced it
 
@@ -284,13 +274,11 @@ constants on purpose, so agreement means both are almost certainly right.
 
 ## Part C — Sequencing
 
-> **The implementation plan now exists:** [`docs/IOS_PORT_PLAN.md`](IOS_PORT_PLAN.md) — five tracks,
-> small slices, each pairing UI with the logic behind it, reviewed and settled 2026-09-21. It supersedes
-> nothing here; it sequences it. **Package boundary is settled there as three targets** (`SarfCore` ·
-> `SarfQuiz` · the app), amending §A.6 and §B.2 below, which still show the original two-target sketch —
-> read `IOS_PORT_PLAN.md` § Decision 2 for the measurement that decided it.
+> **The implementation plan:** [`docs/IOS_PORT_PLAN.md`](IOS_PORT_PLAN.md) — two lanes (the app, and the
+> engines with their review), every slice cut into diffs small enough to read in order. Re-planned
+> 2026-10-21. It sequences what is here; it does not restate it.
 
-What belongs here is the engine-side sequencing and the port-specific argument:
+What belongs here is the port-specific argument:
 
 **The morphology is finished and proven in JavaScript before any Swift is
 written**, because correctness risk and iteration cost are inverted. Nearly all
@@ -300,17 +288,19 @@ edit → refresh → read the table; in Xcode it is edit → build → run the s
 for the same question. The Tables browser is the verification instrument, and it
 exists in the prototype.
 
-**One port, one gate.** Porting the engines at once against the golden corpus is
-a single mechanical task with a binary pass condition. Porting piecemeal pays the
-port tax repeatedly and re-opens a settled API each time.
+**One gate, passed engine by engine.** The acceptance gate is the golden corpus: zero diffs or an engine
+is not done. The engine API freezes once, at the `ConjugationService` seam, *before* any engine is ported —
+so porting an engine at a time re-opens nothing. Until an engine passes, a `CorpusConjugator` answers from the
+corpus behind the same protocol, which lets the rest of the app be built and shown while the engines are
+ported and read one verb type at a time. The corpus is the test oracle afterwards, not scaffolding.
 
 **The engine is the app's floor.** A quiz that shows a wrong ending teaches the
-wrong thing; no amount of UI polish compensates. Everything downstream is worth
-building on an engine that is known-correct and worthless on one that isn't.
+wrong thing; no amount of UI polish compensates. The corpus makes the floor solid on day one; reading the
+engines is what makes it *understood*.
 
-What this costs: the first TestFlight build moves later. Accepted deliberately —
-the prototype is a real, playable web app throughout, so dogfooding continues in
-the browser. What is deferred is *the iOS build*, not *using the thing*.
+What this costs: until an engine is flipped its words are looked up rather than generated, and segmented
+output (prefix / stem / suffix, D-61) cannot come from a string corpus. Both are recorded as a named
+comment where the seam is declared.
 
 **Pre-submission checklist:** subscription review guidelines (3.1), restore
 button, privacy policy URL, App Privacy labels, export compliance (standard
@@ -324,9 +314,9 @@ The engine content work — nāqiṣ mazīd II–X and the weak-verb derived nou
 
 | | |
 |---|---|
-| **B3 · Freeze the engine; export the golden corpus** | Un-park `tools/export-content.mjs`; emit `roots.json` plus `golden-corpus.json` — every root × form × chart × ṣīghah with its exact NFC string, **including every combination deliberately answered `null`**, plus derived nouns and citations. **The engine API freezes here**, so everything the app will ever need from `ConjugationService` must already exist: **`waznRoot()`** (Tables' form chips, Compare's wazn preset) and, if it is wanted before the freeze, the **segmented counterpart to `conjugate()`** — prefix / stem / suffix (product-spec D-61: documented, not built). **Gated on Q1** (Open decisions). |
+| **B3 · Freeze the engine; export the golden corpus** | Scheduled as IOS_PORT_PLAN S0.1 and S0.5. `tools/export-content.mjs` is un-parked and emits `roots.json` plus `golden-corpus.json` — every root × form × chart × ṣīghah with its exact NFC string, **including every combination deliberately answered `null`**, plus derived nouns, citations and the فعل root `wazn` runs on. **The engine API freezes with the `ConjugationService` seam**, so it must already carry **`waznRoot()`** and a decision on the **segmented counterpart to `conjugate()`** (product-spec D-61: documented, not built). Corpus scope is six engines (Q1 settled); lafīf regenerates it. |
 | **B4 · ~~Mahmūz~~, then lafīf** | **Mahmūz landed 2026-09-22**, still flagged off: every stem is the sālim one, and the whole type is `conjugation/hamza-seating.js` — one pass over the assembled word, because only the assembled word knows what sits beside a hamza. It also closed the last two entries in [KNOWN_CONJUGATION_ERRORS](KNOWN_CONJUGATION_ERRORS.md): يءس and أدي are hamzated roots that `classify()` types by their WEAKNESS, so their hamzas arrive at the mithāl and nāqiṣ engines, which now run the same pass. **Lafīf remains**: it composes the mithāl and nāqiṣ rule sets (وقي، طوي) and lands last by design, because it validates that those rules compose rather than special-case. |
-| **C1 · SarfCore port** | The frozen structure ported whole. Gate: **zero diffs against the corpus**, chart-audit snapshots green, property test green. One mechanical task with a binary pass condition. [PORT_INVENTORY.md](PORT_INVENTORY.md) §5.1 splits it into S1a (the settled files, portable now) and S1b (gated on Q1). |
+| **C1 · SarfCore port** | Lane R of [`IOS_PORT_PLAN.md`](IOS_PORT_PLAN.md): one verb type per unit, each gated by zero diff against the corpus plus a chart-audit snapshot, each replacing its `CorpusConjugator` entry. [PORT_INVENTORY.md](PORT_INVENTORY.md) §5.1's S1a/S1b split is superseded. |
 | **C2 · App v1** | Every screen is specified in [product-spec/](../product-spec/README.md). First TestFlight. |
 | **C3 · Ship** | Arabic-keyboard detection, Dynamic Type, VoiceOver, icon, screenshots, privacy labels. SwiftData for history, local only — sync has nothing to sync for yet. |
 | **C4+ · The flags, one at a time** | Detailed stats + CloudKit · compare · monetization · AI Explain · mahmūz and lafīf. Each is a release, and each has a flag already in place. |
@@ -433,8 +423,8 @@ into the comparison that explains it.
 
 ## Open decisions
 
-1. ~~**The corpus gate (Q1).**~~ **Settled** — freeze over the five shipped engines now, regenerate as a
-   reviewed diff when mahmūz and lafīf land. Recorded in [`IOS_PORT_PLAN.md`](IOS_PORT_PLAN.md) § Decision 4.
+1. ~~**The corpus gate (Q1).**~~ **Settled** — freeze over the six shipped engines (mahmūz shipped
+   2026-09-22), regenerate as a reviewed diff when lafīf lands. Recorded in [`IOS_PORT_PLAN.md`](IOS_PORT_PLAN.md) § Decision 4.
 2. **Explain prompt language** — English at launch; Arabic-medium later?
 3. **Trial mechanics** — 3 lifetime explains *and* a 7-day trial (they compose),
    or one of them?

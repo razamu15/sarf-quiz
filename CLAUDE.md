@@ -11,7 +11,7 @@ implementation; the Swift app is a port that happens once, later.
 | [product-spec/README.md](product-spec/README.md) | **What the app is and how every screen behaves** — split by screen, with the design system's screenshots. [`DECISIONS.md`](product-spec/DECISIONS.md) lists every call the owner has made, with its source; [`OPEN_QUESTIONS.md`](product-spec/OPEN_QUESTIONS.md) lists what nobody has, each with the default to build. The design system in `design/midad/` is the source of truth for look and behaviour. |
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | **What exists now** in `web-prototype/`. The layers, the object chain, the module map, the invariants a change must not break, and how to verify a change. |
 | [docs/TECHNICAL_PLAN.md](docs/TECHNICAL_PLAN.md) | The **target iOS app**: stack, module layout, persistence, testing gates, and the engine-side milestones. Does not describe the prototype. |
-| [docs/IOS_PORT_PLAN.md](docs/IOS_PORT_PLAN.md) | **The build order.** Five tracks, small slices, each pairing UI with the logic behind it — the screen-by-screen implementation plan `TECHNICAL_PLAN.md` Part C anticipated. Reviewed and settled 2026-09-21; nothing built yet. |
+| [docs/IOS_PORT_PLAN.md](docs/IOS_PORT_PLAN.md) | **The build order.** Two lanes: the app (built on a corpus-backed stand-in for the engines, so it runs from the first slice) and the engines (ported and read one verb type at a time). Every slice is cut into small diffs with a model note. Re-planned 2026-10-21; Track D and Track P are built, nothing else. |
 | [docs/PARSE_CARD_PLAN_v1.md](docs/PARSE_CARD_PLAN_v1.md) | **Built 2026-09-22 — the record, not the current state.** How `identify` became a single composite *Parse the word* question (D-72…D-80). What shipped is in `ARCHITECTURE.md`; this is kept for the reasoning and for the three things it did not cost out, listed at the top. |
 | [docs/PORT_INVENTORY.md](docs/PORT_INVENTORY.md) | JS → Swift: every discrepancy and what it costs. Read when the port starts, not before. |
 | [docs/KNOWN_CONJUGATION_ERRORS.md](docs/KNOWN_CONJUGATION_ERRORS.md) | **Every cell the engine gets wrong today**, with the code responsible — plus the differences that only look like errors. Read before touching a conjugator, and before trusting a mismatch report. |
@@ -29,7 +29,7 @@ thing that was still true went. Do not rebuild them.
 ## Working here
 
 ```bash
-cd web-prototype && node test/smoke.mjs     # 417 assertions; the first 112 are engine parity
+cd web-prototype && node test/smoke.mjs     # 502 assertions; the first 112 are engine parity
 ```
 
 **Run the app** with the `sarf-quiz-web` config in `.claude/launch.json`

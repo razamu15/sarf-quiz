@@ -869,8 +869,8 @@ Packages/SarfCore/Sources/SarfCore/
   Grammar/                 ← DATA TABLES (content, not entities)
     SharedGrammar.swift · SalimGrammar.swift · … · NaqisGrammar.swift
   Conjugation/             ← BEHAVIOUR
-    VerbTypeConjugator.swift · Salim…Naqis · Templates.swift
-    ConjugationService.swift
+    VerbTypeConjugator.swift · ConjugationService.swift · EngineBacking · CorpusConjugator
+    Engines/   Salim…Naqis · Mahmuz · Templates.swift · HamzaSeating.swift
   Lexicon/     LexiconService.swift
   Meaning/     MeaningService.swift
   Text/        ArabicText.swift
@@ -988,42 +988,13 @@ JS.
 
 # Part 5 — Consequences and open questions
 
-## 5.1 Port readiness — one conflict with the plan ⚠️
+## 5.1 Port readiness — superseded
 
-You asked to start porting "portions that are more or less completed, such as
-the conjugation engines." TECHNICAL_PLAN Part C says Swift starts when **B3** lands
-(corpus freeze), and B3 is blocked on **Q1** (whether to freeze over five
-engines or seven). Today:
-
-- 5 of 7 engines ship; **mahmūz and lafīf do not exist** (flagged off)
-- **B1 and B2 are done** — nāqiṣ mazīd II–X (`c11be1b`) and derived-noun stems
-  for mithāl, ajwaf and nāqiṣ (`27edeb5`). *(When this section was written,
-  `NAQIS_STEMS.II`…`.X` were eight empty objects and `DERIVED_NOUN_STEMS = {}` in
-  all three weak types.)*
-- `tools/export-content.mjs` is parked and produces nothing
-
-So there is **no golden corpus**, which is the acceptance gate the whole port
-plan rests on. That does not mean don't start — it means be explicit about what
-"start" means. **Recommendation: port the frozen *structure* now and let the
-corpus catch up.** Concretely, split S1 in two:
-
-- **S1a (safe now)** — `Vocabulary`, `Grammar` types, `Templates` (scalar-correct),
-  `SalimConjugator` + `MudaafConjugator`, `ConjugationService`, `Root`,
-  `LexiconService`, `ArabicText`, and the smoke test's 112 parity assertions.
-  These are the most settled files in the codebase and Traps 1–3 get solved
-  once, here, where a small corpus can prove it.
-- **S1b (needs a Q1 answer)** — mithāl, ajwaf, nāqiṣ, and the full-corpus
-  zero-diff run. *(It also waited on B1/B2 when this was written; both landed.)*
-
-The cost of doing S1a early is that any later JS engine change must be applied
-twice. Given those files have been stable for the last several commits while
-`quiz/` and `screens/` churned, that looks like a good trade — but it is your
-call and it does re-open Q1 slightly.
-
-**Prerequisite for either:** un-park `export-content.mjs` and emit the corpus
-for the five shipped engines. Without a corpus the port has no gate at all, and
-"port then eyeball it" is exactly what the whole prototype-first strategy exists
-to avoid.
+This section recommended splitting the engine port into S1a (sālim, muḍāʿaf, the service) and S1b (the rest)
+because no golden corpus existed. Both halves of that are gone: the corpus is now step one
+([`IOS_PORT_PLAN.md`](IOS_PORT_PLAN.md) S0.1), the engines are ported one verb type at a time behind a
+`CorpusConjugator` stand-in (Lane R), and the corpus scope question (Q1) is settled at six engines.
+Recoverable from git if the reasoning is wanted: `git show a8dd206:docs/PORT_INVENTORY.md`.
 
 ## 5.2 Four changes to make in JS *first*
 

@@ -1,341 +1,392 @@
 # The iOS port — implementation plan
 
-> **What this is.** The screen-by-screen, module-by-module build order `TECHNICAL_PLAN.md` Part C
-> anticipated and left unwritten ("The build order for the iOS app is the implementation plan, to be
-> derived screen by screen from `product-spec/`"). This is that plan: five tracks, small slices, each
-> pairing UI with the logic behind it, a named mitigation strategy for the one layer everyone agrees is
-> the risky part.
+> **What this is.** The build order for the Swift app: two lanes, with every slice cut into diffs small
+> enough to read in order. Re-planned **2026-10-21**; it replaces the plan of 2026-09-21, whose sequencing
+> put the whole engine port in front of every other screen (recoverable:
+> `git show a8dd206:docs/IOS_PORT_PLAN.md`).
 >
 > **What it is not.** It doesn't restate the engine decisions (`TECHNICAL_PLAN.md` Part A), the JS→Swift
-> discrepancies (`PORT_INVENTORY.md`), or what each screen does (`product-spec/`) — it sequences them.
+> discrepancies (`PORT_INVENTORY.md`) or what each screen does (`product-spec/`) — it sequences them.
 >
-> **Status: building, since 2026-09-22.** `Track D` (D1 + D2) and **all of `Track P`** have landed;
-> everything else is still design. Every number below was measured in the session that wrote this,
-> not copied from a doc — regenerate before trusting one. Keep this file in sync as slices land;
-> rename it `_v1` if it needs a successor rather than editing history out of it.
+> **Status: building, since 2026-09-22.** Track D (D1 + D2) and Track P have landed; everything else is
+> still design. Every number below was measured on 2026-10-21 — regenerate before trusting one. Keep this
+> file in sync as chunks land; the **State** line on each slice is the record.
+
+## What this plan is built to give you
+
+1. **Read every line of the conjugation code, at your own pace**, without that holding anything else up.
+2. **The rest of the app working early**, so it can be shown and iterated on while the reading goes on.
+3. **Understand the non-engine code without combing through it** — the data objects, the models, how
+   things are grouped — in diffs small enough to read in order, each one making the next easier.
+
+Every choice below is derived from those three; where one trades against another, it says so.
+
+---
 
 ## What has landed
 
 | Slice | State | Commit |
 |---|---|---|
-| **D1** tokens, type, fonts | ✅ done, pending E1 | `Track D — the design system ports to SwiftUI` |
-| **D2** Tables' own components | ✅ done, pending E1 | same |
+| **D1** tokens, type, fonts | ✅ done, pending S1 | `Track D — the design system ports to SwiftUI` |
+| **D2** Tables' own components | ✅ done, pending S1 | same |
 | **P1** the four boundary preps | ✅ done | `P1.1` · `P1.2` · `P1.3 + P1.4` |
 | **P2** parse card lands in JS | ✅ done | `P2 — the parse card` |
-| **E1 · E2 · Q1–Q3 · A1–A4** | not started | — |
+| **S0 – S8, R1 – R7** | not started | — |
 
-**Track P is complete.** The quiz layer Swift will port is now the settled,
-smaller shape: five identify builders became one parse card plus one declarative
-axis table, and `builders/identify.js` (234 lines) is gone. The **−200 lines off
-the gruesome layer** that Decision 3 promised is **−123 measured** — `identify.js`
-−234 against `parse-axes.js` +209 and `builders/parse.js` +111, less the ~209
-deleted across `drills.js`, `relevance.js`, `word-pool.js` and `question.js`.
-The count matters less than the shape: Q2 now ports one draw with one joint
+**D1 and D2 are "done, pending S1"**: Track D is finished when Tables looks right, and Tables does not
+exist yet. What can be checked now has been — the type scale renders at its real row heights on device
+with no clipping at the largest Dynamic Type, every token has a Paper and a Night value, and no colour
+downstream is hard-coded.
+
+**Track P shrank the layer Swift will port.** Five identify builders became one parse card plus one
+declarative axis table (`builders/identify.js`, 234 lines, is gone): a measured −123 lines against the
+−200 promised, but the shape matters more than the count — the pool port is one draw with one joint
 precondition instead of two builders with private retry loops.
 
-**D1 and D2 are "done, pending E1" rather than done**, exactly as the exit criterion below says:
-Track D is finished when Tables looks right, and Tables does not exist yet. What can be checked now
-has been — the type scale renders at its real row heights on device with no clipping at the largest
-Dynamic Type, every token has a Paper and a Night value, and no colour downstream is hard-coded.
-
-### Decisions taken while building, that this plan did not settle
+### Decisions taken while building
 
 | | |
 |---|---|
-| **The app is `Awzan`** (أوزان, "patterns"). | Which resolves Decision 2's naming clash with `TECHNICAL_PLAN` §B.2, where both the quiz package and the app target were called `SarfQuiz`. Targets are now **`SarfCore` · `SarfQuiz` · `Awzan`**, no collision. |
-| **The Xcode project is hand-written and committed**, using Xcode 16+ synchronized folder groups. | No generator to install, and adding a Swift file never touches the project file. Rejected: XcodeGen/Tuist (a tool everyone must install for a project this size). |
-| **It lives under `ios/`** — `ios/Awzan.xcodeproj`, `ios/Awzan/`, `ios/Packages/`. | `TECHNICAL_PLAN` §B.2's layout is preserved exactly, rooted one level down, because a bare `Packages/` at the repo root would read as the repo's packages rather than the iOS app's. |
-| **The token layer is generated** from `design/midad/tokens.json` by `ios/tools/generate-tokens.mjs`, output committed. | The design system's own toolchain is not in this repo, so `tokens.json` is the only durable link to it — and one wrong digit in a hex value is invisible in review and wrong on every screen. Not a build step; nothing in Xcode runs it. |
-| **Q-15 is answered: Newsreader is bundled.** | With Scheherazade New, both under the OFL, licences shipping beside them. Newsreader exists only as a variable font, so its weight is driven through the `wght` axis. |
+| **The app is `Awzan`** (أوزان, "patterns"). | Targets are **`SarfCore` · `SarfQuiz` · `Awzan`**, no name collision. |
+| **The Xcode project is hand-written and committed**, using Xcode 16+ synchronized folder groups. | No generator to install, and adding a Swift file never touches the project file. |
+| **It lives under `ios/`** — `ios/Awzan.xcodeproj`, `ios/Awzan/`, `ios/Packages/`. | A bare `Packages/` at the repo root would read as the repo's packages rather than the iOS app's. |
+| **The token layer is generated** from `design/midad/tokens.json` by `ios/tools/generate-tokens.mjs`, output committed. | `tokens.json` is the only durable link to a design system whose toolchain is not in this repo; one wrong hex digit is invisible in review and wrong on every screen. |
+| **Q-15: Newsreader is bundled**, with Scheherazade New, both under the OFL. | Newsreader is a variable font only, so its weight is driven through the `wght` axis. |
 
-### Corrections to this plan, found by building it
+### Corrections found by building, still true
 
-- **P1 and P2 are not disjoint, so they are not parallel.** The roadmap has them side by side on the
-  grounds of "disjoint files". They are not: P1 threads `playableTypes` through `word-pool.js` and
-  `drills.js`, and P2 edits both. **P2 follows P1.** P1 is still parallel-safe with Track D.
-- **P1's own description understates it.** "`availableTypes()` takes its content gate as an argument"
-  reads as a one-line signature change. Three of its five callers live in what becomes `SarfQuiz`,
-  which cannot import the app's `Settings` any more than `SarfCore` can — so passing the gate down
-  would only have relocated the illegal import. The fix is that the quiz layer takes the **result**
-  (a list of playable verb types) and never learns gating exists, which touched nine files.
-- **The design's SwiftUI note for Tables' segmented controls is wrong for this screen.** Its README
-  says `Picker(.segmented)`; `product-spec/screens/04-tables.md` requires one segment disabled *with
-  a printed reason* (خَرَجَ has no majhūl) and bilingual labels in fixed slots. `Picker` can do
-  neither, so `SegmentedRow` is custom and says why at the top of the file.
-- **`bundle.css` does not use the type scale it ships with.** Four component texts are sized off-scale
-  — chip English `14/18` against `label`'s `13/18`, the 14-row list `26/48` against the spec's
-  `arabic-title` `28/50`, the word bar `26/44`, the button `17/22` against `headline`'s `17/24`.
-  Track D followed the **named scale and the product spec**, per "text wins over pixels". Worth
-  folding back into the generator, since a scale nothing uses stops being a scale.
+- **The design's SwiftUI note for Tables' segmented controls is wrong for this screen.** Its README says
+  `Picker(.segmented)`; `product-spec/screens/04-tables.md` needs one segment disabled *with a printed
+  reason* (خَرَجَ has no majhūl) and bilingual labels in fixed slots. `SegmentedRow` is custom and says why.
+- **`bundle.css` does not use the type scale it ships with** (chip English `14/18` vs `label`'s `13/18`, the
+  14-row list `26/48` vs `arabic-title` `28/50`, the word bar `26/44`, the button `17/22` vs `headline`
+  `17/24`). Track D followed the named scale and the spec. Worth folding back into the generator.
 
 ---
 
-## Ground truth, measured 2026-09-21
-
-> These are the numbers the plan was written against and they are **kept as the record**, not
-> updated in place. Two have moved since: the suite is at **430 / 432** (13 assertions added by P1,
-> the same 2 failures), and Swift is no longer zero — see *What has landed*. The corpus the snapshot
-> walks has grown from 75,640 to **76,006** lines, because the lexicon gained a root mid-session;
-> regenerate it rather than trusting either number.
+## Ground truth, measured 2026-10-21
 
 | | |
 |---|---|
-| `web-prototype/js` | **10,379 lines** (`PORT_INVENTORY.md` was written at 6,468 — regenerate any count before trusting it) |
-| Engines shipped | **5 / 7** — sālim, muḍāʿaf, mithāl, ajwaf, nāqiṣ. Mahmūz + lafīf authored (15+15 roots), no engine. |
-| Smoke suite | **415 / 417** green. The 2 failures are a live, unrelated regression — see below. |
-| Swift written | **0 lines.** No `.xcodeproj` anywhere in the repo. |
+| Smoke suite | `node test/smoke.mjs` → **502 passed, 0 failed** (112 of them engine parity) |
+| Engines shipped (JS) | **6 / 7** — sālim, muḍāʿaf, mithāl, ajwaf, nāqiṣ, mahmūz (flagged off). Lafīf: 15 roots authored, no engine |
+| Lexicon | **166 roots** in the enumerated corpus |
+| The corpus, enumerated | roots × forms × 9 chart shapes × slots = **74,104 cells: 54,566 words + 19,538 explicit `null`s**, ≈ 2 MB of text |
+| …by verb group (words) | sālim 11,150 · muḍāʿaf 9,622 · mithāl 9,864 · ajwaf 8,368 · nāqiṣ 11,974 · mahmūz 3,588 |
+| What the corpus does *not* yet count | derived nouns, citations, and the synthetic فعل root `wazn` runs on (`conjugation-service.js:317`) — S0.1 adds them |
+| Engine-side JS to be read | **≈ 3,550 lines** — grammar + conjugators + `templates` + `shared-grammar` + `hamza-seating` + the service router |
+| The conjugation seam | **8 files** outside `conjugation/` import the service, and between them they call **5 functions**: `conjugate`, `fullTable`, `derivedNoun`, `citation`, `conjugates` (plus `hasEngine`, `hasPassive`, `waznOf*` inside the lexicon and Tables). Everything the rest of the app knows about morphology comes through this door |
+| Swift written | **1,904 lines**, all in `ios/Awzan/` (design system, app shell) plus placeholder package targets |
 
-**A live regression, not part of this plan and not blocking it.** Commit `5a1e52f` ("mithal amt fix",
-made during the review that produced this plan) set `faaDrops: true` on وجل's Form I entry in
-`web-prototype/js/lexicon/roots/mithal.js`. Its own doc-comment three lines above says وجل *keeps* its
-wāw (Qur'ān 15:53 لَا تَوْجَلْ) — the flag should be `false`, matching وجع right below it. One-line fix.
-It gates Slice **E2** (mithāl is out of scope for E1) — fix it before E2 starts.
+---
 
-**Two screens the accepted product spec has already moved past the prototype on:**
+## The organizing decision: the engines sit behind a seam, and the seam has a stand-in
 
-| Screen | Spec says | Prototype still has | Resolution |
+The seam above is narrow and already shaped like a protocol: one service, one engine per verb group,
+routed by a dictionary. So the app does not wait for the engines. A **`CorpusConjugator`** answers the same
+protocol by looking the word up in `golden-corpus.json` — the file `TECHNICAL_PLAN.md` A.5 already requires
+as the acceptance gate. Each real engine then replaces its corpus entry, one at a time, when it is proven
+identical.
+
+```
+   Tables · Quiz · Practice · Results · Home          ← Lane A builds all of this, from S0.6 on
+                     │  conjugate · fullTable · derivedNoun · citation · conjugates · hasPassive · waznRoot
+             ConjugationService                       ← the one public door; owns every precondition
+                     │  routes by verb group through ENGINE_BACKING
+       ┌─────────────┴──────────────┐
+  .corpus                        .engine
+  CorpusConjugator(group)        SalimConjugator · MudaafConjugator · …   ← Lane R builds and you read these
+  a lookup in the corpus         grammar tables + templates + hamza seating
+```
+
+`ENGINE_BACKING` is a declarative table, one row per verb group, in the same shape as `QUESTION_RULES`:
+
+| group | backing | read by you |
+|---|---|---|
+| sālim | `.engine` (S0.8) | — |
+| muḍāʿaf · mahmūz · mithāl · ajwaf · nāqiṣ | `.corpus` until their R-unit passes | — |
+| lafīf | no engine anywhere yet (R7) | — |
+
+**What keeps the stand-in honest** — each of these is a rule, not a hope:
+
+1. **A corpus miss traps; an explicit `null` is a value.** The corpus stores the 19,538 answers that are
+   deliberately "this word does not exist". A key that is simply absent is a stale or wrong corpus and must
+   fail loudly, never read as "no such word" (absence is a value; a guess must never pass for an answer).
+2. **`roots.json` and the corpus are emitted together**, stamped with one content hash; the app refuses to
+   start if they disagree. The lexicon changes often, so regeneration is one command and its diff is
+   reviewed, never a silent update.
+3. **A flip from `.corpus` to `.engine` needs zero diff** against that group's words and a human-readable
+   snapshot of every chart. The corpus then *stays* as the test oracle — it is not scaffolding.
+4. **JS stays the reference until the last engine is read.** A correction found while reading goes JS →
+   regenerate the corpus (a reviewed diff) → Swift, in that order.
+5. **Review never gates a build.** Each group's backing and read state is visible in a debug section of
+   More, so a demo build says honestly what it is running.
+6. **The accepted trade-off is written into the code**, as a named comment on `ENGINE_BACKING`: until an
+   engine is flipped, its words are looked up rather than generated; and segmented output (prefix / stem /
+   suffix, product-spec D-61, unbuilt) cannot come from a string corpus, so anything needing it waits for
+   the engines.
+
+**Alternatives rejected.** *Engines first* (the 2026-09-21 plan): the slowest, most careful work blocks the
+work you want to show. *JavaScriptCore running the real JS engine in the app*: ships the code being
+replaced, needs a bundling step this repo doesn't have, and crosses the boundary untyped.
+
+---
+
+## Decisions (settled)
+
+**1 · Sequencing — two lanes, one seam.** Above. Replaces "engine-gated, paired with the real Tables
+screen". The engine API still freezes once, at S0.5, before any engine is ported — so "one port, one gate"
+(`TECHNICAL_PLAN.md` Part C) survives: the gate is the corpus, and it no longer has to be passed in one
+sitting.
+
+**2 · Package boundary — three targets.** `SarfCore` (morphology, frozen at the end of Lane R, no display
+strings) · `SarfQuiz` (quiz rules and their copy, churns) · `Awzan` (views, storage, platform). The
+benefit is that "no UI in quiz rules" and "no Settings in the engine" are compile errors, not review
+reminders; `SarfCore` stays `nonisolated`/`Sendable` so the pool recount can leave the main actor. Collapsing
+three targets into two later is boilerplate; splitting quiz rules back out of an app target after months of
+growth is an audit. Widen `public`; don't move files.
+
+**3 · JS-first prerequisites — done.** Only the parse card needed a JS pass (P2, landed). Practice builds
+directly in Swift (product-spec D-69); the classic and wizard layouts and `settings.practiceFlow` are
+retired, unported.
+
+**4 · Corpus scope — six engines now.** Freeze over sālim, muḍāʿaf, mithāl, ajwaf, nāqiṣ and mahmūz;
+regenerate as a reviewed diff when lafīf lands. (Was five before mahmūz shipped.)
+
+**5 · Polish scope — Night ships with the UI from slice 1.** Deferred: haptics and motion (D-65), the full
+accessibility pass.
+
+**6 · The review lane.** The unit of reading is a **verb type**: its grammar file and its conjugator,
+together. `hamza-seating` is read with mahmūz, because that is where it is introduced — mithāl and nāqiṣ
+reuse it later. Sālim ships with the foundations because it is the simplest engine and proves the swap path.
+
+**Defaults assumed, not yet confirmed** — change them by editing this paragraph: lafīf is the last unit
+(R7), because it composes the mithāl and nāqiṣ rules and should validate that they compose; a build with
+unread engines may be shown to other people.
+
+---
+
+## Lane A — the app
+
+**How the chunks are cut.** One chunk = one commit = one section of the slice's model note. Five rules:
+
+1. **Types before logic, logic before views.** A chunk may use only ideas an earlier chunk introduced.
+2. **Leaf first.** Whatever nothing else in the slice depends on comes first.
+3. **Simplest variant first.** When several things share a shape (four builders, three response modes), the
+   simplest goes first and each later one adds exactly one idea.
+4. **Port literally, then refactor in its own commit.** Easy to eyeball against the JS line by line.
+5. **Each chunk ends with its tests**, headless where the code allows it.
+
+Each slice ends with **one model note** — `docs/notes/NN-<slice>.md`, one page: the entity diagram, a file
+list saying what each file owns, who consumes it, and "what to look for in the diff". You read the notes
+in slice order; the code is there for when a note raises a question.
+
+### S0 · Foundations (`SarfCore`) — the seam, the stand-in, and the first real engine
+
+*State: not started.* S1 can begin once **0.6** lands; 0.7–0.8 run beside it.
+
+| # | Chunk | Owns | Builds on |
 |---|---|---|---|
-| The parse card | **D-72…D-80** — one composite question per word | Five separate questions (`tense`/`voice`/`doer`/`mood`/`bab`) | Build in JS first — plan already written, `docs/PARSE_CARD_PLAN_v1.md`. Track P2. |
-| Practice | **D-69** — the design's single scrolling screen | Both retired experiments (`settings.practiceFlow` defaults to `'classic'`; `practice.js` switches `renderWizard`/`renderClassic`) | **No JS pass** — `product-spec/screens/03-practice.md` already specifies the target down to its acceptance checklist. Swift builds it directly. Slice A1. |
+| 0.1 | **Content export** — un-park `tools/export-content.mjs` | `roots.json` + `golden-corpus.json` + one content hash; explicit nulls; derived nouns, citations, the فعل root | — |
+| 0.2 | **Vocabulary** | `Models/`: closed enums (form, tense, voice, mood, slot, bāb with its vowels, verb type *and* verb group, derived-noun kind) and `ChartShape`. Their `rawValue`s are the storage contract | 0.1 (the JSON's keys are these values) |
+| 0.3 | **Lexicon** | `Root`, `RootFormUsage`, `LexiconService.load()` — enum-keyed decode, root-vs-radicals check, fails loudly | 0.2 |
+| 0.4 | **ArabicText** | grapheme clusters and the first differing cluster | — |
+| 0.5 | **The seam** | `ConjugationSpec`, the `VerbTypeConjugator` protocol, `ConjugationService` (router, every precondition, `conjugates`/`hasPassive`, `waznRoot`), `ENGINE_BACKING`. **The API freezes here** | 0.2, 0.3 |
+| 0.6 | **The stand-in** | corpus loader, `CorpusConjugator`, the hash check. Exit: all 74,104 keys answered through the public service | 0.1, 0.5 |
+| 0.7 | **Shared grammar + templates** — *you read this (R0)* | `GrammarTypes`, `SharedGrammar`, scalar-level `Templates` (Traps 1–3 fixed here once) | 0.5 |
+| 0.8 | **Sālim** — *you read this (R1)* | `SalimGrammar`, `SalimConjugator`; `ENGINE_BACKING[sālim] = .engine`. Exit: zero diff over sālim's 11,150 words; the sālim parity assertions ported verbatim | 0.7 |
 
-**`TECHNICAL_PLAN.md` §A.6 and `PORT_INVENTORY.md` §3.1–3.2 disagree** on where the quiz layer lives
-(inside `SarfCore` vs. its own `SarfQuiz` package). Re-measured against today's code to settle it —
-see Decision 2.
+**Exit:** the public service answers everything the JS did; sālim is generated, the rest looked up; only
+`ConjugationService` is `public` among the engine types.
+
+### S1 · Tables — the first real screen
+
+*State: not started.* Needs 0.6.
+
+| # | Chunk | Owns | Builds on |
+|---|---|---|---|
+| 1.1 | **Settings and the content gate** | the feature-gate table, `playableTypes` (the quiz layer takes this *result* and never learns gating exists) | 0.2 |
+| 1.2 | **Composition root + tab shell** | `AppModel` builds `LexiconService` then `ConjugationService`; four empty tabs | 0.3, 0.5, 1.1 |
+| 1.3 | **`TablesModel`** | selection (root, form, tense, voice, mood) → the table; the disabled-with-reason logic. Headless tests | 1.2 |
+| 1.4 | **Tables sections** | root search · form chips · chart controls (`SegmentedRow`) — each with previews | 1.3, D2 |
+| 1.5 | **`TablesScreen`** | composition only; the 14-row `ParadigmList`. Exit: every stocked verb type renders, Paper and Night | 1.4 |
+
+### S2 · Quiz vocabulary (`SarfQuiz/Models`) — the nouns, no behaviour
+
+*State: not started.* The object chain is **QuizPlan → WordPool → QuizRun → Question → Answer**; S2 builds
+the three nouns that have no logic of their own.
+
+| # | Chunk | Owns | Builds on |
+|---|---|---|---|
+| 2.1 | **`WordSpec` + `QuizPlan`** | identity of a word; the plan, `Length { fixed, endless }`, `planCharts`, `planFrom` | 0.2 |
+| 2.2 | **Question types** | `Prompt` and `Response` as tagged unions, `AnswerOption`, `Feedback`, `Question` — the exhaustive `switch` replaces the `CARDS` table | 2.1 |
+| 2.3 | **`Answer` + `Grading`** | an answer *embeds* the question that produced it (`TECHNICAL_PLAN` B.3); `grade()` is the only judge of correctness. Property tests | 2.2, 0.4 |
+
+### S3 · Pool and rules — the gruesome core
+
+*State: not started.* Mitigation in full below. Ends with a **synchronous walkthrough**, signed off — a merged
+PR does not count.
+
+| # | Chunk | Owns | Builds on |
+|---|---|---|---|
+| 3.1 | **`RandomSource` + `WordPool`** | an injectable RNG (tests become deterministic); the joint-axis draw; runs off the main actor. **Pool-parity fixture** over the 6 canonical plans | 2.1, 0.6 |
+| 3.2 | **`ParseAxes`** | the declarative axis registry — each axis's `select` mode and its live/dead rule | 2.2 |
+| 3.3 | **`Relevance`** | `QUESTION_RULES`, `relevance(pool)`, `possibleQuestions`. Only *decides*; it builds nothing | 3.1, 3.2 |
+
+### S4 · Builders and the Quiz screen
+
+*State: not started.* Builders go in the order that makes each diff teach the next: every one adds exactly one
+idea to the one before.
+
+| # | Chunk | Adds | Builds on |
+|---|---|---|---|
+| 4.1 | **Copy** — `Glossary`, `MeaningService` | labels, English readings, the governing-particle registry. Data only | 2.2 |
+| 4.2 | **`produce`** | the first builder: a spec prompt, an *input* response | 4.1 |
+| 4.3 | **`fromMeaning`** | a *choice* response with one correct answer | 4.2 |
+| 4.4 | **`derived`** (three kinds) | one draw shared by three questions | 4.3 |
+| 4.5 | **`parse`** | the composite: several axes at once, over `ParseAxes` | 4.4, 3.2 |
+| 4.6 | **Dispatch** — `buildFor(pool)` | joins the rules (3.3) to the builders. The first moment a pool becomes a question | 3.3, 4.2–4.5 |
+| 4.7 | **`QuizRun`** | the question stream and answer recording; `@Observable @MainActor` | 4.6, 2.3 |
+| 4.8 | **Tips** | a declarative table keyed on the *confusion* in an `Answer` | 2.3 |
+| 4.9 | **Drills** | presets → plans; Home's source | 3.1 |
+| 4.10 | **`QuizModel`** | what the screen shows, *derived* from `QuizRun` (option states are computed, never applied) | 4.7 |
+| 4.11 | **Prompt cards** | one view per prompt kind, an exhaustive `switch` | 2.2, D2 |
+| 4.12 | **Answer sheets** | choice · input · parse axes — one view per response mode | 4.11 |
+| 4.13 | **`QuizScreen`** | composition, feedback, the full-table peek; driven by a hardcoded debug plan | 4.8–4.12 |
+
+### S5 · Practice
+
+*State: not started.* Built directly from `product-spec/screens/03-practice.md`; the screen mutates a draft and
+makes the one `draftPlan()` call — no screen builds a plan.
+
+| # | Chunk | Owns | Builds on |
+|---|---|---|---|
+| 5.1 | **`PlanDraft`** | a value type; `draftPlan()`; verb types stored granular, expanded at the UI boundary | 2.1 |
+| 5.2 | **Live recount** | the off-main-actor, cancellable pool count behind every chip tap | 3.1, 5.1 |
+| 5.3 | **`PracticeModel`** | draft + recount result | 5.1, 5.2 |
+| 5.4 | **Setup sections** | chart scope · verb-type chips · form chips | 5.3, D2 |
+| 5.5 | **`SetupBar`** | the pinned "this setup asks" panel | 3.3, 5.3 |
+| 5.6 | **`PracticeScreen`** | composition; Start → the quiz | 5.4, 5.5, 4.13 |
+
+### S6 · Results
+
+*State: not started.*
+
+| # | Chunk | Owns | Builds on |
+|---|---|---|---|
+| 6.1 | **`ResultsModel`** | misses, score, by-question, vocabulary — all read off the finished run's `Answer`s | 4.7 |
+| 6.2 | **Results sections** | one per region of the spec | 6.1 |
+| 6.3 | **`ResultsScreen`** | composition | 6.2 |
+
+### S7 · History and Home
+
+*State: not started.*
+
+| # | Chunk | Owns | Builds on |
+|---|---|---|---|
+| 7.1 | **Persisted entities** | SwiftData records; flat stored columns beside the embedded answer blob | 2.3 |
+| 7.2 | **`HistoryService`** | a finished run → records | 7.1, 4.7 |
+| 7.3 | **`StatsService`** | queries; the streak on the **local** calendar day (the JS used UTC) | 7.1 |
+| 7.4 | **Home sections** | `StatStrip`, `DrillCard`, the quote | 7.3, 4.9 |
+| 7.5 | **`HomeScreen`** | composition | 7.4 |
+
+### S8 · More
+
+*State: not started.* No design yet (Q-09), no dependencies — filler whenever another slice stalls.
+8.1 settings form, 8.2 about, 8.3 the debug section showing each group's backing and read state.
+
+**Exit per screen:** matches its `product-spec/screens/*.md` acceptance checklist; correct in Paper and
+Night with no hardcoded colour.
 
 ---
 
-## The five decisions
+## Lane R — the engines, and your reading
 
-Recorded as settled. An agent should build every one of these as stated; none is still open.
+Lane R touches only `SarfCore/Grammar/`, `SarfCore/Conjugation/Engines/` and their tests, and depends on
+Lane A only through S0's protocol — so the two lanes can run as separate sessions without colliding.
 
-### 1 · Sequencing — engine-gated, paired with the real Tables screen
+**The gate on every unit** — all four, in this order:
 
-`TECHNICAL_PLAN.md` Part C argues the whole engine ports as one atomic, corpus-gated unit before any
-Swift UI exists. The counter-need was a tangible, reviewable artifact per slice. Resolution: **the
-engine still ports as its own gated unit — paired immediately with the Tables screen**, which has zero
-quiz-layer dependency, so pairing it costs nothing. (Rejected: pure engine-first with no UI for weeks;
-pure vertical slicing with no corpus gate, which risks building on an engine never proven complete.)
+1. **Zero diff** against that group's words in the corpus, with the count stated.
+2. The **parity assertions** covering the group, ported verbatim from `smoke.mjs` (hand-typed independently of
+   the templates, so agreement means both are almost certainly right).
+3. A **chart-audit snapshot** — every form × chart rendered as a table, so you can read output against the
+   madrasa handout as well as reading code.
+4. The **flip**: `ENGINE_BACKING[group] = .engine`. Then it is yours to read.
 
-### 2 · Package boundary — three targets
+Read each unit grammar-first, against the paper chart; the conjugator second.
 
-**`SarfCore` (frozen at B3, no display strings) · `SarfQuiz` (the quiz rules + their copy, churns) · the
-app target.** Confirmed against fresh measurement: `word-pool.js`, `drills.js` and `builders/derived.js`
-still reach past the engine into `FORM_META`; `lexicon-service.js` still imports `settings` (an illegal
-upward dependency once `Settings` is app-side); 5 of 9 quiz files still import `glossary.js`. All three
-become compile errors under a real package boundary rather than review reminders.
+| Unit | Backing flips | What you read | JS lines |
+|---|---|---|---|
+| **R0** | — | `templates`, `shared-grammar`, the service router (`conjugation-service.js`) | 692 |
+| **R1** | sālim | `salim-grammar` + `salim-conjugator` | 292 |
+| **R2** | muḍāʿaf | `mudaaf-grammar` + `mudaaf-conjugator` | 410 |
+| **R3** | mahmūz | `mahmuz-grammar` + `mahmuz-conjugator` + **`hamza-seating`** | 238 + 165 |
+| **R4** | mithāl | `mithal-grammar` + `mithal-conjugator` (runs the seating pass) | 447 |
+| **R5** | ajwaf | `ajwaf-grammar` + `ajwaf-conjugator` | 419 |
+| **R6** | nāqiṣ | `naqis-grammar` + `naqis-conjugator` (Trap 4; seating pass) | 883 |
+| **R7** | lafīf | JS engine first, then Swift; corpus regenerated as a reviewed diff | — |
 
-**Why this and not two targets, in full:**
-- **Benefit.** (a) "No UI in quiz rules" becomes a compile error, not a convention kept by grep.
-  (b) `SarfCore` heads for a hard freeze at B3; the quiz layer is explicitly the *least* settled part of
-  the app (Practice keeps reshaping, tips keep growing, Compare adds a diff) — one package means the
-  frozen thing's version moves every time the unfrozen one does. (c) `grade()` and `relevance()` get real
-  headless tests with zero simulator/SwiftUI dependency, provably. (d) The boundary doubles as the
-  concurrency boundary (`PORT_INVENTORY.md` §3.3f) — `SarfCore` stays `nonisolated`/`Sendable` so
-  `wordPool()`'s per-chip-tap recount can run via `Task.detached` without blocking the main thread.
-- **The asymmetry that makes now the right time.** Collapsing 3 targets into 2 later is boilerplate — no
-  logic changes, nothing breaks by loosening a boundary. Splitting quiz rules back *out* of an app target
-  they've lived in for months means first auditing every place a View reached past the intended surface,
-  because nothing stopped it from happening. Cheap to remove a wall later; expensive to build one after
-  code has grown through the gap.
-- **"What if the view layer needs more access to quiz building?"** That's a `public`-surface question,
-  not a package question — exactly how `ConjugationService` already works (`FORM_META` stays internal,
-  `conjugates()`/`hasPassive()` are exposed as behaviour). Widen what's `public`; don't move the file. The
-  one thing that *would* need a structural change — a screen constructing its own plan — is already
-  forbidden by D-34 regardless of how many targets exist.
-
-### 3 · JS-first prerequisites — the parse card only
-
-Same principle as D-07 (prototype-first): don't port a screen that's about to be rebuilt. The bar for
-"needs a JS pass" is that there's real design left to resolve cheaply — not merely that the prototype
-hasn't built it yet.
-
-- **Parse card (D-72…D-80): yes.** Plan exists (`docs/PARSE_CARD_PLAN_v1.md`). Genuine open design
-  questions were resolved this session (five of them) — a JS pass is where that kind of resolution
-  belongs.
-- **Practice (D-69): no.** Nothing is left to resolve — the spec already specifies the SetupBar layout,
-  defaults and acceptance checklist in full. Swift builds it directly (Slice A1); the classic/wizard JS
-  and the `practiceFlow` setting are retired, unported.
-- **Traded away by skipping Practice's JS pass:** the prototype would have been a cheap place to feel out
-  the SetupBar's live-recount-on-every-chip-tap UX before Swift. That's now Swift's problem first — logged
-  as a risk, not silently absorbed.
-
-### 4 · Corpus scope (`TECHNICAL_PLAN.md`'s Q1) — freeze over 5, regenerate later
-
-Confirmed. **Freeze the golden corpus over the five shipped engines now; regenerate it as a reviewed diff
-when mahmūz and lafīf land.** (Rejected: holding the whole port until all seven engines exist — no
-engine work is scheduled for them, so this would block indefinitely for no reason connected to the port
-itself.)
-
-### 5 · Polish scope — Night ships with the UI from slice 1
-
-Night theme is part of the design system, not a later pass — it ships with every UI slice starting with
-Tables in E1. **Deferred, per the original proposal:** haptics & motion (D-65), the full accessibility
-pass (VoiceOver spelled-letter mode, largest-Dynamic-Type row-height tuning). Revisit either explicitly
-if a specific screen's review finds it's needed sooner.
+The order runs easiest to hardest and each unit is one sitting. R0 and R1 land with S0; the rest run beside
+Lane A. **Review state** is tracked in the debug section of More (S8.3) and nowhere else in the app.
 
 ---
 
-## Mitigating the gruesome layer
+## How the SwiftUI code is cut
 
-`relevance.js` / `word-pool.js` / `quiz-plan.js` — the layer with the least test-by-inspection: relevance
-is 135 lines deciding which questions are worth asking at all, the pool walk has to run off the main
-actor, and the builders sample and shuffle randomly, so the engine's golden-corpus technique doesn't
-apply directly. Six measures, in order of leverage:
+SwiftUI is declarative in the way React is: a view is a function from state to a description of the screen,
+re-run by the framework when the state it *read* changes (`PORT_INVENTORY.md` §2.1). The boundaries follow
+that. Four layers; every file is in exactly one.
 
-1. **Shrink it in JS before Swift sees it.** The parse card (Decision 3) collapses five question-builders
-   into one and deletes the drill-bundle logic — about **−200 lines** off this exact layer, per
-   `PARSE_CARD_PLAN_v1.md`'s own count. Swift ports the settled, smaller shape once.
-2. **Its own package, no UI imports.** Decision 2's `SarfQuiz` target — `nonisolated`, `Sendable`,
-   headless XCTest, no SwiftUI import possible.
-3. **A pool-parity fixture.** Extend the golden-corpus discipline one layer up: for the 6 canonical plans
-   already measured in `product-spec/screens/03-practice.md` (1,400 / 2,548 / 700 / 2,100 / 300 / 5,396
-   cells), dump JS's `{cells, varies.*, live/dead axes}` and assert Swift produces identical numbers.
-   Deterministic, so it diffs like the engine does.
-4. **Property tests for the builders.** Can't diff a random draw byte-for-byte, so assert invariants
-   instead — doer's correct set is exactly the slots rendering identical text; every axis's correct set
-   is non-empty; a card never ships missing a live axis. Same technique already planned for the engine
-   (`TECHNICAL_PLAN.md` §B.6).
-5. **Port literally, refactor separately.** The first PR for this layer is a 1:1 transliteration — easy
-   to eyeball against the JS source line by line. Any Swift-idiom cleanup is its own, separately reviewed
-   PR.
-6. **One synchronous walkthrough**, not async PR comments — a single sit-down pass through
-   `relevance.js` + `word-pool.js` + `quiz-run.js` beside their Swift port, before merge. Scheduled as
-   Slice Q2's own exit criterion.
+| Layer | Is | React analogue | Rule |
+|---|---|---|---|
+| **DesignSystem/** (exists) | stateless components — `WordBar`, `Chip`, `SegmentedRow`… | a component library | takes plain values and closures; knows no domain type |
+| **Sections/** | one visually distinct region of one screen | a presentational component | takes the narrowest thing it needs; calls no service, runs no conjugation |
+| **`XScreen`** | the screen's composition | a container component | lays sections out and wires intents; no logic beyond that |
+| **`XModel`** | `@Observable @MainActor` class, one per screen | a store / custom hook | the **only** layer that calls `SarfCore`, `SarfQuiz` or a service; holds state, intents and derived display state; testable with no UI |
+
+```
+Features/Tables/
+  TablesModel.swift        state + what can happen to it            ← read first
+  TablesScreen.swift       what is on the screen                    ← read second
+  Sections/                RootSearch · FormChips · ChartControls   ← read third, with their previews
+```
+
+- **Split a section** when a region is named in the spec's screen description, is repeated, has its own
+  state to preview, or a view file passes ~150 lines. A screen that needs more is missing a section.
+- **State is derived, never applied.** After an answer, an option is *computed* idle / selected / correct /
+  wrong / dimmed from the run (`PORT_INVENTORY.md` §2.4); a view never reaches into one that was rendered.
+- **Every section has `#Preview`s** for its interesting states (idle, selected, answered-wrong, Night, the
+  largest Dynamic Type). They are the Storybook: reviewing a section is looking at its previews plus ~40
+  lines, without driving the app to that state.
+- **Reading order for any screen:** model → screen → sections → design system only if unfamiliar. The model
+  note for the slice lists them in that order.
+- **Where it differs from React:** views are cheap value types the framework re-evaluates for you, and
+  observation tracks what a `body` *read*, so there are no selectors, memoisation or dependency arrays;
+  async work is `.task`, not an effect. Navigation is a `NavigationStack` path, not a boolean.
 
 ---
 
 ## Review tiers
 
-| Module | Swift destination | Tier | Why |
-|---|---|---|---|
-| `design/midad/` (tokens, `bundle.css`, previews) | `Colors.xcassets`, `Type.swift`, `WordBar`/`Chip`/`RootTiles`/… | light | New Track D. Checked against `screenshots/` and the interactive previews — no domain logic to get subtly wrong. |
-| `conjugation/templates.js` | `Templates.swift` | **light** | Traps 1–3 live here, but the E1 zero-diff parity snapshot covers every case this file can produce — the automated gate substitutes for line-by-line reading. *(Downgraded from heavy on review: get the scalar-vs-grapheme rule right once, let the gate prove it. One honest caveat: the gate's exhaustiveness is what's carrying the weight here — a gap in corpus generation would hide in exactly this file.)* |
-| `conjugation/naqis-conjugator.js` | `NaqisConjugator.swift` | heavy | Trap 4, densest scalar-indexing in the codebase, 381 lines. |
-| `conjugation-service.js` | `ConjugationService.swift` | heavy | The one public door; gains `conjugates()`/`hasPassive()`/`waznRoot()`. |
-| `grammar/*-grammar.js` | `Grammar/*.swift` | heavy | ~1,000 lines of literals — read against the madrasa chart, not "code reviewed." |
-| `vocabulary.js` | `Vocabulary` + `ChartShape.swift` | heavy | Found live this session: `isValidShape()` accepts `amr+majhūl`, which crashes rather than nulling — fix before E1. |
-| `arabic-text.js` | `ArabicText.swift` | light | Verified byte-identical cluster splits already — transcribes free. |
-| `lexicon-service.js` / `root.js` | `Lexicon/*.swift` | light | Mechanical, but carries the `availableTypes(enabled:)` boundary fix (P1). |
-| `quiz/word-pool.js` | `Pool/WordPool.swift` | **gruesome** | The joint-axis draw (post parse-card), the off-main-actor requirement. |
-| `quiz/relevance.js` | `Rules/Relevance.swift` | **gruesome** | 135 lines of rules; every question kind's existence runs through here. |
-| `quiz/quiz-run.js` | `QuizRun.swift` | **gruesome** | Generator → `IteratorProtocol`, `@Observable @MainActor`. |
-| `quiz/quiz-plan.js`, `question.js`, `grading.js` | Models + `Grading.swift` | light | Mechanical reshapes — the tagged-union rework is "the big win" per `PORT_INVENTORY.md`, not a risk. |
-| `quiz/builders/*`, `drills.js`, `glossary.js` | `Builders/*`, `Drills`, `Glossary.swift` | light | Shrinks under the parse card; mostly string tables after. |
-| `settings.js`, `history/*.js` | `Settings`, `HistoryService`, `StatsService` | light | Storage backend swap, shape preserved. Local-day streak fix rides along. |
-| `screens/*.js` (7) | `Features/*` | light | Rewritten, not ported — checked visually against `product-spec/screens/`, not diffed line by line. |
+| Module | Tier | Why |
+|---|---|---|
+| Engines — grammar, conjugators, `Templates`, `ConjugationService` | **your full read** (Lane R) | the correctness of the product; gated four ways before it reaches you |
+| `Vocabulary`, `Root`, `LexiconService`, `ArabicText` | model note + skim | mechanical, but every later diff leans on them |
+| `WordPool`, `Relevance`, `QuizRun` | **gruesome** — synchronous walkthrough | the pool walk is off-main-actor and the builders sample randomly, so the corpus technique doesn't diff them |
+| `QuizPlan`, `Question`, `Grading`, builders, `Drills`, tips | model note + skim | mostly tagged unions and string tables once the parse card landed |
+| `Settings`, history, stats | model note + skim | storage backend swap, shape preserved |
+| Screens | visual, against `product-spec/screens/` | rewritten, not ported — checked on a device, not diffed |
 
----
+### Mitigating the gruesome layer (S3 + 4.6)
 
-## The roadmap
-
-Five tracks. `Track D` (design system) and `Track P` (JS prototype prep) run in parallel with each
-other — neither depends on the other — and both feed `Track E`. `Track E` and `Track Q` together unlock
-`Track A`.
-
-```
-TRACK D — design system → SwiftUI (new)         TRACK P — JS prototype catches up to spec
-┌─────────────┐  ┌───────────────────┐          ┌──────────────┐  ┌─────────────────────┐  ┌ ─ ─ ─ ─ ─ ┐
-│ D1  Tokens, │  │ D2  Tables' own    │          │ P1  4        │  │ P2  Parse card       │  │ P3        │
-│ type, fonts │  │ components         │          │ boundary     │  │ lands (D-72)         │  │ dropped   │
-└──────┬──────┘  └─────────┬──────────┘          │ preps        │  └──────────┬───────────┘  └ ─ ─ ─ ─ ─ ┘
-       │                   │           ┌─────────┴───┬──────────┘             │            spec already
-       ▼                   ▼           ▼              │                       ▼            settles it —
-┌─────────────────────────────────┐   ▼         ┌─────┴──────────────────────────┐         straight to A1
-│ E1  S1a engine core + REAL      │───┴────────▶ │ E2  S1b + full corpus          │
-│ Tables (built from Track D)     │              │ (وجل fix must land first)      │
-└────────────────┬─────────────────┘             └─────────────────────────────────┘
-                  │
-                  ▼
-┌────────────────────┐   ┌─────────────────────────┐   ┌───────────────────┐
-│ Q1  Models —        │──▶│ Q2 ⚠ Pool + Relevance   │──▶│ Q3  Builders +    │
-│ Spec/Plan/Question/ │   │ THE GRUESOME CORE       │   │ Quiz screen UI    │
-│ Grading             │   └─────────────────────────┘   └─────────┬─────────┘
-└──────────┬──────────┘                                           │
-           │                                            ┌─────────┴─────────┐
-           ▼                                            ▼                   ▼
-┌ ─ ─ ─ ─ ─ ┐   ┌─────────────────┐              ┌──────────────┐   ┌──────────────┐
-│ A4        │   │ A1  Practice    │              │ A2  Results  │   │ A3  Home +   │
-│ anytime   │   │ screen          │              │ screen       │   │ History      │
-└ ─ ─ ─ ─ ─ ┘   └─────────────────┘              └──────────────┘   └──────────────┘
-```
-
-*The وجل regression is scoped to `E2` alone (a mithāl content bug) — it does not touch `Q2`'s
-pool-parity fixture, which is measured against sālim-only setups.*
-
-### Every slice, with its exit criteria
-
-**D1 / D2 — the design system ports to SwiftUI** ✅ *done, pending E1* · *parallel to Track P, ahead of E1*
-
-- **D1** — colours as an asset catalog (Paper/Night pairs for every semantic token: `ground`, `ink`,
-  `sign`, `correct`/`wrong`, etc.), Scheherazade New + Newsreader bundled as fonts, the type scale
-  (`arabic-hero` through `caption`) as `Font` extensions with the explicit row heights D-59 requires,
-  spacing/radii constants.
-- **D2** — only the components Tables needs to be the real screen: `WordBar`, `Chip` (as a configurator),
-  `RootTiles`, the tense/voice/iʿrāb segmented control, the 14-row list, the primary `Button` style.
-  Everything else (`AnswerOption`, `AnswerSheet`, `ParseAxes`, `SetupBar`, `ChartScope`, `StatStrip`,
-  `DrillCard`, `QuizBar`, `PromptCard`, `TabBar`) ports alongside the screen slice that actually consumes
-  it — Q3 brings the quiz components, A1 brings `SetupBar`/`ChartScope`, A3 brings
-  `StatStrip`/`DrillCard`, and so on.
-- **Exit:** no hardcoded colour anywhere downstream (grep, not a glance); Scheherazade + Newsreader
-  render at spec'd sizes without clipping at the largest Dynamic Type; every token has both a Paper and a
-  Night value. Proven by E1 actually building on top of it — Track D is "done" when Tables looks right,
-  not before.
-
-**P1 — the four boundary preps** ✅ *done* · *parallel-safe with Track D, but **not** with P2 — see Corrections*
-
-`availableTypes()` takes its content gate as an argument, not an import of `settings`. `FORM_META` moves
-behind `conjugates()`/`hasPassive()` on the service. `relevance`'s `space → Set<…>` becomes
-`distinctAnswers → Int`. `bab` becomes a typed value with `madiVowel`/`mudariVowel`.
-**Exit:** engine snapshot zero-diff, each change its own tiny commit. *Met: 430 assertions green
-(417 + 13 new, covering the boundaries themselves), snapshot zero-diff at 76,006 lines, three commits.
-The 2 failures are the وجل `faaDrops` regression below, which was deliberately left in place — so
-the real exit was **no new failures**, not "417 green".*
-
-**P2 — parse card lands in JS** ✅ *done* · *followed P1 — the files are **not** disjoint, see Corrections*
-
-Executed `docs/PARSE_CARD_PLAN_v1.md`, whose header now lists the three things
-that plan did not cost out.
-**Exit:** its own parity proof (engine snapshot + assertion suite); `product-spec/screens/02-quiz.md` no
-longer says "prototype does not do this yet."
-
-**E1 — S1a engine core, paired with the real Tables screen** · *the thorough-review slice*
-
-`Vocabulary`, `ChartShape` (with the `amr+majhūl` fix), `GrammarTypes` + `SharedGrammar`, `Templates`
-(Traps 1–3 fixed here), `SalimConjugator` + `MudaafConjugator`, `ConjugationService`, `Root`,
-`LexiconService`, `ArabicText`. UI: the real Tables screen, built from Track D1/D2 — search → form chips
-→ tense/voice/mood segmented → the 14-row table, for sālim and muḍāʿaf roots only.
-**Exit:** zero-diff parity snapshot scoped to the two engines in play; all 112 hand-typed parity
-assertions pass in XCTest; Tables renders and reads correctly on-device for a sālim and a muḍāʿaf root,
-in both Paper and Night; no conjugator type is `public` except `ConjugationService`.
-
-**E2 — S1b, the remaining three engines** · *gated on the وجل fix*
-
-`MithalConjugator`, `AjwafConjugator`, `NaqisConjugator` (Trap 4). Tables extends to every playable verb
-type. **Exit:** zero diffs across the full golden corpus for all five shipped engines (Decision 4);
-chart-audit snapshots green per verb type × form × chart.
-
-**Q1 → Q2 → Q3 — the SarfQuiz package** · *the mitigation strategy above applies in full*
-
-- **Q1** (mechanical): `WordSpec`, `QuizPlan`, `Question` (the tagged-union rework), `Grading`.
-- **Q2** (the core): `WordPool` + `Relevance`, ported literally first. The pool-parity fixture runs
-  across the 6 canonical plans measured in `product-spec/`. This is the one slice with a scheduled
-  synchronous walkthrough before merge.
-- **Q3**: Builders (just `parse.js` plus `produce`/`derived`/`fromMeaning` once P2 lands), `Drills`,
-  `Glossary`, `QuizRun`. UI: the Quiz screen — `ParseAxes`, the answer sheet, the full-table peek —
-  driven by a hardcoded debug plan (e.g. the Sound-verbs preset) so it's reviewable before Practice
-  exists.
-- **Exit:** pool-parity fixture zero-diff on all 6 plans; property tests green; every axis's `select`
-  mode matches the JS registry; the walkthrough is explicitly signed off, not implied by a merged PR.
-
-**A1 – A4 — Practice, Results, Home, More** · *quick-check tier*
-
-A1 builds the design's single-screen `SetupBar` layout directly from
-`product-spec/screens/03-practice.md` — no JS rehearsal, wires straight to `draft.plan()`. A2 Results —
-misses, score, By-question, vocabulary. A3 Home needs `HistoryService` (SwiftData) alongside it — hero
-drill, stat strip, streak on the local calendar day. A4 More has no design yet (Q-09) and no
-dependencies — good filler whenever a track stalls.
-**Exit per screen:** matches its `product-spec/screens/*.md` acceptance checklist; renders correctly in
-Paper and Night with no hardcoded colours (Decision 5).
+1. **Already shrunk in JS** (Track P). 2. **Its own package, no UI imports** — `SarfQuiz` cannot import SwiftUI.
+3. **A pool-parity fixture**: for the 6 canonical plans measured in `03-practice.md` (1,400 / 2,548 / 700 /
+   2,100 / 300 / 5,396 cells), dump JS's `{cells, varies.*, live/dead axes}` and assert Swift matches.
+4. **Property tests for the builders** — the doer's correct set is exactly the slots with identical text;
+   every axis's correct set is non-empty; a card never ships missing a live axis. 5. **Port literally first**,
+   refactor in its own commit. 6. **One synchronous walkthrough** of `relevance` + `word-pool` + the dispatch
+   beside their Swift, as S3's exit criterion.
 
 ---
 
@@ -343,15 +394,19 @@ Paper and Night with no hardcoded colours (Decision 5).
 
 | Risk | Why | Mitigation |
 |---|---|---|
-| Q2 is the slice with no visible payoff | Invisible until Results/Home read history by category — easy to under-scope or rush. | Its exit criteria (fixture + property tests + signed-off walkthrough) are explicit, not "PR merged." |
-| The joint-axis draw over-constrains a narrow pool | Measured at 69.8% success on the *widest* pool; a single intransitive root with voice live is worse. | Already specified in `PARSE_CARD_PLAN_v1.md`: retire the axis for the session and say so, never silently drop a row. |
-| Practice skips a JS rehearsal | The prototype would have been a cheap place to feel out the SetupBar's live-recount UX before Swift. | The off-main-actor recount requirement is already specified (`product-spec/reference/platform.md`) — A1 builds it that way from the start. |
-| Two "authoritative" docs disagreed and eroded trust in both | `TECHNICAL_PLAN.md` and `PORT_INVENTORY.md` showed different package layouts. | Decision 2 is settled here — update `TECHNICAL_PLAN.md` §A.6/§B.2 to match; don't leave the losing layout on record. |
+| **Lane R is the step with no visible payoff** | Nothing in the running app changes when an engine flips; it is the one that drifts | Four-part gate per unit; the debug section makes unread engines visible rather than forgotten |
+| **A stale corpus is quietly believed** | The lexicon is edited often | One command emits both files; a content hash fails the launch; the diff is reviewed |
+| **A demo build runs words nobody generated** | That is what the stand-in is | Rule 5: the backing is shown in More, and the trade-off is a named comment on `ENGINE_BACKING` |
+| **S3 has no payoff until Results and Home read history** | Easy to under-scope | Fixture + property tests + signed-off walkthrough are its exit, not "PR merged" |
+| **The joint-axis draw over-constrains a narrow pool** | 69.8% success on the *widest* pool (measured 2026-09-21, not re-measured) | Specified in `PARSE_CARD_PLAN_v1.md`: retire the axis for the session and say so; never silently drop a row |
+| **Practice has no JS rehearsal** | The live recount-per-chip UX is felt out in Swift first | 5.2 builds the off-main-actor recount from the start (`product-spec/reference/platform.md`) |
 
-## Follow-ups this plan surfaced but does not do
+## Follow-ups this plan names but does not do
 
-- **Fix the وجل `faaDrops` flag** in `web-prototype/js/lexicon/roots/mithal.js` before E2 starts.
-- **Update `TECHNICAL_PLAN.md`** §A.6 and §B.2 to show the three-target layout (Decision 2), and move Q1
-  out of "Open decisions" into a decided note pointing here.
-- **`PORT_INVENTORY.md`** §3.1–3.2's "TECHNICAL_PLAN says 2, I recommend 3" framing is resolved — a
-  one-line pointer to this doc would save a future reader from re-deriving it.
+- **Segmented output** (prefix / stem / suffix, D-61). Decide before R7 whether it is wanted; the corpus cannot
+  serve it, so features needing it (colouring affixes down a chart, marking the sign after an answer) wait.
+- **`relevance.js` does two jobs** — deciding which questions are possible, and building one. Swift splits them
+  (3.3 and 4.6) along the seam the file's own exports already show; if the walkthrough finds that wrong, say so
+  there.
+- **`bundle.css`'s off-scale text sizes** — fold back into the generator (see Corrections).
+- **Q-09** — More has no design yet.
