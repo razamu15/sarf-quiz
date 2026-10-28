@@ -31,7 +31,8 @@ Every choice below is derived from those three; where one trades against another
 | **D2** Tables' own components | ✅ done, pending S1 | same |
 | **P1** the four boundary preps | ✅ done | `P1.1` · `P1.2` · `P1.3 + P1.4` |
 | **P2** parse card lands in JS | ✅ done | `P2 — the parse card` |
-| **S0 – S8, R1 – R7** | not started | — |
+| **S0.1** content export | ✅ done | `S0.1 — the content export` |
+| **S0.2 – S8, R1 – R7** | not started | — |
 
 **D1 and D2 are "done, pending S1"**: Track D is finished when Tables looks right, and Tables does not
 exist yet. What can be checked now has been — the type scale renders at its real row heights on device
@@ -71,9 +72,8 @@ precondition instead of two builders with private retry loops.
 | Smoke suite | `node test/smoke.mjs` → **502 passed, 0 failed** (112 of them engine parity) |
 | Engines shipped (JS) | **6 / 7** — sālim, muḍāʿaf, mithāl, ajwaf, nāqiṣ, mahmūz (flagged off). Lafīf: 15 roots authored, no engine |
 | Lexicon | **166 roots** in the enumerated corpus |
-| The corpus, enumerated | roots × forms × 9 chart shapes × slots = **74,104 cells: 54,566 words + 19,538 explicit `null`s**, ≈ 2 MB of text |
+| The corpus, exported (S0.1) | **151 engine roots** × forms × 9 chart shapes × slots = **68,204 cells: 54,566 words + 13,638 explicit `null`s**, plus the wazn root's 1,770 cells (1,596 words) = **69,974 cells, 2.1 MB**. 578 root-forms, each with a citation and three derived nouns. The 15 lafīf roots have no engine and are in `roots.json` only (the first measurement, 74,104 cells, wrongly counted their 5,900 cells as nulls) |
 | …by verb group (words) | sālim 11,150 · muḍāʿaf 9,622 · mithāl 9,864 · ajwaf 8,368 · nāqiṣ 11,974 · mahmūz 3,588 |
-| What the corpus does *not* yet count | derived nouns, citations, and the synthetic فعل root `wazn` runs on (`conjugation-service.js:317`) — S0.1 adds them |
 | Engine-side JS to be read | **≈ 3,550 lines** — grammar + conjugators + `templates` + `shared-grammar` + `hamza-seating` + the service router |
 | The conjugation seam | **8 files** outside `conjugation/` import the service, and between them they call **5 functions**: `conjugate`, `fullTable`, `derivedNoun`, `citation`, `conjugates` (plus `hasEngine`, `hasPassive`, `waznOf*` inside the lexicon and Tables). Everything the rest of the app knows about morphology comes through this door |
 | Swift written | **1,904 lines**, all in `ios/Awzan/` (design system, app shell) plus placeholder package targets |
@@ -109,7 +109,7 @@ identical.
 
 **What keeps the stand-in honest** — each of these is a rule, not a hope:
 
-1. **A corpus miss traps; an explicit `null` is a value.** The corpus stores the 19,538 answers that are
+1. **A corpus miss traps; an explicit `null` is a value.** The corpus stores the 13,812 answers that are
    deliberately "this word does not exist". A key that is simply absent is a stale or wrong corpus and must
    fail loudly, never read as "no such word" (absence is a value; a guess must never pass for an answer).
 2. **`roots.json` and the corpus are emitted together**, stamped with one content hash; the app refuses to
@@ -183,16 +183,16 @@ in slice order; the code is there for when a note raises a question.
 
 ### S0 · Foundations (`SarfCore`) — the seam, the stand-in, and the first real engine
 
-*State: not started.* S1 can begin once **0.6** lands; 0.7–0.8 run beside it.
+*State: 0.1 done; 0.2 next.* S1 can begin once **0.6** lands; 0.7–0.8 run beside it.
 
 | # | Chunk | Owns | Builds on |
 |---|---|---|---|
-| 0.1 | **Content export** — un-park `tools/export-content.mjs` | `roots.json` + `golden-corpus.json` + one content hash; explicit nulls; derived nouns, citations, the فعل root | — |
+| 0.1 | **Content export** ✅ — un-park `tools/export-content.mjs` | `roots.json` + `golden-corpus.json` + one content hash; explicit nulls; derived nouns, citations, the فعل root | — |
 | 0.2 | **Vocabulary** | `Models/`: closed enums (form, tense, voice, mood, slot, bāb with its vowels, verb type *and* verb group, derived-noun kind) and `ChartShape`. Their `rawValue`s are the storage contract | 0.1 (the JSON's keys are these values) |
 | 0.3 | **Lexicon** | `Root`, `RootFormUsage`, `LexiconService.load()` — enum-keyed decode, root-vs-radicals check, fails loudly | 0.2 |
 | 0.4 | **ArabicText** | grapheme clusters and the first differing cluster | — |
 | 0.5 | **The seam** | `ConjugationSpec`, the `VerbTypeConjugator` protocol, `ConjugationService` (router, every precondition, `conjugates`/`hasPassive`, `waznRoot`), `ENGINE_BACKING`. **The API freezes here** | 0.2, 0.3 |
-| 0.6 | **The stand-in** | corpus loader, `CorpusConjugator`, the hash check. Exit: all 74,104 keys answered through the public service | 0.1, 0.5 |
+| 0.6 | **The stand-in** | corpus loader, `CorpusConjugator`, the hash check. Exit: all 69,974 cells answered through the public service | 0.1, 0.5 |
 | 0.7 | **Shared grammar + templates** — *you read this (R0)* | `GrammarTypes`, `SharedGrammar`, scalar-level `Templates` (Traps 1–3 fixed here once) | 0.5 |
 | 0.8 | **Sālim** — *you read this (R1)* | `SalimGrammar`, `SalimConjugator`; `ENGINE_BACKING[sālim] = .engine`. Exit: zero diff over sālim's 11,150 words; the sālim parity assertions ported verbatim | 0.7 |
 

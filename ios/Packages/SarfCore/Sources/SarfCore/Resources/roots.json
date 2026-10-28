@@ -1,0 +1,964 @@
+{
+  "roots": [
+    {"root":["ك","ت","ب"],"type":"salim","forms":{
+      "I":{"bab":"au","trans":true,"masdar":"كِتَابَة","gloss":"to write","en":{"past":"wrote","pp":"written","pres3":"writes","ing":"writing"}},
+      "II":{"trans":true,"gloss":"to make (someone) write","en":{"past":"made write","pp":"made to write","pres3":"makes write","ing":"making write"}},
+      "III":{"trans":true,"gloss":"to correspond with","en":{"past":"corresponded with","pp":"corresponded with","pres3":"corresponds with","ing":"corresponding with"}},
+      "IV":{"trans":true,"gloss":"to dictate to","en":{"past":"dictated to","pp":"dictated to","pres3":"dictates to","ing":"dictating to"}},
+      "VI":{"trans":false,"gloss":"to write to one another","en":{"past":"wrote to one another","pres3":"write to one another","ing":"writing to one another"}},
+      "VIII":{"trans":false,"gloss":"to register / to subscribe","en":{"past":"registered","pres3":"registers","ing":"registering"}},
+      "X":{"trans":true,"gloss":"to ask (someone) to write","en":{"past":"asked to write","pp":"asked to write","pres3":"asks to write","ing":"asking to write"}}
+    }},
+    {"root":["ن","ص","ر"],"type":"salim","forms":{
+      "I":{"bab":"au","trans":true,"masdar":"نَصْر","gloss":"to help","en":{"past":"helped","pp":"helped","pres3":"helps","ing":"helping"}},
+      "III":{"trans":true,"gloss":"to support / to back","en":{"past":"supported","pp":"supported","pres3":"supports","ing":"supporting"}},
+      "VI":{"trans":false,"gloss":"to support one another","en":{"past":"supported one another","pres3":"support one another","ing":"supporting one another"}},
+      "VIII":{"trans":false,"gloss":"to triumph / to be victorious","en":{"past":"triumphed","pres3":"triumphs","ing":"triumphing"}},
+      "X":{"trans":true,"gloss":"to seek help from","en":{"past":"sought help from","pp":"asked for help","pres3":"seeks help from","ing":"seeking help from"}}
+    }},
+    {"root":["خ","ر","ج"],"type":"salim","forms":{
+      "I":{"bab":"au","trans":false,"masdar":"خُرُوج","gloss":"to go out","en":{"past":"went out","pres3":"goes out","ing":"going out"}},
+      "II":{"trans":true,"gloss":"to train / to graduate (someone)","en":{"past":"trained","pp":"trained","pres3":"trains","ing":"training"}},
+      "IV":{"trans":true,"gloss":"to expel / bring out","en":{"past":"expelled","pp":"expelled","pres3":"expels","ing":"expelling"}},
+      "V":{"trans":false,"gloss":"to graduate","en":{"past":"graduated","pres3":"graduates","ing":"graduating"}},
+      "X":{"trans":true,"gloss":"to extract","en":{"past":"extracted","pp":"extracted","pres3":"extracts","ing":"extracting"}}
+    }},
+    {"root":["ن","ظ","ر"],"type":"salim","forms":{
+      "I":{"bab":"au","trans":true,"masdar":"نَظَر","gloss":"to look","en":{"past":"looked","pp":"looked at","pres3":"looks","ing":"looking"}},
+      "III":{"trans":true,"gloss":"to debate with","en":{"past":"debated with","pp":"debated with","pres3":"debates with","ing":"debating with"}},
+      "VI":{"trans":false,"gloss":"to debate one another","en":{"past":"debated one another","pres3":"debate one another","ing":"debating one another"}},
+      "VIII":{"trans":true,"gloss":"to wait for","en":{"past":"waited for","pp":"waited for","pres3":"waits for","ing":"waiting for"}}
+    }},
+    {"root":["ق","ت","ل"],"type":"salim","forms":{
+      "I":{"bab":"au","trans":true,"masdar":"قَتْل","gloss":"to kill","en":{"past":"killed","pp":"killed","pres3":"kills","ing":"killing"}},
+      "II":{"trans":true,"gloss":"to massacre / to slaughter","en":{"past":"massacred","pp":"massacred","pres3":"massacres","ing":"massacring"}},
+      "III":{"trans":true,"gloss":"to fight","en":{"past":"fought","pp":"fought","pres3":"fights","ing":"fighting"}},
+      "VI":{"trans":false,"gloss":"to fight one another","en":{"past":"fought one another","pres3":"fight one another","ing":"fighting one another"}},
+      "VIII":{"trans":false,"gloss":"to fight one another","en":{"past":"fought one another","pres3":"fight one another","ing":"fighting one another"}},
+      "X":{"trans":false,"gloss":"to fight to the death","en":{"past":"fought to the death","pres3":"fights to the death","ing":"fighting to the death"}}
+    }},
+    {"root":["ض","ر","ب"],"type":"salim","forms":{
+      "I":{"bab":"ai","trans":true,"masdar":"ضَرْب","gloss":"to hit","en":{"past":"hit","pp":"hit","pres3":"hits","ing":"hitting"}},
+      "II":{"trans":true,"gloss":"to beat repeatedly","en":{"past":"beat repeatedly","pp":"beaten repeatedly","pres3":"beats repeatedly","ing":"beating repeatedly"}},
+      "III":{"trans":true,"gloss":"to speculate / to trade with","en":{"past":"speculated","pp":"speculated","pres3":"speculates","ing":"speculating"}},
+      "VI":{"trans":false,"gloss":"to conflict / to clash","en":{"past":"conflicted","pres3":"conflicts","ing":"conflicting"}},
+      "VIII":{"trans":false,"gloss":"to be agitated / disturbed","en":{"past":"was agitated","pres3":"is agitated","ing":"being agitated"}}
+    }},
+    {"root":["ج","ل","س"],"type":"salim","forms":{
+      "I":{"bab":"ai","trans":false,"masdar":"جُلُوس","gloss":"to sit","en":{"past":"sat","pres3":"sits","ing":"sitting"}},
+      "III":{"trans":true,"gloss":"to sit with","en":{"past":"sat with","pp":"sat with","pres3":"sits with","ing":"sitting with"}},
+      "IV":{"trans":true,"gloss":"to seat (someone)","en":{"past":"seated","pp":"seated","pres3":"seats","ing":"seating"}}
+    }},
+    {"root":["ك","س","ر"],"type":"salim","forms":{
+      "I":{"bab":"ai","trans":true,"masdar":"كَسْر","gloss":"to break","en":{"past":"broke","pp":"broken","pres3":"breaks","ing":"breaking"}},
+      "II":{"trans":true,"gloss":"to smash to pieces","en":{"past":"smashed","pp":"smashed","pres3":"smashes","ing":"smashing"}},
+      "V":{"trans":false,"gloss":"to be shattered","en":{"past":"shattered","pres3":"shatters","ing":"shattering"}},
+      "VII":{"trans":false,"gloss":"to get broken","en":{"past":"got broken","pres3":"gets broken","ing":"getting broken"}}
+    }},
+    {"root":["غ","ف","ر"],"type":"salim","forms":{
+      "I":{"bab":"ai","trans":true,"masdar":"مَغْفِرَة","gloss":"to forgive","en":{"past":"forgave","pp":"forgiven","pres3":"forgives","ing":"forgiving"}},
+      "X":{"trans":true,"gloss":"to seek forgiveness","en":{"past":"sought forgiveness","pp":"asked for forgiveness","pres3":"seeks forgiveness","ing":"seeking forgiveness"}}
+    }},
+    {"root":["ف","ت","ح"],"type":"salim","forms":{
+      "I":{"bab":"aa","trans":true,"masdar":"فَتْح","gloss":"to open","en":{"past":"opened","pp":"opened","pres3":"opens","ing":"opening"}},
+      "III":{"trans":true,"gloss":"to broach (a subject) with","en":{"past":"broached","pp":"broached","pres3":"broaches","ing":"broaching"}},
+      "V":{"trans":false,"gloss":"to open up / to blossom","en":{"past":"opened up","pres3":"opens up","ing":"opening up"}},
+      "VII":{"trans":false,"gloss":"to be opened","en":{"past":"was opened","pres3":"gets opened","ing":"getting opened"}},
+      "VIII":{"trans":true,"gloss":"to inaugurate / to commence","en":{"past":"inaugurated","pp":"inaugurated","pres3":"inaugurates","ing":"inaugurating"}}
+    }},
+    {"root":["ج","م","ع"],"type":"salim","forms":{
+      "I":{"bab":"aa","trans":true,"masdar":"جَمْع","gloss":"to gather","en":{"past":"gathered","pp":"gathered","pres3":"gathers","ing":"gathering"}},
+      "II":{"trans":true,"gloss":"to collect / to assemble","en":{"past":"collected","pp":"collected","pres3":"collects","ing":"collecting"}},
+      "IV":{"trans":true,"gloss":"to agree unanimously on","en":{"past":"agreed on","pp":"agreed on","pres3":"agrees on","ing":"agreeing on"}},
+      "V":{"trans":false,"gloss":"to gather together","en":{"past":"gathered","pres3":"gathers","ing":"gathering"}},
+      "VIII":{"trans":false,"gloss":"to assemble / meet","en":{"past":"assembled","pres3":"assembles","ing":"assembling"}},
+      "X":{"trans":true,"gloss":"to summon / to muster","en":{"past":"mustered","pp":"mustered","pres3":"musters","ing":"mustering"}}
+    }},
+    {"root":["ظ","ه","ر"],"type":"salim","forms":{
+      "I":{"bab":"aa","trans":true,"masdar":"ظُهُور","gloss":"to appear","en":{"past":"appeared","pres3":"appears","ing":"appearing"}},
+      "II":{"trans":true,"gloss":"to endorse","en":{"past":"endorsed","pp":"endorsed","pres3":"endorses","ing":"endorsing"}},
+      "III":{"trans":true,"gloss":"to back / to side with","en":{"past":"backed","pp":"backed","pres3":"backs","ing":"backing"}},
+      "IV":{"trans":true,"gloss":"to reveal","en":{"past":"revealed","pp":"revealed","pres3":"reveals","ing":"revealing"}},
+      "VI":{"trans":false,"gloss":"to pretend / demonstrate","en":{"past":"pretended","pres3":"pretends","ing":"pretending"}},
+      "X":{"trans":true,"gloss":"to memorize / to learn by heart","en":{"past":"memorized","pp":"memorized","pres3":"memorizes","ing":"memorizing"}}
+    }},
+    {"root":["س","م","ع"],"type":"salim","forms":{
+      "I":{"bab":"ia","trans":true,"masdar":"سَمْع","gloss":"to hear","en":{"past":"heard","pp":"heard","pres3":"hears","ing":"hearing"}},
+      "IV":{"trans":true,"gloss":"to make (someone) hear","en":{"past":"made hear","pp":"made to hear","pres3":"makes hear","ing":"making hear"}},
+      "V":{"trans":false,"gloss":"to eavesdrop / to listen in","en":{"past":"eavesdropped","pres3":"eavesdrops","ing":"eavesdropping"}},
+      "VI":{"trans":false,"gloss":"to become widely known","en":{"past":"became widely known","pres3":"becomes widely known","ing":"becoming widely known"}},
+      "VIII":{"trans":true,"gloss":"to listen","en":{"past":"listened","pp":"listened to","pres3":"listens","ing":"listening"}}
+    }},
+    {"root":["ش","ر","ب"],"type":"salim","forms":{
+      "I":{"bab":"ia","trans":true,"masdar":"شُرْب","gloss":"to drink","en":{"past":"drank","pp":"drunk","pres3":"drinks","ing":"drinking"}},
+      "IV":{"trans":true,"gloss":"to give (someone) to drink","en":{"past":"gave to drink","pp":"given to drink","pres3":"gives to drink","ing":"giving to drink"}}
+    }},
+    {"root":["ع","ل","م"],"type":"salim","forms":{
+      "I":{"bab":"ia","trans":true,"masdar":"عِلْم","gloss":"to know","en":{"past":"knew","pp":"known","pres3":"knows","ing":"knowing"}},
+      "II":{"trans":true,"gloss":"to teach","en":{"past":"taught","pp":"taught","pres3":"teaches","ing":"teaching"}},
+      "IV":{"trans":true,"gloss":"to inform / to notify","en":{"past":"informed","pp":"informed","pres3":"informs","ing":"informing"}},
+      "V":{"trans":true,"gloss":"to learn","en":{"past":"learned","pp":"learned","pres3":"learns","ing":"learning"}},
+      "VI":{"trans":false,"gloss":"to feign knowledge","en":{"past":"feigned knowledge","pres3":"feigns knowledge","ing":"feigning knowledge"}},
+      "X":{"trans":true,"gloss":"to inquire","en":{"past":"inquired","pp":"inquired about","pres3":"inquires","ing":"inquiring"}}
+    }},
+    {"root":["س","ل","م"],"type":"salim","forms":{
+      "I":{"bab":"ia","trans":false,"masdar":"سَلَامَة","gloss":"to be safe"},
+      "II":{"trans":true,"gloss":"to greet / hand over","en":{"past":"greeted","pp":"greeted","pres3":"greets","ing":"greeting"}},
+      "III":{"trans":true,"gloss":"to make peace with","en":{"past":"made peace with","pp":"made peace with","pres3":"makes peace with","ing":"making peace with"}},
+      "IV":{"trans":false,"gloss":"to submit (Islam)","en":{"past":"submitted","pres3":"submits","ing":"submitting"}},
+      "V":{"trans":true,"gloss":"to receive / to take delivery of","en":{"past":"received","pp":"received","pres3":"receives","ing":"receiving"}},
+      "VIII":{"trans":true,"gloss":"to receive / to take possession of","en":{"past":"received","pp":"received","pres3":"receives","ing":"receiving"}},
+      "X":{"trans":false,"gloss":"to surrender","en":{"past":"surrendered","pres3":"surrenders","ing":"surrendering"}}
+    }},
+    {"root":["ك","ر","م"],"type":"salim","forms":{
+      "I":{"bab":"uu","trans":false,"masdar":"كَرَم","gloss":"to be noble"},
+      "II":{"trans":true,"gloss":"to honour","en":{"past":"honoured","pp":"honoured","pres3":"honours","ing":"honouring"}},
+      "III":{"trans":true,"gloss":"to vie in generosity with","en":{"past":"vied with","pp":"vied with","pres3":"vies with","ing":"vying with"}},
+      "IV":{"trans":true,"gloss":"to honor","en":{"past":"honored","pp":"honored","pres3":"honors","ing":"honoring"}}
+    }},
+    {"root":["ق","د","م"],"type":"salim","forms":{
+      "I":{"bab":"uu","trans":false,"masdar":"قِدَم","gloss":"to be old / ancient"},
+      "II":{"trans":true,"gloss":"to present / offer","en":{"past":"presented","pp":"presented","pres3":"presents","ing":"presenting"}},
+      "IV":{"trans":false,"gloss":"to venture / to undertake boldly","en":{"past":"ventured","pres3":"ventures","ing":"venturing"}},
+      "V":{"trans":false,"gloss":"to advance","en":{"past":"advanced","pres3":"advances","ing":"advancing"}},
+      "VI":{"trans":false,"gloss":"to grow old / to become outdated","en":{"past":"grew old","pres3":"grows old","ing":"growing old"}},
+      "X":{"trans":true,"gloss":"to summon / to send for","en":{"past":"summoned","pp":"summoned","pres3":"summons","ing":"summoning"}}
+    }},
+    {"root":["ح","س","ب"],"type":"salim","forms":{
+      "I":{"bab":"ii","trans":true,"masdar":"حُسْبَان","gloss":"to deem / suppose","en":{"past":"deemed","pp":"deemed","pres3":"deems","ing":"deeming"}},
+      "III":{"trans":true,"gloss":"to call to account / to settle with","en":{"past":"called to account","pp":"called to account","pres3":"calls to account","ing":"calling to account"}},
+      "V":{"trans":false,"gloss":"to be on guard","en":{"past":"was on guard","pres3":"is on guard","ing":"being on guard"}},
+      "VI":{"trans":false,"gloss":"to settle accounts with one another","en":{"past":"settled accounts","pres3":"settle accounts","ing":"settling accounts"}},
+      "VIII":{"trans":true,"gloss":"to reckon / to seek reward from God","en":{"past":"reckoned","pp":"reckoned","pres3":"reckons","ing":"reckoning"}}
+    }},
+    {"root":["ش","ر","ك"],"type":"salim","forms":{
+      "III":{"trans":true,"gloss":"to partner with","en":{"past":"partnered with","pp":"partnered with","pres3":"partners with","ing":"partnering with"}},
+      "IV":{"trans":true,"gloss":"to associate a partner with / to make a partner","en":{"past":"associated","pp":"associated","pres3":"associates","ing":"associating"}},
+      "VI":{"trans":false,"gloss":"to partner with one another","en":{"past":"partnered together","pres3":"partner together","ing":"partnering together"}},
+      "VIII":{"trans":false,"gloss":"to participate","en":{"past":"participated","pres3":"participates","ing":"participating"}}
+    }},
+    {"root":["ح","م","ر"],"type":"salim","forms":{
+      "II":{"trans":true,"gloss":"to redden / to dye red","en":{"past":"reddened","pp":"reddened","pres3":"reddens","ing":"reddening"}},
+      "IX":{"trans":false,"gloss":"to turn red","en":{"past":"turned red","pres3":"turns red","ing":"turning red"}}
+    }},
+    {"root":["ص","ف","ر"],"type":"salim","forms":{
+      "I":{"bab":"ia","trans":false,"masdar":"صَفَر","gloss":"to be empty / vacant","en":{"past":"was empty","pres3":"is empty","ing":"being empty"}},
+      "II":{"trans":true,"gloss":"to empty / to evacuate","en":{"past":"emptied","pp":"emptied","pres3":"empties","ing":"emptying"}},
+      "IX":{"trans":false,"gloss":"to turn yellow","en":{"past":"turned yellow","pres3":"turns yellow","ing":"turning yellow"}}
+    }},
+    {"root":["ح","ك","م"],"type":"salim","forms":{
+      "I":{"bab":"au","trans":true,"masdar":"حُكْم","gloss":"to judge / to rule","en":{"past":"judged","pp":"judged","pres3":"judges","ing":"judging"}},
+      "II":{"trans":true,"gloss":"to appoint as arbitrator","en":{"past":"appointed as arbitrator","pp":"appointed as arbitrator","pres3":"appoints as arbitrator","ing":"appointing as arbitrator"}},
+      "IV":{"trans":true,"gloss":"to perfect / to master","en":{"past":"perfected","pp":"perfected","pres3":"perfects","ing":"perfecting"}},
+      "V":{"trans":false,"gloss":"to control / to dominate","en":{"past":"took control","pres3":"takes control","ing":"taking control"}},
+      "X":{"trans":false,"gloss":"to become firmly established","en":{"past":"became established","pres3":"becomes established","ing":"becoming established"}}
+    }},
+    {"root":["ع","م","ل"],"type":"salim","forms":{
+      "I":{"bab":"ia","trans":true,"masdar":"عَمَل","gloss":"to work / to do","en":{"past":"worked","pp":"worked","pres3":"works","ing":"working"}},
+      "III":{"trans":true,"gloss":"to treat / to deal with","en":{"past":"treated","pp":"treated","pres3":"treats","ing":"treating"}},
+      "IV":{"trans":true,"gloss":"to put to work / to apply","en":{"past":"applied","pp":"applied","pres3":"applies","ing":"applying"}},
+      "VI":{"trans":false,"gloss":"to deal with one another","en":{"past":"dealt with one another","pres3":"deal with one another","ing":"dealing with one another"}},
+      "X":{"trans":true,"gloss":"to use / to employ","en":{"past":"used","pp":"used","pres3":"uses","ing":"using"}}
+    }},
+    {"root":["د","ر","س"],"type":"salim","forms":{
+      "I":{"bab":"au","trans":true,"masdar":"دِرَاسَة","gloss":"to study","en":{"past":"studied","pp":"studied","pres3":"studies","ing":"studying"}},
+      "II":{"trans":true,"gloss":"to teach","en":{"past":"taught","pp":"taught","pres3":"teaches","ing":"teaching"}},
+      "III":{"trans":true,"gloss":"to study with","en":{"past":"studied with","pp":"studied with","pres3":"studies with","ing":"studying with"}},
+      "VI":{"trans":false,"gloss":"to study together","en":{"past":"studied together","pres3":"study together","ing":"studying together"}}
+    }},
+    {"root":["ء","خ","ذ"],"type":"mahmuz","forms":{
+      "I":{"bab":"au","trans":true,"masdar":"أَخْذ","gloss":"to take","en":{"past":"took","pp":"taken","pres3":"takes","ing":"taking"}},
+      "III":{"trans":true,"gloss":"to blame / to call to account","en":{"past":"blamed","pp":"blamed","pres3":"blames","ing":"blaming"}},
+      "VIII":{"trans":true,"gloss":"to adopt / to take on","en":{"past":"adopted","pp":"adopted","pres3":"adopts","ing":"adopting"}}
+    }},
+    {"root":["ء","ك","ل"],"type":"mahmuz","forms":{
+      "I":{"bab":"au","trans":true,"masdar":"أَكْل","gloss":"to eat","en":{"past":"ate","pp":"eaten","pres3":"eats","ing":"eating"}},
+      "II":{"trans":true,"gloss":"to feed","en":{"past":"fed","pp":"fed","pres3":"feeds","ing":"feeding"}}
+    }},
+    {"root":["ء","م","ر"],"type":"mahmuz","forms":{
+      "I":{"bab":"au","trans":true,"masdar":"أَمْر","gloss":"to command","en":{"past":"commanded","pp":"commanded","pres3":"commands","ing":"commanding"}},
+      "III":{"trans":true,"gloss":"to consult","en":{"past":"consulted","pp":"consulted","pres3":"consults","ing":"consulting"}},
+      "V":{"trans":false,"gloss":"to take command","en":{"past":"took command","pres3":"takes command","ing":"taking command"}},
+      "VI":{"trans":false,"gloss":"to conspire","en":{"past":"conspired","pres3":"conspires","ing":"conspiring"}},
+      "X":{"trans":true,"gloss":"to ask the permission of","en":{"past":"asked permission of","pp":"consulted","pres3":"asks permission of","ing":"asking permission of"}}
+    }},
+    {"root":["ء","ذ","ن"],"type":"mahmuz","forms":{
+      "I":{"bab":"ia","trans":false,"masdar":"إِذْن","gloss":"to permit","en":{"past":"permitted","pres3":"permits","ing":"permitting"}},
+      "II":{"trans":false,"gloss":"to call to prayer","en":{"past":"called to prayer","pres3":"calls to prayer","ing":"calling to prayer"}},
+      "IV":{"trans":true,"gloss":"to notify / to announce to","en":{"past":"notified","pp":"notified","pres3":"notifies","ing":"notifying"}},
+      "X":{"trans":false,"gloss":"to ask permission","en":{"past":"asked permission","pres3":"asks permission","ing":"asking permission"}}
+    }},
+    {"root":["س","ء","ل"],"type":"mahmuz","forms":{
+      "I":{"bab":"aa","trans":true,"masdar":"سُؤَال","gloss":"to ask","en":{"past":"asked","pp":"asked","pres3":"asks","ing":"asking"}},
+      "VI":{"trans":false,"gloss":"to wonder / to ask one another","en":{"past":"wondered","pres3":"wonders","ing":"wondering"}}
+    }},
+    {"root":["ق","ر","ء"],"type":"mahmuz","forms":{
+      "I":{"bab":"aa","trans":true,"masdar":"قِرَاءَة","gloss":"to read","en":{"past":"read","pp":"read","pres3":"reads","ing":"reading"}},
+      "IV":{"trans":true,"gloss":"to make (someone) read","en":{"past":"made read","pp":"made to read","pres3":"makes read","ing":"making read"}}
+    }},
+    {"root":["ب","د","ء"],"type":"mahmuz","forms":{
+      "I":{"bab":"aa","trans":true,"masdar":"بَدْء","gloss":"to begin","en":{"past":"began","pp":"begun","pres3":"begins","ing":"beginning"}},
+      "IV":{"trans":true,"gloss":"to originate / to bring about","en":{"past":"originated","pp":"originated","pres3":"originates","ing":"originating"}},
+      "VIII":{"trans":true,"gloss":"to commence","en":{"past":"commenced","pp":"commenced","pres3":"commences","ing":"commencing"}}
+    }},
+    {"root":["ن","ش","ء"],"type":"mahmuz","forms":{
+      "I":{"bab":"aa","trans":false,"masdar":"نَشْأَة","gloss":"to arise / to grow up","en":{"past":"arose","pres3":"arises","ing":"arising"}},
+      "IV":{"trans":true,"gloss":"to establish / to compose","en":{"past":"established","pp":"established","pres3":"establishes","ing":"establishing"}}
+    }},
+    {"root":["م","ل","ء"],"type":"mahmuz","forms":{
+      "I":{"bab":"aa","trans":true,"masdar":"مَلْء","gloss":"to fill","en":{"past":"filled","pp":"filled","pres3":"fills","ing":"filling"}},
+      "VIII":{"trans":false,"gloss":"to become full","en":{"past":"became full","pres3":"becomes full","ing":"becoming full"}}
+    }},
+    {"root":["ء","م","ن"],"type":"mahmuz","forms":{
+      "I":{"bab":"ia","trans":false,"masdar":"أَمْن","gloss":"to be safe / secure"},
+      "II":{"trans":true,"gloss":"to secure / to insure","en":{"past":"secured","pp":"secured","pres3":"secures","ing":"securing"}},
+      "IV":{"trans":false,"gloss":"to believe","en":{"past":"believed","pres3":"believes","ing":"believing"}}
+    }},
+    {"root":["ء","س","ف"],"type":"mahmuz","forms":{
+      "I":{"bab":"ia","trans":false,"masdar":"أَسَف","gloss":"to be sorry / regretful"},
+      "V":{"trans":false,"gloss":"to express regret","en":{"past":"expressed regret","pres3":"expresses regret","ing":"expressing regret"}}
+    }},
+    {"root":["ر","ء","س"],"type":"mahmuz","forms":{
+      "I":{"bab":"aa","trans":true,"masdar":"رِئَاسَة","gloss":"to head / to lead","en":{"past":"headed","pp":"headed","pres3":"heads","ing":"heading"}},
+      "V":{"trans":true,"gloss":"to preside over","en":{"past":"presided over","pp":"presided over","pres3":"presides over","ing":"presiding over"}}
+    }},
+    {"root":["ب","ر","ء"],"type":"mahmuz","forms":{
+      "I":{"bab":"aa","trans":false,"masdar":"بَرَاءَة","gloss":"to be free of / clear of"},
+      "II":{"trans":true,"gloss":"to acquit / to clear","en":{"past":"acquitted","pp":"acquitted","pres3":"acquits","ing":"acquitting"}}
+    }},
+    {"root":["ه","ن","ء"],"type":"mahmuz","forms":{
+      "I":{"bab":"aa","trans":false,"masdar":"هَنَاء","gloss":"to be pleasant / agreeable"},
+      "II":{"trans":true,"gloss":"to congratulate","en":{"past":"congratulated","pp":"congratulated","pres3":"congratulates","ing":"congratulating"}}
+    }},
+    {"root":["ء","ل","م"],"type":"mahmuz","forms":{
+      "I":{"bab":"ia","trans":false,"masdar":"أَلَم","gloss":"to be in pain"},
+      "IV":{"trans":true,"gloss":"to cause pain to","en":{"past":"hurt","pp":"hurt","pres3":"hurts","ing":"hurting"}},
+      "V":{"trans":false,"gloss":"to suffer","en":{"past":"suffered","pres3":"suffers","ing":"suffering"}}
+    }},
+    {"root":["م","د","د"],"type":"mudaaf","forms":{
+      "I":{"bab":"au","trans":true,"masdar":"مَدّ","gloss":"to stretch out / extend","en":{"past":"stretched out","pp":"stretched out","pres3":"stretches out","ing":"stretching out"}},
+      "II":{"trans":true,"gloss":"to extend / to prolong","en":{"past":"extended","pp":"extended","pres3":"extends","ing":"extending"}},
+      "IV":{"trans":true,"gloss":"to supply / reinforce","en":{"past":"supplied","pp":"supplied","pres3":"supplies","ing":"supplying"}},
+      "V":{"trans":false,"gloss":"to stretch out","en":{"past":"stretched out","pres3":"stretches out","ing":"stretching out"}},
+      "VIII":{"trans":false,"gloss":"to extend / stretch","en":{"past":"extended","pres3":"extends","ing":"extending"}},
+      "X":{"trans":true,"gloss":"to seek help / draw from","en":{"past":"drew on","pp":"drawn on","pres3":"draws on","ing":"drawing on"}}
+    }},
+    {"root":["ر","د","د"],"type":"mudaaf","forms":{
+      "I":{"bab":"au","trans":true,"masdar":"رَدّ","gloss":"to return / send back","en":{"past":"returned","pp":"returned","pres3":"returns","ing":"returning"}},
+      "II":{"trans":true,"gloss":"to repeat","en":{"past":"repeated","pp":"repeated","pres3":"repeats","ing":"repeating"}},
+      "III":{"trans":true,"gloss":"to give back / to requite","en":{"past":"gave back","pp":"given back","pres3":"gives back","ing":"giving back"}},
+      "V":{"trans":false,"gloss":"to hesitate / frequent","en":{"past":"hesitated","pres3":"hesitates","ing":"hesitating"}},
+      "VI":{"trans":true,"gloss":"to go back and forth","en":{"past":"went back and forth","pres3":"goes back and forth","ing":"going back and forth"}},
+      "VIII":{"trans":false,"gloss":"to turn back","en":{"past":"turned back","pres3":"turns back","ing":"turning back"}},
+      "X":{"trans":true,"gloss":"to reclaim / get back","en":{"past":"reclaimed","pp":"reclaimed","pres3":"reclaims","ing":"reclaiming"}}
+    }},
+    {"root":["ح","ب","ب"],"type":"mudaaf","forms":{
+      "I":{"bab":"ai","trans":true,"masdar":"حُبّ","gloss":"to love","en":{"past":"loved","pp":"loved","pres3":"loves","ing":"loving"}},
+      "II":{"trans":true,"gloss":"to endear / to make beloved","en":{"past":"endeared","pp":"endeared","pres3":"endears","ing":"endearing"}},
+      "IV":{"trans":true,"gloss":"to love","en":{"past":"loved","pp":"loved","pres3":"loves","ing":"loving"}},
+      "V":{"trans":false,"gloss":"to endear oneself","en":{"past":"endeared himself","pres3":"endears himself","ing":"endearing himself"}},
+      "VI":{"trans":true,"gloss":"to love one another","en":{"past":"loved one another","pres3":"love one another","ing":"loving one another"}},
+      "X":{"trans":true,"gloss":"to consider desirable","en":{"past":"considered desirable","pp":"considered desirable","pres3":"considers desirable","ing":"considering desirable"}}
+    }},
+    {"root":["ظ","ل","ل"],"type":"mudaaf","forms":{
+      "I":{"bab":"ai","trans":false,"masdar":"ظُلُول","gloss":"to remain / keep doing","en":{"past":"remained","pres3":"remains","ing":"remaining"}},
+      "II":{"trans":true,"gloss":"to shade / overshadow","en":{"past":"shaded","pp":"shaded","pres3":"shades","ing":"shading"}},
+      "IV":{"trans":true,"gloss":"to shade / loom over","en":{"past":"loomed over","pp":"loomed over","pres3":"looms over","ing":"looming over"}},
+      "X":{"trans":false,"gloss":"to seek shade","en":{"past":"sought shade","pres3":"seeks shade","ing":"seeking shade"}}
+    }},
+    {"root":["م","ر","ر"],"type":"mudaaf","forms":{
+      "I":{"bab":"au","trans":false,"masdar":"مُرُور","gloss":"to pass by","en":{"past":"passed by","pres3":"passes by","ing":"passing by"}},
+      "II":{"trans":true,"gloss":"to let pass / pass through","en":{"past":"passed through","pp":"passed through","pres3":"passes through","ing":"passing through"}},
+      "IV":{"trans":true,"gloss":"to make bitter","en":{"past":"embittered","pp":"embittered","pres3":"embitters","ing":"embittering"}},
+      "X":{"trans":true,"gloss":"to continue / persist","en":{"past":"continued","pp":"continued","pres3":"continues","ing":"continuing"}}
+    }},
+    {"root":["ع","ف","ف"],"type":"mudaaf","forms":{
+      "I":{"bab":"ai","trans":false,"masdar":"عِفَّة","gloss":"to be chaste"},
+      "V":{"trans":false,"gloss":"to restrain oneself","en":{"past":"restrained himself","pres3":"restrains himself","ing":"restraining himself"}},
+      "X":{"trans":false,"gloss":"to ask to be excused","en":{"past":"asked to be excused","pres3":"asks to be excused","ing":"asking to be excused"}}
+    }},
+    {"root":["ق","د","د"],"type":"mudaaf","forms":{
+      "I":{"bab":"ai","trans":true,"masdar":"قَدّ","gloss":"to cut lengthwise","en":{"past":"cut","pp":"cut","pres3":"cuts","ing":"cutting"}},
+      "VII":{"trans":false,"gloss":"to be split apart","en":{"past":"was split apart","pres3":"gets split apart","ing":"getting split apart"}}
+    }},
+    {"root":["م","س","س"],"type":"mudaaf","forms":{
+      "I":{"bab":"aa","trans":true,"masdar":"مَسّ","gloss":"to touch","en":{"past":"touched","pp":"touched","pres3":"touches","ing":"touching"}},
+      "III":{"trans":true,"gloss":"to be in contact with","en":{"past":"adjoined","pp":"adjoined","pres3":"adjoins","ing":"adjoining"}},
+      "VI":{"trans":false,"gloss":"to touch each other","en":{"past":"touched each other","pres3":"touch each other","ing":"touching each other"}}
+    }},
+    {"root":["ض","ل","ل"],"type":"mudaaf","forms":{
+      "I":{"bab":"ai","trans":false,"masdar":"ضَلَال","gloss":"to go astray","en":{"past":"went astray","pres3":"goes astray","ing":"going astray"}},
+      "II":{"trans":true,"gloss":"to declare misguided","en":{"past":"declared misguided","pp":"declared misguided","pres3":"declares misguided","ing":"declaring misguided"}},
+      "IV":{"trans":true,"gloss":"to lead astray","en":{"past":"led astray","pp":"led astray","pres3":"leads astray","ing":"leading astray"}}
+    }},
+    {"root":["ش","ك","ك"],"type":"mudaaf","forms":{
+      "I":{"bab":"au","trans":false,"masdar":"شَكّ","gloss":"to doubt","en":{"past":"doubted","pres3":"doubts","ing":"doubting"}},
+      "II":{"trans":true,"gloss":"to cast doubt on","en":{"past":"cast doubt on","pp":"cast doubt on","pres3":"casts doubt on","ing":"casting doubt on"}},
+      "V":{"trans":false,"gloss":"to become doubtful","en":{"past":"became doubtful","pres3":"becomes doubtful","ing":"becoming doubtful"}}
+    }},
+    {"root":["ح","ج","ج"],"type":"mudaaf","forms":{
+      "I":{"bab":"au","trans":false,"masdar":"حَجّ","gloss":"to make pilgrimage","en":{"past":"made pilgrimage","pres3":"makes pilgrimage","ing":"making pilgrimage"}},
+      "III":{"trans":true,"gloss":"to dispute with","en":{"past":"disputed with","pp":"disputed with","pres3":"disputes with","ing":"disputing with"}},
+      "VIII":{"trans":false,"gloss":"to protest / to object","en":{"past":"protested","pres3":"protests","ing":"protesting"}}
+    }},
+    {"root":["س","ر","ر"],"type":"mudaaf","forms":{
+      "I":{"bab":"au","trans":true,"masdar":"سُرُور","gloss":"to please / to delight","en":{"past":"pleased","pp":"pleased","pres3":"pleases","ing":"pleasing"}},
+      "IV":{"trans":true,"gloss":"to confide / to keep secret","en":{"past":"confided","pp":"confided","pres3":"confides","ing":"confiding"}},
+      "X":{"trans":false,"gloss":"to be concealed"}
+    }},
+    {"root":["ظ","ن","ن"],"type":"mudaaf","forms":{
+      "I":{"bab":"au","trans":true,"masdar":"ظَنّ","gloss":"to think / to suppose","en":{"past":"supposed","pp":"supposed","pres3":"supposes","ing":"supposing"}}
+    }},
+    {"root":["ع","د","د"],"type":"mudaaf","forms":{
+      "I":{"bab":"au","trans":true,"masdar":"عَدّ","gloss":"to count","en":{"past":"counted","pp":"counted","pres3":"counts","ing":"counting"}},
+      "II":{"trans":true,"gloss":"to enumerate","en":{"past":"enumerated","pp":"enumerated","pres3":"enumerates","ing":"enumerating"}},
+      "IV":{"trans":true,"gloss":"to prepare","en":{"past":"prepared","pp":"prepared","pres3":"prepares","ing":"preparing"}},
+      "V":{"trans":false,"gloss":"to be numerous"},
+      "X":{"trans":false,"gloss":"to get ready","en":{"past":"got ready","pres3":"gets ready","ing":"getting ready"}}
+    }},
+    {"root":["ش","د","د"],"type":"mudaaf","forms":{
+      "I":{"bab":"au","trans":true,"masdar":"شَدّ","gloss":"to pull tight / to tighten","en":{"past":"tightened","pp":"tightened","pres3":"tightens","ing":"tightening"}},
+      "II":{"trans":true,"gloss":"to intensify / to stress","en":{"past":"intensified","pp":"intensified","pres3":"intensifies","ing":"intensifying"}},
+      "VIII":{"trans":false,"gloss":"to grow severe","en":{"past":"grew severe","pres3":"grows severe","ing":"growing severe"}}
+    }},
+    {"root":["ح","ل","ل"],"type":"mudaaf","forms":{
+      "I":{"bab":"ai","trans":true,"masdar":"حَلّ","gloss":"to untie / to solve","en":{"past":"solved","pp":"solved","pres3":"solves","ing":"solving"}},
+      "II":{"trans":true,"gloss":"to analyse","en":{"past":"analysed","pp":"analysed","pres3":"analyses","ing":"analysing"}},
+      "IV":{"trans":true,"gloss":"to make lawful","en":{"past":"made lawful","pp":"made lawful","pres3":"makes lawful","ing":"making lawful"}},
+      "V":{"trans":false,"gloss":"to disintegrate","en":{"past":"disintegrated","pres3":"disintegrates","ing":"disintegrating"}},
+      "X":{"trans":true,"gloss":"to deem lawful","en":{"past":"deemed lawful","pp":"deemed lawful","pres3":"deems lawful","ing":"deeming lawful"}}
+    }},
+    {"root":["ت","م","م"],"type":"mudaaf","forms":{
+      "I":{"bab":"ai","trans":false,"masdar":"تَمَام","gloss":"to be complete"},
+      "II":{"trans":true,"gloss":"to complete","en":{"past":"completed","pp":"completed","pres3":"completes","ing":"completing"}},
+      "IV":{"trans":true,"gloss":"to finish / to bring to completion","en":{"past":"finished","pp":"finished","pres3":"finishes","ing":"finishing"}}
+    }},
+    {"root":["ص","ح","ح"],"type":"mudaaf","forms":{
+      "I":{"bab":"ai","trans":false,"masdar":"صِحَّة","gloss":"to be sound / correct"},
+      "II":{"trans":true,"gloss":"to correct","en":{"past":"corrected","pp":"corrected","pres3":"corrects","ing":"correcting"}}
+    }},
+    {"root":["خ","ص","ص"],"type":"mudaaf","forms":{
+      "I":{"bab":"au","trans":true,"masdar":"خُصُوص","gloss":"to single out","en":{"past":"singled out","pp":"singled out","pres3":"singles out","ing":"singling out"}},
+      "II":{"trans":true,"gloss":"to allocate / to assign","en":{"past":"allocated","pp":"allocated","pres3":"allocates","ing":"allocating"}},
+      "V":{"trans":false,"gloss":"to specialise","en":{"past":"specialised","pres3":"specialises","ing":"specialising"}},
+      "VIII":{"trans":false,"gloss":"to be peculiar to"}
+    }},
+    {"root":["ف","ر","ر"],"type":"mudaaf","forms":{
+      "I":{"bab":"ai","trans":false,"masdar":"فِرَار","gloss":"to flee","en":{"past":"fled","pres3":"flees","ing":"fleeing"}},
+      "IV":{"trans":true,"gloss":"to put to flight","en":{"past":"put to flight","pp":"put to flight","pres3":"puts to flight","ing":"putting to flight"}}
+    }},
+    {"root":["ح","ق","ق"],"type":"mudaaf","forms":{
+      "I":{"bab":"ai","trans":false,"masdar":"حَقّ","gloss":"to be true / established"},
+      "II":{"trans":true,"gloss":"to verify / to achieve","en":{"past":"verified","pp":"verified","pres3":"verifies","ing":"verifying"}},
+      "V":{"trans":false,"gloss":"to be verified"},
+      "X":{"trans":true,"gloss":"to deserve / to be entitled to","en":{"past":"deserved","pp":"deserved","pres3":"deserves","ing":"deserving"}}
+    }},
+    {"root":["ج","د","د"],"type":"mudaaf","forms":{
+      "I":{"bab":"ai","trans":false,"masdar":"جِدّ","gloss":"to be serious / diligent"},
+      "II":{"trans":true,"gloss":"to renew","en":{"past":"renewed","pp":"renewed","pres3":"renews","ing":"renewing"}},
+      "V":{"trans":false,"gloss":"to be renewed"},
+      "X":{"trans":false,"gloss":"to arise anew","en":{"past":"arose anew","pres3":"arises anew","ing":"arising anew"}}
+    }},
+    {"root":["ح","س","س"],"type":"mudaaf","forms":{
+      "I":{"bab":"au","trans":true,"masdar":"حِسّ","gloss":"to sense / to feel","en":{"past":"sensed","pp":"sensed","pres3":"senses","ing":"sensing"}},
+      "IV":{"trans":true,"gloss":"to perceive / to feel","en":{"past":"perceived","pp":"perceived","pres3":"perceives","ing":"perceiving"}},
+      "V":{"trans":true,"gloss":"to feel around for","en":{"past":"felt around for","pp":"felt around for","pres3":"feels around for","ing":"feeling around for"}}
+    }},
+    {"root":["ع","ز","ز"],"type":"mudaaf","forms":{
+      "I":{"bab":"ai","trans":false,"masdar":"عِزّ","gloss":"to be mighty / dear"},
+      "II":{"trans":true,"gloss":"to strengthen / to reinforce","en":{"past":"strengthened","pp":"strengthened","pres3":"strengthens","ing":"strengthening"}},
+      "IV":{"trans":true,"gloss":"to honour / to hold dear","en":{"past":"honoured","pp":"honoured","pres3":"honours","ing":"honouring"}},
+      "X":{"trans":false,"gloss":"to grow strong","en":{"past":"grew strong","pres3":"grows strong","ing":"growing strong"}}
+    }},
+    {"root":["ه","م","م"],"type":"mudaaf","forms":{
+      "I":{"bab":"au","trans":true,"masdar":"هَمّ","gloss":"to concern / to worry","en":{"past":"concerned","pp":"concerned","pres3":"concerns","ing":"concerning"}},
+      "IV":{"trans":true,"gloss":"to matter to / to concern","en":{"past":"mattered to","pp":"mattered to","pres3":"matters to","ing":"mattering to"}},
+      "VIII":{"trans":false,"gloss":"to take an interest / to care","en":{"past":"took an interest","pres3":"takes an interest","ing":"taking an interest"}}
+    }},
+    {"root":["ض","م","م"],"type":"mudaaf","forms":{
+      "I":{"bab":"au","trans":true,"masdar":"ضَمّ","gloss":"to join / to gather","en":{"past":"joined","pp":"joined","pres3":"joins","ing":"joining"}},
+      "VII":{"trans":false,"gloss":"to join / to be annexed","en":{"past":"joined","pres3":"joins","ing":"joining"}}
+    }},
+    {"root":["ك","ف","ف"],"type":"mudaaf","forms":{
+      "I":{"bab":"au","trans":true,"masdar":"كَفّ","gloss":"to restrain / to hold back","en":{"past":"restrained","pp":"restrained","pres3":"restrains","ing":"restraining"}},
+      "VII":{"trans":false,"gloss":"to desist / to refrain","en":{"past":"desisted","pres3":"desists","ing":"desisting"}}
+    }},
+    {"root":["ب","ث","ث"],"type":"mudaaf","forms":{
+      "I":{"bab":"au","trans":true,"masdar":"بَثّ","gloss":"to spread / to broadcast","en":{"past":"broadcast","pp":"broadcast","pres3":"broadcasts","ing":"broadcasting"}},
+      "VII":{"trans":false,"gloss":"to be spread / diffused","en":{"past":"spread","pres3":"spreads","ing":"spreading"}}
+    }},
+    {"root":["د","س","س"],"type":"mudaaf","forms":{
+      "I":{"bab":"au","trans":true,"masdar":"دَسّ","gloss":"to slip in / to insert slyly","en":{"past":"slipped in","pp":"slipped in","pres3":"slips in","ing":"slipping in"}},
+      "VII":{"trans":false,"gloss":"to slip in / to be inserted","en":{"past":"slipped in","pres3":"slips in","ing":"slipping in"}}
+    }},
+    {"root":["ش","ق","ق"],"type":"mudaaf","forms":{
+      "I":{"bab":"au","trans":true,"masdar":"شَقّ","gloss":"to split / to cleave","en":{"past":"split","pp":"split","pres3":"splits","ing":"splitting"}},
+      "VII":{"trans":false,"gloss":"to split / to be cleft","en":{"past":"split","pres3":"splits","ing":"splitting"}},
+      "VIII":{"trans":true,"gloss":"to derive","en":{"past":"derived","pp":"derived","pres3":"derives","ing":"deriving"}}
+    }},
+    {"root":["و","ج","ب"],"type":"mithal_waw","forms":{
+      "I":{"bab":"ai","trans":false,"masdar":"وُجُوب","gloss":"to be obligatory","en":{"past":"became obligatory","pres3":"becomes obligatory","ing":"becoming obligatory"}},
+      "II":{"trans":true,"gloss":"to impose on","en":{"past":"imposed on","pp":"imposed on","pres3":"imposes on","ing":"imposing on"}},
+      "IV":{"trans":true,"gloss":"to make obligatory","en":{"past":"obligated","pp":"obligated","pres3":"obligates","ing":"obligating"}},
+      "X":{"trans":true,"gloss":"to deserve / merit","en":{"past":"deserved","pp":"deserved","pres3":"deserves","ing":"deserving"}}
+    }},
+    {"root":["و","ص","ل"],"type":"mithal_waw","forms":{
+      "I":{"bab":"ai","trans":true,"masdar":"وُصُول","gloss":"to reach / connect","en":{"past":"reached","pp":"reached","pres3":"reaches","ing":"reaching"}},
+      "II":{"trans":true,"gloss":"to connect / deliver","en":{"past":"connected","pp":"connected","pres3":"connects","ing":"connecting"}},
+      "III":{"trans":true,"gloss":"to keep in touch with","en":{"past":"kept in touch with","pp":"kept in touch with","pres3":"keeps in touch with","ing":"keeping in touch with"}},
+      "IV":{"trans":true,"gloss":"to deliver / bring to","en":{"past":"delivered","pp":"delivered","pres3":"delivers","ing":"delivering"}},
+      "V":{"trans":false,"gloss":"to arrive at a result","en":{"past":"arrived at","pres3":"arrives at","ing":"arriving at"}},
+      "VI":{"trans":false,"gloss":"to stay in touch","en":{"past":"stayed in touch","pres3":"stays in touch","ing":"staying in touch"}},
+      "VIII":{"trans":true,"gloss":"to contact / call","en":{"past":"contacted","pp":"contacted","pres3":"contacts","ing":"contacting"}}
+    }},
+    {"root":["و","ج","د"],"type":"mithal_waw","forms":{
+      "I":{"bab":"ai","trans":true,"masdar":"وُجُود","gloss":"to find","en":{"past":"found","pp":"found","pres3":"finds","ing":"finding"}},
+      "IV":{"trans":true,"gloss":"to bring into existence","en":{"past":"created","pp":"created","pres3":"creates","ing":"creating"}},
+      "V":{"trans":false,"gloss":"to be deeply in love"}
+    }},
+    {"root":["و","ق","ع"],"type":"mithal_waw","forms":{
+      "I":{"bab":"aa","trans":false,"masdar":"وُقُوع","gloss":"to fall / happen","en":{"past":"happened","pres3":"happens","ing":"happening"}},
+      "II":{"trans":true,"gloss":"to sign","en":{"past":"signed","pp":"signed","pres3":"signs","ing":"signing"}},
+      "III":{"trans":true,"gloss":"to confront / engage with","en":{"past":"confronted","pp":"confronted","pres3":"confronts","ing":"confronting"}},
+      "IV":{"trans":true,"gloss":"to inflict / cause to fall","en":{"past":"inflicted","pp":"inflicted","pres3":"inflicts","ing":"inflicting"}},
+      "V":{"trans":true,"gloss":"to expect / to anticipate","en":{"past":"expected","pp":"expected","pres3":"expects","ing":"expecting"}},
+      "VI":{"trans":false,"gloss":"to clash with one another","en":{"past":"clashed","pres3":"clash","ing":"clashing"}}
+    }},
+    {"root":["و","ض","ع"],"type":"mithal_waw","forms":{
+      "I":{"bab":"aa","trans":true,"masdar":"وَضْع","gloss":"to put / place","en":{"past":"put","pp":"put","pres3":"puts","ing":"putting"}},
+      "III":{"trans":true,"gloss":"to compose together","en":{"past":"drafted together","pp":"drafted together","pres3":"drafts together","ing":"drafting together"}},
+      "VI":{"trans":false,"gloss":"to be humble","en":{"past":"was humble","pres3":"is humble","ing":"being humble"}},
+      "VIII":{"trans":false,"gloss":"to be lowered / humbled","en":{"past":"was humbled","pres3":"gets humbled","ing":"getting humbled"}}
+    }},
+    {"root":["و","ه","ب"],"type":"mithal_waw","forms":{
+      "I":{"bab":"aa","trans":true,"masdar":"هِبَة","gloss":"to grant / bestow","en":{"past":"granted","pp":"granted","pres3":"grants","ing":"granting"}},
+      "IV":{"trans":true,"gloss":"to give as a gift","en":{"past":"gave as a gift","pp":"given as a gift","pres3":"gives as a gift","ing":"giving as a gift"}},
+      "X":{"trans":true,"gloss":"to ask for a gift","en":{"past":"asked for a gift","pp":"asked of","pres3":"asks for a gift","ing":"asking for a gift"}}
+    }},
+    {"root":["و","ج","ل"],"type":"mithal_waw","forms":{
+      "I":{"bab":"ia","trans":false,"masdar":"وَجَل","faaDrops":false,"gloss":"to fear / be afraid","en":{"past":"feared","pres3":"fears","ing":"fearing"}},
+      "IV":{"trans":true,"gloss":"to frighten","en":{"past":"frightened","pp":"frightened","pres3":"frightens","ing":"frightening"}}
+    }},
+    {"root":["و","ج","ع"],"type":"mithal_waw","forms":{
+      "I":{"bab":"ia","trans":true,"masdar":"وَجَع","faaDrops":false,"gloss":"to hurt / feel pain","en":{"past":"hurt","pp":"hurt","pres3":"hurts","ing":"hurting"}},
+      "IV":{"trans":true,"gloss":"to cause pain to","en":{"past":"caused pain to","pp":"pained","pres3":"causes pain to","ing":"causing pain to"}}
+    }},
+    {"root":["و","ث","ق"],"type":"mithal_waw","forms":{
+      "I":{"bab":"ai","trans":false,"masdar":"ثِقَة","gloss":"to trust","en":{"past":"trusted","pres3":"trusts","ing":"trusting"}},
+      "II":{"trans":true,"gloss":"to document / verify","en":{"past":"documented","pp":"documented","pres3":"documents","ing":"documenting"}},
+      "III":{"trans":true,"gloss":"to make a covenant with","en":{"past":"made a pact with","pp":"covenanted with","pres3":"makes a pact with","ing":"making a pact with"}},
+      "IV":{"trans":true,"gloss":"to bind firmly","en":{"past":"bound firmly","pp":"bound firmly","pres3":"binds firmly","ing":"binding firmly"}},
+      "V":{"trans":false,"gloss":"to make sure / verify","en":{"past":"made sure","pres3":"makes sure","ing":"making sure"}},
+      "VI":{"trans":false,"gloss":"to make a mutual pact","en":{"past":"made a mutual pact","pres3":"make a mutual pact","ing":"making a mutual pact"}}
+    }},
+    {"root":["و","ج","ه"],"type":"mithal_waw","forms":{
+      "I":{"bab":"uu","trans":false,"masdar":"وَجَاهَة","gloss":"to be distinguished"},
+      "II":{"trans":true,"gloss":"to direct / orient","en":{"past":"directed","pp":"directed","pres3":"directs","ing":"directing"}},
+      "III":{"trans":true,"gloss":"to face / confront","en":{"past":"faced","pp":"faced","pres3":"faces","ing":"facing"}},
+      "V":{"trans":true,"gloss":"to head towards","en":{"past":"headed towards","pres3":"heads towards","ing":"heading towards"}},
+      "VI":{"trans":false,"gloss":"to face one another","en":{"past":"faced one another","pres3":"face one another","ing":"facing one another"}},
+      "VIII":{"trans":false,"gloss":"to head towards / to be oriented","en":{"past":"headed towards","pres3":"heads towards","ing":"heading towards"}}
+    }},
+    {"root":["و","ر","ث"],"type":"mithal_waw","forms":{
+      "I":{"bab":"ii","trans":true,"masdar":"إِرْث","gloss":"to inherit","en":{"past":"inherited","pp":"inherited","pres3":"inherits","ing":"inheriting"}},
+      "II":{"trans":true,"gloss":"to bequeath / pass down","en":{"past":"bequeathed","pp":"bequeathed","pres3":"bequeaths","ing":"bequeathing"}},
+      "IV":{"trans":true,"gloss":"to cause to inherit","en":{"past":"passed on","pp":"passed on","pres3":"passes on","ing":"passing on"}},
+      "V":{"trans":false,"gloss":"to be inherited","en":{"past":"was inherited","pres3":"gets inherited","ing":"getting inherited"}},
+      "VI":{"trans":false,"gloss":"to inherit from one another","en":{"past":"inherited from one another","pres3":"inherit from one another","ing":"inheriting from one another"}}
+    }},
+    {"root":["و","ع","د"],"type":"mithal_waw","forms":{
+      "I":{"bab":"ai","trans":true,"masdar":"وَعْد","gloss":"to promise","en":{"past":"promised","pp":"promised","pres3":"promises","ing":"promising"}},
+      "III":{"trans":true,"gloss":"to make an appointment with","en":{"past":"made an appointment with","pp":"appointed with","pres3":"makes an appointment with","ing":"making an appointment with"}},
+      "IV":{"trans":true,"gloss":"to threaten","en":{"past":"threatened","pp":"threatened","pres3":"threatens","ing":"threatening"}},
+      "V":{"trans":true,"gloss":"to threaten repeatedly","en":{"past":"threatened","pp":"threatened","pres3":"threatens","ing":"threatening"}},
+      "VI":{"trans":false,"gloss":"to promise one another","en":{"past":"promised one another","pres3":"promise one another","ing":"promising one another"}},
+      "VIII":{"trans":true,"gloss":"to accept a promise","en":{"past":"accepted a promise","pp":"accepted","pres3":"accepts a promise","ing":"accepting a promise"}}
+    }},
+    {"root":["و","ز","ن"],"type":"mithal_waw","forms":{
+      "I":{"bab":"ai","trans":true,"masdar":"وَزْن","gloss":"to weigh","en":{"past":"weighed","pp":"weighed","pres3":"weighs","ing":"weighing"}},
+      "III":{"trans":true,"gloss":"to balance / to compare","en":{"past":"balanced","pp":"balanced","pres3":"balances","ing":"balancing"}},
+      "VI":{"trans":false,"gloss":"to be in balance"}
+    }},
+    {"root":["و","ق","ف"],"type":"mithal_waw","forms":{
+      "I":{"bab":"ai","trans":false,"masdar":"وُقُوف","gloss":"to stop / to stand","en":{"past":"stopped","pres3":"stops","ing":"stopping"}},
+      "II":{"trans":true,"gloss":"to halt / to suspend","en":{"past":"halted","pp":"halted","pres3":"halts","ing":"halting"}},
+      "IV":{"trans":true,"gloss":"to bring to a stop","en":{"past":"stopped","pp":"stopped","pres3":"stops","ing":"stopping"}},
+      "V":{"trans":false,"gloss":"to come to a stop","en":{"past":"came to a stop","pres3":"comes to a stop","ing":"coming to a stop"}}
+    }},
+    {"root":["و","ل","د"],"type":"mithal_waw","forms":{
+      "I":{"bab":"ai","trans":true,"masdar":"وِلَادَة","gloss":"to give birth to","en":{"past":"gave birth to","pp":"born","pres3":"gives birth to","ing":"giving birth to"}},
+      "II":{"trans":true,"gloss":"to generate / to produce","en":{"past":"generated","pp":"generated","pres3":"generates","ing":"generating"}},
+      "V":{"trans":false,"gloss":"to be generated"}
+    }},
+    {"root":["و","ص","ف"],"type":"mithal_waw","forms":{
+      "I":{"bab":"ai","trans":true,"masdar":"وَصْف","gloss":"to describe","en":{"past":"described","pp":"described","pres3":"describes","ing":"describing"}},
+      "VIII":{"trans":false,"gloss":"to be characterised by"}
+    }},
+    {"root":["و","س","ع"],"type":"mithal_waw","forms":{
+      "I":{"bab":"ia","trans":true,"masdar":"سَعَة","faaDrops":true,"gloss":"to accommodate / to hold","en":{"past":"accommodated","pp":"accommodated","pres3":"accommodates","ing":"accommodating"}},
+      "II":{"trans":true,"gloss":"to widen / to expand","en":{"past":"widened","pp":"widened","pres3":"widens","ing":"widening"}},
+      "V":{"trans":false,"gloss":"to expand","en":{"past":"expanded","pres3":"expands","ing":"expanding"}},
+      "VIII":{"trans":false,"gloss":"to become wide","en":{"past":"became wide","pres3":"becomes wide","ing":"becoming wide"}}
+    }},
+    {"root":["ي","ء","س"],"type":"mithal_ya","forms":{
+      "I":{"bab":"ia","trans":false,"masdar":"يَأْس","gloss":"to despair","en":{"past":"despaired","pres3":"despairs","ing":"despairing"}},
+      "II":{"trans":true,"gloss":"to drive to despair","en":{"past":"drove to despair","pp":"driven to despair","pres3":"drives to despair","ing":"driving to despair"}},
+      "IV":{"trans":true,"gloss":"to cause to despair","en":{"past":"drove to despair","pp":"driven to despair","pres3":"drives to despair","ing":"driving to despair"}},
+      "X":{"trans":false,"gloss":"to give up all hope","en":{"past":"gave up hope","pres3":"gives up hope","ing":"giving up hope"}}
+    }},
+    {"root":["ي","ق","ن"],"type":"mithal_ya","forms":{
+      "I":{"bab":"ia","trans":false,"masdar":"يَقِين","gloss":"to be certain","en":{"past":"was certain","pres3":"is certain","ing":"being certain"}},
+      "IV":{"trans":true,"gloss":"to ascertain","en":{"past":"ascertained","pp":"ascertained","pres3":"ascertains","ing":"ascertaining"}},
+      "V":{"trans":false,"gloss":"to make sure","en":{"past":"made sure","pres3":"makes sure","ing":"making sure"}},
+      "X":{"trans":true,"gloss":"to be fully certain of","en":{"past":"was fully certain of","pp":"ascertained","pres3":"is fully certain of","ing":"being fully certain of"}}
+    }},
+    {"root":["ي","م","ن"],"type":"mithal_ya","forms":{
+      "I":{"bab":"aa","trans":true,"masdar":"يُمْن","gloss":"to be lucky / blessed","en":{"past":"was lucky","pres3":"is lucky","ing":"being lucky"}},
+      "II":{"trans":true,"gloss":"to go to the right","en":{"past":"went to the right","pp":"went to the right","pres3":"goes to the right","ing":"going to the right"}},
+      "III":{"trans":true,"gloss":"to lead to the right","en":{"past":"led to the right","pp":"led to the right","pres3":"leads to the right","ing":"leading to the right"}},
+      "V":{"trans":false,"gloss":"to see a good omen","en":{"past":"saw a good omen","pres3":"sees a good omen","ing":"seeing a good omen"}},
+      "VI":{"trans":false,"gloss":"to lean to the right","en":{"past":"leaned to the right","pres3":"leans to the right","ing":"leaning to the right"}}
+    }},
+    {"root":["ي","ق","ظ"],"type":"mithal_ya","forms":{
+      "I":{"bab":"uu","trans":false,"masdar":"يَقَاظَة","gloss":"to be awake / vigilant"},
+      "II":{"trans":true,"gloss":"to wake (someone) up","en":{"past":"woke up","pp":"woken up","pres3":"wakes up","ing":"waking up"}},
+      "IV":{"trans":true,"gloss":"to wake someone up","en":{"past":"woke up","pp":"woken up","pres3":"wakes up","ing":"waking up"}},
+      "V":{"trans":false,"gloss":"to become alert","en":{"past":"became alert","pres3":"becomes alert","ing":"becoming alert"}},
+      "X":{"trans":true,"gloss":"to wake up","en":{"past":"woke up","pp":"woken up","pres3":"wakes up","ing":"waking up"}}
+    }},
+    {"root":["ي","ب","س"],"type":"mithal_ya","forms":{
+      "I":{"bab":"ia","trans":false,"masdar":"يُبْس","gloss":"to be dry"},
+      "II":{"trans":true,"gloss":"to dry something out","en":{"past":"dried out","pp":"dried out","pres3":"dries out","ing":"drying out"}},
+      "IV":{"trans":true,"gloss":"to dry up / wither","en":{"past":"dried up","pp":"dried up","pres3":"dries up","ing":"drying up"}},
+      "V":{"trans":false,"gloss":"to dry up","en":{"past":"dried up","pres3":"dries up","ing":"drying up"}}
+    }},
+    {"root":["ي","ف","ع"],"type":"mithal_ya","forms":{
+      "I":{"bab":"aa","trans":false,"masdar":"يَفَاعَة","gloss":"to reach adolescence","en":{"past":"reached adolescence","pres3":"reaches adolescence","ing":"reaching adolescence"}},
+      "IV":{"trans":false,"gloss":"to come of age","en":{"past":"came of age","pres3":"comes of age","ing":"coming of age"}}
+    }},
+    {"root":["ي","ت","م"],"type":"mithal_ya","forms":{
+      "I":{"bab":"uu","trans":false,"masdar":"يُتْم","gloss":"to be orphaned"},
+      "II":{"trans":true,"gloss":"to orphan","en":{"past":"orphaned","pp":"orphaned","pres3":"orphans","ing":"orphaning"}},
+      "IV":{"trans":true,"gloss":"to make an orphan of","en":{"past":"made an orphan of","pp":"orphaned","pres3":"makes an orphan of","ing":"making an orphan of"}}
+    }},
+    {"root":["ي","س","ر"],"type":"mithal_ya","forms":{
+      "I":{"bab":"ia","trans":false,"masdar":"يُسْر","gloss":"to be easy"},
+      "II":{"trans":true,"gloss":"to make easy","en":{"past":"made easy","pp":"made easy","pres3":"makes easy","ing":"making easy"}},
+      "III":{"trans":true,"gloss":"to deal leniently with","en":{"past":"dealt leniently with","pp":"dealt leniently with","pres3":"deals leniently with","ing":"dealing leniently with"}},
+      "IV":{"trans":false,"gloss":"to become well off","en":{"past":"became well off","pres3":"becomes well off","ing":"becoming well off"}},
+      "V":{"trans":false,"gloss":"to become easy","en":{"past":"became easy","pres3":"becomes easy","ing":"becoming easy"}},
+      "VI":{"trans":false,"gloss":"to lean to the left","en":{"past":"leaned to the left","pres3":"leans to the left","ing":"leaning to the left"}},
+      "X":{"trans":false,"gloss":"to be made easy","en":{"past":"was made easy","pres3":"is made easy","ing":"being made easy"}}
+    }},
+    {"root":["ق","و","ل"],"type":"ajwaf_waw","forms":{
+      "I":{"bab":"au","trans":true,"masdar":"قَوْل","gloss":"to say","en":{"past":"said","pp":"said","pres3":"says","ing":"saying"}},
+      "II":{"trans":true,"gloss":"to make (someone) say","en":{"past":"made say","pp":"made to say","pres3":"makes say","ing":"making say"}},
+      "III":{"trans":true,"gloss":"to negotiate with","en":{"past":"negotiated with","pp":"negotiated with","pres3":"negotiates with","ing":"negotiating with"}},
+      "IV":{"trans":true,"gloss":"to release from a contract","en":{"past":"released","pp":"released","pres3":"releases","ing":"releasing"}},
+      "V":{"trans":true,"gloss":"to fabricate a saying against","en":{"past":"fabricated against","pp":"fabricated against","pres3":"fabricates against","ing":"fabricating against"}},
+      "VI":{"trans":false,"gloss":"to converse with one another","en":{"past":"conversed with one another","pres3":"converse with one another","ing":"conversing with one another"}},
+      "X":{"trans":false,"gloss":"to resign","en":{"past":"resigned","pres3":"resigns","ing":"resigning"}}
+    }},
+    {"root":["ن","و","م"],"type":"ajwaf_waw","forms":{
+      "I":{"bab":"aa","trans":false,"masdar":"نَوْم","gloss":"to sleep","en":{"past":"slept","pres3":"sleeps","ing":"sleeping"}},
+      "II":{"trans":true,"gloss":"to put to sleep","en":{"past":"put to sleep","pp":"put to sleep","pres3":"puts to sleep","ing":"putting to sleep"}},
+      "IV":{"trans":true,"gloss":"to lay down / put to sleep","en":{"past":"laid down","pp":"laid down","pres3":"lays down","ing":"laying down"}},
+      "VI":{"trans":false,"gloss":"to pretend to sleep","en":{"past":"pretended to sleep","pres3":"pretends to sleep","ing":"pretending to sleep"}},
+      "X":{"trans":false,"gloss":"to feel at ease","en":{"past":"felt at ease","pres3":"feels at ease","ing":"feeling at ease"}}
+    }},
+    {"root":["خ","و","ف"],"type":"ajwaf_waw","forms":{
+      "I":{"bab":"aa","trans":true,"masdar":"خَوْف","gloss":"to fear","en":{"past":"feared","pp":"feared","pres3":"fears","ing":"fearing"}},
+      "II":{"trans":true,"gloss":"to frighten / intimidate","en":{"past":"frightened","pp":"frightened","pres3":"frightens","ing":"frightening"}},
+      "IV":{"trans":true,"gloss":"to scare","en":{"past":"scared","pp":"scared","pres3":"scares","ing":"scaring"}},
+      "V":{"trans":false,"gloss":"to be apprehensive","en":{"past":"was apprehensive","pres3":"is apprehensive","ing":"being apprehensive"}}
+    }},
+    {"root":["ف","و","ت"],"type":"ajwaf_waw","forms":{
+      "I":{"bab":"au","trans":false,"masdar":"فَوْت","gloss":"to pass / escape","en":{"past":"passed","pres3":"passes","ing":"passing"}},
+      "III":{"trans":true,"gloss":"to distinguish between","en":{"past":"distinguished between","pp":"distinguished between","pres3":"distinguishes between","ing":"distinguishing between"}},
+      "VI":{"trans":false,"gloss":"to differ / vary","en":{"past":"differed","pres3":"differs","ing":"differing"}}
+    }},
+    {"root":["م","و","ت"],"type":"ajwaf_waw","forms":{
+      "I":{"bab":"au","trans":false,"masdar":"مَوْت","gloss":"to die","en":{"past":"died","pres3":"dies","ing":"dying"}},
+      "II":{"trans":false,"gloss":"to die off in numbers","en":{"past":"died off","pres3":"dies off","ing":"dying off"}},
+      "IV":{"trans":true,"gloss":"to cause to die","en":{"past":"put to death","pp":"put to death","pres3":"puts to death","ing":"putting to death"}},
+      "V":{"trans":false,"gloss":"to feign death","en":{"past":"feigned death","pres3":"feigns death","ing":"feigning death"}},
+      "VI":{"trans":false,"gloss":"to pretend to be dead","en":{"past":"played dead","pres3":"plays dead","ing":"playing dead"}},
+      "X":{"trans":false,"gloss":"to fight to the death","en":{"past":"fought to the death","pres3":"fights to the death","ing":"fighting to the death"}}
+    }},
+    {"root":["ز","و","ر"],"type":"ajwaf_waw","forms":{
+      "I":{"bab":"au","trans":true,"masdar":"زِيَارَة","gloss":"to visit","en":{"past":"visited","pp":"visited","pres3":"visits","ing":"visiting"}},
+      "II":{"trans":true,"gloss":"to forge / falsify","en":{"past":"forged","pp":"forged","pres3":"forges","ing":"forging"}},
+      "VI":{"trans":false,"gloss":"to visit one another","en":{"past":"visited one another","pres3":"visit one another","ing":"visiting one another"}},
+      "X":{"trans":true,"gloss":"to ask (someone) for a visit","en":{"past":"asked for a visit","pp":"asked for a visit","pres3":"asks for a visit","ing":"asking for a visit"}}
+    }},
+    {"root":["ص","و","م"],"type":"ajwaf_waw","forms":{
+      "I":{"bab":"au","trans":false,"masdar":"صَوْم","gloss":"to fast","en":{"past":"fasted","pres3":"fasts","ing":"fasting"}}
+    }},
+    {"root":["ق","و","م"],"type":"ajwaf_waw","forms":{
+      "I":{"bab":"au","trans":false,"masdar":"قِيَام","gloss":"to stand / rise","en":{"past":"stood","pres3":"stands","ing":"standing"}},
+      "II":{"trans":true,"gloss":"to straighten / evaluate","en":{"past":"evaluated","pp":"evaluated","pres3":"evaluates","ing":"evaluating"}},
+      "III":{"trans":true,"gloss":"to resist / withstand","en":{"past":"resisted","pp":"resisted","pres3":"resists","ing":"resisting"}},
+      "IV":{"trans":true,"gloss":"to establish / perform","en":{"past":"established","pp":"established","pres3":"establishes","ing":"establishing"}},
+      "X":{"trans":false,"gloss":"to be upright / straight"}
+    }},
+    {"root":["ع","و","د"],"type":"ajwaf_waw","forms":{
+      "I":{"bab":"au","trans":false,"masdar":"عَوْدَة","gloss":"to return / to come back","en":{"past":"returned","pres3":"returns","ing":"returning"}},
+      "II":{"trans":true,"gloss":"to accustom","en":{"past":"accustomed","pp":"accustomed","pres3":"accustoms","ing":"accustoming"}},
+      "IV":{"trans":true,"gloss":"to repeat / to give back","en":{"past":"repeated","pp":"repeated","pres3":"repeats","ing":"repeating"}},
+      "V":{"trans":true,"gloss":"to get used to","en":{"past":"got used to","pp":"got used to","pres3":"gets used to","ing":"getting used to"}},
+      "X":{"trans":true,"gloss":"to recover / to regain","en":{"past":"recovered","pp":"recovered","pres3":"recovers","ing":"recovering"}}
+    }},
+    {"root":["ق","و","د"],"type":"ajwaf_waw","forms":{
+      "I":{"bab":"au","trans":true,"masdar":"قِيَادَة","gloss":"to lead / to drive","en":{"past":"led","pp":"led","pres3":"leads","ing":"leading"}},
+      "VII":{"trans":false,"gloss":"to submit / to be led","en":{"past":"submitted","pres3":"submits","ing":"submitting"}}
+    }},
+    {"root":["ط","و","ف"],"type":"ajwaf_waw","forms":{
+      "I":{"bab":"au","trans":false,"masdar":"طَوَاف","gloss":"to go around / to circumambulate","en":{"past":"went around","pres3":"goes around","ing":"going around"}},
+      "II":{"trans":true,"gloss":"to take (someone) around","en":{"past":"took around","pp":"taken around","pres3":"takes around","ing":"taking around"}}
+    }},
+    {"root":["ف","و","ز"],"type":"ajwaf_waw","forms":{
+      "I":{"bab":"au","trans":false,"masdar":"فَوْز","gloss":"to win / to triumph","en":{"past":"won","pres3":"wins","ing":"winning"}}
+    }},
+    {"root":["ذ","و","ق"],"type":"ajwaf_waw","forms":{
+      "I":{"bab":"au","trans":true,"masdar":"ذَوْق","gloss":"to taste","en":{"past":"tasted","pp":"tasted","pres3":"tastes","ing":"tasting"}},
+      "IV":{"trans":true,"gloss":"to make (someone) taste","en":{"past":"made taste","pp":"made to taste","pres3":"makes taste","ing":"making taste"}},
+      "V":{"trans":true,"gloss":"to savour","en":{"past":"savoured","pp":"savoured","pres3":"savours","ing":"savouring"}}
+    }},
+    {"root":["ط","و","ل"],"type":"ajwaf_waw","forms":{
+      "I":{"bab":"au","trans":false,"masdar":"طُول","gloss":"to be long"},
+      "II":{"trans":true,"gloss":"to lengthen","en":{"past":"lengthened","pp":"lengthened","pres3":"lengthens","ing":"lengthening"}},
+      "IV":{"trans":true,"gloss":"to prolong","en":{"past":"prolonged","pp":"prolonged","pres3":"prolongs","ing":"prolonging"}},
+      "VI":{"trans":false,"gloss":"to act arrogantly","en":{"past":"acted arrogantly","pres3":"acts arrogantly","ing":"acting arrogantly"}}
+    }},
+    {"root":["ل","و","م"],"type":"ajwaf_waw","forms":{
+      "I":{"bab":"au","trans":true,"masdar":"لَوْم","gloss":"to blame","en":{"past":"blamed","pp":"blamed","pres3":"blames","ing":"blaming"}},
+      "VI":{"trans":false,"gloss":"to blame one another","en":{"past":"blamed one another","pres3":"blame one another","ing":"blaming one another"}}
+    }},
+    {"root":["س","ي","ر"],"type":"ajwaf_ya","forms":{
+      "I":{"bab":"ai","trans":false,"masdar":"سَيْر","gloss":"to travel / journey","en":{"past":"travelled","pres3":"travels","ing":"travelling"}},
+      "II":{"trans":true,"gloss":"to set in motion","en":{"past":"set in motion","pp":"set in motion","pres3":"sets in motion","ing":"setting in motion"}},
+      "III":{"trans":true,"gloss":"to keep pace with","en":{"past":"kept pace with","pp":"kept pace with","pres3":"keeps pace with","ing":"keeping pace with"}}
+    }},
+    {"root":["ب","ي","ع"],"type":"ajwaf_ya","forms":{
+      "I":{"bab":"ai","trans":true,"masdar":"بَيْع","gloss":"to sell","en":{"past":"sold","pp":"sold","pres3":"sells","ing":"selling"}},
+      "III":{"trans":true,"gloss":"to pledge allegiance to","en":{"past":"pledged allegiance to","pp":"pledged allegiance to","pres3":"pledges allegiance to","ing":"pledging allegiance to"}},
+      "IV":{"trans":true,"gloss":"to offer for sale","en":{"past":"offered for sale","pp":"offered for sale","pres3":"offers for sale","ing":"offering for sale"}},
+      "VI":{"trans":false,"gloss":"to trade with each other","en":{"past":"traded with each other","pres3":"trade with each other","ing":"trading with each other"}},
+      "VII":{"trans":false,"gloss":"to be sold / to become marketable","en":{"past":"was sold","pres3":"is sold","ing":"being sold"}},
+      "VIII":{"trans":true,"gloss":"to buy / purchase","en":{"past":"bought","pp":"bought","pres3":"buys","ing":"buying"}}
+    }},
+    {"root":["ن","ي","ل"],"type":"ajwaf_ya","forms":{
+      "I":{"bab":"aa","trans":true,"masdar":"نَيْل","gloss":"to obtain / attain","en":{"past":"obtained","pp":"obtained","pres3":"obtains","ing":"obtaining"}},
+      "IV":{"trans":true,"gloss":"to grant","en":{"past":"granted","pp":"granted","pres3":"grants","ing":"granting"}}
+    }},
+    {"root":["ه","ي","ب"],"type":"ajwaf_ya","forms":{
+      "I":{"bab":"aa","trans":true,"masdar":"هَيْبَة","gloss":"to hold in awe","en":{"past":"held in awe","pp":"held in awe","pres3":"holds in awe","ing":"holding in awe"}},
+      "V":{"trans":true,"gloss":"to dread","en":{"past":"dreaded","pp":"dreaded","pres3":"dreads","ing":"dreading"}}
+    }},
+    {"root":["ب","ي","ت"],"type":"ajwaf_ya","forms":{
+      "I":{"bab":"ai","trans":false,"masdar":"بَيْتُوتَة","gloss":"to spend the night","en":{"past":"spent the night","pres3":"spends the night","ing":"spending the night"}},
+      "II":{"trans":true,"gloss":"to plot by night","en":{"past":"plotted by night","pp":"plotted by night","pres3":"plots by night","ing":"plotting by night"}},
+      "IV":{"trans":true,"gloss":"to lodge for the night","en":{"past":"lodged","pp":"lodged","pres3":"lodges","ing":"lodging"}}
+    }},
+    {"root":["ع","ي","ش"],"type":"ajwaf_ya","forms":{
+      "I":{"bab":"ai","trans":false,"masdar":"عَيْش","gloss":"to live","en":{"past":"lived","pres3":"lives","ing":"living"}},
+      "IV":{"trans":true,"gloss":"to provide a living for","en":{"past":"provided for","pp":"provided for","pres3":"provides for","ing":"providing for"}},
+      "VI":{"trans":false,"gloss":"to coexist","en":{"past":"coexisted","pres3":"coexists","ing":"coexisting"}}
+    }},
+    {"root":["ز","ي","د"],"type":"ajwaf_ya","forms":{
+      "I":{"bab":"ai","trans":true,"masdar":"زِيَادَة","gloss":"to increase / to grow","en":{"past":"increased","pp":"increased","pres3":"increases","ing":"increasing"}},
+      "VI":{"trans":false,"gloss":"to increase steadily","en":{"past":"increased steadily","pres3":"increases steadily","ing":"increasing steadily"}},
+      "X":{"trans":true,"gloss":"to ask for more","en":{"past":"asked for more","pp":"asked for more","pres3":"asks for more","ing":"asking for more"}}
+    }},
+    {"root":["س","ي","ل"],"type":"ajwaf_ya","forms":{
+      "I":{"bab":"ai","trans":false,"masdar":"سَيَلَان","gloss":"to flow","en":{"past":"flowed","pres3":"flows","ing":"flowing"}},
+      "IV":{"trans":true,"gloss":"to make flow","en":{"past":"made flow","pp":"made to flow","pres3":"makes flow","ing":"making flow"}}
+    }},
+    {"root":["ض","ي","ع"],"type":"ajwaf_ya","forms":{
+      "I":{"bab":"ai","trans":false,"masdar":"ضَيَاع","gloss":"to be lost / wasted"},
+      "II":{"trans":true,"gloss":"to waste / to squander","en":{"past":"wasted","pp":"wasted","pres3":"wastes","ing":"wasting"}},
+      "IV":{"trans":true,"gloss":"to lose","en":{"past":"lost","pp":"lost","pres3":"loses","ing":"losing"}}
+    }},
+    {"root":["ط","ي","ر"],"type":"ajwaf_ya","forms":{
+      "I":{"bab":"ai","trans":false,"masdar":"طَيَرَان","gloss":"to fly","en":{"past":"flew","pres3":"flies","ing":"flying"}},
+      "II":{"trans":true,"gloss":"to make fly","en":{"past":"made fly","pp":"made to fly","pres3":"makes fly","ing":"making fly"}},
+      "IV":{"trans":true,"gloss":"to blow away","en":{"past":"blew away","pp":"blown away","pres3":"blows away","ing":"blowing away"}},
+      "V":{"trans":true,"gloss":"to take as a bad omen","en":{"past":"took as a bad omen","pp":"taken as a bad omen","pres3":"takes as a bad omen","ing":"taking as a bad omen"}}
+    }},
+    {"root":["غ","ي","ب"],"type":"ajwaf_ya","forms":{
+      "I":{"bab":"ai","trans":false,"masdar":"غِيَاب","gloss":"to be absent"},
+      "II":{"trans":true,"gloss":"to conceal / to make absent","en":{"past":"concealed","pp":"concealed","pres3":"conceals","ing":"concealing"}},
+      "V":{"trans":false,"gloss":"to stay away","en":{"past":"stayed away","pres3":"stays away","ing":"staying away"}}
+    }},
+    {"root":["د","ع","و"],"type":"naqis_waw","forms":{
+      "I":{"bab":"au","trans":true,"masdar":"دَعْوَة","gloss":"to call / invite","en":{"past":"called","pp":"called","pres3":"calls","ing":"calling"}},
+      "VI":{"trans":false,"gloss":"to call on one another","en":{"past":"called on one another","pres3":"call on one another","ing":"calling on one another"}},
+      "VIII":{"trans":true,"gloss":"to claim / allege","en":{"past":"claimed","pp":"claimed","pres3":"claims","ing":"claiming"}},
+      "X":{"trans":true,"gloss":"to summon / to call for","en":{"past":"summoned","pp":"summoned","pres3":"summons","ing":"summoning"}}
+    }},
+    {"root":["ب","ه","و"],"type":"naqis_waw","forms":{
+      "I":{"bab":"au","trans":false,"masdar":"بَهَاء","gloss":"to be splendid"},
+      "III":{"trans":true,"gloss":"to vie in glory with","en":{"past":"vied with","pp":"vied with","pres3":"vies with","ing":"vying with"}},
+      "VI":{"trans":false,"gloss":"to boast to one another","en":{"past":"boasted to one another","pres3":"boast to one another","ing":"boasting to one another"}}
+    }},
+    {"root":["س","م","و"],"type":"naqis_waw","forms":{
+      "I":{"bab":"au","trans":false,"masdar":"سُمُوّ","gloss":"to be high / lofty","en":{"past":"rose","pres3":"rises","ing":"rising"}},
+      "II":{"trans":true,"masdar":"تَسْمِيَة","gloss":"to name / to call","en":{"past":"named","pp":"named","pres3":"names","ing":"naming"}},
+      "III":{"trans":true,"masdar":"مُسَامَاة","gloss":"to vie with in glory","en":{"past":"vied with","pp":"vied with","pres3":"vies with","ing":"vying with"}},
+      "IV":{"trans":true,"masdar":"إِسْمَاء","gloss":"to elevate / to raise up","en":{"past":"elevated","pp":"elevated","pres3":"elevates","ing":"elevating"}},
+      "V":{"trans":false,"masdar":"تَسَمٍّ","gloss":"to be named / called","en":{"past":"was named","pres3":"is named","ing":"being named"}},
+      "VI":{"trans":false,"masdar":"تَسَامٍ","gloss":"to rise high / to vie with one another","en":{"past":"rose high","pres3":"rises high","ing":"rising high"}}
+    }},
+    {"root":["ر","ب","و"],"type":"naqis_waw","forms":{
+      "I":{"bab":"au","trans":false,"masdar":"رُبُوّ","gloss":"to grow / to increase","en":{"past":"grew","pres3":"grows","ing":"growing"}},
+      "II":{"trans":true,"masdar":"تَرْبِيَة","gloss":"to raise / to bring up / to educate","en":{"past":"raised","pp":"raised","pres3":"raises","ing":"raising"}},
+      "III":{"trans":true,"masdar":"مُرَابَاة","gloss":"to practise usury with","en":{"past":"lent at interest to","pp":"lent at interest to","pres3":"lends at interest to","ing":"lending at interest to"}},
+      "IV":{"trans":false,"masdar":"إِرْبَاء","gloss":"to exceed / to surpass","en":{"past":"exceeded","pres3":"exceeds","ing":"exceeding"}},
+      "V":{"trans":false,"masdar":"تَرَبٍّ","gloss":"to be brought up / to be reared","en":{"past":"was raised","pres3":"is raised","ing":"being raised"}}
+    }},
+    {"root":["غ","ذ","و"],"type":"naqis_waw","forms":{
+      "I":{"bab":"au","trans":true,"masdar":"غَذْو","gloss":"to feed / to nourish","en":{"past":"fed","pp":"fed","pres3":"feeds","ing":"feeding"}},
+      "II":{"trans":true,"masdar":"تَغْذِيَة","gloss":"to nourish / to nurture / to feed","en":{"past":"nourished","pp":"nourished","pres3":"nourishes","ing":"nourishing"}},
+      "V":{"trans":false,"masdar":"تَغَذٍّ","gloss":"to be nourished / fed","en":{"past":"fed on","pres3":"feeds on","ing":"feeding on"}},
+      "VIII":{"trans":false,"masdar":"اِغْتِذَاء","gloss":"to be nourished / sustained","en":{"past":"subsisted on","pres3":"subsists on","ing":"subsisting on"}}
+    }},
+    {"root":["ح","ل","و"],"type":"naqis_waw","forms":{
+      "I":{"bab":"au","trans":false,"masdar":"حَلَاوَة","gloss":"to be sweet / to be pleasant","en":{"past":"was sweet","pres3":"is sweet","ing":"being sweet"}},
+      "II":{"trans":true,"masdar":"تَحْلِيَة","gloss":"to sweeten / to adorn / to decorate","en":{"past":"sweetened","pp":"sweetened","pres3":"sweetens","ing":"sweetening"}},
+      "IV":{"trans":true,"masdar":"إِحْلَاء","gloss":"to sweeten / to make pleasant","en":{"past":"sweetened","pp":"sweetened","pres3":"sweetens","ing":"sweetening"}},
+      "V":{"trans":false,"masdar":"تَحَلٍّ","gloss":"to be adorned with / to be endowed with","en":{"past":"was adorned with","pres3":"is adorned with","ing":"being adorned with"}},
+      "X":{"trans":true,"masdar":"اِسْتِحْلَاء","gloss":"to find sweet / to relish","en":{"past":"relished","pp":"relished","pres3":"relishes","ing":"relishing"}}
+    }},
+    {"root":["غ","ط","و"],"type":"naqis_waw","forms":{
+      "I":{"bab":"au","trans":true,"masdar":"غَطْو","gloss":"to cover / to overspread","en":{"past":"covered","pp":"covered","pres3":"covers","ing":"covering"}},
+      "II":{"trans":true,"masdar":"تَغْطِيَة","gloss":"to cover / to conceal / to cover (costs, a story)","en":{"past":"covered","pp":"covered","pres3":"covers","ing":"covering"}},
+      "V":{"trans":false,"masdar":"تَغَطٍّ","gloss":"to be covered / veiled","en":{"past":"covered up","pres3":"covers up","ing":"covering up"}}
+    }},
+    {"root":["خ","ل","و"],"type":"naqis_waw","forms":{
+      "I":{"bab":"au","trans":false,"masdar":"خُلُوّ","gloss":"to be empty / to be free of","en":{"past":"was empty","pres3":"is empty","ing":"being empty"}},
+      "II":{"trans":true,"masdar":"تَخْلِيَة","gloss":"to leave / to let be / to vacate","en":{"past":"left alone","pp":"left alone","pres3":"leaves alone","ing":"leaving alone"}},
+      "IV":{"trans":true,"masdar":"إِخْلَاء","gloss":"to empty / to evacuate / to release","en":{"past":"evacuated","pp":"evacuated","pres3":"evacuates","ing":"evacuating"}},
+      "V":{"trans":true,"masdar":"تَخَلٍّ","gloss":"to give up / to renounce / to abandon","en":{"past":"gave up","pp":"given up","pres3":"gives up","ing":"giving up"}},
+      "X":{"trans":false,"masdar":"اِسْتِخْلَاء","gloss":"to seek privacy / to be alone with","en":{"past":"withdrew in private","pres3":"withdraws in private","ing":"withdrawing in private"}}
+    }},
+    {"root":["س","ل","و"],"type":"naqis_waw","forms":{
+      "I":{"bab":"au","trans":false,"masdar":"سُلُوّ","gloss":"to forget / to be consoled","en":{"past":"got over","pres3":"gets over","ing":"getting over"}},
+      "II":{"trans":true,"masdar":"تَسْلِيَة","gloss":"to comfort / to divert / to entertain","en":{"past":"entertained","pp":"entertained","pres3":"entertains","ing":"entertaining"}},
+      "IV":{"trans":true,"masdar":"إِسْلَاء","gloss":"to console / to make forget","en":{"past":"consoled","pp":"consoled","pres3":"consoles","ing":"consoling"}},
+      "V":{"trans":true,"masdar":"تَسَلٍّ","gloss":"to amuse oneself / to be entertained","en":{"past":"was amused","pp":"amused","pres3":"is amused","ing":"being amused"}}
+    }},
+    {"root":["ع","د","و"],"type":"naqis_waw","forms":{
+      "I":{"bab":"au","trans":false,"masdar":"عَدْو","gloss":"to run / to pass by / to exceed","en":{"past":"ran","pres3":"runs","ing":"running"}},
+      "II":{"trans":true,"masdar":"تَعْدِيَة","gloss":"to make pass / to take across / to transfer","en":{"past":"took across","pp":"taken across","pres3":"takes across","ing":"taking across"}},
+      "III":{"trans":true,"masdar":"مُعَادَاة","gloss":"to be hostile to","en":{"past":"opposed","pp":"opposed","pres3":"opposes","ing":"opposing"}},
+      "IV":{"trans":true,"masdar":"إِعْدَاء","gloss":"to infect / to contaminate","en":{"past":"infected","pp":"infected","pres3":"infects","ing":"infecting"}},
+      "V":{"trans":true,"masdar":"تَعَدٍّ","gloss":"to exceed / to transgress / to encroach on","en":{"past":"exceeded","pp":"exceeded","pres3":"exceeds","ing":"exceeding"}},
+      "VI":{"trans":false,"masdar":"تَعَادٍ","gloss":"to be mutually hostile","en":{"past":"were at odds","pres3":"are at odds","ing":"being at odds"}},
+      "VII":{"trans":false,"gloss":"to be infected"},
+      "VIII":{"trans":false,"masdar":"اِعْتِدَاء","gloss":"to attack / to assault / to infringe on","en":{"past":"attacked","pres3":"attacks","ing":"attacking"}},
+      "X":{"trans":true,"masdar":"اِسْتِعْدَاء","gloss":"to seek redress against / to incite against","en":{"past":"incited against","pp":"incited against","pres3":"incites against","ing":"inciting against"}}
+    }},
+    {"root":["ق","ف","و"],"type":"naqis_waw","forms":{
+      "I":{"bab":"au","trans":true,"masdar":"قَفْو","gloss":"to follow / to trail","en":{"past":"trailed","pp":"trailed","pres3":"trails","ing":"trailing"}},
+      "II":{"trans":true,"masdar":"تَقْفِيَة","gloss":"to make follow / to send after / to rhyme","en":{"past":"sent after","pp":"sent after","pres3":"sends after","ing":"sending after"}},
+      "VIII":{"trans":true,"masdar":"اِقْتِفَاء","gloss":"to follow / to track / to trace","en":{"past":"tracked","pp":"tracked","pres3":"tracks","ing":"tracking"}}
+    }},
+    {"root":["ص","ل","و"],"type":"naqis_waw","forms":{
+      "II":{"trans":false,"masdar":"صَلَاة","gloss":"to pray / to perform the ṣalāh / to invoke blessing upon","en":{"past":"prayed","pres3":"prays","ing":"praying"}}
+    }},
+    {"root":["ن","م","و"],"type":"naqis_waw","forms":{
+      "I":{"bab":"au","trans":false,"masdar":"نُمُوّ","gloss":"to grow / to increase","en":{"past":"grew","pres3":"grows","ing":"growing"}},
+      "II":{"trans":true,"masdar":"تَنْمِيَة","gloss":"to develop / to cultivate / to make grow","en":{"past":"developed","pp":"developed","pres3":"develops","ing":"developing"}},
+      "IV":{"trans":true,"masdar":"إِنْمَاء","gloss":"to make grow / to increase","en":{"past":"increased","pp":"increased","pres3":"increases","ing":"increasing"}},
+      "V":{"trans":false,"masdar":"تَنَمٍّ","gloss":"to grow / to develop","en":{"past":"developed","pres3":"develops","ing":"developing"}},
+      "VI":{"trans":false,"gloss":"to grow gradually","en":{"past":"grew gradually","pres3":"grows gradually","ing":"growing gradually"}},
+      "VIII":{"trans":false,"masdar":"اِنْتِمَاء","gloss":"to belong to / to be affiliated with","en":{"past":"belonged to","pres3":"belongs to","ing":"belonging to"}}
+    }},
+    {"root":["ر","م","ي"],"type":"naqis_ya","forms":{
+      "I":{"bab":"ai","trans":true,"masdar":"رَمْي","gloss":"to throw","en":{"past":"threw","pp":"thrown","pres3":"throws","ing":"throwing"}},
+      "VI":{"trans":false,"gloss":"to shoot at one another","en":{"past":"shot at one another","pres3":"shoot at one another","ing":"shooting at one another"}},
+      "VIII":{"trans":false,"gloss":"to fling oneself","en":{"past":"flung himself","pres3":"flings himself","ing":"flinging himself"}}
+    }},
+    {"root":["ق","ض","ي"],"type":"naqis_ya","forms":{
+      "I":{"bab":"ai","trans":true,"masdar":"قَضَاء","gloss":"to decide / judge","en":{"past":"judged","pp":"judged","pres3":"judges","ing":"judging"}},
+      "II":{"trans":true,"gloss":"to carry out / to execute","en":{"past":"carried out","pp":"carried out","pres3":"carries out","ing":"carrying out"}},
+      "III":{"trans":true,"gloss":"to take to court","en":{"past":"sued","pp":"sued","pres3":"sues","ing":"suing"}},
+      "VI":{"trans":false,"gloss":"to sue each other","en":{"past":"sued each other","pres3":"sue each other","ing":"suing each other"}},
+      "VII":{"trans":false,"gloss":"to elapse / come to an end","en":{"past":"elapsed","pres3":"elapses","ing":"elapsing"}},
+      "VIII":{"trans":true,"gloss":"to require / necessitate","en":{"past":"required","pp":"required","pres3":"requires","ing":"requiring"}},
+      "X":{"trans":true,"gloss":"to demand / to claim","en":{"past":"demanded","pp":"demanded","pres3":"demands","ing":"demanding"}}
+    }},
+    {"root":["س","ع","ي"],"type":"naqis_ya","forms":{
+      "I":{"bab":"aa","trans":false,"masdar":"سَعْي","gloss":"to strive / endeavour","en":{"past":"strove","pres3":"strives","ing":"striving"}},
+      "X":{"trans":true,"gloss":"to ask someone to make an effort","en":{"past":"asked to make an effort","pp":"called upon","pres3":"asks to make an effort","ing":"asking to make an effort"}}
+    }},
+    {"root":["ر","ض","ي"],"type":"naqis_ya","forms":{
+      "I":{"bab":"ia","trans":false,"masdar":"رِضًا","gloss":"to be pleased / content","en":{"past":"was pleased","pres3":"is pleased","ing":"being pleased"}},
+      "III":{"trans":true,"gloss":"to appease","en":{"past":"appeased","pp":"appeased","pres3":"appeases","ing":"appeasing"}},
+      "IV":{"trans":true,"gloss":"to satisfy / please","en":{"past":"satisfied","pp":"satisfied","pres3":"satisfies","ing":"satisfying"}},
+      "V":{"trans":true,"gloss":"to seek to please","en":{"past":"sought to please","pp":"appeased","pres3":"seeks to please","ing":"seeking to please"}},
+      "VI":{"trans":false,"gloss":"to reach mutual agreement","en":{"past":"reached mutual agreement","pres3":"reach mutual agreement","ing":"reaching mutual agreement"}},
+      "VIII":{"trans":true,"gloss":"to approve of","en":{"past":"approved of","pp":"approved of","pres3":"approves of","ing":"approving of"}},
+      "X":{"trans":true,"gloss":"to placate / to appease","en":{"past":"placated","pp":"placated","pres3":"placates","ing":"placating"}}
+    }},
+    {"root":["ه","د","ي"],"type":"naqis_ya","forms":{
+      "I":{"bab":"ai","trans":true,"masdar":"هُدًى","gloss":"to guide","en":{"past":"guided","pp":"guided","pres3":"guides","ing":"guiding"}},
+      "IV":{"trans":true,"gloss":"to give as a gift","en":{"past":"gave as a gift","pp":"given as a gift","pres3":"gives as a gift","ing":"giving as a gift"}},
+      "VI":{"trans":false,"gloss":"to exchange gifts","en":{"past":"exchanged gifts","pres3":"exchange gifts","ing":"exchanging gifts"}},
+      "VIII":{"trans":false,"gloss":"to be rightly guided","en":{"past":"was rightly guided","pres3":"is rightly guided","ing":"being rightly guided"}},
+      "X":{"trans":false,"gloss":"to seek guidance","en":{"past":"sought guidance","pres3":"seeks guidance","ing":"seeking guidance"}}
+    }},
+    {"root":["ب","ق","ي"],"type":"naqis_ya","forms":{
+      "I":{"bab":"ia","trans":false,"masdar":"بَقَاء","gloss":"to remain","en":{"past":"remained","pres3":"remains","ing":"remaining"}},
+      "II":{"trans":true,"gloss":"to leave over","en":{"past":"left over","pp":"left over","pres3":"leaves over","ing":"leaving over"}},
+      "IV":{"trans":true,"gloss":"to spare","en":{"past":"spared","pp":"spared","pres3":"spares","ing":"sparing"}},
+      "V":{"trans":false,"gloss":"to remain / to be left over","en":{"past":"remained","pres3":"remains","ing":"remaining"}},
+      "X":{"trans":true,"gloss":"to keep alive","en":{"past":"kept alive","pp":"kept alive","pres3":"keeps alive","ing":"keeping alive"}}
+    }},
+    {"root":["ل","ب","ي"],"type":"naqis_ya","forms":{
+      "II":{"trans":true,"masdar":"تَلْبِيَة","gloss":"to comply with / to answer (a call) / to meet (a need)","en":{"past":"complied with","pp":"complied with","pres3":"complies with","ing":"complying with"}}
+    }},
+    {"root":["ع","ز","ي"],"type":"naqis_ya","forms":{
+      "I":{"bab":"ia","trans":false,"masdar":"عَزَاء","gloss":"to be patient / steadfast","en":{"past":"bore patiently","pres3":"bears patiently","ing":"bearing patiently"}},
+      "II":{"trans":true,"masdar":"تَعْزِيَة","gloss":"to console / to offer condolences to","en":{"past":"consoled","pp":"consoled","pres3":"consoles","ing":"consoling"}},
+      "V":{"trans":false,"masdar":"تَعَزٍّ","gloss":"to be consoled / comforted","en":{"past":"took comfort","pres3":"takes comfort","ing":"taking comfort"}}
+    }},
+    {"root":["أ","د","ي"],"type":"naqis_ya","forms":{
+      "II":{"trans":true,"masdar":"تَأْدِيَة","gloss":"to carry out / to perform / to pay","en":{"past":"carried out","pp":"carried out","pres3":"carries out","ing":"carrying out"}},
+      "V":{"trans":false,"masdar":"تَأَدٍّ","gloss":"to lead to / to result in","en":{"past":"led to","pres3":"leads to","ing":"leading to"}}
+    }},
+    {"root":["غ","ن","ي"],"type":"naqis_ya","forms":{
+      "I":{"bab":"ia","trans":false,"masdar":"غِنًى","gloss":"to be rich / well-off","en":{"past":"was rich","pres3":"is rich","ing":"being rich"}},
+      "II":{"trans":true,"masdar":"تَغْنِيَة","gloss":"to sing","en":{"past":"sang","pp":"sung","pres3":"sings","ing":"singing"}},
+      "IV":{"trans":true,"masdar":"إِغْنَاء","gloss":"to enrich / to suffice / to avail","en":{"past":"enriched","pp":"enriched","pres3":"enriches","ing":"enriching"}},
+      "V":{"trans":false,"masdar":"تَغَنٍّ","gloss":"to sing / to extol","en":{"past":"sang of","pres3":"sings of","ing":"singing of"}},
+      "VIII":{"trans":false,"masdar":"اِغْتِنَاء","gloss":"to become rich","en":{"past":"became rich","pres3":"becomes rich","ing":"becoming rich"}},
+      "X":{"trans":false,"masdar":"اِسْتِغْنَاء","gloss":"to do without / to dispense with","en":{"past":"did without","pres3":"does without","ing":"doing without"}}
+    }},
+    {"root":["م","ن","ي"],"type":"naqis_ya","forms":{
+      "I":{"bab":"ai","trans":true,"masdar":"مَنْي","gloss":"to destine / to afflict (with)","en":{"past":"destined","pp":"destined","pres3":"destines","ing":"destining"}},
+      "II":{"trans":true,"masdar":"تَمْنِيَة","gloss":"to raise the hopes of / to make (someone) wish","en":{"past":"raised hopes of","pp":"given hope","pres3":"raises hopes of","ing":"raising hopes of"}},
+      "V":{"trans":true,"masdar":"تَمَنٍّ","gloss":"to wish / to desire","en":{"past":"wished","pp":"wished for","pres3":"wishes","ing":"wishing"}}
+    }},
+    {"root":["ك","ن","ي"],"type":"naqis_ya","forms":{
+      "I":{"bab":"ai","trans":false,"masdar":"كِنَايَة","gloss":"to allude to / to speak indirectly of","en":{"past":"alluded to","pres3":"alludes to","ing":"alluding to"}},
+      "II":{"trans":true,"masdar":"تَكْنِيَة","gloss":"to give a kunya to / to nickname","en":{"past":"nicknamed","pp":"nicknamed","pres3":"nicknames","ing":"nicknaming"}},
+      "V":{"trans":false,"masdar":"تَكَنٍّ","gloss":"to be nicknamed / surnamed","en":{"past":"was nicknamed","pres3":"is nicknamed","ing":"being nicknamed"}}
+    }},
+    {"root":["ن","ق","ي"],"type":"naqis_ya","forms":{
+      "I":{"bab":"ia","trans":false,"masdar":"نَقَاء","gloss":"to be clean / to be pure","en":{"past":"was clean","pres3":"is clean","ing":"being clean"}},
+      "II":{"trans":true,"masdar":"تَنْقِيَة","gloss":"to clean / to purify / to sift","en":{"past":"purified","pp":"purified","pres3":"purifies","ing":"purifying"}},
+      "IV":{"trans":true,"gloss":"to purify / to cleanse","en":{"past":"purified","pp":"purified","pres3":"purifies","ing":"purifying"}},
+      "V":{"trans":false,"masdar":"تَنَقٍّ","gloss":"to be cleaned / to be purified","en":{"past":"was purified","pres3":"is purified","ing":"being purified"}},
+      "VIII":{"trans":true,"masdar":"اِنْتِقَاء","gloss":"to select / to pick out","en":{"past":"selected","pp":"selected","pres3":"selects","ing":"selecting"}}
+    }},
+    {"root":["ن","س","ي"],"type":"naqis_ya","forms":{
+      "I":{"bab":"ia","trans":true,"masdar":"نِسْيَان","gloss":"to forget","en":{"past":"forgot","pp":"forgotten","pres3":"forgets","ing":"forgetting"}},
+      "II":{"trans":true,"masdar":"تَنْسِيَة","gloss":"to make (someone) forget","en":{"past":"made forget","pp":"made to forget","pres3":"makes forget","ing":"making forget"}},
+      "IV":{"trans":true,"masdar":"إِنْسَاء","gloss":"to make forget / to cause to forget","en":{"past":"made forget","pp":"made to forget","pres3":"makes forget","ing":"making forget"}},
+      "V":{"trans":true,"masdar":"تَنَسٍّ","gloss":"to try to forget / to put out of mind","en":{"past":"put out of mind","pp":"put out of mind","pres3":"puts out of mind","ing":"putting out of mind"}},
+      "VI":{"trans":true,"masdar":"تَنَاسٍ","gloss":"to feign forgetfulness / to deliberately ignore","en":{"past":"deliberately ignored","pp":"deliberately ignored","pres3":"deliberately ignores","ing":"deliberately ignoring"}}
+    }},
+    {"root":["ر","ق","ي"],"type":"naqis_ya","forms":{
+      "I":{"bab":"ia","trans":false,"masdar":"رُقِيّ","gloss":"to ascend / to climb / to rise","en":{"past":"ascended","pres3":"ascends","ing":"ascending"}},
+      "II":{"trans":true,"masdar":"تَرْقِيَة","gloss":"to promote / to advance / to elevate","en":{"past":"promoted","pp":"promoted","pres3":"promotes","ing":"promoting"}},
+      "V":{"trans":false,"masdar":"تَرَقٍّ","gloss":"to rise / to be promoted / to advance","en":{"past":"was promoted","pres3":"is promoted","ing":"being promoted"}},
+      "VI":{"trans":false,"gloss":"to rise gradually","en":{"past":"rose gradually","pres3":"rises gradually","ing":"rising gradually"}},
+      "VIII":{"trans":false,"masdar":"اِرْتِقَاء","gloss":"to ascend / to rise to","en":{"past":"rose to","pres3":"rises to","ing":"rising to"}}
+    }},
+    {"root":["غ","ل","ي"],"type":"naqis_ya","forms":{
+      "I":{"bab":"ai","trans":false,"masdar":"غَلَيَان","gloss":"to boil / to come to a boil","en":{"past":"boiled","pres3":"boils","ing":"boiling"}},
+      "II":{"trans":true,"masdar":"تَغْلِيَة","gloss":"to bring to a boil / to make boil","en":{"past":"boiled","pp":"boiled","pres3":"boils","ing":"boiling"}},
+      "IV":{"trans":true,"masdar":"إِغْلَاء","gloss":"to bring to a boil","en":{"past":"brought to a boil","pp":"brought to a boil","pres3":"brings to a boil","ing":"bringing to a boil"}}
+    }},
+    {"root":["ث","ن","ي"],"type":"naqis_ya","forms":{
+      "I":{"bab":"ai","trans":true,"masdar":"ثَنْي","gloss":"to fold / to bend / to turn away","en":{"past":"folded","pp":"folded","pres3":"folds","ing":"folding"}},
+      "II":{"trans":true,"masdar":"تَثْنِيَة","gloss":"to double / to do twice / to make dual","en":{"past":"doubled","pp":"doubled","pres3":"doubles","ing":"doubling"}},
+      "IV":{"trans":false,"masdar":"ثَنَاء","gloss":"to praise / to commend","en":{"past":"praised","pres3":"praises","ing":"praising"}},
+      "V":{"trans":false,"masdar":"تَثَنٍّ","gloss":"to be doubled / bent","en":{"past":"swayed","pres3":"sways","ing":"swaying"}},
+      "VII":{"trans":false,"masdar":"اِنْثِنَاء","gloss":"to be bent / turned away","en":{"past":"bent","pres3":"bends","ing":"bending"}},
+      "VIII":{"trans":false,"gloss":"to be folded / doubled over"},
+      "X":{"trans":true,"masdar":"اِسْتِثْنَاء","gloss":"to except / to exclude","en":{"past":"excluded","pp":"excluded","pres3":"excludes","ing":"excluding"}}
+    }},
+    {"root":["و","ل","ي"],"type":"lafif_mafruq","forms":{
+      "I":{"bab":"ii","trans":true,"masdar":"وِلَايَة","gloss":"to follow / to be adjacent to / to be in charge of","en":{"past":"followed","pp":"followed","pres3":"follows","ing":"following"}},
+      "II":{"trans":true,"masdar":"تَوْلِيَة","gloss":"to turn away / to appoint / to put in charge","en":{"past":"appointed","pp":"appointed","pres3":"appoints","ing":"appointing"}},
+      "III":{"trans":true,"masdar":"مُوَالَاة","gloss":"to befriend / to follow in succession","en":{"past":"allied with","pp":"allied with","pres3":"allies with","ing":"allying with"}},
+      "IV":{"trans":true,"masdar":"إِيلَاء","gloss":"to grant / to accord / to give (attention)","en":{"past":"accorded","pp":"accorded","pres3":"accords","ing":"according"}},
+      "V":{"trans":true,"masdar":"تَوَلٍّ","gloss":"to take charge of / to assume / to turn away","en":{"past":"took charge of","pp":"taken charge of","pres3":"takes charge of","ing":"taking charge of"}},
+      "VI":{"trans":false,"masdar":"تَوَالٍ","gloss":"to follow one another in succession","en":{"past":"followed in succession","pres3":"follows in succession","ing":"following in succession"}},
+      "X":{"trans":false,"masdar":"اِسْتِيلَاء","gloss":"to take possession of / to seize","en":{"past":"seized control of","pres3":"seizes control of","ing":"seizing control of"}}
+    }},
+    {"root":["و","ص","ي"],"type":"lafif_mafruq","forms":{
+      "II":{"trans":true,"masdar":"تَوْصِيَة","gloss":"to enjoin / to instruct / to bequeath to","en":{"past":"instructed","pp":"instructed","pres3":"instructs","ing":"instructing"}},
+      "IV":{"trans":true,"masdar":"إِيصَاء","gloss":"to enjoin / to recommend / to bequeath","en":{"past":"bequeathed","pp":"bequeathed","pres3":"bequeaths","ing":"bequeathing"}},
+      "VI":{"trans":false,"masdar":"تَوَاصٍ","gloss":"to enjoin one another","en":{"past":"enjoined one another","pres3":"enjoin one another","ing":"enjoining one another"}},
+      "X":{"trans":false,"masdar":"اِسْتِيصَاء","gloss":"to ask for advice / to accept a recommendation","en":{"past":"sought counsel","pres3":"seeks counsel","ing":"seeking counsel"}}
+    }},
+    {"root":["و","ر","ي"],"type":"lafif_mafruq","forms":{
+      "II":{"trans":true,"masdar":"تَوْرِيَة","gloss":"to conceal / to allude indirectly / to insinuate","en":{"past":"concealed","pp":"concealed","pres3":"conceals","ing":"concealing"}},
+      "III":{"trans":true,"masdar":"مُوَارَاة","gloss":"to hide / to cover up","en":{"past":"hid","pp":"hidden","pres3":"hides","ing":"hiding"}},
+      "IV":{"trans":true,"masdar":"إِيرَاء","gloss":"to kindle / to strike (fire)","en":{"past":"kindled","pp":"kindled","pres3":"kindles","ing":"kindling"}},
+      "VI":{"trans":false,"masdar":"تَوَارٍ","gloss":"to hide oneself / to disappear from view","en":{"past":"disappeared","pres3":"disappears","ing":"disappearing"}}
+    }},
+    {"root":["و","ف","ي"],"type":"lafif_mafruq","forms":{
+      "I":{"bab":"ai","trans":false,"masdar":"وَفَاء","gloss":"to be faithful / true","en":{"past":"kept faith","pres3":"keeps faith","ing":"keeping faith"}},
+      "II":{"trans":true,"masdar":"تَوْفِيَة","gloss":"to fulfil in full / to pay in full","en":{"past":"paid in full","pp":"paid in full","pres3":"pays in full","ing":"paying in full"}},
+      "III":{"trans":true,"masdar":"مُوَافَاة","gloss":"to arrive at / to come to / to supply","en":{"past":"supplied","pp":"supplied","pres3":"supplies","ing":"supplying"}},
+      "IV":{"trans":true,"masdar":"إِيفَاء","gloss":"to fulfil / to pay in full / to be ample","en":{"past":"fulfilled","pp":"fulfilled","pres3":"fulfils","ing":"fulfilling"}},
+      "V":{"trans":true,"masdar":"تَوَفٍّ","gloss":"to take in full; (passive تُوُفِّيَ) to pass away","en":{"past":"took in full","pp":"taken in full","pres3":"takes in full","ing":"taking in full"}},
+      "X":{"trans":true,"masdar":"اِسْتِيفَاء","gloss":"to collect in full / to exhaust / to satisfy","en":{"past":"collected in full","pp":"collected in full","pres3":"collects in full","ing":"collecting in full"}}
+    }},
+    {"root":["و","ق","ي"],"type":"lafif_mafruq","forms":{
+      "I":{"bab":"ai","trans":true,"masdar":"وِقَايَة","gloss":"to protect / to guard","en":{"past":"protected","pp":"protected","pres3":"protects","ing":"protecting"}},
+      "VIII":{"trans":true,"gloss":"to fear God / to guard against","en":{"past":"feared God","pp":"guarded against","pres3":"fears God","ing":"fearing God"}}
+    }},
+    {"root":["و","ع","ي"],"type":"lafif_mafruq","forms":{
+      "I":{"bab":"ia","trans":true,"masdar":"وَعْي","gloss":"to grasp / to comprehend","en":{"past":"grasped","pp":"grasped","pres3":"grasps","ing":"grasping"}},
+      "IV":{"trans":true,"gloss":"to retain / to store up","en":{"past":"retained","pp":"retained","pres3":"retains","ing":"retaining"}}
+    }},
+    {"root":["و","د","ي"],"type":"lafif_mafruq","forms":{
+      "I":{"bab":"ai","trans":true,"masdar":"دِيَة","gloss":"to pay blood money for","en":{"past":"paid blood money for","pp":"paid for","pres3":"pays blood money for","ing":"paying blood money for"}},
+      "II":{"trans":true,"gloss":"to discharge / to carry out","en":{"past":"discharged","pp":"discharged","pres3":"discharges","ing":"discharging"}}
+    }},
+    {"root":["و","ه","ي"],"type":"lafif_mafruq","forms":{
+      "I":{"bab":"ai","trans":false,"masdar":"وَهْي","gloss":"to be weak / frail"}
+    }},
+    {"root":["ح","ي","ي"],"type":"lafif_maqrun","forms":{
+      "I":{"bab":"ia","trans":false,"masdar":"حَيَاة","gloss":"to live","en":{"past":"lived","pres3":"lives","ing":"living"}},
+      "II":{"trans":true,"masdar":"تَحِيَّة","gloss":"to greet / to salute","en":{"past":"greeted","pp":"greeted","pres3":"greets","ing":"greeting"}},
+      "IV":{"trans":true,"masdar":"إِحْيَاء","gloss":"to bring to life / to revive","en":{"past":"revived","pp":"revived","pres3":"revives","ing":"reviving"}},
+      "X":{"trans":false,"masdar":"اِسْتِحْيَاء","gloss":"to be ashamed / shy","en":{"past":"was ashamed","pres3":"is ashamed","ing":"being ashamed"}}
+    }},
+    {"root":["ق","و","ي"],"type":"lafif_maqrun","forms":{
+      "I":{"bab":"ia","trans":false,"masdar":"قُوَّة","gloss":"to be strong","en":{"past":"was strong","pres3":"is strong","ing":"being strong"}},
+      "II":{"trans":true,"masdar":"تَقْوِيَة","gloss":"to strengthen / to reinforce","en":{"past":"strengthened","pp":"strengthened","pres3":"strengthens","ing":"strengthening"}},
+      "V":{"trans":false,"masdar":"تَقَوٍّ","gloss":"to grow strong / to gain strength","en":{"past":"grew strong","pres3":"grows strong","ing":"growing strong"}},
+      "VIII":{"trans":false,"gloss":"to grow stronger","en":{"past":"grew stronger","pres3":"grows stronger","ing":"growing stronger"}},
+      "X":{"trans":false,"masdar":"اِسْتِقْوَاء","gloss":"to become strong / to gather strength","en":{"past":"became strong","pres3":"becomes strong","ing":"becoming strong"}}
+    }},
+    {"root":["س","و","ي"],"type":"lafif_maqrun","forms":{
+      "I":{"bab":"ia","trans":true,"masdar":"سِوًى","gloss":"to be worth / to be equal to","en":{"past":"was worth","pp":"worth","pres3":"is worth","ing":"being worth"}},
+      "II":{"trans":true,"masdar":"تَسْوِيَة","gloss":"to level / to settle / to make equal","en":{"past":"levelled","pp":"levelled","pres3":"levels","ing":"levelling"}},
+      "III":{"trans":true,"masdar":"مُسَاوَاة","gloss":"to equal / to be worth","en":{"past":"equalled","pp":"equalled","pres3":"equals","ing":"equalling"}},
+      "VI":{"trans":false,"masdar":"تَسَاوٍ","gloss":"to be equal to one another","en":{"past":"were equal","pres3":"are equal","ing":"being equal"}},
+      "VIII":{"trans":false,"masdar":"اِسْتِوَاء","gloss":"to be level / even","en":{"past":"was level","pres3":"is level","ing":"being level"}}
+    }},
+    {"root":["ط","و","ي"],"type":"lafif_maqrun","forms":{
+      "I":{"bab":"ai","trans":true,"masdar":"طَيّ","gloss":"to fold / to roll up","en":{"past":"folded","pp":"folded","pres3":"folds","ing":"folding"}},
+      "VII":{"trans":false,"gloss":"to be folded up"}
+    }},
+    {"root":["ر","و","ي"],"type":"lafif_maqrun","forms":{
+      "I":{"bab":"ai","trans":true,"masdar":"رِوَايَة","gloss":"to narrate / to relate","en":{"past":"narrated","pp":"narrated","pres3":"narrates","ing":"narrating"}},
+      "II":{"trans":true,"gloss":"to irrigate / to water","en":{"past":"irrigated","pp":"irrigated","pres3":"irrigates","ing":"irrigating"}},
+      "IV":{"trans":true,"gloss":"to quench the thirst of","en":{"past":"quenched","pp":"quenched","pres3":"quenches","ing":"quenching"}}
+    }},
+    {"root":["ن","و","ي"],"type":"lafif_maqrun","forms":{
+      "I":{"bab":"ai","trans":true,"masdar":"نِيَّة","gloss":"to intend","en":{"past":"intended","pp":"intended","pres3":"intends","ing":"intending"}}
+    }},
+    {"root":["ش","و","ي"],"type":"lafif_maqrun","forms":{
+      "I":{"bab":"ai","trans":true,"masdar":"شَيّ","gloss":"to grill / to roast","en":{"past":"grilled","pp":"grilled","pres3":"grills","ing":"grilling"}},
+      "VIII":{"trans":false,"gloss":"to be grilled"}
+    }}
+  ]
+}

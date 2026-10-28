@@ -299,8 +299,15 @@ export function derivedNoun(root, formId, nounType) {
 // ---------------------------------------------------------------------------
 // Wazn: the same pipeline run on the reference root ف-ع-ل (always the sālim
 // engine — a wazn is a sound pattern by definition).
-/** The reference root, dressed as a lexicon entry so engines can conjugate it. */
-const waznRoot = (formId, bab) => ({
+/**
+ * The reference root, dressed as a lexicon entry so engines can conjugate it.
+ *
+ * Called by: waznOf / waznOfDerived / waznCitation below, and by
+ * tools/export-content.mjs, which asks the SERVICE whether a wazn chart exists
+ * (waznOf itself skips that precondition) rather than rebuilding this object
+ * and letting the two drift.
+ */
+export const waznRoot = (formId, bab) => ({
   type: 'salim', root: ['ف', 'ع', 'ل'],
   forms: { [formId]: { bab, trans: true, masdar: null } },
 });
