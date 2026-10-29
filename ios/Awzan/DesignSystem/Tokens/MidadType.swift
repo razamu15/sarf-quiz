@@ -4,22 +4,15 @@
 
 import SwiftUI
 
-/// The Midād type scale: **three voices, three faces** (product-spec D-59).
+/// The type scale, in three faces: Arabic for the words being studied, an italic
+/// serif for meanings, and the system sans for the interface.
 ///
-/// Arabic (`arabic*`) is the object of study, the serif italic is a *meaning*,
-/// the sans is the interface talking. Nothing else gets a face.
-///
-/// Every style carries an explicit `lineHeight`, which is the whole point:
-/// vowelled Arabic is taller than a font's nominal line box and a shadda over a
-/// ḍamma stacks two marks, so Scheherazade’s own metrics are not enough. D-59
-/// obliges explicit row heights rather than fighting them — see `TypeStyle`.
+/// Each style has its own line height, because vowelled Arabic is taller than a
+/// font's normal line. See `TypeStyle`.
 public extension TypeStyle {
     // MARK: - Arabic — the object of study
     //
-    // Scheherazade New, hosted by Google Fonts on the web and bundled in the iOS
-    // app (SIL Open Font License). Arabic sits about 1.35× the size of the Latin
-    // beside it and never goes below 19px; vocalised lines need 1.7× leading so
-    // stacked ḥarakāt clear the line above.
+    // Scheherazade New. Used for every Arabic word the app teaches.
 
     /// The word under study on a prompt card. One per screen.
     ///
@@ -101,8 +94,7 @@ public extension TypeStyle {
 
     // MARK: - Serif — the voice of meaning
     //
-    // Newsreader. Anything that is a meaning (a gloss, an English reading, a
-    // translation) is set in this italic, so it never reads as interface.
+    // Newsreader. Used for meanings: glosses and English readings.
 
     /// The title at the top of a tab.
     ///
@@ -158,8 +150,7 @@ public extension TypeStyle {
 
     // MARK: - Sans — the voice of the interface
     //
-    // The platform face: SF Pro on Apple devices, so Dynamic Type comes free in
-    // SwiftUI. Sentence case everywhere; no tracked capitals.
+    // The system font. Used for interface text.
 
     /// The question being asked, button labels, list-row titles.
     ///

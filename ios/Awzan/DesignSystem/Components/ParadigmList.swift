@@ -1,29 +1,19 @@
-// The chart as a vertical list — one row per ṣīgha.
+// The conjugation table as a vertical list: one row per pronoun, with the word on
+// the right.
 //
-// 🔒 D-44: a list, not a grid, because that is the shape of the chart a student
-// already owns and a list is what a long read wants. All fourteen rows on a
-// small phone by SCROLLING, never by truncating.
-//
-// The three-column paradigm grid is not deleted — it is the *quiz's* peek
-// (D-45). A glance mid-question wants the whole chart at once with its
-// neighbours visible; a browse wants one row per ṣīgha and room to scroll. Same
-// chart underneath, two shapes, and this is the browse one.
-//
-// Used by: Tables (D2). The quiz's peek falls back to it at the largest Dynamic
-// Type sizes, which is why it takes rows rather than a chart object.
+// Used by: the Tables screen.
 
 import SwiftUI
 
-/// One ṣīgha: who, and the word.
+/// One row: a pronoun and its word.
 public struct ParadigmRow: Identifiable, Equatable {
-    /// The slot key — `"3ms"`. Identity, and what a caller keys its own data by.
+    /// The slot key, such as `"3ms"`.
     public let id: String
     /// The English pronoun: `he`, `you two (f)`.
     public let english: String
     /// The Arabic pronoun: `هُوَ`.
     public let arabic: String
-    /// The conjugated word. **Never a placeholder** — a row the engine has no
-    /// word for does not belong in the list at all.
+    /// The conjugated word. Every row has one; a slot with no word is left out.
     public let word: String
 
     public init(id: String, english: String, arabic: String, word: String) {
@@ -34,12 +24,8 @@ public struct ParadigmRow: Identifiable, Equatable {
     }
 }
 
-/// The rows, in classic ṣarf order, as one bordered group.
-///
-/// Row count is **derived, never a fixed 14**: the amr conjugates the 2nd person
-/// only and has six. A caller that hard-codes fourteen prints a wrong count on
-/// the chart line above, which is the mistake the design's own screenshot 11
-/// makes.
+/// The rows as one bordered group. The number of rows comes from the data (14,
+/// or 6 for the command), so don't assume 14.
 public struct ParadigmList: View {
     private let rows: [ParadigmRow]
 
@@ -73,9 +59,7 @@ private struct ParadigmListRow: View {
             Text(row.word.bidiIsolated)
                 .typeStyle(.arabicTitle)
                 .foregroundStyle(Midad.ink)
-                // Never wrap an Arabic word onto a second line — a broken word
-                // stops being readable as one word, and at the largest Dynamic
-                // Type the whole row should shrink rather than the word break.
+                // Shrink the word rather than wrap it onto a second line.
                 .lineLimit(1)
                 .minimumScaleFactor(0.6)
             Spacer(minLength: Midad.space4)
@@ -90,7 +74,7 @@ private struct ParadigmListRow: View {
         }
         .padding(.horizontal, Midad.space4)
         .padding(.vertical, Midad.space1)
-        // The row reads right to left: the word leads, the pronoun follows.
+        // Right to left: the word first, then the pronoun.
         .environment(\.layoutDirection, .rightToLeft)
         .accessibilityElement(children: .combine)
     }

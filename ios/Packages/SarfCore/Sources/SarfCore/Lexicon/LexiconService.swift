@@ -1,35 +1,18 @@
-// Loads, validates and queries the lexicon. Port of web-prototype/js/lexicon/
-// lexicon-service.js, minus `availableTypes` (see below).
-//
-// The prototype validated at module load by throwing at top level. Swift has no
-// module-init phase that can fail, so the same check is `load()` — called once
-// from AppModel (S1.2) — and a unit test calls it too, so a content typo fails in
-// CI rather than at first launch (PORT_INVENTORY §1.10).
-//
-// NOT HERE YET: `availableTypes(enabled:)` and the content gates. "Is this verb
-// type playable" is "in the lexicon AND served by an engine AND behind an open
-// gate"; the middle clause is ConjugationService's `hasEngine`, which does not
-// exist until S0.5, so the function lands there — it stays the single owner of
-// that question, as in the JS. The gate table is data about groups and goes with
-// it: lafīf is now ONE gate on ONE group, where the JS mapped two groups onto one
-// gate. IOS_PORT_PLAN 0.5 owns it.
+// Loads roots.json, checks it, and answers questions about the roots.
 
 import Foundation
 
-/// Why a lexicon failed to load. Anything that is not one of these is a
-/// `DecodingError` from the file itself (a missing field, an unknown type or
-/// form, a root without exactly three radicals).
+/// Why the lexicon failed to load. Problems in the file itself (a missing field,
+/// an unknown type or form, a root without three letters) come through as a
+/// `DecodingError` instead.
 public enum LexiconError: Error, Equatable, CustomStringConvertible {
-    /// roots.json is not in the SarfCore bundle — a packaging error.
+    /// roots.json isn't in the bundle.
     case resourceMissing
-    /// A root declares one verb type and its radicals imply another. Classification
-    /// is mechanical, so this is a content bug that must fail loudly here rather
-    /// than silently misroute the root to the wrong conjugator.
+    /// A root's declared type doesn't match what its letters imply.
     case typeMismatch(root: String, declared: VerbType, implied: VerbType)
-    /// Two entries have the same radicals. `root(forKey:)` would silently return
-    /// the first, and a stored rootKey would be ambiguous.
+    /// Two entries have the same letters.
     case duplicateRoot(String)
-    /// A mazīd form carries a bāb. The abwāb belong to Form I alone.
+    /// A form other than I has a bab.
     case babOnMazeedForm(root: String, form: VerbForm)
 
     public var description: String {
@@ -46,20 +29,15 @@ public enum LexiconError: Error, Equatable, CustomStringConvertible {
     }
 }
 
-/// The validated lexicon: every root, in file order, and the queries over them.
+/// The lexicon: every root, in file order, and lookups over them.
 ///
-/// File order is VISIBLE — the Tables browser lists roots in it — so `roots` keeps
-/// it, and roots.json is written in lexicon order by the exporter.
-///
-/// Called by: AppModel (S1.2), which builds exactly one with `load()` and hands it
-/// to ConjugationService and to every model that needs roots; tests, which build
-/// small ones with `load(from:)`.
+/// Used by: AppModel (loads it once and shares it), ConjugationService, the
+/// Tables screen, the quiz word pool.
 public struct LexiconService: Sendable {
     public let roots: [Root]
     private let rootsByKey: [String: Root]
 
-    /// Reads the bundled roots.json. Throws if it is missing, malformed, or fails
-    /// any check in `load(from:)`.
+    /// Loads the roots.json bundled with the app.
     public static func load() throws -> LexiconService {
         guard let url = Bundle.module.url(forResource: "roots", withExtension: "json") else {
             throw LexiconError.resourceMissing
@@ -67,19 +45,15 @@ public struct LexiconService: Sendable {
         return try load(from: Data(contentsOf: url))
     }
 
-    /// THE validation boundary for the lexicon. Everything downstream — the
-    /// engines, the quiz, the screens — assumes what is checked here and does not
-    /// recheck it:
-    ///   · every root has three single-letter radicals, a known verb type, and only
-    ///     known forms (the decoder: `Radicals`, `Root`);
-    ///   · its declared type is the one its radicals imply (`classify`);
-    ///   · no two entries share radicals;
-    ///   · only Form I carries a bāb.
-    /// What is deliberately NOT checked: that a Form I has a bāb, or that `faaDrops`
-    /// appears only where it means something. The first is a gap the engine
-    /// answers as "no word"; the second is content the JS also left unenforced.
+    /// Decodes and checks a lexicon. Fails if:
+    ///   - a root doesn't have exactly three letters, or has an unknown type or form
+    ///   - its declared type isn't the one its letters imply
+    ///   - two roots have the same letters
+    ///   - a form other than I has a bab
+    /// The rest of the app assumes all of this holds. (A Form I with no bab is
+    /// allowed; it just has no bab.)
     ///
-    /// Internal: the app only ever loads the bundled file; tests pass fixtures.
+    /// Internal so tests can pass in small files.
     static func load(from data: Data) throws -> LexiconService {
         let file = try JSONDecoder().decode(RootsFile.self, from: data)
         var byKey: [String: Root] = [:]
@@ -89,8 +63,6 @@ public struct LexiconService: Sendable {
                 throw LexiconError.typeMismatch(root: root.key, declared: root.verbType, implied: implied)
             }
             guard byKey[root.key] == nil else { throw LexiconError.duplicateRoot(root.key) }
-            // `recordedForms`, not `forms`: when a root has several problems the
-            // same one is reported every time.
             for form in root.recordedForms where form != .i && root.bab(for: form) != nil {
                 throw LexiconError.babOnMazeedForm(root: root.key, form: form)
             }
@@ -108,33 +80,26 @@ public struct LexiconService: Sendable {
         self.rootsByKey = rootsByKey
     }
 
-    /// The root with these radicals ("كتب"), or `nil`.
+    /// The root with these letters ("كتب"), or nil if there isn't one. Nil can
+    /// happen for a root saved in history that has since been removed.
     ///
-    /// `nil` is a real answer, not an error: a stored rootKey outlives the lexicon
-    /// that wrote it, so a root can be removed or reclassified after a history
-    /// record names it. Replay, stats drill-down and "see the full table" each have
-    /// to say what they do then (PORT_INVENTORY §3.3d).
-    ///
-    /// Called by: SarfQuiz's replay (S6) and the Tables screen (S1) to turn a
-    /// stored key back into a live root.
+    /// Used by: history replay, the Tables screen.
     public func root(forKey key: String) -> Root? {
         rootsByKey[key]
     }
 
-    /// Every verb type the lexicon has content for, playable or not, in the order
-    /// each first appears. Called by: the content-gate check at S1.1, which must
-    /// know what exists before deciding what is released.
+    /// Every verb type that has at least one root, in the order they first appear.
+    ///
+    /// Used by: the Practice screen, to know which types exist.
     public var stockedTypes: [VerbType] {
         var seen = Set<VerbType>()
         return roots.map(\.verbType).filter { seen.insert($0).inserted }
     }
 
     /// Every (root, form) pair whose root is one of `types` and whose form is one
-    /// of `forms` — lexicon order, then Form I … X within a root.
+    /// of `forms`. Roots come in file order, and forms in order I to X.
     ///
-    /// Called by: SarfQuiz's WordPool (S3), which draws a quiz's words from the
-    /// plan's rootFilter. The caller passes ENGINE types (`VerbType`, already
-    /// expanded from the chips a student picked), never groups.
+    /// Used by: the quiz word pool.
     public func candidates(types: Set<VerbType>, forms: Set<VerbForm>) -> [RootForm] {
         roots.filter { types.contains($0.verbType) }.flatMap { root in
             root.recordedForms.filter { forms.contains($0) }.map { RootForm(root: root, form: $0) }

@@ -1,31 +1,23 @@
-// Tables' one field, in two exclusive states: searching, or a verb chosen.
+// The bar at the top of Tables. It is either a search field, or shows the chosen
+// verb.
 //
-// The exclusivity is the design (🎨 D-46). A search field that merely sat above
-// the results would let the screen show one verb's chart while a search for
-// another was open — two answers to "what am I looking at?". So choosing a verb
-// takes the bar over, and the ✕ is the only way back.
-//
-// Used by: Tables (D2). Nothing else has this shape.
+// Used by: the Tables screen.
 
 import SwiftUI
 
-/// What the bar is showing. A two-case enum rather than an optional verb plus a
-/// `isSearching` flag: the two would let `(searching, verb chosen)` exist, which
-/// is precisely the state the design rules out.
+/// What the bar shows: searching, or a chosen verb. Never both at once.
 public enum WordBarState: Equatable {
-    /// No verb chosen yet, or the ✕ was tapped. Carries the live query.
+    /// Typing a search. Carries the current text.
     case searching(query: String)
-    /// A verb is chosen. The citation and gloss are **of the root AND the chosen
-    /// form** — pick Form VIII of نصر and the bar reads اِنْتَصَرَ, "to triumph".
+    /// A verb is chosen. Shows the citation and meaning of the root in the chosen
+    /// form (Form VIII of نصر shows اِنْتَصَرَ, "to triumph").
     case chosen(citation: String, gloss: String)
 }
 
 public struct WordBar: View {
     @Binding private var state: WordBarState
-    /// What ✕ does depends on which state it sits in, and the two are different
-    /// actions rather than one toggle: from `chosen` it opens search; from
-    /// `searching` it CANCELS — back to the chosen verb with the selection
-    /// intact. A caller that has nothing to go back to passes nil.
+    /// Called by the ✕ while searching, to go back to the chosen verb. Nil if
+    /// there is nothing to go back to.
     private let onCancelSearch: (() -> Void)?
     @FocusState private var isFocused: Bool
 
@@ -65,11 +57,8 @@ public struct WordBar: View {
                             .typeStyle(.arabicTitle)
                             .foregroundStyle(Midad.ink)
                             .lineLimit(1)
-                            // The citation wins the space. Without this the
-                            // gloss keeps its full width at large Dynamic Type
-                            // and نَصَرَ يَنْصُرُ truncates to نَصَ… — the bar
-                            // then answers "which verb am I looking at?" with
-                            // half a word, which is the one thing it is for.
+                            // The Arabic keeps its space; the meaning gets cut
+                            // off first.
                             .layoutPriority(1)
                         Text(gloss.bidiIsolated)
                             .typeStyle(.gloss)

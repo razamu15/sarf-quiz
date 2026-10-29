@@ -1,28 +1,17 @@
-// One-of-N, where the set is fixed and comparing its members is the point.
+// A row of segments where exactly one is selected, for choosing between a few
+// fixed options (tense, voice, mood).
 //
-// Used by: Tables' tense / voice / iʿrāb rows (D2), Practice's quiz length
-// later. A set whose membership is itself information is `Chip` instead.
+// This replaces `Picker(.segmented)`, which can't disable a single segment (with
+// a reason) or show an English and an Arabic label together.
 //
-// WHY THIS IS NOT `Picker(.segmented)`, which is what the design's component
-// README says. Two requirements the system control cannot meet, both from
-// product-spec/screens/04-tables.md:
-//
-//   · **One segment disabled, with a reason.** خَرَجَ is intransitive, so it has
-//     no majhūl, and D-46 says gaps are shown as gaps: the majhūl segment is
-//     disabled and a hint says why. `Picker` disables as a whole or not at all.
-//   · **Bilingual labels in fixed slots** — `Past مَاضٍ`. A `Picker` segment takes
-//     one `Text`, and one mixed inline run is exactly what D-62 forbids.
-//
-// Everything else follows `bundle.css` `.sq-seg`, so it reads as the platform
-// control it is standing in for.
+// Used by: Tables' tense, voice and mood rows; later Practice's quiz length.
 
 import SwiftUI
 
 /// One option in a segmented row.
 ///
-/// `disabledReason` is the interesting field. A disabled segment with no reason
-/// is the screen silently declining, which is the behaviour the Tables spec
-/// singles out as wrong — the caller must say why, and the screen prints it.
+/// If `disabledReason` is set, the segment is disabled and the reason is shown
+/// to the user (see `SegmentHint`).
 public struct Segment<Value: Hashable>: Identifiable {
     public let value: Value
     public let english: String
@@ -40,10 +29,8 @@ public struct Segment<Value: Hashable>: Identifiable {
     }
 }
 
-/// A fixed set of values, one selected.
-///
-/// The selection is a `Binding` rather than a callback — unlike `Chip` — because
-/// one-of-N has exactly one owner and no partial state to coordinate.
+/// A fixed set of values with one selected. The selection is a `Binding`, since
+/// the screen owns the one selected value.
 public struct SegmentedRow<Value: Hashable>: View {
     private let segments: [Segment<Value>]
     @Binding private var selection: Value
@@ -81,9 +68,7 @@ public struct SegmentedRow<Value: Hashable>: View {
         .padding(3)
         .background(Midad.fill)
         .clipShape(RoundedRectangle(cornerRadius: Midad.radiusSm, style: .continuous))
-        // LTR on the track: the segments are an English-ordered sequence
-        // (māḍī → muḍāriʿ → amr) even though each label carries Arabic, and each
-        // label isolates its own runs.
+        // Segments always run left to right (past, present, command).
         .environment(\.layoutDirection, .leftToRight)
     }
 
@@ -104,11 +89,7 @@ public struct SegmentedRow<Value: Hashable>: View {
     }
 }
 
-/// The line under a segmented row that says why a segment is unavailable.
-///
-/// Its own view because the rule it serves is a rule about the SCREEN, not the
-/// control: "nothing is silently swapped" only holds if the reason is printed
-/// somewhere, and pairing it with the row makes forgetting it visible.
+/// The line under a segmented row that says why a segment is disabled.
 public struct SegmentHint: View {
     private let text: String?
 
@@ -116,11 +97,8 @@ public struct SegmentHint: View {
 
     public var body: some View {
         if let text {
-            // The hint is an English sentence that usually OPENS with an
-            // Arabic word (the citation), which is the one shape that flips a
-            // whole line right to left. The caller isolates the Arabic run; this
-            // pins the sentence's own direction so a caller that forgets does
-            // not produce a backwards line.
+            // Forced left to right, because the sentence often starts with an
+            // Arabic word.
             Text(text.leftToRightLine)
                 .typeStyle(.caption)
                 .foregroundStyle(Midad.inkMuted)

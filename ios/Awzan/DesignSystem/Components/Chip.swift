@@ -1,33 +1,20 @@
-// The bilingual chip — the control a set of values is offered in when the set's
-// membership is itself the information.
+// The chip: a button for choosing from a set where every option should stay
+// visible, including the ones that aren't available.
 //
-// A fixed set meant to be compared is a segmented control (three tenses). A set
-// whose membership is a fact — كَتَبَ has seven forms and no V, VII or IX — is
-// chips, all visible, gaps included (product-spec design-system rule 5).
-//
-// Used by: Tables' form chips (numeral + wazn), and later Practice's verb-type,
-// tense, voice, iʿrāb and form rows, and the parse card's answer rows. D2 builds
-// only the CONFIGURATOR role; the answer role adds a tick box and the six
-// AnswerOption states and arrives with Q3.
+// Used by: Tables' form chips; later Practice's filters and the parse card's
+// answer rows.
 
 import SwiftUI
 
-/// What a chip says, in fixed slots.
-///
-/// Three optional slots rather than one string, because a bilingual label must
-/// never be one mixed inline run (🔒 D-62): `VIII اِفْتَعَلَ` set as a single
-/// string reorders, and the numeral ends up on the wrong side of the wazn. Each
-/// slot is isolated on its own.
-///
-/// The slots mirror the design's own three spans (`bundle.css` `.sq-chip__num`
-/// / `__en` / `__ar`) rather than generalising them, so a chip in the app and a
-/// chip in the stylesheet can be read against each other.
+/// What a chip says: a form numeral, an English word and an Arabic word, all
+/// optional. They are kept as separate parts so each can be isolated from the
+/// others (see BidiText).
 public struct ChipLabel: Equatable, Sendable {
-    /// The form numeral — `I`, `VIII`. Tabular, so a column of chips lines up.
+    /// The form numeral: `I`, `VIII`.
     public let numeral: String?
-    /// The English half: `Hollow`, `Past`.
+    /// The English word: `Hollow`, `Past`.
     public let english: String?
-    /// The Arabic half: the wazn `فَعَّلَ`, the term `مَاضٍ`.
+    /// The Arabic word: `فَعَّلَ`, `مَاضٍ`.
     public let arabic: String?
 
     public init(numeral: String? = nil, english: String? = nil, arabic: String? = nil) {
@@ -37,8 +24,7 @@ public struct ChipLabel: Equatable, Sendable {
     }
 }
 
-/// One chip. Selection is a binding-free callback because the owner of a chip
-/// set is always the thing that owns the selection — a chip never holds it.
+/// One chip. It only reports taps; whoever owns the set holds the selection.
 public struct Chip: View {
     private let label: ChipLabel
     private let isSelected: Bool
@@ -84,13 +70,11 @@ public struct Chip: View {
         }
         .buttonStyle(.plain)
         .disabled(!isEnabled)
-        // A chip set is read as a set, so each chip announces its own state
-        // rather than relying on the visual fill.
+        // VoiceOver announces whether each chip is selected.
         .accessibilityAddTraits(isSelected ? [.isButton, .isSelected] : .isButton)
     }
 
-    // `select` fills a chosen chip, not `sign`: containers carry selection and
-    // correctness, letters carry grammar, and the two channels never cross.
+    // A selected chip fills with `select`. (`sign` is only for grammar letters.)
     private var background: Color { isSelected ? Midad.select : Midad.raised }
     private var foreground: Color {
         guard isEnabled else { return Midad.inkFaint }
@@ -104,9 +88,7 @@ public struct Chip: View {
     @ViewBuilder private var border: some View {
         let shape = RoundedRectangle(cornerRadius: Midad.radiusSm, style: .continuous)
         if !isEnabled {
-            // Disabled is a DASHED border plus ink-faint, never an opacity. An
-            // opacity says "this is dimmed"; a dashed edge says "this one is
-            // not available", which is the fact the screen is reporting.
+            // A dashed border (not a faded chip) reads as "not available".
             shape.strokeBorder(Midad.lineStrong, style: StrokeStyle(lineWidth: 1, dash: [4, 3]))
         } else {
             shape.strokeBorder(isSelected ? Midad.select : Midad.lineStrong, lineWidth: 1)
@@ -117,8 +99,7 @@ public struct Chip: View {
 // MARK: - Previews
 
 #Preview("Chips · form set", traits: .sizeThatFitsLayout) {
-    // كَتَبَ's real form set: I, II, III, IV, VI, VIII, X. V, VII and IX are
-    // absent because the verb does not carry them — the gap is the point.
+    // كَتَبَ has forms I, II, III, IV, VI, VIII and X. IX is shown disabled.
     FlowLayout {
         Chip(ChipLabel(numeral: "I", arabic: "فَعَلَ"), isSelected: true) {}
         Chip(ChipLabel(numeral: "II", arabic: "فَعَّلَ"), isSelected: false) {}

@@ -1,21 +1,8 @@
 // swift-tools-version: 6.0
 //
-// SarfCore — the engine. Vocabulary, grammar, the lexicon, the conjugators
-// (and the corpus stand-in) behind one service, and meanings.
-//
-// Its API freezes at IOS_PORT_PLAN S0.5 and the whole target once Lane R is
-// read, which is why it is its own target rather than a folder: the quiz
-// layer above it is the least settled part of the app, and one package would
-// move the frozen thing's version every time the unfrozen one changed.
-//
-// TWO RULES THE TARGET EXISTS TO ENFORCE, as compile errors rather than review
-// reminders (IOS_PORT_PLAN Decision 2):
-//   · no display strings, and no SwiftUI — Glossary is the only string owner
-//     and it lives above this line
-//   · no Settings — the app's feature gates cannot be read from here. Anything
-//     that needs one takes it as a parameter (see LexiconService.availableTypes).
-//
-// Being filled by S0 (IOS_PORT_PLAN): Models/ is in, the rest follows.
+// SarfCore: everything about Arabic verbs. The vocabulary, the lexicon of roots,
+// and the engines that build words. It has no UI, no display text and no app
+// settings, so none of those can creep in.
 
 import PackageDescription
 
@@ -28,10 +15,7 @@ let package = Package(
     targets: [
         .target(
             name: "SarfCore",
-            // .copy, not .process: the corpus's rootsHash is a sha256 of
-            // roots.json's bytes (S0.6 checks it), so the bundle must hold the
-            // file exactly as the exporter wrote it. Both are generated — see
-            // web-prototype/tools/export-content.mjs.
+            // Generated files, bundled exactly as written (so .copy, not .process).
             resources: [
                 .copy("Resources/roots.json"),
                 .copy("Resources/golden-corpus.json"),

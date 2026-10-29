@@ -1,40 +1,24 @@
-// Every token and every component on one scrollable page.
-//
-// This is Track D's own proof, and it is meant to be looked at rather than read:
-// the type scale renders here at its real sizes with its real line heights, so a
-// clipped ḥaraka or a font that failed to register is visible rather than
-// theoretical. Drive it at the largest Dynamic Type and in Night.
-//
-// It is NOT the app. E1 replaces the root view with the real Tables screen;
-// this stays reachable as a developer page.
+// A developer page showing every text style, colour and component on one
+// scrollable screen, for checking them by eye (in Night mode, or at the largest
+// text size). It is not part of the real app.
 
 import SwiftUI
 
 struct DesignSystemGallery: View {
     private enum Section: String, CaseIterable { case type, colour, components }
 
-    /// Show only one section.
+    /// Shows only one section when the `AWZAN_GALLERY` environment variable is set
+    /// to `type`, `colour` or `components`. With it unset, everything shows.
     ///
-    /// The page's job is to be CAPTURED — at both themes and at the largest
-    /// Dynamic Type — and a simulator cannot be scrolled from the command line:
+    /// Used for taking screenshots from the command line:
     ///
     /// ```
     /// SIMCTL_CHILD_AWZAN_GALLERY=components xcrun simctl launch \
     ///   --terminate-running-process "iPhone 17 Pro" com.awzan.Awzan
     /// ```
     ///
-    /// The `SIMCTL_CHILD_` prefix is the whole trick: anything after the bundle
-    /// id on that command line is a launch ARGUMENT, so `AWZAN_GALLERY=...`
-    /// written there is passed as an argv entry, read by nobody, and the
-    /// capture quietly shows the wrong section.
-    ///
-    /// Filtering rather than scrolling to it, because both of SwiftUI's scroll
-    /// APIs fail *silently* here — `ScrollViewReader.scrollTo` from `onAppear`
-    /// runs before layout, and `scrollPosition(id:)` needs the value to CHANGE,
-    /// so an initial one does nothing. Either way the capture shows the top of
-    /// the page and looks like a successful run.
-    ///
-    /// Unset shows everything, which is what tapping the icon gets.
+    /// (The `SIMCTL_CHILD_` prefix is what passes it into the app as an
+    /// environment variable.)
     private let only: Section? = {
         guard let raw = ProcessInfo.processInfo.environment["AWZAN_GALLERY"] else { return nil }
         let section = Section(rawValue: raw)
@@ -52,7 +36,6 @@ struct DesignSystemGallery: View {
                     if shows(.colour) { palette }
                     if shows(.components) { components }
                 }
-                // 16pt screen gutter, everywhere.
                 .padding(.horizontal, Midad.space4)
                 .padding(.vertical, Midad.space6)
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -67,9 +50,8 @@ struct DesignSystemGallery: View {
 
     private var typeSpecimen: some View {
         section("Type") {
-            // Arabic at every size, vowelled, with the two hardest cases in it:
-            // يُعَلِّمُ stacks a shadda over a ḍamma, and اِسْتَخْرَجَ is the word
-            // that stacks into a ligature in the wrong font.
+            // The samples include the hardest Arabic cases: يُعَلِّمُ has a shadda over
+            // a damma, and اِسْتَخْرَجَ is a long word with many marks.
             specimen("arabic-hero 60/104", .arabicHero, "تَنْصُرُ")
             specimen("arabic-display 40/70", .arabicDisplay, "اِسْتَخْرَجَ يَسْتَخْرِجُ")
             specimen("arabic-title 28/50", .arabicTitle, "يُعَلِّمُ · لَمْ تَسْلَمَا")
@@ -99,9 +81,8 @@ struct DesignSystemGallery: View {
             Text(sample.bidiIsolated)
                 .typeStyle(style)
                 .foregroundStyle(Midad.ink)
-                // The tint behind each line is the ROW HEIGHT made visible: if a
-                // ḥaraka pokes above its band, the design's leading is losing to
-                // the font's metrics and D-59 is not being honoured.
+                // The tinted background shows the line height. If a vowel mark
+                // sticks out above it, the line height isn't being applied.
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .background(Midad.fill)
         }
@@ -129,9 +110,7 @@ struct DesignSystemGallery: View {
 
     private struct Swatch { let name: String; let color: Color }
 
-    /// Written out rather than derived: there is no runtime list of asset names,
-    /// and a reflective walk would silently skip a token that failed to generate
-    /// — which is exactly what this page exists to catch.
+    /// Listed by hand, so a colour that failed to generate shows up as missing.
     private static let swatches: [Swatch] = [
         .init(name: "ground", color: Midad.ground),
         .init(name: "raised", color: Midad.raised),
@@ -176,16 +155,15 @@ struct DesignSystemGallery: View {
     }
 }
 
-/// The five components D2 built, wired to each other the way Tables wires them —
-/// so the page exercises real state rather than a row of static screenshots.
+/// The components wired together the way the Tables screen will use them, so the
+/// page exercises real state.
 private struct ComponentBench: View {
     @State private var bar = WordBarState.chosen(citation: "نَصَرَ يَنْصُرُ", gloss: "to help")
     @State private var form = "I"
     @State private var tense = "madi"
     @State private var voice = "malum"
 
-    /// كَتَبَ's real form set — I, II, III, IV, VI, VIII, X. No V, VII or IX,
-    /// because the verb does not carry them.
+    /// The forms of كَتَبَ: I, II, III, IV, VI, VIII and X.
     private let forms: [(String, String)] = [
         ("I", "فَعَلَ"), ("II", "فَعَّلَ"), ("III", "فَاعَلَ"), ("IV", "أَفْعَلَ"),
         ("VI", "تَفَاعَلَ"), ("VIII", "اِفْتَعَلَ"), ("X", "اِسْتَفْعَلَ"),
@@ -219,8 +197,8 @@ private struct ComponentBench: View {
                 SegmentHint(Self.intransitiveReason)
             }
 
-            // The chart line: the one place mixed Arabic and English is most
-            // likely to reorder, so it is on the bench on purpose.
+            // The line that mixes Arabic and English, where the order is most
+            // likely to go wrong.
             Text(["Form \(form)", "مَاضٍ", "مَعْرُوف"].bidiJoined() + " · 14 ṣiyagh")
                 .typeStyle(.caption)
                 .foregroundStyle(Midad.inkMuted)
@@ -231,14 +209,11 @@ private struct ComponentBench: View {
         }
     }
 
-    /// Built the way the real Tables screen will build it: the citation is
-    /// isolated at the point it is interpolated, not by whoever prints the line.
+    /// The Arabic word is isolated where it is put into the sentence.
     private static let intransitiveReason =
         "\("خَرَجَ".bidiIsolated) is intransitive — it has no majhūl."
 
-    /// Real engine output for نصر, Form I, māḍī, maʿlūm — six of the fourteen.
-    /// Six rather than fourteen so the page stays scannable; the amr's six is
-    /// also what a real short chart looks like.
+    /// Six of the 14 rows for نصر, Form I, past, active.
     private static let sample: [ParadigmRow] = [
         .init(id: "3ms", english: "he", arabic: "هُوَ", word: "نَصَرَ"),
         .init(id: "3md", english: "they two (m)", arabic: "هُمَا", word: "نَصَرَا"),

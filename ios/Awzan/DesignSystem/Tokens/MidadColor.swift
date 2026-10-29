@@ -4,22 +4,14 @@
 
 import SwiftUI
 
-/// The Midād palette — ink on paper, and one rubric red.
+/// The app's colours. Every colour comes from here (`Midad.ink`), and each has a
+/// Paper (light) and a Night (dark) value.
 ///
-/// **Two channels that never cross** (product-spec D-58, rule 3): `sign` marks
-/// the letters that carry the grammar and never fills a box; `correct` and
-/// `wrong` colour an option's fill, border, mark and word and never a letter.
-/// Success leans teal so it never pairs with `wrong` on the red–green axis,
-/// and every verdict carries an icon and a word besides its colour.
+/// `sign` is only for the letters that carry the grammar, and `correct` and
+/// `wrong` only colour answer options. They are never mixed.
 ///
-/// Namespaced rather than hung off `Color` because several token names —
-/// `fill`, `line`, `background` — already exist on SwiftUI's `ShapeStyle`,
-/// where a bare `.fill` would resolve to the wrong one. The prefix also makes
-/// the D1 exit criterion greppable: a colour anywhere downstream that is not
-/// `Midad.something` is a hard-coded colour.
-///
-/// Night is an *appearance* inside each colour set, not a second palette, so
-/// nothing that reads a token has to know which theme is showing.
+/// This is a namespace rather than an extension of `Color`, because names like
+/// `fill` and `line` already exist in SwiftUI.
 public enum Midad {
     /// Page background of every screen.
     ///

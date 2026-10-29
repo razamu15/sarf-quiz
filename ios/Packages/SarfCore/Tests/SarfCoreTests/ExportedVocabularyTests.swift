@@ -1,11 +1,8 @@
-// S0.2 — the vocabulary against the files S0.1 exported. This is what "the JSON's
-// keys are these values" means in practice: every type, form, bāb, chart shape,
-// slot and derived-noun key in roots.json and golden-corpus.json must decode into
-// the enums, and the enums must not hold a case the data never uses.
+// Checks the vocabulary enums against the two JSON files: every type, form, bab,
+// chart shape, slot and derived-noun key in the files must decode into an enum,
+// and no enum case may go unused by the data.
 //
-// The decoders here are test-local and deliberately thin — they exist to push the
-// files through the vocabulary types. The real loaders are S0.3 (the lexicon) and
-// S0.6 (the corpus).
+// The decoding structs here are only for these tests.
 
 import Foundation
 import Testing
@@ -13,8 +10,8 @@ import Testing
 
 private struct MissingResource: Error { let name: String }
 
-/// SwiftPM's `.copy("Resources/x.json")` lands the file at the bundle's top level,
-/// not under a Resources/ folder — so there is no `subdirectory:`.
+/// Reads one of the bundled JSON files. SwiftPM puts them at the top of the
+/// bundle, so there is no subdirectory.
 private func resource(_ name: String) throws -> Data {
     guard let url = Bundle.module.url(forResource: name, withExtension: "json") else {
         throw MissingResource(name: name)
@@ -52,7 +49,7 @@ struct RootsVocabularyTests {
         }
     }
 
-    /// `bab` is Form I's alone; and every Form I the lexicon records has a valid one.
+    /// Only Form I has a bab, and every Form I has a valid one.
     @Test func babIsFormIOnlyAndAlwaysValid() throws {
         var sawEachBab = Set<Bab>()
         for root in roots {
@@ -79,7 +76,7 @@ private struct Corpus: Decodable {
         private enum Keys: String, CodingKey { case words }
         init(from decoder: Decoder) throws {
             shape = try ChartShape(from: decoder)
-            // `[…]?.self`, not decodeIfPresent: a missing `words` key is a stale corpus.
+            // `words` must be present, even when it is null.
             words = try decoder.container(keyedBy: Keys.self).decode([String: String?]?.self, forKey: .words)
         }
     }
@@ -116,13 +113,13 @@ struct CorpusVocabularyTests {
         for entry in corpus.wazn { #expect(VerbForm(rawValue: entry.form) != nil) }
     }
 
-    /// Every form block lists the nine shapes, each valid, in `ChartShape.all` order.
+    /// Every form lists the nine charts, in `ChartShape.all` order.
     @Test func everyBlockHasTheNineShapesInOrder() {
         for block in allBlocks { #expect(block.charts.map(\.shape) == ChartShape.all) }
     }
 
-    /// A chart that exists has exactly the slots its tense says — 14, or the amr's
-    /// six — each a word or an explicit null. A chart that does not exist is `null`.
+    /// A chart has exactly its tense's slots (14, or 6 for the command), each a
+    /// word or null. A chart that doesn't exist is null.
     @Test func everyChartHasExactlyItsTensesSlots() {
         for block in allBlocks {
             for chart in block.charts {
@@ -139,7 +136,7 @@ struct CorpusVocabularyTests {
         }
     }
 
-    /// The wazn root: Form I once per bāb, each mazīd form once with no bāb.
+    /// The wazn root has Form I once per bab, and each other form once with no bab.
     @Test func waznEntriesCarryABabOnFormIOnly() throws {
         let formI = corpus.wazn.filter { $0.form == VerbForm.i.rawValue }
         let babs = try formI.map { entry in

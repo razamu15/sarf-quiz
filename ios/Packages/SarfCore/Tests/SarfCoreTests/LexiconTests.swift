@@ -1,10 +1,7 @@
-// S0.3 — the lexicon: the bundled file loads, every invariant the model relies on
-// holds over the real content, the loader refuses each kind of bad content, and
-// classify() agrees with the prototype's own assertions.
+// Tests for the lexicon: classify, the real roots.json, and the loader's refusals.
 //
-// There are no absolute counts here ("166 roots"): the lexicon is edited often, and
-// a pinned number would fail on every addition without catching anything. What is
-// pinned is a property that must survive any addition.
+// No test pins a count ("166 roots"), because the lexicon grows often. They check
+// properties that stay true as roots are added.
 
 import Foundation
 import Testing
@@ -15,7 +12,7 @@ private func radicals(_ word: String) -> Radicals {
     return Radicals(fa: letters[0], ayn: letters[1], lam: letters[2])
 }
 
-@Suite("classify — port of the prototype's assertions")
+@Suite("classify")
 struct ClassifyTests {
     @Test(arguments: [
         ("كتب", VerbType.salim),
@@ -29,13 +26,12 @@ struct ClassifyTests {
         #expect(LexiconService.classify(radicals(word)) == expected)
     }
 
-    /// يئس is weak (yāʾ first) AND hamzated; weakness wins, so the hamza reaches the
-    /// mithāl engine's seating pass.
+    /// يئس has a weak first letter and a hamza; the weak letter decides.
     @Test func weaknessOutranksAHamza() {
         #expect(LexiconService.classify(radicals("يئس")) == .mithalYa)
     }
 
-    /// أمم has a hamza and ʿayn = lām; the muḍāʿaf rule is checked first.
+    /// أمم has a hamza and a doubled last letter; the doubled letter decides.
     @Test func muḍāʿafOutranksAHamza() {
         #expect(LexiconService.classify(radicals("أمم")) == .mudaaf)
     }
@@ -49,7 +45,7 @@ struct BundledLexiconTests {
         lexicon = try LexiconService.load()
     }
 
-    /// The test the migration notes ask for: a content typo fails here, in CI.
+    /// A content mistake in roots.json fails here.
     @Test func loads() {
         #expect(!lexicon.roots.isEmpty)
     }
@@ -82,8 +78,7 @@ struct BundledLexiconTests {
         }
     }
 
-    /// Content completeness, not validity (the loader allows the gap): today every
-    /// Form I carries a bāb, and a regression should be noticed.
+    /// The loader allows a Form I with no bab, but today none is missing.
     @Test func everyFormIHasABab() {
         for root in lexicon.roots where root.forms[.i] != nil {
             #expect(root.bab(for: .i) != nil, "\(root.key) Form I has no bāb")
@@ -96,9 +91,8 @@ struct BundledLexiconTests {
         }
     }
 
-    /// `english` may be absent ONLY for a "to be …" gloss (MeaningService conjugates
-    /// those from the copula) — the converse does not hold, some "to be" glosses
-    /// carry one anyway — and only a transitive form has a pastParticiple.
+    /// `english` may only be missing for a "to be ..." gloss, and only a
+    /// transitive form has a pastParticiple.
     @Test func englishIsAbsentOnlyForToBeGlosses() {
         for root in lexicon.roots {
             for (form, usage) in root.forms {
@@ -109,7 +103,7 @@ struct BundledLexiconTests {
         }
     }
 
-    /// faaDrops is a Form I fact, and only the mithāl engine reads it.
+    /// Only Form I has faaDrops.
     @Test func faaDropsIsOnFormIOnly() {
         for root in lexicon.roots {
             for form in root.recordedForms where form != .i { #expect(root.forms[form]?.faaDrops == nil) }
@@ -128,7 +122,7 @@ struct BundledLexiconTests {
         #expect(lexicon.root(forKey: "ZZZ") == nil)
     }
 
-    /// The three roots whose bāb `ia` leaves the fāʾ question open.
+    /// The three roots that state faaDrops today.
     @Test func faaDropsKeepsTheThreeStatedValues() throws {
         #expect(try #require(lexicon.root(forKey: "وجل")).forms[.i]?.faaDrops == false)
         #expect(try #require(lexicon.root(forKey: "وجع")).forms[.i]?.faaDrops == false)
@@ -143,7 +137,7 @@ struct BundledLexiconTests {
             #expect([.i, .ii].contains(pair.form))
             #expect(pair.root.forms[pair.form] != nil)
         }
-        // Lexicon order, then Form I before Form II within a root.
+        // Roots in file order; within a root, Form I before Form II.
         let keysInOrder = found.map(\.root.key).reduce(into: [String]()) { if $0.last != $1 { $0.append($1) } }
         #expect(keysInOrder == lexicon.roots.filter { $0.verbType == .salim && $0.recordedForms.contains { [.i, .ii].contains($0) } }.map(\.key))
         let kataba = found.filter { $0.root.key == "كتب" }.map(\.form)
@@ -189,7 +183,7 @@ struct LexiconRefusalTests {
         }
     }
 
-    /// Each of these is a DecodingError from the file itself.
+    /// Each of these is a DecodingError.
     @Test(arguments: [
         ("two radicals", #"{"root":["ك","ت"],"type":"salim","forms":{"I":{"bab":"au","trans":true,"gloss":"x"}}}"#),
         ("four radicals", #"{"root":["ك","ت","ب","ب"],"type":"salim","forms":{"I":{"bab":"au","trans":true,"gloss":"x"}}}"#),
@@ -212,7 +206,7 @@ struct LexiconRefusalTests {
         #expect(throws: (any Error).self) { try LexiconService.load(from: Data("{".utf8)) }
     }
 
-    /// Optional fields may be absent; nothing is defaulted in their place.
+    /// Optional fields stay nil when missing.
     @Test func optionalFieldsStayAbsent() throws {
         let lexicon = try LexiconService.load(from: lexiconJSON(good))
         let usage = try #require(lexicon.roots.first?.forms[.i])

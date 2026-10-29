@@ -1,7 +1,6 @@
-// S0.2 — the vocabulary on its own: pure, no files. The raw values and their order
-// are a storage contract (Models/Vocabulary.swift), so each is pinned here as a
-// literal; changing one is a test failure that says "this needs a migration".
-// ExportedVocabularyTests checks the same enums against the exported JSON.
+// Tests for the vocabulary enums. The raw values and their order are pinned as
+// literals, so changing one fails a test (saved data depends on them).
+// ExportedVocabularyTests checks the same enums against the JSON files.
 
 import Foundation
 import Testing
@@ -15,7 +14,7 @@ struct VocabularyPinTests {
         #expect(Mood.allCases.map(\.rawValue) == ["raf", "nasb", "jazm"])
     }
 
-    /// Classic sarf-table order — the Tables screen iterates allCases.
+    /// The order a sarf chart lists them in.
     @Test func slots() {
         #expect(PronounSlot.allCases.map(\.rawValue) == [
             "3ms", "3md", "3mp", "3fs", "3fd", "3fp",
@@ -75,8 +74,8 @@ struct ChartShapeTests {
         ])
     }
 
-    /// `all` is a hand-written literal and the failable init is the judge; this
-    /// is what stops them disagreeing. 3 tenses × 2 voices × (3 moods + none) = 24.
+    /// Tries all 24 combinations (3 tenses x 2 voices x 4 moods including none)
+    /// and checks that exactly the nine in `ChartShape.all` are accepted.
     @Test func theJudgeAcceptsExactlyTheNine() {
         let moods: [Mood?] = [nil] + Mood.allCases.map { Optional($0) }
         var accepted: [ChartShape] = []
@@ -99,7 +98,7 @@ struct ChartShapeTests {
         #expect(ChartShape(tense: .mudari, voice: .malum, mood: nil) == nil)
     }
 
-    /// The case that bit the prototype: the parse card flips a drawn word's voice.
+    /// The command has no passive.
     @Test func theAmrHasNoPassive() {
         #expect(ChartShape(tense: .amr, voice: .majhul, mood: nil) == nil)
     }
@@ -122,7 +121,7 @@ struct ChartShapeTests {
         #expect(throws: DecodingError.self) { try JSONDecoder().decode(ChartShape.self, from: Data(unknownTense.utf8)) }
     }
 
-    /// Absent is a stale file; null is a māḍī. They must not decode alike.
+    /// A missing `mood` is an error, but a null one is fine (past and command).
     @Test func aMissingMoodKeyIsAnError() {
         let missing = #"{"tense":"madi","voice":"malum"}"#
         #expect(throws: DecodingError.self) { try JSONDecoder().decode(ChartShape.self, from: Data(missing.utf8)) }
@@ -138,7 +137,7 @@ struct BabTests {
         }
     }
 
-    /// The pairs from the type's doc comment, written out a second time on purpose.
+    /// The expected pairs, written out again here.
     @Test func eachBabDeclaresItsPair() {
         let expected: [Bab: (Haraka, Haraka)] = [
             .au: (.fatha, .damma), .ai: (.fatha, .kasra), .aa: (.fatha, .fatha),
@@ -151,8 +150,7 @@ struct BabTests {
         }
     }
 
-    /// The raw value is the vowel pair spelled in letters; what it spells and what
-    /// `vowels` declares must agree (the prototype's BAB_ID_LETTER check).
+    /// A bab's name spells its two vowels (ia = kasra, fatha); check they match `vowels`.
     @Test func theIdSpellsTheDeclaredVowels() throws {
         let letterToHaraka: [Character: Haraka] = ["a": .fatha, "u": .damma, "i": .kasra]
         for bab in Bab.allCases {
@@ -166,7 +164,7 @@ struct BabTests {
 
 @Suite("VerbType and VerbTypeGroup")
 struct VerbTypeTests {
-    /// Each engine type is in exactly one group, and the groups together cover all.
+    /// Every engine type is in exactly one group.
     @Test func groupsPartitionTheTypes() {
         let covered = VerbTypeGroup.allCases.flatMap(\.verbTypes)
         #expect(covered.count == VerbType.allCases.count)
@@ -177,20 +175,19 @@ struct VerbTypeTests {
         }
     }
 
-    /// The five groups that cover more than one engine type each cover exactly the
-    /// pair the domain says; the rest are one type, one group.
+    /// Each group covers the engine types it should.
     @Test func eachGroupCoversExactlyItsEngineTypes() {
         #expect(VerbTypeGroup.mithal.verbTypes == [.mithalWaw, .mithalYa])
         #expect(VerbTypeGroup.ajwaf.verbTypes == [.ajwafWaw, .ajwafYa])
         #expect(VerbTypeGroup.naqis.verbTypes == [.naqisWaw, .naqisYa])
-        // Lafīf's pair differs by position of the weak letters, not by which letter.
+        // Lafif's two types differ by where the weak letters sit.
         #expect(VerbTypeGroup.lafif.verbTypes == [.lafifMafruq, .lafifMaqrun])
         #expect(VerbTypeGroup.salim.verbTypes == [.salim])
         #expect(VerbTypeGroup.mahmuz.verbTypes == [.mahmuz])
         #expect(VerbTypeGroup.mudaaf.verbTypes == [.mudaaf])
     }
 
-    /// Cross-check of the per-case `group` against the naming convention.
+    /// A type's raw value starts with its group's name.
     @Test func everyTypeIsNamedForItsGroup() {
         for type in VerbType.allCases {
             #expect(type.rawValue.hasPrefix(type.group.rawValue))

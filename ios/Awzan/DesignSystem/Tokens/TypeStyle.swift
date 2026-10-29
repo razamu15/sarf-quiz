@@ -1,60 +1,49 @@
-// How a line of the Midād type scale becomes a real font with a real row height.
+// Turns an entry of the type scale into a real font with a fixed line height.
 //
-// The SCALE is data and is generated (MidadType.swift, from tokens.json). This
-// file is the logic beside it: resolving a face to a bundled font, driving a
-// variable font's weight axis, and giving every style the explicit vertical
-// room product-spec D-59 requires.
+// The scale itself (sizes and line heights) is generated in MidadType.swift. This
+// file is the logic: finding the bundled font, setting a variable font's weight,
+// and applying the line height.
 //
-// Used by: every view in DesignSystem/Components and Features, through
-// `.typeStyle(.arabicTitle)` and friends. Nothing calls `Font.custom` directly.
+// Used by: every view, through `.typeStyle(.arabicTitle)` and the like. Use that
+// instead of `.font(...)`.
 
 import SwiftUI
 
 // MARK: - The three faces
 
-/// **Three voices, three faces** (product-spec D-59, rule 4). Arabic is the
-/// object of study, the serif is a *meaning*, the sans is the interface talking.
-/// Nothing else gets a face, which is why this enum is closed and small.
+/// The three typefaces.
 public enum Face: Sendable {
-    /// Scheherazade New, bundled. Regular only — a weight change breaks the
-    /// joining inside an Arabic word, so colour is the one safe emphasis.
+    /// Scheherazade New, for Arabic. Regular weight only: bold would break the
+    /// joins between letters.
     case arabic
-    /// Newsreader, bundled, as a **variable** font: Google Fonts publishes no
-    /// static instances, so a weight is a point on the `wght` axis.
+    /// Newsreader, for meanings. It is a variable font, so its weight is set on
+    /// the font's `wght` axis.
     case serif
-    /// The system sans. Not bundled, and deliberately not named: it should be
-    /// whatever the platform's interface font is, including future changes.
+    /// The system font, for the interface.
     case sans
 }
 
 // MARK: - A style
 
-/// One line of the type scale: a size, an explicit line height, and which
-/// Dynamic Type ramp both of them scale along.
+/// One entry of the type scale: a size, a line height and a weight.
 ///
-/// `lineHeight` is the field that earns this being a struct rather than a
-/// `Font`. Vowelled Arabic is taller than a font's nominal line box — a shadda
-/// over a ḍamma stacks two marks above the letter — so Scheherazade's own
-/// metrics leave يُعَلِّمُ touching the line above at quiz sizes. D-59 settles
-/// that by writing the row heights out rather than fighting the metrics, and
-/// `.typeStyle(_:)` is what applies them.
+/// The line height is explicit because vowelled Arabic is taller than a font's
+/// normal line, and the font's own spacing would let the vowel marks touch the
+/// line above.
 public struct TypeStyle: Sendable, Equatable {
     public let face: Face
-    /// Points at the default Dynamic Type size.
+    /// Point size at the default text size.
     public let size: CGFloat
-    /// The total height of one line, points, at the default Dynamic Type size.
+    /// Height of one line at the default text size.
     public let lineHeight: CGFloat
-    /// CSS weight (400, 500, 600, 700). Only `serif` and `sans` honour it.
+    /// CSS-style weight (400, 500, 600, 700). Only serif and sans use it.
     public let weight: Int
     public let italic: Bool
-    /// Letter spacing in **em**, as the design states it; converted to points
-    /// against the scaled size when applied.
+    /// Letter spacing, in em.
     public let tracking: CGFloat
-    /// The Dynamic Type ramp this style grows along. A port decision — the web
-    /// has no Dynamic Type — declared beside the sizes in MidadType.swift.
+    /// The Dynamic Type category this style scales with.
     public let ramp: Font.TextStyle
-    /// Fixed-width digits, so a changing number does not shift the glyphs
-    /// beside it. True for `numeral` alone: the stat tiles and the Results score.
+    /// Fixed-width digits, so a number doesn't shift as it changes.
     public let tabularFigures: Bool
 
     public init(
@@ -81,9 +70,8 @@ public struct TypeStyle: Sendable, Equatable {
 // MARK: - Resolving a face to a font
 
 extension TypeStyle {
-    /// PostScript names, read off the bundled files rather than guessed — the
-    /// family name ("Newsreader 16pt") is not what `UIFont(name:)` takes, and
-    /// the difference fails silently by falling back to Helvetica.
+    /// The font names `UIFont(name:)` needs. The family names (such as
+    /// "Newsreader 16pt") don't work: the text silently falls back to Helvetica.
     fileprivate var postScriptName: String? {
         switch face {
         case .arabic: "ScheherazadeNew-Regular"
@@ -92,14 +80,10 @@ extension TypeStyle {
         }
     }
 
-    /// The font for this style at an already-scaled point size.
+    /// The font for this style at a given point size.
     ///
-    /// Newsreader's weight is set through the **variation axis**, not through
-    /// `.fontWeight()`. SwiftUI's weight modifier is documented against the
-    /// system font and is not guaranteed to move a custom font's axis; when it
-    /// does nothing the result is a silent 400 where `screen-title` asked for
-    /// 500 — a miss that survives review because it looks fine. Asking CoreText
-    /// for the instance makes it either work or fail loudly.
+    /// Newsreader's weight is set on its font axis, because SwiftUI's
+    /// `.fontWeight` isn't reliable for custom fonts.
     fileprivate func uiFont(at scaledSize: CGFloat) -> UIFont {
         guard let name = postScriptName else {
             let w = UIFont.Weight(cssWeight: weight)
@@ -121,8 +105,7 @@ extension TypeStyle {
         return UIFont(descriptor: descriptor, size: scaledSize)
     }
 
-    /// The OpenType `wght` axis, as a four-character code. CoreText keys the
-    /// variation dictionary by this integer, not by the string.
+    /// The font's weight axis ('wght'), as the number CoreText expects.
     private static let weightAxis: UInt32 = 0x7767_6874 // 'wght'
 }
 
@@ -142,11 +125,7 @@ private extension UIFont.Weight {
 // MARK: - Applying a style
 
 public extension View {
-    /// Set the font **and its row height**.
-    ///
-    /// Both halves matter: `.font()` alone leaves Arabic marks colliding with
-    /// the line above, which is the whole of D-59. Use this rather than
-    /// `.font(...)` anywhere in the app.
+    /// Sets the font and the line height. Use this instead of `.font(...)`.
     func typeStyle(_ style: TypeStyle) -> some View {
         modifier(TypeStyleModifier(style))
     }
@@ -159,25 +138,21 @@ private struct TypeStyleModifier: ViewModifier {
 
     init(_ style: TypeStyle) {
         self.style = style
-        // Scaled through @ScaledMetric rather than UIFontMetrics so both react
-        // to the environment's dynamicTypeSize — including a preview or a
-        // single view overriding it, which UIApplication's category does not see.
+        // ScaledMetric makes both values follow Dynamic Type, including when a
+        // preview overrides the text size.
         _size = ScaledMetric(wrappedValue: style.size, relativeTo: style.ramp)
         _lineHeight = ScaledMetric(wrappedValue: style.lineHeight, relativeTo: style.ramp)
     }
 
     func body(content: Content) -> some View {
         let font = style.uiFont(at: size)
-        // What the design's row height adds on top of the font's own line box.
-        // Clamped at zero: at the largest Dynamic Type a font's box can outgrow
-        // the design's leading, and the right answer there is to let the text
-        // set its own height rather than to clip it.
+        // The extra space needed to reach the design's line height. Never
+        // negative: at the largest text sizes the font's own line can be taller.
         let leading = max(0, lineHeight - font.lineHeight)
         return content
             .font(Font(font))
-            // Half above, half below, so a SINGLE line is exactly `lineHeight`
-            // tall — lineSpacing alone only sits between lines and would leave
-            // a one-line row short of the row height the design specifies.
+            // Half the extra above and half below, so a single line is also the
+            // full height (lineSpacing alone only adds space between lines).
             .lineSpacing(leading)
             .padding(.vertical, leading / 2)
             .tracking(style.tracking * size)
@@ -187,20 +162,17 @@ private struct TypeStyleModifier: ViewModifier {
 // MARK: - Registering the bundled fonts
 
 public enum MidadFonts {
-    /// Every bundled face, by PostScript name, paired with the file that should
-    /// have supplied it.
+    /// The bundled fonts: PostScript name, and the file it should come from.
     ///
-    /// Called by `AwzanApp.init`. `UIAppFonts` in Info.plist is what actually
-    /// registers them; this only *checks*, because a missing custom font does
-    /// not throw — `UIFont(name:)` returns a system fallback and the app renders
-    /// in Helvetica, which reads as a styling bug rather than a missing file.
+    /// Used by: AwzanApp. `UIAppFonts` in Info.plist registers the fonts; this is
+    /// only used to check that they loaded.
     static let bundled = [
         "ScheherazadeNew-Regular": "ScheherazadeNew-Regular.ttf",
         "Newsreader16pt-Regular": "Newsreader.ttf",
         "Newsreader16pt-Italic": "Newsreader-Italic.ttf",
     ]
 
-    /// PostScript names the bundle did not supply. Empty is the only good answer.
+    /// The fonts that failed to load. Empty is good.
     public static func missing() -> [String] {
         bundled.keys.filter { UIFont(name: $0, size: 12) == nil }.sorted()
     }

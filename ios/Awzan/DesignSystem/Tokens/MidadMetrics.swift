@@ -4,12 +4,9 @@
 
 import CoreGraphics
 
-/// The measurements the design fixes: a 4-point spacing base, five radii, and
-/// the three heights that are not negotiable.
+/// Spacing (on a 4pt base), corner radii and the fixed sizes.
 ///
-/// `radiusFull` is deliberately absent. On the web it is `9999px`; in SwiftUI a
-/// fully-rounded end is `Capsule()`, a different shape rather than a large
-/// number, and the design allows it for read-only pills only.
+/// There is no `radiusFull`: use `Capsule()` for a fully rounded shape.
 public extension Midad {
     // MARK: - Spacing
     //
