@@ -15,7 +15,7 @@
 //   · no Settings — the app's feature gates cannot be read from here. Anything
 //     that needs one takes it as a parameter (see LexiconService.availableTypes).
 //
-// Nothing is built here yet: S0 fills it (IOS_PORT_PLAN).
+// Being filled by S0 (IOS_PORT_PLAN): Models/ is in, the rest follows.
 
 import PackageDescription
 
@@ -28,6 +28,14 @@ let package = Package(
     targets: [
         .target(
             name: "SarfCore",
+            // .copy, not .process: the corpus's rootsHash is a sha256 of
+            // roots.json's bytes (S0.6 checks it), so the bundle must hold the
+            // file exactly as the exporter wrote it. Both are generated — see
+            // web-prototype/tools/export-content.mjs.
+            resources: [
+                .copy("Resources/roots.json"),
+                .copy("Resources/golden-corpus.json"),
+            ],
             swiftSettings: [.swiftLanguageMode(.v6)]
         ),
         .testTarget(

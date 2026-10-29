@@ -156,7 +156,7 @@ never `-1`) was written *for* this port and lands cleanly. Two notes:
 
 One real gain: a missing dictionary entry in JS is `undefined` and flows onward
 silently until something notices. `SALIM_VERB_STEMS[formId]?.[tableName]` in
-Swift is `[FormID: [ChartKey: String]]` and returns a genuine `String?` the
+Swift is `[VerbForm: [ChartKey: String]]` and returns a genuine `String?` the
 compiler forces you to handle at every step.
 
 ## 1.3 String keys → enums
@@ -195,7 +195,7 @@ all.** Two sites depend on this today:
 
 Both are in the view layer, which is being rewritten anyway — but the fix is a
 *model* decision, not a view one: `Root.forms` should expose an ordered
-accessor (`FormID.allCases.filter { forms[$0] != nil }`) so "the first form" is
+accessor (`VerbForm.allCases.filter { forms[$0] != nil }`) so "the first form" is
 a stated fact rather than a storage accident.
 
 Checked and **safe**: `lexicon-service.candidates()`, `word-pool`'s
@@ -713,8 +713,8 @@ decision that JS could only note:
 
 ```swift
 public extension ConjugationService {
-    func conjugates(_ form: FormID) -> Bool     // FORM_META[f].conjugable
-    func hasPassive(_ form: FormID) -> Bool     // FORM_META[f].hasMajhul
+    func conjugates(_ form: VerbForm) -> Bool     // FORM_META[f].conjugable
+    func hasPassive(_ form: VerbForm) -> Bool     // FORM_META[f].hasMajhul
 }
 ```
 
@@ -752,7 +752,7 @@ makes the ownership explicit rather than incidental:
 
 | | `ChartSpec` | `WordSpec` |
 |---|---|---|
-| shape | `{root: Root, formId, tense, voice, mood}` | `{rootKey: String, formId, verbType, bab, tense, voice, mood, slot, derivedKind}` |
+| shape | `{root: Root, formId, tense, voice, mood}` | `{rootKey: String, formId, verbType, bab, tense, voice, mood, slot, derivedNounType}` |
 | holds the root as | a **reference** | a **key** |
 | purpose | calling the engine | the stored history identity |
 | lifetime | one call | forever |
@@ -822,8 +822,8 @@ Small on purpose — this is the whole contract the app codes against:
 
 ```swift
 // Models (all public, all Sendable, all Codable where stored)
-Tense · Voice · Mood · FormID · PronounSlot · Bab · VerbType · VerbTypeGroup
-DerivedNounKind · ChartShape · ChartSpec · Root · RootFormUsage · MudariParticle
+Tense · Voice · Mood · VerbForm · PronounSlot · Bab · VerbType · VerbTypeGroup
+DerivedNounType · ChartShape · ChartSpec · Root · RootFormUsage · MudariParticle
 
 // Services
 ConjugationService
@@ -859,9 +859,10 @@ Requested, and it works cleanly in all three targets:
 ```
 Packages/SarfCore/Sources/SarfCore/
   Models/                  ← ENTITY DEFINITIONS ONLY
-    Vocabulary.swift         Tense · Voice · Mood · FormID · PronounSlot · Bab
-                             VerbType · VerbTypeGroup · DerivedNounKind
-    ChartShape.swift         the nine shapes + isValid
+    Vocabulary.swift         PronounSlot · VerbForm · DerivedNounType   (+ Tense.slots)
+    ChartShape.swift         Tense · Voice · Mood · ChartShape — the failable init is the judge
+    Bab.swift                Haraka · Bab                                (built, S0.2)
+    VerbType.swift           VerbType · VerbTypeGroup
     ChartSpec.swift          {root, formId, tense, voice, mood}
     Root.swift               Root · RootFormUsage · EnglishForms
     GrammarTypes.swift       Affix · StemTemplate · PrefixRule
@@ -904,8 +905,8 @@ did:
    charts. `Models/GrammarTypes.swift` holds the *shapes* those tables are
    written in (`Affix`, `StemTemplate`), which is the entity half.
 2. **One stated allowance.** A Models file may hold a computed property that
-   reads **only `self`** — `Bab.madiVowel`, `ChartShape.isValid`,
-   `PronounSlot.person`, `VerbType.group`. It may not hold a lookup into another
+   reads **only `self`** — `Bab.madiVowel`, `ChartShape.init?`,
+   `VerbType.group`, `Tense.slots`. It may not hold a lookup into another
    table, a service call, or I/O. That keeps "data files hold no methods" intact
    in spirit (nothing in `Models/` *does* anything) while letting Swift model
    `bab` as an enum instead of a two-character string (§1.3, Trap 3).

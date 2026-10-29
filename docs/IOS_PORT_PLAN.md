@@ -32,7 +32,8 @@ Every choice below is derived from those three; where one trades against another
 | **P1** the four boundary preps | ✅ done | `P1.1` · `P1.2` · `P1.3 + P1.4` |
 | **P2** parse card lands in JS | ✅ done | `P2 — the parse card` |
 | **S0.1** content export | ✅ done | `S0.1 — the content export` |
-| **S0.2 – S8, R1 – R7** | not started | — |
+| **S0.2** vocabulary | ✅ done | `S0.2 — the vocabulary` |
+| **S0.3 – S8, R1 – R7** | not started | — |
 
 **D1 and D2 are "done, pending S1"**: Track D is finished when Tables looks right, and Tables does not
 exist yet. What can be checked now has been — the type scale renders at its real row heights on device
@@ -183,12 +184,12 @@ in slice order; the code is there for when a note raises a question.
 
 ### S0 · Foundations (`SarfCore`) — the seam, the stand-in, and the first real engine
 
-*State: 0.1 done; 0.2 next.* S1 can begin once **0.6** lands; 0.7–0.8 run beside it.
+*State: 0.1 and 0.2 done; 0.3 next.* S1 can begin once **0.6** lands; 0.7–0.8 run beside it.
 
 | # | Chunk | Owns | Builds on |
 |---|---|---|---|
 | 0.1 | **Content export** ✅ — un-park `tools/export-content.mjs` | `roots.json` + `golden-corpus.json` + one content hash; explicit nulls; derived nouns, citations, the فعل root | — |
-| 0.2 | **Vocabulary** | `Models/`: closed enums (form, tense, voice, mood, slot, bāb with its vowels, verb type *and* verb group, derived-noun kind) and `ChartShape`. Their `rawValue`s are the storage contract | 0.1 (the JSON's keys are these values) |
+| 0.2 | **Vocabulary** ✅ | `Models/`: `PronounSlot` · `VerbForm` · `DerivedNounType` (`Vocabulary.swift`), `Tense` · `Voice` · `Mood` · `ChartShape` (`ChartShape.swift` — the failable init is the single judge of the nine), `Haraka` · `Bab` (`Bab.swift`), `VerbType` · `VerbTypeGroup` (`VerbType.swift`). Their `rawValue`s are the storage contract, pinned by tests and checked against both exported files | 0.1 (the JSON's keys are these values) |
 | 0.3 | **Lexicon** | `Root`, `RootFormUsage`, `LexiconService.load()` — enum-keyed decode, root-vs-radicals check, fails loudly | 0.2 |
 | 0.4 | **ArabicText** | grapheme clusters and the first differing cluster | — |
 | 0.5 | **The seam** | `ConjugationSpec`, the `VerbTypeConjugator` protocol, `ConjugationService` (router, every precondition, `conjugates`/`hasPassive`, `waznRoot`), `ENGINE_BACKING`. **The API freezes here** | 0.2, 0.3 |
@@ -410,3 +411,17 @@ Features/Tables/
   there.
 - **`bundle.css`'s off-scale text sizes** — fold back into the generator (see Corrections).
 - **Q-09** — More has no design yet.
+- **S0.2 left these out on purpose**, each for the slice that first needs it: `MOOD_DISTINCT_SLOTS` (read by the
+  nāqiṣ engine and the parse card — lands with whichever is first, R6 or S3); `SEEGAH_TYPES` (grammar content —
+  0.7); `MAZEED_IDS` (drills only — S3); `QUIZ_TYPE_IDS` (SarfQuiz — S2); `HARAKA_NAMES` (display strings —
+  Glossary); the sukūn / shadda scalars (0.7, with the first template that writes one); `PronounSlot`
+  person / gender / number accessors (no JS code parses a slot, so none until a consumer does).
+- **`DEFAULT_BAB` is not ported.** `quiz/builders/derived.js:105` fills a missing bāb with `au` when it builds a
+  decoy — a guess that can pass for a real form, which is exactly what the rules forbid. S4's derived builder
+  must treat a missing bāb as "no decoy from this form", and the JS gets the same fix when that chunk lands.
+- **The stored field `derivedKind`** (product-spec, ARCHITECTURE) names a value of type `DerivedNounType`.
+  S2.1 decides the `WordSpec` field name; it should follow the type, which the user's naming rule prefers over
+  "kind" — a rename of a stored key is a migration, so settle it before anything is written.
+- **`VerbTypeGroup` is not `Codable`**, on purpose: carrying a group into plan data killed a Home drill in the
+  prototype. If a persisted draft ever needs a chip selection, add the conformance as a visible diff and store
+  `verbTypes`.
