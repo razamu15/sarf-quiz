@@ -8,17 +8,6 @@ import Foundation
 import Testing
 @testable import SarfCore
 
-private struct MissingResource: Error { let name: String }
-
-/// Reads one of the bundled JSON files. SwiftPM puts them at the top of the
-/// bundle, so there is no subdirectory.
-private func resource(_ name: String) throws -> Data {
-    guard let url = Bundle.module.url(forResource: name, withExtension: "json") else {
-        throw MissingResource(name: name)
-    }
-    return try Data(contentsOf: url)
-}
-
 // MARK: roots.json
 
 private struct RootsFile: Decodable {

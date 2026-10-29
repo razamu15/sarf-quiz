@@ -119,3 +119,26 @@ What was left out and why is in the plan's *Follow-ups*.
 - **`availableTypes` is not here** — it needs the engine router (`hasEngine`), so it lands in 0.5.
 - The model is smaller than the JS record on purpose: `note`, `reverso`, `manualTables` never reach Swift.
 
+---
+
+## 0.4 · ArabicText
+
+**What it is.** Two small functions for treating a word as the letters a reader sees, not as raw characters.
+`Text/ArabicText.swift`, no dependencies.
+
+```
+ArabicText.clusters("تُنْصَرَانِ")                      →  تُ  نْ  صَ  رَ  ا  نِ        [Character]
+ArabicText.firstDifferingCluster("تُنْصَرَانَ", "تُنْصَرَانِ")  →  5                      Int?  (nil = same)
+```
+
+**What to look for in the diff.**
+
+- **`clusters` is `Array(word)`** — Swift's `Character` is already a letter plus its marks. The function exists to
+  name the idea and to be the one place it is defined. On all 36,807 distinct words in the golden corpus it splits
+  exactly as the JavaScript segmenter does (checked once; a few named examples are pinned in the tests).
+- **Why clusters and not scalars:** comparing scalars on the example above points at index 10, a bare fatha with no
+  letter; comparing clusters points at index 5, the letter that should carry a kasra. A test shows both.
+- **No `-1`:** the JS returns -1 for "no difference"; Swift returns `nil`.
+- **One deliberate difference from the JS:** Swift compares marks by meaning, so a shadda typed before or after a
+  vowel counts as the same letter. The JS needed both words normalised first.
+
