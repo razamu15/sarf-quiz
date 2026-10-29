@@ -864,7 +864,8 @@ Packages/SarfCore/Sources/SarfCore/
     Bab.swift                Haraka · Bab                                (built, S0.2)
     VerbType.swift           VerbType · VerbTypeGroup
     ChartSpec.swift          {root, formId, tense, voice, mood}
-    Root.swift               Root · RootFormUsage · EnglishForms
+    Root.swift               Radicals · Root · RootForm                    (built, S0.3)
+    RootFormUsage.swift      RootFormUsage · EnglishForms                  (built, S0.3)
     GrammarTypes.swift       Affix · StemTemplate · PrefixRule
     MudariParticle.swift
   Grammar/                 ← DATA TABLES (content, not entities)
@@ -872,7 +873,7 @@ Packages/SarfCore/Sources/SarfCore/
   Conjugation/             ← BEHAVIOUR
     VerbTypeConjugator.swift · ConjugationService.swift · EngineBacking · CorpusConjugator
     Engines/   Salim…Naqis · Mahmuz · Templates.swift · HamzaSeating.swift
-  Lexicon/     LexiconService.swift
+  Lexicon/     LexiconService.swift · Classification.swift
   Meaning/     MeaningService.swift
   Text/        ArabicText.swift
   Resources/   roots.json
@@ -914,7 +915,7 @@ did:
    `lexicon/root.js`, split out purely to avoid an import cycle
    (ARCHITECTURE §7). Swift has no such constraint inside a module, so it
    becomes `root.bab(for: formId)` on the model — a self-only accessor by rule 2,
-   and `Lexicon/Root.swift` as a separate file disappears.
+   and `Lexicon/Root.swift` as a separate file disappears. (Done in S0.3.)
 
 ---
 

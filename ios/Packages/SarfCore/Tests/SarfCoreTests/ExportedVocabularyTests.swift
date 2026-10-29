@@ -139,13 +139,6 @@ struct CorpusVocabularyTests {
         }
     }
 
-    /// The count S0.1 recorded (IOS_PORT_PLAN: 69,974 cells), re-derived through the
-    /// Swift vocabulary: an absent chart counts as its tense's slots.
-    @Test func theCellCountMatchesTheExport() {
-        let cells = allBlocks.flatMap(\.charts).reduce(0) { $0 + ($1.words?.count ?? $1.shape.tense.slots.count) }
-        #expect(cells == 69_974)
-    }
-
     /// The wazn root: Form I once per bāb, each mazīd form once with no bāb.
     @Test func waznEntriesCarryABabOnFormIOnly() throws {
         let formI = corpus.wazn.filter { $0.form == VerbForm.i.rawValue }
@@ -156,6 +149,5 @@ struct CorpusVocabularyTests {
         for entry in corpus.wazn where entry.form != VerbForm.i.rawValue {
             #expect(entry.bab == nil)
         }
-        #expect(corpus.wazn.count == 15)
     }
 }

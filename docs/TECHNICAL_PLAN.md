@@ -97,13 +97,13 @@ in separate folders; **the engine folders are the ones the owner reads in full**
 
 ```
 ios/Packages/SarfCore/Sources/SarfCore/
-  Models/                   ENTITIES ONLY: Vocabulary · ChartShape · Bab · VerbType · Root · GrammarTypes · MudariParticle
+  Models/                   ENTITIES ONLY: Vocabulary · ChartShape · Bab · VerbType · Root · RootFormUsage · GrammarTypes · MudariParticle
   Grammar/                  data tables, one file per verb type — read against the paper chart
   Conjugation/
     VerbTypeConjugator.swift · ConjugationService.swift     the protocol and the one public door
     EngineBacking.swift · CorpusConjugator.swift            the seam and its stand-in
     Engines/                <Type>Conjugator.swift · Templates.swift · HamzaSeating.swift
-  Lexicon/                  LexiconService.swift (loads + validates roots.json)
+  Lexicon/                  LexiconService.swift (loads + validates roots.json) · Classification.swift
   Meaning/                  MeaningService.swift (English readings, governing particles)
   Text/                     ArabicText.swift (grapheme clustering)
   Resources/                roots.json · golden-corpus.json

@@ -33,7 +33,8 @@ Every choice below is derived from those three; where one trades against another
 | **P2** parse card lands in JS | ✅ done | `P2 — the parse card` |
 | **S0.1** content export | ✅ done | `S0.1 — the content export` |
 | **S0.2** vocabulary | ✅ done | `S0.2 — the vocabulary` |
-| **S0.3 – S8, R1 – R7** | not started | — |
+| **S0.3** lexicon | ✅ done | `S0.3 — the lexicon` |
+| **S0.4 – S8, R1 – R7** | not started | — |
 
 **D1 and D2 are "done, pending S1"**: Track D is finished when Tables looks right, and Tables does not
 exist yet. What can be checked now has been — the type scale renders at its real row heights on device
@@ -184,15 +185,15 @@ in slice order; the code is there for when a note raises a question.
 
 ### S0 · Foundations (`SarfCore`) — the seam, the stand-in, and the first real engine
 
-*State: 0.1 and 0.2 done; 0.3 next.* S1 can begin once **0.6** lands; 0.7–0.8 run beside it.
+*State: 0.1 – 0.3 done; 0.4 next.* S1 can begin once **0.6** lands; 0.7–0.8 run beside it.
 
 | # | Chunk | Owns | Builds on |
 |---|---|---|---|
 | 0.1 | **Content export** ✅ — un-park `tools/export-content.mjs` | `roots.json` + `golden-corpus.json` + one content hash; explicit nulls; derived nouns, citations, the فعل root | — |
 | 0.2 | **Vocabulary** ✅ | `Models/`: `PronounSlot` · `VerbForm` · `DerivedNounType` (`Vocabulary.swift`), `Tense` · `Voice` · `Mood` · `ChartShape` (`ChartShape.swift` — the failable init is the single judge of the nine), `Haraka` · `Bab` (`Bab.swift`), `VerbType` · `VerbTypeGroup` (`VerbType.swift`). Their `rawValue`s are the storage contract, pinned by tests and checked against both exported files | 0.1 (the JSON's keys are these values) |
-| 0.3 | **Lexicon** | `Root`, `RootFormUsage`, `LexiconService.load()` — enum-keyed decode, root-vs-radicals check, fails loudly | 0.2 |
+| 0.3 | **Lexicon** ✅ | `Models/`: `Radicals` (fāʾ / ʿayn / lām, one scalar each) · `Root` · `RootForm` · `RootFormUsage` · `EnglishForms`. `Lexicon/`: `LexiconService.load()` (enum-keyed decode, declared-type-vs-radicals check, duplicates and a bāb on a mazīd form refused — fails loudly), `root(forKey:)`, `candidates`, `stockedTypes`, and `classify` in its own file. `availableTypes` moved to 0.5, which owns `hasEngine` | 0.2 |
 | 0.4 | **ArabicText** | grapheme clusters and the first differing cluster | — |
-| 0.5 | **The seam** | `ConjugationSpec`, the `VerbTypeConjugator` protocol, `ConjugationService` (router, every precondition, `conjugates`/`hasPassive`, `waznRoot`), `ENGINE_BACKING`. **The API freezes here** | 0.2, 0.3 |
+| 0.5 | **The seam** | `ConjugationSpec`, the `VerbTypeConjugator` protocol, `ConjugationService` (router, every precondition, `conjugates`/`hasPassive`, `waznRoot`), `ENGINE_BACKING`, and `availableTypes(enabled:)` with the content-gate table (lafīf is now one gate on one group). **The API freezes here** | 0.2, 0.3 |
 | 0.6 | **The stand-in** | corpus loader, `CorpusConjugator`, the hash check. Exit: all 69,974 cells answered through the public service | 0.1, 0.5 |
 | 0.7 | **Shared grammar + templates** — *you read this (R0)* | `GrammarTypes`, `SharedGrammar`, scalar-level `Templates` (Traps 1–3 fixed here once) | 0.5 |
 | 0.8 | **Sālim** — *you read this (R1)* | `SalimGrammar`, `SalimConjugator`; `ENGINE_BACKING[sālim] = .engine`. Exit: zero diff over sālim's 11,150 words; the sālim parity assertions ported verbatim | 0.7 |
@@ -416,6 +417,15 @@ Features/Tables/
   0.7); `MAZEED_IDS` (drills only — S3); `QUIZ_TYPE_IDS` (SarfQuiz — S2); `HARAKA_NAMES` (display strings —
   Glossary); the sukūn / shadda scalars (0.7, with the first template that writes one); `PronounSlot`
   person / gender / number accessors (no JS code parses a slot, so none until a consumer does).
+- **99 mazīd forms record a `masdar` nothing reads.** `conjugation-service.js:288` uses `usage.masdar` for Form I
+  only, and `roots.js`'s header says mazīd maṣādir come from templates — yet the lexicon carries one on 99 mazīd
+  forms (II 29, V 21, IV 16, X 10, VIII 8, III 7, VI 7, VII 1; mostly nāqiṣ). `RootFormUsage` carries them
+  unchanged. Decide: delete them from the lexicon, or use them as a cross-check against the template's output
+  (which would make them worth keeping).
+- **`Radicals` names its letters `fa` / `ayn` / `lam`** where the JS has an array indexed 0–2 and the plan's
+  earlier sketch had `[Character]`. The weak-type names are positions (mithāl = weak fāʾ), so an engine reading
+  `radicals.ayn` is reading the grammar, and "exactly three" is enforced once at decode. If it reads as too
+  clever in the engines, `[Unicode.Scalar]` is a one-file revert.
 - **`DEFAULT_BAB` is not ported.** `quiz/builders/derived.js:105` fills a missing bāb with `au` when it builds a
   decoy — a guess that can pass for a real form, which is exactly what the rules forbid. S4's derived builder
   must treat a missing bāb as "no decoy from this form", and the JS gets the same fix when that chunk lands.
