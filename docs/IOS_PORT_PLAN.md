@@ -422,6 +422,12 @@ Features/Tables/
 - **The stored field `derivedKind`** (product-spec, ARCHITECTURE) names a value of type `DerivedNounType`.
   S2.1 decides the `WordSpec` field name; it should follow the type, which the user's naming rule prefers over
   "kind" — a rename of a stored key is a migration, so settle it before anything is written.
+- **The JS still has two lafīf groups.** `VerbTypeGroup` in Swift has one (`.lafif`, covering `lafifMafruq` and
+  `lafifMaqrun`) — the owner's call, 2026-10-29, and it matches `product-spec/reference/content.md` (one
+  `lafifVerbs` flag, "two names to a student"). `vocabulary.js` (`VERB_TYPE_GROUP`, `VERB_TYPE_GROUP_IDS`, and the
+  comment that calls lafīf "the exception") plus `glossary.js`, `quiz/drills.js`, `lexicon-service.js`,
+  `roots/lafif.js` and `smoke.mjs` still treat them as two. Nothing is user-visible while lafīf is flagged off, so
+  this waits for R7 unless you want the prototype aligned sooner.
 - **`VerbTypeGroup` is not `Codable`**, on purpose: carrying a group into plan data killed a Home drill in the
   prototype. If a persisted draft ever needs a chip selection, add the conformance as a visible diff and store
   `verbTypes`.

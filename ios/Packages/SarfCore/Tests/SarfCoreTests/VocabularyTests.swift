@@ -45,8 +45,7 @@ struct VocabularyPinTests {
             "lafif_mafruq", "lafif_maqrun",
         ])
         #expect(VerbTypeGroup.allCases.map(\.rawValue) == [
-            "salim", "mahmuz", "mudaaf", "mithal", "ajwaf", "naqis",
-            "lafif_mafruq", "lafif_maqrun",
+            "salim", "mahmuz", "mudaaf", "mithal", "ajwaf", "naqis", "lafif",
         ])
     }
 }
@@ -178,16 +177,17 @@ struct VerbTypeTests {
         }
     }
 
-    @Test func theWeakTypesSplitByLetterAndLafifDoesNot() {
+    /// The five groups that cover more than one engine type each cover exactly the
+    /// pair the domain says; the rest are one type, one group.
+    @Test func eachGroupCoversExactlyItsEngineTypes() {
         #expect(VerbTypeGroup.mithal.verbTypes == [.mithalWaw, .mithalYa])
         #expect(VerbTypeGroup.ajwaf.verbTypes == [.ajwafWaw, .ajwafYa])
         #expect(VerbTypeGroup.naqis.verbTypes == [.naqisWaw, .naqisYa])
+        // Lafīf's pair differs by position of the weak letters, not by which letter.
+        #expect(VerbTypeGroup.lafif.verbTypes == [.lafifMafruq, .lafifMaqrun])
         #expect(VerbTypeGroup.salim.verbTypes == [.salim])
         #expect(VerbTypeGroup.mahmuz.verbTypes == [.mahmuz])
         #expect(VerbTypeGroup.mudaaf.verbTypes == [.mudaaf])
-        // Lafīf: type and group are the same thing, one chip each.
-        #expect(VerbType.lafifMafruq.group.rawValue == VerbType.lafifMafruq.rawValue)
-        #expect(VerbType.lafifMaqrun.group.rawValue == VerbType.lafifMaqrun.rawValue)
     }
 
     /// Cross-check of the per-case `group` against the naming convention.

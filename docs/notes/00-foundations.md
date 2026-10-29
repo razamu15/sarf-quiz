@@ -32,7 +32,7 @@ computed properties that read only `self`. Port of `web-prototype/js/vocabulary.
  what picks a TABLE                          what picks a ROW        what the table is OF
  ┌─────────────────────────────────┐         ┌───────────────┐       ┌────────────────────────────────┐
  │ ChartShape  (nine of them)      │         │ PronounSlot   │       │ VerbType ──group──▶ VerbTypeGroup │
- │   tense  : Tense   madi mudari amr        │   14 cases    │       │   11 cases           8 cases   │
+ │   tense  : Tense   madi mudari amr        │   14 cases    │       │   11 cases           7 cases   │
  │   voice  : Voice   malum majhul │         │ Tense.slots   │       │   (engine, STORED)   (UI only, │
  │   mood   : Mood?   raf nasb jazm│         │   14, or 6    │       │                      NOT stored)│
  └─────────────────────────────────┘         │   for amr     │       │ VerbForm    I … X              │

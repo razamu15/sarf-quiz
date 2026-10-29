@@ -1,6 +1,9 @@
 // Verb types, in the two layers the app deliberately keeps apart. Port of
 // VERB_TYPE_IDS / VERB_TYPE_GROUP_IDS / groupOfVerbType / verbTypesInGroup in
-// web-prototype/js/vocabulary.js.
+// web-prototype/js/vocabulary.js — with ONE deliberate difference: the JS keeps
+// the two lafīf types as two groups; here they are one (`.lafif`). The owner's
+// call, 2026-10-29; the JS is still to be brought into line (IOS_PORT_PLAN
+// follow-ups).
 //
 //   ENGINE layer  `VerbType`       what the engine routes on, and what is stored
 //   USER layer    `VerbTypeGroup`  what a student picks; never stored
@@ -10,18 +13,20 @@
 // yāʾ as a long ī, and نَامَ / بَاعَ both show alif in the māḍī but unfold to نُمْتُ
 // vs بِعْتُ. One conjugator per split type is what keeps those table-driven
 // instead of becoming branches. Above the engine the split is invisible: Practice
-// shows one "Ajwaf" chip and it selects both.
+// shows one "Ajwaf" chip and it selects both — and one "Lafīf" chip, for the same
+// reason (below).
 
 /// A verb type as the engine sees it. Raw values are a storage contract (see
 /// Vocabulary.swift) — they are the `"type"` of every root in roots.json and
 /// the `verbType` of every stored WordSpec.
 ///
-/// LAFĪF IS THE EXCEPTION to "split by which letter": it splits on where the two
-/// weak letters sit — mafrūq (فاء and لام weak with a sound ʿayn between, وَقَى)
-/// vs maqrūn (the two weak letters adjacent, طَوَى) — because students are taught
-/// that distinction by name and asked to tell the two apart. So for lafīf the type
-/// and the group are the same thing. Whether one engine or two serves them is the
-/// engine layer's question (IOS_PORT_PLAN R7).
+/// LAFĪF splits on a different axis from the others: not WHICH letter is weak but
+/// WHERE the two weak letters sit — mafrūq (فاء and لام weak with a sound ʿayn
+/// between, وَقَى) vs maqrūn (the two weak letters adjacent, طَوَى). The engine
+/// routes on that split; the student does not see it as two types — both belong
+/// to the one `.lafif` group, as the two wāw/yāʾ types of mithāl do to `.mithal`.
+/// Whether one engine or two serves them is the engine layer's question
+/// (IOS_PORT_PLAN R7).
 ///
 /// Called by: Root.type (S0.3); ConjugationService's router and `ENGINE_BACKING`
 /// (S0.5), which key on it; every verb type's engine (S0.8 onward); WordSpec
@@ -43,8 +48,7 @@ public enum VerbType: String, CaseIterable, Codable, Sendable {
         case .mithalWaw, .mithalYa: return .mithal
         case .ajwafWaw, .ajwafYa:   return .ajwaf
         case .naqisWaw, .naqisYa:   return .naqis
-        case .lafifMafruq: return .lafifMafruq
-        case .lafifMaqrun: return .lafifMaqrun
+        case .lafifMafruq, .lafifMaqrun: return .lafif
         }
     }
 }
@@ -62,8 +66,7 @@ public enum VerbType: String, CaseIterable, Codable, Sendable {
 /// Called by: Settings' feature gates and Practice's chips (S1.1, S5);
 /// Glossary (SarfQuiz) for the display label; `Lexicon.availableTypes` (S0.3).
 public enum VerbTypeGroup: String, CaseIterable, Sendable {
-    case salim, mahmuz, mudaaf, mithal, ajwaf, naqis
-    case lafifMafruq = "lafif_mafruq", lafifMaqrun = "lafif_maqrun"
+    case salim, mahmuz, mudaaf, mithal, ajwaf, naqis, lafif
 
     /// The engine types this chip covers — the inverse of `VerbType.group`,
     /// derived from it so the two cannot disagree.
