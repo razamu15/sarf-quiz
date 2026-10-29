@@ -86,7 +86,7 @@ What was left out and why is in the plan's *Follow-ups*.
  LexiconService ──roots──▶ [ Root ]                          file order = Tables browser order
                               │ radicals : Radicals          fa · ayn · lam   (one scalar each)
                               │ verbType : VerbType          the ENGINE type, checked at load
-                              │ forms    : [VerbForm: RootFormUsage]
+                              │ forms    : [VerbForm: RootForm]
                               │               bab?  isTransitive  masdar?  faaDrops?  gloss  english?
                               │                                                          └─ EnglishForms
                               │                                    past · pastParticiple? · thirdPersonPresent · gerund
@@ -94,13 +94,13 @@ What was left out and why is in the plan's *Follow-ups*.
                               ├─ recordedForms  [VerbForm]       Form I … X — "the first form" is a stated fact
                               └─ bab(for:)      Bab?             replaces the JS babOf()
 
- RootForm = (root, form)      what candidates() returns and the quiz draws words from
+ RootInForm = (root, form)      what candidates() returns and the quiz draws words from
 ```
 
 | file | owns |
 |---|---|
-| `Models/Root.swift` | `Radicals` (+ its decode check), `Root`, `RootForm` |
-| `Models/RootFormUsage.swift` | `RootFormUsage`, `EnglishForms` — every field says why it may be absent |
+| `Models/Root.swift` | `Radicals` (+ its decode check), `Root`, `RootInForm` |
+| `Models/RootForm.swift` | `RootForm`, `EnglishForms` — every field says why it may be absent |
 | `Lexicon/LexiconService.swift` | `load()`, `LexiconError`, `root(forKey:)`, `candidates`, `stockedTypes` |
 | `Lexicon/Classification.swift` | `classify(radicals)` — the radicals-to-verb-type rule, in the JS's own precedence order |
 

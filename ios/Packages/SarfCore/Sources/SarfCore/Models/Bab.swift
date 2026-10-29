@@ -30,7 +30,7 @@ public enum Haraka: CaseIterable, Sendable {
 /// Only Form I has a bab. A Form I verb with no bab recorded stays nil; it is
 /// never guessed.
 ///
-/// Used by: RootFormUsage, the Form I engines, the quiz.
+/// Used by: RootForm, the Form I engines, the quiz.
 public enum Bab: String, CaseIterable, Codable, Sendable {
     case au, ai, aa, ia, uu, ii
 

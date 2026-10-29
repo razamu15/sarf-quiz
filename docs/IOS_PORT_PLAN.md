@@ -191,7 +191,7 @@ in slice order; the code is there for when a note raises a question.
 |---|---|---|---|
 | 0.1 | **Content export** ✅ — un-park `tools/export-content.mjs` | `roots.json` + `golden-corpus.json` + one content hash; explicit nulls; derived nouns, citations, the فعل root | — |
 | 0.2 | **Vocabulary** ✅ | `Models/`: `PronounSlot` · `VerbForm` · `DerivedNounType` (`Vocabulary.swift`), `Tense` · `Voice` · `Mood` · `ChartShape` (`ChartShape.swift` — the failable init is the single judge of the nine), `Haraka` · `Bab` (`Bab.swift`), `VerbType` · `VerbTypeGroup` (`VerbType.swift`). Their `rawValue`s are the storage contract, pinned by tests and checked against both exported files | 0.1 (the JSON's keys are these values) |
-| 0.3 | **Lexicon** ✅ | `Models/`: `Radicals` (fāʾ / ʿayn / lām, one scalar each) · `Root` · `RootForm` · `RootFormUsage` · `EnglishForms`. `Lexicon/`: `LexiconService.load()` (enum-keyed decode, declared-type-vs-radicals check, duplicates and a bāb on a mazīd form refused — fails loudly), `root(forKey:)`, `candidates`, `stockedTypes`, and `classify` in its own file. `availableTypes` moved to 0.5, which owns `hasEngine` | 0.2 |
+| 0.3 | **Lexicon** ✅ | `Models/`: `Radicals` (fāʾ / ʿayn / lām, one scalar each) · `Root` · `RootInForm` · `RootForm` · `EnglishForms`. `Lexicon/`: `LexiconService.load()` (enum-keyed decode, declared-type-vs-radicals check, duplicates and a bāb on a mazīd form refused — fails loudly), `root(forKey:)`, `candidates`, `stockedTypes`, and `classify` in its own file. `availableTypes` moved to 0.5, which owns `hasEngine` | 0.2 |
 | 0.4 | **ArabicText** | grapheme clusters and the first differing cluster | — |
 | 0.5 | **The seam** | `ConjugationSpec`, the `VerbTypeConjugator` protocol, `ConjugationService` (router, every precondition, `conjugates`/`hasPassive`, `waznRoot`), `ENGINE_BACKING`, and `availableTypes(enabled:)` with the content-gate table (lafīf is now one gate on one group). **The API freezes here** | 0.2, 0.3 |
 | 0.6 | **The stand-in** | corpus loader, `CorpusConjugator`, the hash check. Exit: all 69,974 cells answered through the public service | 0.1, 0.5 |
@@ -419,7 +419,7 @@ Features/Tables/
   person / gender / number accessors (no JS code parses a slot, so none until a consumer does).
 - **99 mazīd forms record a `masdar` nothing reads.** `conjugation-service.js:288` uses `usage.masdar` for Form I
   only, and `roots.js`'s header says mazīd maṣādir come from templates — yet the lexicon carries one on 99 mazīd
-  forms (II 29, V 21, IV 16, X 10, VIII 8, III 7, VI 7, VII 1; mostly nāqiṣ). `RootFormUsage` carries them
+  forms (II 29, V 21, IV 16, X 10, VIII 8, III 7, VI 7, VII 1; mostly nāqiṣ). `RootForm` carries them
   unchanged. Decide: delete them from the lexicon, or use them as a cross-check against the template's output
   (which would make them worth keeping).
 - **`Radicals` names its letters `fa` / `ayn` / `lam`** where the JS has an array indexed 0–2 and the plan's

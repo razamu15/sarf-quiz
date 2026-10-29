@@ -46,7 +46,8 @@ public struct Radicals: Hashable, Sendable, Decodable {
     }
 }
 
-/// One lexicon entry: a root, its verb type, and the forms it is used in.
+/// One lexicon entry: a root, its verb type, and a `RootForm` for each form it is
+/// used in.
 ///
 ///     كتب    salim    forms: I, II, III, IV, VI, VIII, X
 ///
@@ -54,7 +55,7 @@ public struct Radicals: Hashable, Sendable, Decodable {
 public struct Root: Hashable, Sendable, Decodable {
     public let radicals: Radicals
     public let verbType: VerbType
-    public let forms: [VerbForm: RootFormUsage]
+    public let forms: [VerbForm: RootForm]
 
     /// The root as a string ("كتب"). See `Radicals.key`.
     public var key: String { radicals.key }
@@ -83,24 +84,25 @@ public struct Root: Hashable, Sendable, Decodable {
         radicals = try container.decode(Radicals.self, forKey: .radicals)
         verbType = try container.decode(VerbType.self, forKey: .verbType)
         // The file's form keys are strings ("I", "II", ...); an unknown one is an error.
-        let raw = try container.decode([String: RootFormUsage].self, forKey: .forms)
-        var forms: [VerbForm: RootFormUsage] = [:]
-        for (key, usage) in raw {
+        let raw = try container.decode([String: RootForm].self, forKey: .forms)
+        var forms: [VerbForm: RootForm] = [:]
+        for (key, rootForm) in raw {
             guard let form = VerbForm(rawValue: key) else {
                 throw DecodingError.dataCorruptedError(
                     forKey: .forms, in: container,
                     debugDescription: "root \(radicals.key): unknown form \"\(key)\"")
             }
-            forms[form] = usage
+            forms[form] = rootForm
         }
         self.forms = forms
     }
 }
 
-/// A root in one specific form, for example كتب in Form II.
+/// A root paired with one of its forms, for example كتب in Form II. The details
+/// of that form are in `root.forms[form]`.
 ///
 /// Used by: LexiconService.candidates, the quiz word pool.
-public struct RootForm: Hashable, Sendable {
+public struct RootInForm: Hashable, Sendable {
     public let root: Root
     public let form: VerbForm
 }

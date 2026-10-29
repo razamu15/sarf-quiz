@@ -97,7 +97,7 @@ in separate folders; **the engine folders are the ones the owner reads in full**
 
 ```
 ios/Packages/SarfCore/Sources/SarfCore/
-  Models/                   ENTITIES ONLY: Vocabulary · ChartShape · Bab · VerbType · Root · RootFormUsage · GrammarTypes · MudariParticle
+  Models/                   ENTITIES ONLY: Vocabulary · ChartShape · Bab · VerbType · Root · RootForm · GrammarTypes · MudariParticle
   Grammar/                  data tables, one file per verb type — read against the paper chart
   Conjugation/
     VerbTypeConjugator.swift · ConjugationService.swift     the protocol and the one public door

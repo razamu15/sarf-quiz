@@ -24,9 +24,9 @@ private func resource(_ name: String) throws -> Data {
 private struct RootsFile: Decodable {
     struct Root: Decodable {
         let type: String
-        let forms: [String: FormUsage]
+        let forms: [String: FormEntry]
     }
-    struct FormUsage: Decodable { let bab: String? }
+    struct FormEntry: Decodable { let bab: String? }
     let roots: [Root]
 }
 
@@ -53,12 +53,12 @@ struct RootsVocabularyTests {
     @Test func babIsFormIOnlyAndAlwaysValid() throws {
         var sawEachBab = Set<Bab>()
         for root in roots {
-            for (form, usage) in root.forms {
+            for (form, entry) in root.forms {
                 if form == VerbForm.i.rawValue {
-                    let raw = try #require(usage.bab, "Form I without a bāb")
+                    let raw = try #require(entry.bab, "Form I without a bāb")
                     sawEachBab.insert(try #require(Bab(rawValue: raw), "unknown bāb \(raw)"))
                 } else {
-                    #expect(usage.bab == nil, "mazīd form \(form) carries a bāb")
+                    #expect(entry.bab == nil, "mazīd form \(form) carries a bāb")
                 }
             }
         }

@@ -100,9 +100,9 @@ public struct LexiconService: Sendable {
     /// of `forms`. Roots come in file order, and forms in order I to X.
     ///
     /// Used by: the quiz word pool.
-    public func candidates(types: Set<VerbType>, forms: Set<VerbForm>) -> [RootForm] {
+    public func candidates(types: Set<VerbType>, forms: Set<VerbForm>) -> [RootInForm] {
         roots.filter { types.contains($0.verbType) }.flatMap { root in
-            root.recordedForms.filter { forms.contains($0) }.map { RootForm(root: root, form: $0) }
+            root.recordedForms.filter { forms.contains($0) }.map { RootInForm(root: root, form: $0) }
         }
     }
 }

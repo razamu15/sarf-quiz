@@ -823,7 +823,7 @@ Small on purpose — this is the whole contract the app codes against:
 ```swift
 // Models (all public, all Sendable, all Codable where stored)
 Tense · Voice · Mood · VerbForm · PronounSlot · Bab · VerbType · VerbTypeGroup
-DerivedNounType · ChartShape · ChartSpec · Root · RootFormUsage · MudariParticle
+DerivedNounType · ChartShape · ChartSpec · Root · RootForm · MudariParticle
 
 // Services
 ConjugationService
@@ -864,8 +864,8 @@ Packages/SarfCore/Sources/SarfCore/
     Bab.swift                Haraka · Bab                                (built, S0.2)
     VerbType.swift           VerbType · VerbTypeGroup
     ChartSpec.swift          {root, formId, tense, voice, mood}
-    Root.swift               Radicals · Root · RootForm                    (built, S0.3)
-    RootFormUsage.swift      RootFormUsage · EnglishForms                  (built, S0.3)
+    Root.swift               Radicals · Root · RootInForm                    (built, S0.3)
+    RootForm.swift           RootForm · EnglishForms                       (built, S0.3)
     GrammarTypes.swift       Affix · StemTemplate · PrefixRule
     MudariParticle.swift
   Grammar/                 ← DATA TABLES (content, not entities)

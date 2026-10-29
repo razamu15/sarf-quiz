@@ -95,10 +95,10 @@ struct BundledLexiconTests {
     /// transitive form has a pastParticiple.
     @Test func englishIsAbsentOnlyForToBeGlosses() {
         for root in lexicon.roots {
-            for (form, usage) in root.forms {
+            for (form, rootForm) in root.forms {
                 let id = "\(root.key) \(form.rawValue)"
-                if usage.english == nil { #expect(usage.gloss.hasPrefix("to be "), "\(id): \(usage.gloss)") }
-                if !usage.isTransitive { #expect(usage.english?.pastParticiple == nil, "\(id)") }
+                if rootForm.english == nil { #expect(rootForm.gloss.hasPrefix("to be "), "\(id): \(rootForm.gloss)") }
+                if !rootForm.isTransitive { #expect(rootForm.english?.pastParticiple == nil, "\(id)") }
             }
         }
     }
@@ -209,9 +209,9 @@ struct LexiconRefusalTests {
     /// Optional fields stay nil when missing.
     @Test func optionalFieldsStayAbsent() throws {
         let lexicon = try LexiconService.load(from: lexiconJSON(good))
-        let usage = try #require(lexicon.roots.first?.forms[.i])
-        #expect(usage.masdar == nil)
-        #expect(usage.faaDrops == nil)
-        #expect(usage.english == nil)
+        let rootForm = try #require(lexicon.roots.first?.forms[.i])
+        #expect(rootForm.masdar == nil)
+        #expect(rootForm.faaDrops == nil)
+        #expect(rootForm.english == nil)
     }
 }

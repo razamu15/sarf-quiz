@@ -1,14 +1,17 @@
-// What the lexicon records about a root in one form: its meaning, and the few
-// facts the engines can't work out from the letters alone.
+// How one form of a root behaves: its meaning, and the few facts the engines
+// can't work out from the letters alone.
 
-/// What the lexicon records about one root in one form.
+/// How one specific form (Form I, II, V, VII, ...) behaves for a single root.
+/// A root has one `RootForm` for each form it is used in.
+///
+///     كتب, Form II: "to make (someone) write", takes an object
 ///
 /// Optional fields are nil when they don't apply; they are never filled with a
 /// default.
 ///
-/// Used by: Root, the engines (bab, faaDrops, masdar, isTransitive), the meaning
-/// builder (gloss, english), the Tables search (gloss).
-public struct RootFormUsage: Hashable, Sendable, Decodable {
+/// Used by: Root.forms, the engines (bab, faaDrops, masdar, isTransitive), the
+/// meaning builder (gloss, english), the Tables search (gloss).
+public struct RootForm: Hashable, Sendable, Decodable {
     /// Form I only: which of the six patterns the verb follows. Nil for II–X.
     public let bab: Bab?
 
