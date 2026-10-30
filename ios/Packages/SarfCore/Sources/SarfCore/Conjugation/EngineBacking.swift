@@ -10,7 +10,9 @@ enum EngineBacking: Hashable, Sendable {
     case unbuilt
 }
 
-/// The backing of each group. Flipping a group to `.engine` is a one-word edit.
+/// The backing of each group. Flipping a group to `.engine` is this line and the
+/// group's entry in `ConjugationService.engines`; the service won't load with
+/// one and not the other.
 ///
 /// ACCEPTED TRADE-OFF: until a group is `.engine`, its words are looked up, not
 /// generated. Prefix / stem / suffix output can't come from a string corpus, so
@@ -18,7 +20,7 @@ enum EngineBacking: Hashable, Sendable {
 ///
 /// A switch with no default, so a new group can't be left out.
 ///
-/// Used by: ConjugationService (checks its engines against this).
+/// Used by: ConjugationService (checks its engines against this), load.
 func engineBacking(for group: VerbTypeGroup) -> EngineBacking {
     switch group {
     case .salim:   return .corpus

@@ -1,12 +1,24 @@
 // The one door to conjugation.
 
-/// The service was given engines that don't match `engineBacking`. A wiring
-/// mistake in the app, never bad data.
+/// Why the service couldn't be built. A file whose own contents are bad (a
+/// missing key, an unknown slot) comes through as a `DecodingError` instead.
 enum ConjugationError: Error, Equatable, CustomStringConvertible {
+    /// A file isn't in the bundle.
+    case resourceMissing(String)
+    /// The corpus was exported from a different roots.json than the bundled one.
+    case corpusStale(expected: String, actual: String)
+    /// The service was given engines that don't match `engineBacking`. A wiring
+    /// mistake in the app, never bad data.
     case backingMismatch(group: VerbTypeGroup, declared: EngineBacking, registered: Bool)
 
     var description: String {
         switch self {
+        case let .resourceMissing(name):
+            return "conjugation: \(name) is missing from the SarfCore bundle"
+        case let .corpusStale(expected, actual):
+            return "conjugation: golden-corpus.json was exported from a roots.json hashing to \(expected), "
+                + "but the bundled one hashes to \(actual). "
+                + "Regenerate: cd web-prototype && node tools/export-content.mjs"
         case let .backingMismatch(group, declared, registered):
             return "conjugation: group \(group.rawValue) is declared \(declared) but "
                 + (registered ? "has a conjugator" : "has no conjugator")

@@ -154,7 +154,7 @@ which today is a corpus lookup and later a real engine. **This is where the engi
 ```
  app / quiz ──▶ ConjugationService ──▶ conjugators[group]        built from engineBacking(for:)
                   │                      .engine   the group's own engine          (none yet)
-                  │ every precondition   .corpus   a lookup in golden-corpus.json   (six groups, until 0.6)
+                  │ every precondition   .corpus   a lookup in golden-corpus.json   (six groups, until their engines land)
                   │ lives here           .unbuilt  nothing at all                   (lafīf)
                   ▼
         ConjugationSpec = root + form + ChartShape          a word = spec + PronounSlot
@@ -184,7 +184,7 @@ which today is a corpus lookup and later a real engine. **This is where the engi
 - **Wiring is checked once, at `init`.** The registry must hold a conjugator for exactly the groups
   `engineBacking` says are built. A missing one would otherwise read as "no such word" forever. Switches with no
   `default` (`engineBacking`, `ContentGate.isOpen`, `VerbForm.facts`) mean a new group or form can't be forgotten.
-- **No public initializer yet.** `ConjugationService` can only be made inside the package until 0.6 adds `load`.
+- **No public initializer.** `ConjugationService` could only be made inside the package until 0.6 added `load`.
 - **The corpus check is the strongest test.** For all 578 root-forms × 9 charts, "service says the chart can exist"
   equals "the corpus has words for it". It found one mismatch, which is not the service's: the mahmūz engine
   refuses ءخذ in Form VIII (اِتَّخَذَ). It is named in the test as an engine refusal, so a *new* mismatch still fails.
@@ -196,3 +196,60 @@ which today is a corpus lookup and later a real engine. **This is where the engi
 **Decisions to veto** (also in the plan's follow-ups): `citation` is `String?`; `waznOf` takes
 `(form, shape, slot, bab)`; `waznRoot` carries an empty `gloss`; `hasEngine` stays internal; `ContentGate` is a
 struct with one field per gate, not a set of groups.
+
+
+---
+
+## 0.6 · The stand-in
+
+**What it is.** The first public way to make a `ConjugationService`, and the lookup that answers for the six groups
+with no engine yet. `load()` decodes `golden-corpus.json`, refuses it unless it was exported from the bundled
+`roots.json`, then gives each group the conjugator that `engineBacking` names. After this the app can run.
+
+```
+ roots.json ───── sha256 ─────▶ must equal ┐
+                                            ▼
+ golden-corpus.json ─▶ GoldenCorpus ──▶ CorpusConjugator ──▶ registry[salim … naqis]       ConjugationService.load()
+   rootsHash            roots[letters][form] ─▶ CorpusBlock { citation, derived, charts[shape][slot] }
+                        wazn[(form, bab?)]   ─▶ CorpusBlock                the reference root ف-ع-ل
+```
+
+| file | owns |
+|---|---|
+| `Conjugation/Corpus/GoldenCorpus.swift` | `GoldenCorpus`, `CorpusBlock`, `WaznKey`: decoding, and every check on the file |
+| `Conjugation/Corpus/CorpusConjugator.swift` | the lookup, and how the reference root is told from a lexicon root |
+| `Conjugation/Corpus/ContentHash.swift` | `contentHash(of:)`, in the exporter's `sha256:<hex>` form |
+| `Conjugation/ConjugationService+Load.swift` | `load()`, the hash check, and the `engines` table |
+
+**What to look for in the diff.**
+
+- **`GoldenCorpus` is the one validator of the file.** Nine charts per form, each once; every slot of the tense and
+  no other; every noun type written; a Form I pattern always has a bāb and no other pattern does; no `""` citation.
+  A key that is missing means a stale export, so it fails the load rather than reading as "no word". Problems come
+  out as `DecodingError`s whose path names the root and form.
+- **The stand-in stores only what exists.** No chart entry means the chart doesn't exist, no slot entry means no
+  word, no noun entry means no noun. The service has already ruled out every impossible word, so a `nil` from here
+  means the JS engine had none either (ءخذ in Form VIII).
+- **A citation is still built by the service** from the past and present words. The corpus's own `citation` is read
+  only for Form IX, and the test compares it with the service's for all 593 blocks, which checks the join as well.
+- **The reference root is found by its letters** (`waznRadicals`). A lexicon root with ف-ع-ل would be shadowed, so a
+  test says there isn't one. Only Form I reads a bāb, like the engines: a bāb passed with Form II changes nothing.
+- **The hash covers the lexicon, not the engines.** A hand edit to `roots.json`, even a byte, fails the load. An
+  engine edit with the lexicon unchanged does not: `node tools/export-content.mjs --check` is the guard for that.
+- **One change outside Swift.** The exporter wrote `""` for "no citation" (ضرب, ءخذ, دعو in Form VIII) where
+  everything else absent is `null`. It now writes `null`; the regenerated corpus differs in those three lines and
+  the hash is unchanged.
+- **The exit test reads the corpus on its own** (`JSONSerialization`, not the loader) and compares every cell
+  through the public service: 593 blocks, 69,974 cells, plus every table, derived noun and citation. The 15 lafīf
+  roots answer nothing, because there is no engine, not because there is no word.
+- **Mutation-checked:** 18 deliberate breaks (shape or form ignored, the bāb handling, the reference root, the hash
+  check, a group left unwired, and each of the loader's checks) each fail at least one test.
+- **Cost:** `load()` takes 0.09 s in release and 0.16 s in debug. It is synchronous; 1.2 decides where it runs.
+
+**Decisions to veto** (also in the plan's follow-ups): the exporter change above; `ConjugationError` stays
+internal, so `load()` throws errors the app can print but not match on; SHA-256 through CommonCrypto, so the
+packages need no macOS platform (CryptoKit is a one-line swap if you would rather declare one in both); the `engines`
+table is empty today and a group flipped to `.engine` needs an entry there as well as its `engineBacking` line;
+one `CorpusConjugator` serves all six groups, because it looks up by root and the service already routes by group;
+`load()` hashes the bundled `roots.json` itself, so it cannot tell if the app built its lexicon from other data
+(the alternative is the lexicon carrying its own hash, which keeps corpus-only code in a permanent type).

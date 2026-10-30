@@ -330,13 +330,14 @@ struct CorpusChecksTests {
         }
     }
 
-    /// Every citation in the corpus has both words or none: no half citations.
+    /// Every citation in the corpus has both words or is null: no half citations.
     @Test func citationsAreWholeOrAbsent() throws {
         for (key, forms) in corpusRoots {
             for (formName, block) in forms {
-                let citation = try #require((block as? [String: Any])?["citation"] as? String, "\(key) \(formName)")
-                let words = citation.split(separator: " ").count
-                #expect(words == 0 || words == 2, "\(key) \(formName)")
+                let citation = try #require((block as? [String: Any])?["citation"], "\(key) \(formName)")
+                if citation is NSNull { continue }
+                let words = try #require(citation as? String).split(separator: " ").count
+                #expect(words == 2, "\(key) \(formName)")
             }
         }
     }

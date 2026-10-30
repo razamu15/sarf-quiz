@@ -1,6 +1,11 @@
 // The patterns (awzan): the same words, built on the reference root ف-ع-ل.
 
 extension ConjugationService {
+    /// The reference root's letters: ف ع ل.
+    ///
+    /// Used by: waznRoot, CorpusConjugator (to tell it from a lexicon root).
+    static let waznRadicals = Radicals(fa: "ف", ayn: "ع", lam: "ل")
+
     /// The reference root, as a lexicon entry the engines can conjugate. It is
     /// sālim, so it shows a pattern with no weak letters in the way.
     ///
@@ -10,7 +15,7 @@ extension ConjugationService {
     /// Used by: the wazn methods below, the Tables form chips, Compare.
     public static func waznRoot(form: VerbForm, bab: Bab?) -> Root {
         Root(
-            radicals: Radicals(fa: "ف", ayn: "ع", lam: "ل"),
+            radicals: waznRadicals,
             verbType: .salim,
             forms: [form: RootForm(bab: bab, isTransitive: true, masdar: nil, faaDrops: nil, gloss: "", english: nil)])
     }

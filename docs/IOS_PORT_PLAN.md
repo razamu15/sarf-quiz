@@ -36,7 +36,8 @@ Every choice below is derived from those three; where one trades against another
 | **S0.3** lexicon | ✅ done | `S0.3 — the lexicon` |
 | **S0.4** ArabicText | ✅ done | `S0.4 — ArabicText` |
 | **S0.5** the seam | ✅ done | `S0.5 — the seam` |
-| **S0.6 – S8, R1 – R7** | not started | — |
+| **S0.6** the stand-in | ✅ done | `S0.6 — the stand-in` |
+| **S0.7 – S8, R1 – R7** | not started | — |
 
 **D1 and D2 are "done, pending S1"**: Track D is finished when Tables looks right, and Tables does not
 exist yet. What can be checked now has been — the type scale renders at its real row heights on device
@@ -187,7 +188,7 @@ in slice order; the code is there for when a note raises a question.
 
 ### S0 · Foundations (`SarfCore`) — the seam, the stand-in, and the first real engine
 
-*State: 0.1 – 0.5 done; 0.6 next.* S1 can begin once **0.6** lands; 0.7–0.8 run beside it.
+*State: 0.1 – 0.6 done; 0.7 next.* S1 can begin now that **0.6** has landed; 0.7–0.8 run beside it.
 
 | # | Chunk | Owns | Builds on |
 |---|---|---|---|
@@ -196,7 +197,7 @@ in slice order; the code is there for when a note raises a question.
 | 0.3 | **Lexicon** ✅ | `Models/`: `Radicals` (fāʾ / ʿayn / lām, one scalar each) · `Root` · `RootInForm` · `RootForm` · `EnglishForms`. `Lexicon/`: `LexiconService.load()` (enum-keyed decode, declared-type-vs-radicals check, duplicates and a bāb on a mazīd form refused — fails loudly), `root(forKey:)`, `candidates`, `stockedTypes`, and `classify` in its own file. `availableTypes` moved to 0.5, which owns `hasEngine` | 0.2 |
 | 0.4 | **ArabicText** ✅ | `Text/ArabicText.swift`: `clusters` (a word as letters-with-marks, `[Character]`) and `firstDifferingCluster` (`Int?`, nil when the words match). Same split as the JS segmenter on all 36,807 distinct corpus words | — |
 | 0.5 | **The seam** ✅ | `Models/ConjugationSpec` (root + form + `ChartShape`). `Conjugation/`: `VerbTypeConjugator` (internal protocol; `conjugateTable` and `recognitionCitation` have defaults), `ConjugationService` (the router and every precondition: `conjugate`, `fullTable`, `derivedNoun`, `conjugates`, `hasPassive`, plus `hasEngine` internal), `+Citation` (`citation`), `+Wazn` (`waznRoot`, `waznOf`, `waznOfDerived`, `waznCitation`), `EngineBacking` (`engineBacking(for:)`, one row per group). `Lexicon/ContentGate` (`ContentGate`, `availableTypes(gate:conjugation:)`). `Grammar/SharedGrammar` begins with the two facts the service reads: `VerbForm.facts` and `iftiaalAssimilatingFaa`. The service is built from stand-ins in tests, and its precondition set is checked against all 578 root-forms × 9 charts in the corpus. **The API freezes here** | 0.2, 0.3 |
-| 0.6 | **The stand-in** | corpus loader, `CorpusConjugator`, the hash check, and `ConjugationService.load` — the first public way to make a service, which fills the engine registry from `engineBacking`. Exit: all 69,974 cells answered through the public service | 0.1, 0.5 |
+| 0.6 | **The stand-in** ✅ | `Conjugation/Corpus/`: `GoldenCorpus` (decodes `golden-corpus.json` and is its one validator: the nine charts, every slot, every noun type, the pattern bāb rule), `CorpusConjugator` (the lookup; the reference root is found by its letters), `ContentHash`. `ConjugationService+Load`: `load()`, the first public way to make a service — it checks the corpus was exported from the bundled `roots.json`, then fills the registry from `engineBacking`. The exporter now writes `null` for "no citation" (it wrote `""`). Exit met: all 69,974 cells, 593 citations and every derived noun come back through the public service exactly as the corpus holds them | 0.1, 0.5 |
 | 0.7 | **Shared grammar + templates** — *you read this (R0)* | `GrammarTypes`, the rest of `SharedGrammar` (`PREFIX_LETTERS`, `MUDARI_PREFIX_HARAKA`, the ending notation — `FormFacts` and `iftiaalAssimilatingFaa` already exist from 0.5), scalar-level `Templates` (Traps 1–3 fixed here once) | 0.5 |
 | 0.8 | **Sālim** — *you read this (R1)* | `SalimGrammar`, `SalimConjugator`; `ENGINE_BACKING[sālim] = .engine`. Exit: zero diff over sālim's 11,150 words; the sālim parity assertions ported verbatim | 0.7 |
 
@@ -205,7 +206,7 @@ in slice order; the code is there for when a note raises a question.
 
 ### S1 · Tables — the first real screen
 
-*State: not started.* Needs 0.6.
+*State: not started.* Unblocked by 0.6.
 
 | # | Chunk | Owns | Builds on |
 |---|---|---|---|
@@ -466,5 +467,16 @@ Features/Tables/
   the mahmūz grammar's `UNWRITTEN_FORMS` declines ءخذ in Form VIII (the same rule, one letter further). When the
   substitution is written, both come out together — the test list of engine refusals in
   `ConjugationServiceTests` is the third place to update.
+- **S0.6 changed these** (all in `docs/notes/00-foundations.md` 0.6): the exporter writes `null` for "no citation"
+  where it wrote `""` (three corpus lines, the hash unchanged), and the loader refuses `""`;
+  `ConjugationError` stays internal, so `load()` throws errors the app can print but not `catch` by case;
+  SHA-256 comes from CommonCrypto, because CryptoKit needs a macOS platform and the packages declare only iOS
+  (declaring `.macOS(.v15)` in both is the alternative, and a one-line swap); `ConjugationService.engines` is
+  empty, and a group flipped to `.engine` needs its entry there as well as its line in `engineBacking` — `load`
+  fails until both are done; `load()` is synchronous, 0.09 s in release and 0.16 s in debug for the 2 MB corpus,
+  so which thread runs it is 1.2's call.
+- **The hash covers the lexicon, not the engines.** An engine edit with an unchanged `roots.json` leaves the corpus
+  stale and the hash satisfied. `node tools/export-content.mjs --check` before a port commit is the only guard; the
+  exporter's header says so.
 - **`availableCharts` and `enginedGroups` are not ported.** The JS marks both `PROTOTYPE ONLY`; only the smoke
   test called them.

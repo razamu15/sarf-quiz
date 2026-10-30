@@ -70,7 +70,7 @@ private struct Corpus: Decodable {
         }
     }
     struct Block: Decodable {
-        let citation: String
+        let citation: String?
         let derived: [String: String?]
         let charts: [Chart]
     }

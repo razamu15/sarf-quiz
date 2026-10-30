@@ -353,7 +353,7 @@
         {"tense":"mudari","voice":"majhul","mood":"jazm","words":null},
         {"tense":"amr","voice":"malum","mood":null,"words":{"2ms":"تَضَارَبْ","2md":"تَضَارَبَا","2mp":"تَضَارَبُوا","2fs":"تَضَارَبِي","2fd":"تَضَارَبَا","2fp":"تَضَارَبْنَ"}}
       ]},
-      "VIII":{"citation":"","derived":{"ismFail":null,"ismMaful":null,"masdar":null},"charts":[
+      "VIII":{"citation":null,"derived":{"ismFail":null,"ismMaful":null,"masdar":null},"charts":[
         {"tense":"madi","voice":"malum","mood":null,"words":null},
         {"tense":"madi","voice":"majhul","mood":null,"words":null},
         {"tense":"mudari","voice":"malum","mood":"raf","words":null},
@@ -1350,7 +1350,7 @@
         {"tense":"mudari","voice":"majhul","mood":"jazm","words":{"3ms":"يُؤَاخَذْ","3md":"يُؤَاخَذَا","3mp":"يُؤَاخَذُوا","3fs":"تُؤَاخَذْ","3fd":"تُؤَاخَذَا","3fp":"يُؤَاخَذْنَ","2ms":"تُؤَاخَذْ","2md":"تُؤَاخَذَا","2mp":"تُؤَاخَذُوا","2fs":"تُؤَاخَذِي","2fd":"تُؤَاخَذَا","2fp":"تُؤَاخَذْنَ","1s":"أُؤَاخَذْ","1p":"نُؤَاخَذْ"}},
         {"tense":"amr","voice":"malum","mood":null,"words":{"2ms":"آخِذْ","2md":"آخِذَا","2mp":"آخِذُوا","2fs":"آخِذِي","2fd":"آخِذَا","2fp":"آخِذْنَ"}}
       ]},
-      "VIII":{"citation":"","derived":{"ismFail":null,"ismMaful":null,"masdar":null},"charts":[
+      "VIII":{"citation":null,"derived":{"ismFail":null,"ismMaful":null,"masdar":null},"charts":[
         {"tense":"madi","voice":"malum","mood":null,"words":null},
         {"tense":"madi","voice":"majhul","mood":null,"words":null},
         {"tense":"mudari","voice":"malum","mood":"raf","words":null},
@@ -5194,7 +5194,7 @@
         {"tense":"mudari","voice":"majhul","mood":"jazm","words":null},
         {"tense":"amr","voice":"malum","mood":null,"words":{"2ms":"تَدَاعَ","2md":"تَدَاعَيَا","2mp":"تَدَاعَوْا","2fs":"تَدَاعَيْ","2fd":"تَدَاعَيَا","2fp":"تَدَاعَيْنَ"}}
       ]},
-      "VIII":{"citation":"","derived":{"ismFail":null,"ismMaful":null,"masdar":null},"charts":[
+      "VIII":{"citation":null,"derived":{"ismFail":null,"ismMaful":null,"masdar":null},"charts":[
         {"tense":"madi","voice":"malum","mood":null,"words":null},
         {"tense":"madi","voice":"majhul","mood":null,"words":null},
         {"tense":"mudari","voice":"malum","mood":"raf","words":null},

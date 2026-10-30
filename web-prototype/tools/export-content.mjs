@@ -138,7 +138,9 @@ function formBlock(ops, label) {
     return { ...shape, words };
   });
   const derived = Object.fromEntries(DERIVED_NOUN_TYPE_IDS.map((t) => [t, ops.derived(t)]));
-  return nfc({ citation: ops.citation(), derived, charts }, label);
+  // The JS service says "no citation" with '' (ضرب in Form VIII); the corpus says
+  // it with null, like every other absence.
+  return nfc({ citation: ops.citation() || null, derived, charts }, label);
 }
 
 const rootOps = (root, formId) => ({

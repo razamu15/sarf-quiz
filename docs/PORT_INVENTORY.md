@@ -834,6 +834,7 @@ ConjugationService                                                          (bui
     waznOf(form:shape:slot:bab:) -> String?     waznOfDerived · waznCitation
     static waznRoot(form:bab:) -> Root      // Compare and Tables' form chips need this public
     conjugates(_:) · hasPassive(_:form:)    // §3.3b   (hasEngine is internal)
+    static load() throws -> ConjugationService    // the only way to make one; built, S0.6
 
 LexiconService
     load() throws -> Lexicon                 // §1.10
@@ -871,13 +872,13 @@ Packages/SarfCore/Sources/SarfCore/
   Grammar/                 ← DATA TABLES (content, not entities)
     SharedGrammar.swift (begun, S0.5: form facts + Form VIII letters) · SalimGrammar.swift · … · NaqisGrammar.swift
   Conjugation/             ← BEHAVIOUR
-    VerbTypeConjugator.swift · ConjugationService.swift (+Citation, +Wazn) · EngineBacking.swift   (built, S0.5)
-    CorpusConjugator
+    VerbTypeConjugator.swift · ConjugationService.swift (+Citation, +Wazn, +Load) · EngineBacking.swift   (built, S0.5–0.6)
+    Corpus/    GoldenCorpus.swift · CorpusConjugator.swift · ContentHash.swift                         (built, S0.6)
     Engines/   Salim…Naqis · Mahmuz · Templates.swift · HamzaSeating.swift
   Lexicon/     LexiconService.swift · Classification.swift · ContentGate.swift
   Meaning/     MeaningService.swift
   Text/        ArabicText.swift
-  Resources/   roots.json
+  Resources/   roots.json · golden-corpus.json
 
 Packages/SarfQuiz/Sources/SarfQuiz/
   Models/                  ← ENTITY DEFINITIONS ONLY
