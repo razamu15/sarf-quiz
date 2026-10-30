@@ -32,7 +32,7 @@ Plus **More** (settings, delete history). The quiz itself is not a place you nav
 | Recognition tips on wrong answers | iPad |
 | Basic stats on Home (streak, week, accuracy, weakest kind) | |
 | **Full history stored invisibly** for every user | |
-| **Five verb types**: sālim, muḍāʿaf, mithāl, ajwaf, nāqiṣ — 135 roots | |
+| **Five verb types**: sālim, muḍāʿaf, mithāl, ajwaf, nāqiṣ — 136 roots | |
 
 🔒 D-01 D-02 D-04 · Every flag is one row in a single `Settings` object with two audiences — `dev` levers and `user`
 preferences (D-03). Flags gate **screens and content, never storage** (D-51).

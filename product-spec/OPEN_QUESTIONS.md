@@ -37,6 +37,7 @@
 | Q-16 | Streak day boundary | Home |
 | Q-17 | Carried over — not product | plan |
 | Q-18 | Success metrics vs "no analytics" | privacy label |
+| Q-19 | The iOS 26 tab bar floats | every tab |
 
 ---
 
@@ -111,7 +112,7 @@
 **Assumes:** always *"It diverges at letter N."*; name the marks only when the two clusters differ by exactly one ḥaraka, from a small declarative table; any richer prose comes from a matching tip.
 
 **Q-12 · Tables search.** *Found:* the prototype searches the **whole** lexicon, including 30 flagged-off mahmūz/lafīf roots that then open onto *"no chart"*; caps at 8 results; orders by authoring order.
-**Assumes:** **playable types only** (135 roots); a scrolling list in **Arabic alphabetical order by root**; no cap.
+**Assumes:** **playable types only** (136 roots); a scrolling list in **Arabic alphabetical order by root**; no cap.
 
 **Q-13 · Practice — empty axes, forms, Derived nouns.** *Found:* the pool treats an empty **Form** or **Verb type** row as *"all"* but an empty **Tense** or **Voice** row as *"none"* — an unstated default masking absence; the mock's Form row shows only I–IV and X; *Derived nouns* have no chart.
 **Assumes:** **an empty axis admits nothing** (count 0, *"Nothing — widen the selection"*, Start disabled) for every axis; the Form row offers **I–VIII and X**; choosing *Derived nouns* **hides the chart scope**.
@@ -135,3 +136,6 @@
 
 **Q-18 · Success metrics vs "no analytics".** *Found:* the old spec measured success by **activation** (% of installs completing a quiz on day 1), **retention** (D7 return; quizzes per user per week) and **quality** (average score trend per cohort); later, free→trial and trial→paid. v1 has **no analytics SDK, no accounts, and an App Privacy label of "Data not collected"** — so none of the in-app ones can be measured.
 **Assumes:** nothing is collected in-app in v1; the only numbers you see are **App Store Connect's own** (installs, retention, sessions). *Alternative:* an opt-in, aggregate, first-party counter — which changes the privacy label, so decide before it is filed.
+
+**Q-19 · The iOS 26 tab bar.** *Found:* an app built with the iOS 26 SDK gets a **floating glass pill** from `TabView`. D-08 says *never a floating pill*, and the design draws a bar docked to the bottom edge (screenshots 01, 11–13, 15, 17).
+**Assumes:** the docked bar, kept with the Info.plist key `UIDesignRequiresCompatibility`, which Apple describes as a temporary opt-out, so it will stop working in a later SDK. *If you would rather take the pill:* delete the key; D-08's wording changes, and Practice's setup bar docks above a floating bar instead of a docked one.

@@ -52,7 +52,7 @@ The states are **exclusive**: a search field that merely sat above the results w
 - An empty query lists every verb. No match → `Nothing matches "…"`.
 
 > ❓ **Q-12 · What Tables searches, and in what order.** ⚠️ The prototype searches the **whole** lexicon, including the 30 mahmūz/lafīf roots that are flagged off — they then open onto *"no chart"*.
-> **Spec assumes:** search covers **only playable verb types** (135 roots), the same rule as *do not advertise what v1 cannot play* (D-41); results in **Arabic alphabetical order by root** (nothing in the design says; the mock's order is arbitrary); the prototype's cap of eight results is **not** ported — it is a list.
+> **Spec assumes:** search covers **only playable verb types** (136 roots), the same rule as *do not advertise what v1 cannot play* (D-41); results in **Arabic alphabetical order by root** (nothing in the design says; the mock's order is arbitrary); the prototype's cap of eight results is **not** ported — it is a list.
 
 ## 2. Form — every form the verb has, on the screen
 
@@ -110,7 +110,7 @@ It must be on the engine's export list **before the API freezes** (B3, the corpu
 
 ## Mock-up caveats
 
-- Screenshot 13 says *"Ten verbs in this mock-up — the app searches the whole lexicon…"* — the real list is 135 verbs (Q-12).
+- Screenshot 13 says *"Ten verbs in this mock-up — the app searches the whole lexicon…"* — the real list is 136 verbs (Q-12).
 - Screenshot 11's chart line reads `14 ṣiyagh` — correct for māḍī, **wrong for the amr (6)**.
 - Screenshot 12 is scrolled: the pickers are above the fold and the table runs under the tab bar.
 - These four screenshots **do** show the tab bar (Practice's do not).

@@ -38,7 +38,8 @@ Every choice below is derived from those three; where one trades against another
 | **S0.5** the seam | ✅ done | `S0.5 — the seam` |
 | **S0.6** the stand-in | ✅ done | `S0.6 — the stand-in` |
 | **S1.1** settings and the content gate | ✅ done | `S1.1 — settings` |
-| **S0.7, S1.2 – S8, R1 – R7** | not started | — |
+| **S1.2** composition root and tab shell | ✅ done | `S1.2 — the app root` |
+| **S0.7, S1.3 – S8, R1 – R7** | not started | — |
 
 **D1 and D2 are "done, pending S1"**: Track D is finished when Tables looks right, and Tables does not
 exist yet. What can be checked now has been — the type scale renders at its real row heights on device
@@ -207,12 +208,12 @@ in slice order; the code is there for when a note raises a question.
 
 ### S1 · Tables — the first real screen
 
-*State: 1.1 done; 1.2 next.* Unblocked by 0.6.
+*State: 1.1 – 1.2 done; 1.3 next.* Unblocked by 0.6.
 
 | # | Chunk | Owns | Builds on |
 |---|---|---|---|
 | 1.1 | **Settings and the content gate** ✅ | `Awzan/Services/Settings/`: `Setting<Value>` (a typed key: saved name, audience, initial value, label), `SettingID` (the saved names, pinned), `SettingsTable` (the rows), `Settings` (`@Observable`; `settings[.compareCharts]` reads a `Bool`, `settings[.appearance] = .night` is saved as a difference in `UserDefaults`), `ContentGate(from:)` (the one place a setting's name meets a gate's). The six dev flags, `appearance`, `defaultQuizLength`. `AwzanTests`: the app target's first test target. `playableTypes` is *not* here: it needs the lexicon and the service, so 1.2 composes it from `ContentGate(from:)` and `availableTypes` | 0.2, 0.5 |
-| 1.2 | **Composition root + tab shell** | `AppModel` builds `LexiconService` then `ConjugationService`, owns the one `Settings`, and exposes `playableTypes` (= `lexicon.availableTypes(gate: ContentGate(from: settings), conjugation: service)`, the *result* the quiz layer takes and never learns gating exists); four empty tabs; applies `appearance` | 0.3, 0.5, 1.1 |
+| 1.2 | **Composition root + tab shell** ✅ | `Awzan/App/`: `AppModel` (`@Observable`: the one `LexiconService`, `ConjugationService` and `Settings`, `selectedTab`, and `playableTypes` = `lexicon.availableTypes(gate: ContentGate(from: settings), conjugation:)` — the *result* the quiz layer takes and never learns gating exists), `AppTab` (the four tabs, pinned), `RootView` (the `TabView`, four empty tabs, applies `appearance`), `AppRoot` (the tabs, or the load error on screen), `Appearance+ColorScheme`. `load()` runs synchronously in `AwzanApp.init`, 0.15 s in a debug build. The classic docked tab bar is kept with `UIDesignRequiresCompatibility` (Q-19) | 0.3, 0.5, 1.1 |
 | 1.3 | **`TablesModel`** | selection (root, form, tense, voice, mood) → the table; the disabled-with-reason logic. Headless tests | 1.2 |
 | 1.4 | **Tables sections** | root search · form chips · chart controls (`SegmentedRow`) — each with previews | 1.3, D2 |
 | 1.5 | **`TablesScreen`** | composition only; the 14-row `ParadigmList`. Exit: every stocked verb type renders, Paper and Night | 1.4 |
@@ -492,3 +493,11 @@ Features/Tables/
   and only the third can be forgotten without the compiler noticing; `everySettingIsListedOnce` catches it.
 - **`availableCharts` and `enginedGroups` are not ported.** The JS marks both `PROTOTYPE ONLY`; only the smoke
   test called them.
+- **S1.2 changed these** (all in `docs/notes/01-tables.md` 1.2): `AppModel` is built only by `load()` and has no
+  loading state, so a screen never holds an optional lexicon: a failed load is the `Result` in `AwzanApp`, shown as
+  an error screen (`AppRoot`); `load()` is synchronous on the main thread (the plan left the thread to this chunk);
+  the tab bar is the classic docked one, kept by the Info.plist key `UIDesignRequiresCompatibility`, because iOS 26
+  otherwise draws the floating pill that D-08 forbids (Q-19, and the key is documented as temporary); the playable
+  roots are **136**, not the 135 the spec had counted on 2026-09-21 (the lexicon grew by one root; the spec's four
+  mentions are corrected); in a debug build `AWZAN_GALLERY` still shows the design-system gallery, which is no
+  longer the app's root.

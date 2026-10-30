@@ -77,3 +77,67 @@ cd ios && xcodebuild test -project Awzan.xcodeproj -scheme Awzan -destination 'p
   setting is dropped by rewriting it, with no scan of everything `UserDefaults` holds.
 - **The test target exists now** because 1.3's `TablesModel` needs it too. `SarfCore` is linked into it as well as
   the app so the tests can name `ContentGate`; the tests pass that way.
+
+---
+
+## 1.2 · The composition root and tab shell
+
+**What it is.** The app's front door. `AwzanApp` loads the verbs once, and either shows four tabs or says why it
+could not. Every later screen gets the lexicon, the conjugation service and the settings from the one `AppModel`.
+The tabs are empty: each says its name and "Not built yet".
+
+```
+ AwzanApp.init ── Result { AppModel.load() } ──▶ AppRoot ──┬─ success ─▶ RootView ─ TabView ─┬ Home
+                                                           │             │                   ├ Practice   (each: EmptyTab)
+                                                           │             └ .preferredColorScheme ◀ settings[.appearance]
+                                                           └─ failure ─▶ StartupFailureView  (the error text, selectable)
+
+ AppModel ── settings: Settings            (1.1)
+          ── lexicon: LexiconService       (0.3)      playableTypes = lexicon.availableTypes(
+          ── conjugation: ConjugationService (0.6)         gate: ContentGate(from: settings), conjugation: conjugation)
+          ── selectedTab: AppTab
+```
+
+| file (`Awzan/App/`) | owns |
+|---|---|
+| `AppModel.swift` | the shared model; `load()` is the only way to make one; `playableTypes` |
+| `AppTab.swift` | the four tabs, their titles and symbols (pinned by a test) |
+| `RootView.swift` | the `TabView`, `EmptyTab`, the appearance, the tab bar's colour |
+| `AppRoot.swift` | success or failure; the error screen; the debug-only gallery switch |
+| `Appearance+ColorScheme.swift` | `.night` → `.dark`, `.system` → `nil` |
+| `AwzanApp.swift` | the entry point; makes the `Result` |
+
+**What to look for in the diff.**
+
+- **`AppModel` has no "not loaded yet".** It is made by `load()` or not at all, so a screen's `model.lexicon` is never
+  optional. A failed load is a `Result` one level up, and the screen it shows prints the loader's own error.
+- **`playableTypes` is computed, not stored.** It reads the settings, so a screen that reads it is redrawn when a
+  flag changes (a test proves it). It is the only place `ContentGate(from:)` is called; the quiz is handed the list.
+- **Releasing lafīf changes nothing, on purpose.** There is no lafīf engine, so a test says the list is the same with
+  the flag on. It is the test to change when R7 lands. Releasing mahmūz adds exactly mahmūz's types.
+- **136 playable roots, not 135.** The spec counted 135 on 2026-09-21; `roots.json` has 136 outside mahmūz and lafīf
+  (25 + 30 + 25 + 26 + 30), which matches the plan's October count of 151 engine roots less 15 mahmūz. The spec's four
+  mentions now say 136. The test compares with the plain rule (every root not in a held-back group), not a number.
+- **The tab bar is the classic one on purpose.** iOS 26 draws a floating pill; D-08 says never. `Info.plist` sets
+  `UIDesignRequiresCompatibility`, and the bar takes the `raised` colour. Before the key, the screenshot showed the
+  pill. Apple calls the key temporary: this is **Q-19**.
+- **Checked on the simulator**, Paper and Night: the saved `appearance` is applied at launch (the status bar flips with
+  it) and the bar and ground take their Night values. Tapping between tabs and switching appearance while the app is
+  open were **not** driven (the simulator panel was not available); the first is plain `TabView` selection and the
+  second is the observation test from 1.1 plus `RootView` reading the setting in its `body`.
+- **Mutation-checked:** 6 deliberate breaks (the gate ignored, night mapped to light, the tab symbols swapped, the app
+  opening on Tables, the model ignoring the settings it was given, the engine check dropped from the list) each fail
+  at least one test.
+- **Cost:** `AppModel.load()` takes 0.146 s in a debug build, on the main thread, before the first frame.
+
+**Decisions to veto** (also in the plan's follow-ups):
+
+- **Load on the main thread, synchronously.** The alternative is an async load with a loading state in `AppModel`, so
+  every screen would handle "no lexicon yet" to save about a tenth of a second at launch (about 0.09 s in release).
+  Both services are `Sendable`, so this can change later without touching the screens' types.
+- **`UIDesignRequiresCompatibility`** keeps D-08 and costs the iOS 26 look on everything else (navigation bars, controls)
+  until Apple removes the key, which is the moment Q-19 gets decided anyway. Deleting the key is the other answer.
+- **The gallery is a debug-build switch**, not a screen in More: `AWZAN_GALLERY=components` still works from the command
+  line. More's debug section (D-03) is the place for it later.
+- **`selectedTab` lives on `AppModel`**, as the platform notes ask ("the selected tab lives for the app session"), so a
+  Home card can send the student to Practice without the two screens knowing each other.

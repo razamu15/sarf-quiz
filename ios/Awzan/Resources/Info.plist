@@ -10,6 +10,11 @@
 		<string>Newsreader.ttf</string>
 		<string>Newsreader-Italic.ttf</string>
 	</array>
+	<!-- The design draws a docked tab bar and product-spec D-08 says never a
+	     floating pill, which is what iOS 26 draws by default. This keeps the
+	     classic bar; iOS honours it only for apps built with the iOS 26 SDK. -->
+	<key>UIDesignRequiresCompatibility</key>
+	<true/>
 	<key>UILaunchScreen</key>
 	<dict>
 		<key>UIColorName</key>
