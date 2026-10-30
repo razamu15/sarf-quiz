@@ -966,7 +966,7 @@ local changes) · 🔁 rework (same behaviour, different construction) · 🆕 r
 
 | JS file | Swift destination | verdict | what changes |
 |---|---|---|---|
-| `settings/settings.js` | `Services/Settings.swift` | 🔧 | `localStorage` → `UserDefaults`; heterogeneous defaults need per-type storage or `Codable` boxing; keep the `audience` field; **feeds `availableTypes(enabled:)`** (§3.3c) |
+| `settings/settings.js` | `Services/Settings/` (`Setting`, `SettingsTable`, `Settings`, `ContentGate+Settings`) | 🔧 | `localStorage` → `UserDefaults`, one dictionary of strings under `settings.v1`; heterogeneous defaults → a typed key `Setting<Value>` (`settings[.appearance]` is an `Appearance`), every value written as a short string; keep the `audience` field; **feeds `availableTypes(gate:conjugation:)`** through `ContentGate(from:)` (§3.3c). `setSetting`'s "unknown id" error cannot happen (the id is an enum); a saved name that is no longer a setting is dropped on load |
 | `history/store.js` | `Services/HistoryService.swift` + `Models/Persisted*.swift` | 🔁 | `@Model QuizSessionRecord` / `AnswerRecord`; `rowFor()` → the flat stored properties (`#Predicate` cannot index an embedded blob); embedded `Answer` → a `Codable` blob column |
 | `history/queries.js` | `Services/StatsService.swift` | 🔧 | in-memory reduce → `FetchDescriptor` + `#Predicate`; **decide the day boundary** — UTC today, local in Swift (§1.12) |
 | `ui/state.js` | `App/AppState.swift` + `Models/PlanDraft.swift`, `Models/TablesSelection.swift` | 🔁 | `@Observable @MainActor`; navigation booleans → `NavigationStack` (§2.3) |

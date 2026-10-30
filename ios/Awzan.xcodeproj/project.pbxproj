@@ -9,10 +9,22 @@
 /* Begin PBXBuildFile section */
 		1A00000000000000000014 /* SarfCore in Frameworks */ = {isa = PBXBuildFile; productRef = 1A00000000000000000012 /* SarfCore */; };
 		1A00000000000000000015 /* SarfQuiz in Frameworks */ = {isa = PBXBuildFile; productRef = 1A00000000000000000013 /* SarfQuiz */; };
+		1A00000000000000000036 /* SarfCore in Frameworks */ = {isa = PBXBuildFile; productRef = 1A00000000000000000035 /* SarfCore */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		1A00000000000000000033 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 1A00000000000000000001 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 1A00000000000000000004;
+			remoteInfo = Awzan;
+		};
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		1A00000000000000000005 /* Awzan.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Awzan.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		1A00000000000000000021 /* AwzanTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AwzanTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -35,6 +47,11 @@
 			path = Awzan;
 			sourceTree = "<group>";
 		};
+		1A00000000000000000022 /* AwzanTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = AwzanTests;
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -47,6 +64,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		1A00000000000000000025 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1A00000000000000000036 /* SarfCore in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -54,6 +79,7 @@
 			isa = PBXGroup;
 			children = (
 				1A00000000000000000006 /* Awzan */,
+				1A00000000000000000022 /* AwzanTests */,
 				1A00000000000000000003 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -62,6 +88,7 @@
 			isa = PBXGroup;
 			children = (
 				1A00000000000000000005 /* Awzan.app */,
+				1A00000000000000000021 /* AwzanTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -93,6 +120,30 @@
 			productReference = 1A00000000000000000005 /* Awzan.app */;
 			productType = "com.apple.product-type.application";
 		};
+		1A00000000000000000023 /* AwzanTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 1A00000000000000000029 /* Build configuration list for PBXNativeTarget "AwzanTests" */;
+			buildPhases = (
+				1A00000000000000000024 /* Sources */,
+				1A00000000000000000025 /* Frameworks */,
+				1A00000000000000000026 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				1A00000000000000000034 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				1A00000000000000000022 /* AwzanTests */,
+			);
+			name = AwzanTests;
+			packageProductDependencies = (
+				1A00000000000000000035 /* SarfCore */,
+			);
+			productName = AwzanTests;
+			productReference = 1A00000000000000000021 /* AwzanTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -105,6 +156,10 @@
 				TargetAttributes = {
 					1A00000000000000000004 = {
 						CreatedOnToolsVersion = 26.6;
+					};
+					1A00000000000000000023 = {
+						CreatedOnToolsVersion = 26.6;
+						TestTargetID = 1A00000000000000000004;
 					};
 				};
 			};
@@ -127,12 +182,20 @@
 			projectRoot = "";
 			targets = (
 				1A00000000000000000004 /* Awzan */,
+				1A00000000000000000023 /* AwzanTests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
 		1A00000000000000000009 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1A00000000000000000026 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -149,7 +212,22 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		1A00000000000000000024 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		1A00000000000000000034 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 1A00000000000000000004 /* Awzan */;
+			targetProxy = 1A00000000000000000033 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		1A0000000000000000000C /* Debug */ = {
@@ -252,6 +330,38 @@
 			};
 			name = Release;
 		};
+		1A00000000000000000027 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 0.1;
+				PRODUCT_BUNDLE_IDENTIFIER = com.awzan.AwzanTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				TARGETED_DEVICE_FAMILY = 1;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Awzan.app/Awzan";
+			};
+			name = Debug;
+		};
+		1A00000000000000000028 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 0.1;
+				PRODUCT_BUNDLE_IDENTIFIER = com.awzan.AwzanTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				TARGETED_DEVICE_FAMILY = 1;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Awzan.app/Awzan";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -269,6 +379,15 @@
 			buildConfigurations = (
 				1A0000000000000000000E /* Debug */,
 				1A0000000000000000000F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		1A00000000000000000029 /* Build configuration list for PBXNativeTarget "AwzanTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1A00000000000000000027 /* Debug */,
+				1A00000000000000000028 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
@@ -294,6 +413,10 @@
 		1A00000000000000000013 /* SarfQuiz */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = SarfQuiz;
+		};
+		1A00000000000000000035 /* SarfCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = SarfCore;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

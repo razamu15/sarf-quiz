@@ -152,6 +152,9 @@ ios/Awzan/                    ← app target: UI and platform services only
     StoreService · ExplainService                      (flagged)
   Models/                     PersistedSession · PersistedAnswer · PlanDraft · TablesSelection
   Resources/                  assets · quotes.json
+
+ios/AwzanTests/               the app target's unit tests (Swift Testing, hosted in the app): Settings now,
+                              each screen's XModel as it lands. Packages keep their own tests under Tests/
 ```
 
 `QuizRun` is already a view model in all but name — see ARCHITECTURE.md §2 — so

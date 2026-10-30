@@ -37,7 +37,8 @@ Every choice below is derived from those three; where one trades against another
 | **S0.4** ArabicText | ✅ done | `S0.4 — ArabicText` |
 | **S0.5** the seam | ✅ done | `S0.5 — the seam` |
 | **S0.6** the stand-in | ✅ done | `S0.6 — the stand-in` |
-| **S0.7 – S8, R1 – R7** | not started | — |
+| **S1.1** settings and the content gate | ✅ done | `S1.1 — settings` |
+| **S0.7, S1.2 – S8, R1 – R7** | not started | — |
 
 **D1 and D2 are "done, pending S1"**: Track D is finished when Tables looks right, and Tables does not
 exist yet. What can be checked now has been — the type scale renders at its real row heights on device
@@ -206,12 +207,12 @@ in slice order; the code is there for when a note raises a question.
 
 ### S1 · Tables — the first real screen
 
-*State: not started.* Unblocked by 0.6.
+*State: 1.1 done; 1.2 next.* Unblocked by 0.6.
 
 | # | Chunk | Owns | Builds on |
 |---|---|---|---|
-| 1.1 | **Settings and the content gate** | the feature-gate table, `playableTypes` (the quiz layer takes this *result* and never learns gating exists) | 0.2 |
-| 1.2 | **Composition root + tab shell** | `AppModel` builds `LexiconService` then `ConjugationService`; four empty tabs | 0.3, 0.5, 1.1 |
+| 1.1 | **Settings and the content gate** ✅ | `Awzan/Services/Settings/`: `Setting<Value>` (a typed key: saved name, audience, initial value, label), `SettingID` (the saved names, pinned), `SettingsTable` (the rows), `Settings` (`@Observable`; `settings[.compareCharts]` reads a `Bool`, `settings[.appearance] = .night` is saved as a difference in `UserDefaults`), `ContentGate(from:)` (the one place a setting's name meets a gate's). The six dev flags, `appearance`, `defaultQuizLength`. `AwzanTests`: the app target's first test target. `playableTypes` is *not* here: it needs the lexicon and the service, so 1.2 composes it from `ContentGate(from:)` and `availableTypes` | 0.2, 0.5 |
+| 1.2 | **Composition root + tab shell** | `AppModel` builds `LexiconService` then `ConjugationService`, owns the one `Settings`, and exposes `playableTypes` (= `lexicon.availableTypes(gate: ContentGate(from: settings), conjugation: service)`, the *result* the quiz layer takes and never learns gating exists); four empty tabs; applies `appearance` | 0.3, 0.5, 1.1 |
 | 1.3 | **`TablesModel`** | selection (root, form, tense, voice, mood) → the table; the disabled-with-reason logic. Headless tests | 1.2 |
 | 1.4 | **Tables sections** | root search · form chips · chart controls (`SegmentedRow`) — each with previews | 1.3, D2 |
 | 1.5 | **`TablesScreen`** | composition only; the 14-row `ParadigmList`. Exit: every stocked verb type renders, Paper and Night | 1.4 |
@@ -478,5 +479,16 @@ Features/Tables/
 - **The hash covers the lexicon, not the engines.** An engine edit with an unchanged `roots.json` leaves the corpus
   stale and the hash satisfied. `node tools/export-content.mjs --check` before a port commit is the only guard; the
   exporter's header says so.
+- **S1.1 changed these** (all in `docs/notes/01-tables.md` 1.1): `playableTypes` moved to 1.2 (0.5 had already put
+  `availableTypes` in `SarfCore`, so 1.1 is left with the gate and nothing to compose it with); the app target gained
+  a test target, `AwzanTests`, hosted in the app, with `SarfCore` linked into it; `QuizLengthChoice` is its own type
+  and not S2.1's `QuizPlan.Length` (Settings offers 5 / 10 / 20 / endless, a plan can hold any count; Practice maps
+  one to the other); a setting is a typed key, so reading it needs no cast and the wrong type is a compile error.
+- **`arabicTextSize` is not a setting yet.** Q-15 settles that Arabic follows Dynamic Type and that there is one
+  in-app size setting, but not what its options are, and a guessed list would be saved on devices. It joins
+  `SettingsTable` when Q-15 is answered (a `SettingID` case, a row, a line in `Settings.entries`, and the type scale
+  reading it). `practiceFlow` is gone for good (product-spec D-69).
+- **A new setting is three edits** — a `SettingID` case, a row in `SettingsTable`, a line in `Settings.entries` —
+  and only the third can be forgotten without the compiler noticing; `everySettingIsListedOnce` catches it.
 - **`availableCharts` and `enginedGroups` are not ported.** The JS marks both `PROTOTYPE ONLY`; only the smoke
   test called them.
