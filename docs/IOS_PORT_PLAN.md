@@ -35,7 +35,8 @@ Every choice below is derived from those three; where one trades against another
 | **S0.2** vocabulary | ✅ done | `S0.2 — the vocabulary` |
 | **S0.3** lexicon | ✅ done | `S0.3 — the lexicon` |
 | **S0.4** ArabicText | ✅ done | `S0.4 — ArabicText` |
-| **S0.5 – S8, R1 – R7** | not started | — |
+| **S0.5** the seam | ✅ done | `S0.5 — the seam` |
+| **S0.6 – S8, R1 – R7** | not started | — |
 
 **D1 and D2 are "done, pending S1"**: Track D is finished when Tables looks right, and Tables does not
 exist yet. What can be checked now has been — the type scale renders at its real row heights on device
@@ -186,7 +187,7 @@ in slice order; the code is there for when a note raises a question.
 
 ### S0 · Foundations (`SarfCore`) — the seam, the stand-in, and the first real engine
 
-*State: 0.1 – 0.4 done; 0.5 next.* S1 can begin once **0.6** lands; 0.7–0.8 run beside it.
+*State: 0.1 – 0.5 done; 0.6 next.* S1 can begin once **0.6** lands; 0.7–0.8 run beside it.
 
 | # | Chunk | Owns | Builds on |
 |---|---|---|---|
@@ -194,9 +195,9 @@ in slice order; the code is there for when a note raises a question.
 | 0.2 | **Vocabulary** ✅ | `Models/`: `PronounSlot` · `VerbForm` · `DerivedNounType` (`Vocabulary.swift`), `Tense` · `Voice` · `Mood` · `ChartShape` (`ChartShape.swift` — the failable init is the single judge of the nine), `Haraka` · `Bab` (`Bab.swift`), `VerbType` · `VerbTypeGroup` (`VerbType.swift`). Their `rawValue`s are the storage contract, pinned by tests and checked against both exported files | 0.1 (the JSON's keys are these values) |
 | 0.3 | **Lexicon** ✅ | `Models/`: `Radicals` (fāʾ / ʿayn / lām, one scalar each) · `Root` · `RootInForm` · `RootForm` · `EnglishForms`. `Lexicon/`: `LexiconService.load()` (enum-keyed decode, declared-type-vs-radicals check, duplicates and a bāb on a mazīd form refused — fails loudly), `root(forKey:)`, `candidates`, `stockedTypes`, and `classify` in its own file. `availableTypes` moved to 0.5, which owns `hasEngine` | 0.2 |
 | 0.4 | **ArabicText** ✅ | `Text/ArabicText.swift`: `clusters` (a word as letters-with-marks, `[Character]`) and `firstDifferingCluster` (`Int?`, nil when the words match). Same split as the JS segmenter on all 36,807 distinct corpus words | — |
-| 0.5 | **The seam** | `ConjugationSpec`, the `VerbTypeConjugator` protocol, `ConjugationService` (router, every precondition, `conjugates`/`hasPassive`, `waznRoot`), `ENGINE_BACKING`, and `availableTypes(enabled:)` with the content-gate table (lafīf is now one gate on one group). **The API freezes here** | 0.2, 0.3 |
-| 0.6 | **The stand-in** | corpus loader, `CorpusConjugator`, the hash check. Exit: all 69,974 cells answered through the public service | 0.1, 0.5 |
-| 0.7 | **Shared grammar + templates** — *you read this (R0)* | `GrammarTypes`, `SharedGrammar`, scalar-level `Templates` (Traps 1–3 fixed here once) | 0.5 |
+| 0.5 | **The seam** ✅ | `Models/ConjugationSpec` (root + form + `ChartShape`). `Conjugation/`: `VerbTypeConjugator` (internal protocol; `conjugateTable` and `recognitionCitation` have defaults), `ConjugationService` (the router and every precondition: `conjugate`, `fullTable`, `derivedNoun`, `conjugates`, `hasPassive`, plus `hasEngine` internal), `+Citation` (`citation`), `+Wazn` (`waznRoot`, `waznOf`, `waznOfDerived`, `waznCitation`), `EngineBacking` (`engineBacking(for:)`, one row per group). `Lexicon/ContentGate` (`ContentGate`, `availableTypes(gate:conjugation:)`). `Grammar/SharedGrammar` begins with the two facts the service reads: `VerbForm.facts` and `iftiaalAssimilatingFaa`. The service is built from stand-ins in tests, and its precondition set is checked against all 578 root-forms × 9 charts in the corpus. **The API freezes here** | 0.2, 0.3 |
+| 0.6 | **The stand-in** | corpus loader, `CorpusConjugator`, the hash check, and `ConjugationService.load` — the first public way to make a service, which fills the engine registry from `engineBacking`. Exit: all 69,974 cells answered through the public service | 0.1, 0.5 |
+| 0.7 | **Shared grammar + templates** — *you read this (R0)* | `GrammarTypes`, the rest of `SharedGrammar` (`PREFIX_LETTERS`, `MUDARI_PREFIX_HARAKA`, the ending notation — `FormFacts` and `iftiaalAssimilatingFaa` already exist from 0.5), scalar-level `Templates` (Traps 1–3 fixed here once) | 0.5 |
 | 0.8 | **Sālim** — *you read this (R1)* | `SalimGrammar`, `SalimConjugator`; `ENGINE_BACKING[sālim] = .engine`. Exit: zero diff over sālim's 11,150 words; the sālim parity assertions ported verbatim | 0.7 |
 
 **Exit:** the public service answers everything the JS did; sālim is generated, the rest looked up; only
@@ -407,7 +408,9 @@ Features/Tables/
 ## Follow-ups this plan names but does not do
 
 - **Segmented output** (prefix / stem / suffix, D-61). Decide before R7 whether it is wanted; the corpus cannot
-  serve it, so features needing it (colouring affixes down a chart, marking the sign after an answer) wait.
+  serve it, so features needing it (colouring affixes down a chart, marking the sign after an answer) wait. The
+  seam does not block it: it is one more `VerbTypeConjugator` requirement with a default of `nil`, which breaks no
+  conjugator — so the freeze at 0.5 did not need to build it.
 - **`relevance.js` does two jobs** — deciding which questions are possible, and building one. Swift splits them
   (3.3 and 4.6) along the seam the file's own exports already show; if the walkthrough finds that wrong, say so
   there.
@@ -446,3 +449,22 @@ Features/Tables/
 - **`VerbTypeGroup` is not `Codable`**, on purpose: carrying a group into plan data killed a Home drill in the
   prototype. If a persisted draft ever needs a chip selection, add the conformance as a visible diff and store
   `verbTypes`.
+- **S0.5 changed these against the JS and the earlier sketches** (all in `docs/notes/00-foundations.md` 0.5):
+  `citation` returns `String?` where the JS and `PORT_INVENTORY` §3.4 said `''` / `String`; the "māḍī only"
+  half-citation is not ported (the corpus has none — a test pins it, and the fixtures it served are gone);
+  `citation` of a form the root does not use is `nil` (the JS built a Form IX citation for any sālim root);
+  `waznOf` takes `(form, shape, slot, bab)` instead of a spec whose root it threw away, and now goes through the
+  same preconditions as every other word (the JS skipped them — it only matters for a chart that cannot exist);
+  `availableTypes(gate:conjugation:)` takes a `ContentGate` struct, not a `Set<VerbTypeGroup>`.
+- **`hasEngine` is internal.** Only `availableTypes` calls it. `product-spec` wants each group's backing visible in
+  More's debug section; that is the moment to make `engineBacking(for:)` public, not before.
+- **The reference root has an empty `gloss`.** `waznRoot` has to be a `Root` (the engines' argument type) and
+  `RootForm.gloss` is non-optional, so the one root with no meaning carries `""`. If that reads as the sentinel the
+  rules forbid, the alternatives are `gloss: String?` (which makes every real root's gloss look optional) or an
+  engine input type that is not a `Root`.
+- **Two guards say the same thing.** The service declines Form VIII for the seven taa-swallowing first letters;
+  the mahmūz grammar's `UNWRITTEN_FORMS` declines ءخذ in Form VIII (the same rule, one letter further). When the
+  substitution is written, both come out together — the test list of engine refusals in
+  `ConjugationServiceTests` is the third place to update.
+- **`availableCharts` and `enginedGroups` are not ported.** The JS marks both `PROTOTYPE ONLY`; only the smoke
+  test called them.

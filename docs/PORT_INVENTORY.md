@@ -750,9 +750,9 @@ lexicon and a clean package.
 The system already carries the same identity in two forms, and the boundary
 makes the ownership explicit rather than incidental:
 
-| | `ChartSpec` | `WordSpec` |
+| | `ConjugationSpec` | `WordSpec` |
 |---|---|---|
-| shape | `{root: Root, formId, tense, voice, mood}` | `{rootKey: String, formId, verbType, bab, tense, voice, mood, slot, derivedNounType}` |
+| shape | `{root: Root, form: VerbForm, shape: ChartShape}` | `{rootKey: String, formId, verbType, bab, tense, voice, mood, slot, derivedNounType}` |
 | holds the root as | a **reference** | a **key** |
 | purpose | calling the engine | the stored history identity |
 | lifetime | one call | forever |
@@ -761,7 +761,7 @@ makes the ownership explicit rather than incidental:
 Direction of travel across the boundary:
 
 ```
-app / quiz  ──  ChartSpec (carrying a Root)  ──▶  SarfCore
+app / quiz  ──  ConjugationSpec (carrying a Root)  ──▶  SarfCore
 app / quiz  ◀──  String? / [PronounSlot: String]?  ──  SarfCore
 ```
 
@@ -823,22 +823,22 @@ Small on purpose — this is the whole contract the app codes against:
 ```swift
 // Models (all public, all Sendable, all Codable where stored)
 Tense · Voice · Mood · VerbForm · PronounSlot · Bab · VerbType · VerbTypeGroup
-DerivedNounType · ChartShape · ChartSpec · Root · RootForm · MudariParticle
+DerivedNounType · ChartShape · ConjugationSpec · Root · RootForm · MudariParticle · ContentGate
 
 // Services
-ConjugationService
+ConjugationService                                                          (built, S0.5)
     conjugate(_:slot:) -> String?
     fullTable(_:) -> [PronounSlot: String]?
-    derivedNoun(_:form:kind:) -> String?
-    citation(_:form:) -> String
-    waznOf(_:slot:bab:) -> String?          waznOfDerived · waznCitation
-    waznRoot(...)                            // Compare and Tables' form chips need this public
-    hasEngine(_:) · conjugates(_:) · hasPassive(_:)      // §3.3b
+    derivedNoun(_:form:type:) -> String?
+    citation(_:form:) -> String?            // nil, not ''
+    waznOf(form:shape:slot:bab:) -> String?     waznOfDerived · waznCitation
+    static waznRoot(form:bab:) -> Root      // Compare and Tables' form chips need this public
+    conjugates(_:) · hasPassive(_:form:)    // §3.3b   (hasEngine is internal)
 
 LexiconService
     load() throws -> Lexicon                 // §1.10
     all · byRoot(_:) · candidates(types:forms:) · classify(_:)
-    availableTypes(enabled:)                 // §3.3c
+    availableTypes(gate: ContentGate, conjugation:)      // §3.3c
 
 MeaningService
     verbMeaning(_:slot:particle:) -> String
@@ -863,17 +863,18 @@ Packages/SarfCore/Sources/SarfCore/
     ChartShape.swift         Tense · Voice · Mood · ChartShape — the failable init is the judge
     Bab.swift                Haraka · Bab                                (built, S0.2)
     VerbType.swift           VerbType · VerbTypeGroup
-    ChartSpec.swift          {root, formId, tense, voice, mood}
+    ConjugationSpec.swift    {root, form, shape}                          (built, S0.5)
     Root.swift               Radicals · Root · RootInForm                    (built, S0.3)
     RootForm.swift           RootForm · EnglishForms                       (built, S0.3)
     GrammarTypes.swift       Affix · StemTemplate · PrefixRule
     MudariParticle.swift
   Grammar/                 ← DATA TABLES (content, not entities)
-    SharedGrammar.swift · SalimGrammar.swift · … · NaqisGrammar.swift
+    SharedGrammar.swift (begun, S0.5: form facts + Form VIII letters) · SalimGrammar.swift · … · NaqisGrammar.swift
   Conjugation/             ← BEHAVIOUR
-    VerbTypeConjugator.swift · ConjugationService.swift · EngineBacking · CorpusConjugator
+    VerbTypeConjugator.swift · ConjugationService.swift (+Citation, +Wazn) · EngineBacking.swift   (built, S0.5)
+    CorpusConjugator
     Engines/   Salim…Naqis · Mahmuz · Templates.swift · HamzaSeating.swift
-  Lexicon/     LexiconService.swift · Classification.swift
+  Lexicon/     LexiconService.swift · Classification.swift · ContentGate.swift
   Meaning/     MeaningService.swift
   Text/        ArabicText.swift
   Resources/   roots.json

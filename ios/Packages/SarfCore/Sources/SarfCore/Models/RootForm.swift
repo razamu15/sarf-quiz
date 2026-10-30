@@ -35,6 +35,16 @@ public struct RootForm: Hashable, Sendable, Decodable {
     /// "to be ..." glosses. (`en` in roots.json.)
     public let english: EnglishForms?
 
+    /// For forms built in code (the reference root, test roots).
+    init(bab: Bab?, isTransitive: Bool, masdar: String?, faaDrops: Bool?, gloss: String, english: EnglishForms?) {
+        self.bab = bab
+        self.isTransitive = isTransitive
+        self.masdar = masdar
+        self.faaDrops = faaDrops
+        self.gloss = gloss
+        self.english = english
+    }
+
     private enum CodingKeys: String, CodingKey {
         case bab, masdar, faaDrops, gloss
         case isTransitive = "trans"

@@ -142,3 +142,57 @@ ArabicText.firstDifferingCluster("تُنْصَرَانَ", "تُنْصَرَان
 - **One deliberate difference from the JS:** Swift compares marks by meaning, so a shadda typed before or after a
   vowel counts as the same letter. The JS needed both words normalised first.
 
+
+---
+
+## 0.5 · The seam
+
+**What it is.** The one door to conjugation, and the join between the app and the engines. Everything above it
+(Tables, the quiz) calls `ConjugationService`; everything below it is a `VerbTypeConjugator`, one per verb group,
+which today is a corpus lookup and later a real engine. **This is where the engine API freezes.**
+
+```
+ app / quiz ──▶ ConjugationService ──▶ conjugators[group]        built from engineBacking(for:)
+                  │                      .engine   the group's own engine          (none yet)
+                  │ every precondition   .corpus   a lookup in golden-corpus.json   (six groups, until 0.6)
+                  │ lives here           .unbuilt  nothing at all                   (lafīf)
+                  ▼
+        ConjugationSpec = root + form + ChartShape          a word = spec + PronounSlot
+```
+
+| file | owns |
+|---|---|
+| `Models/ConjugationSpec.swift` | root + form + `ChartShape` (+ `tense` / `voice` / `mood` read through) |
+| `Conjugation/VerbTypeConjugator.swift` | the internal protocol; `conjugateTable` and `recognitionCitation` have defaults |
+| `Conjugation/ConjugationService.swift` | the router, `chartExists` (every precondition), `conjugate`, `fullTable`, `derivedNoun`, `conjugates`, `hasPassive` |
+| `Conjugation/ConjugationService+Citation.swift` | `citation` |
+| `Conjugation/ConjugationService+Wazn.swift` | `waznRoot`, `waznOf`, `waznOfDerived`, `waznCitation` |
+| `Conjugation/EngineBacking.swift` | `EngineBacking` and `engineBacking(for:)`, one row per group, with the accepted trade-off written on it |
+| `Lexicon/ContentGate.swift` | `ContentGate`, and `LexiconService.availableTypes(gate:conjugation:)` |
+| `Grammar/SharedGrammar.swift` | `VerbForm.facts` (conjugable? has a passive?) and `iftiaalAssimilatingFaa` — the start of R0 |
+
+**What to look for in the diff.**
+
+- **The checks are in one function, `chartExists`.** The root uses the form · the form conjugates (not IX) · a passive
+  needs a form with one *and* a verb with an object · Form VIII with a taa-swallowing first letter. The JS's fifth
+  check, "is this a real combination of tense, voice and mood", is gone: `ChartShape` cannot hold an unreal one.
+  A conjugator is never asked about a word the service has ruled out; the tests prove that with a stand-in that
+  records its calls.
+- **nil has two meanings, and the service doesn't hide it.** "No such word" and "no engine for this group" both come
+  back `nil`. `hasEngine` / `availableTypes` is how a caller tells them apart, and `derivedNoun` asks the engine
+  question first so a type with no engine yields no nouns, not even a recorded masdar.
+- **Wiring is checked once, at `init`.** The registry must hold a conjugator for exactly the groups
+  `engineBacking` says are built. A missing one would otherwise read as "no such word" forever. Switches with no
+  `default` (`engineBacking`, `ContentGate.isOpen`, `VerbForm.facts`) mean a new group or form can't be forgotten.
+- **No public initializer yet.** `ConjugationService` can only be made inside the package until 0.6 adds `load`.
+- **The corpus check is the strongest test.** For all 578 root-forms × 9 charts, "service says the chart can exist"
+  equals "the corpus has words for it". It found one mismatch, which is not the service's: the mahmūz engine
+  refuses ءخذ in Form VIII (اِتَّخَذَ). It is named in the test as an engine refusal, so a *new* mismatch still fails.
+- **Citations are whole or absent.** The JS returned the māḍī alone when it had no muḍāriʿ (for fixture tables that
+  no longer exist). The corpus has no such citation in 578, a test holds that, and Swift doesn't port the branch.
+- **Mutation-checked:** 16 deliberate breaks (each check removed, the passive ignoring transitivity, a gate
+  ignored, the citation reversed, lafīf declared built, …) each fail at least two tests.
+
+**Decisions to veto** (also in the plan's follow-ups): `citation` is `String?`; `waznOf` takes
+`(form, shape, slot, bab)`; `waznRoot` carries an empty `gloss`; `hasEngine` stays internal; `ContentGate` is a
+struct with one field per gate, not a set of groups.

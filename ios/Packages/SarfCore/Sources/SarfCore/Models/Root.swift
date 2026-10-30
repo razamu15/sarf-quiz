@@ -73,6 +73,14 @@ public struct Root: Hashable, Sendable, Decodable {
         forms[form]?.bab
     }
 
+    /// For roots built in code (the reference root, test roots). Roots from the
+    /// lexicon come through `init(from:)`, which checks them.
+    init(radicals: Radicals, verbType: VerbType, forms: [VerbForm: RootForm]) {
+        self.radicals = radicals
+        self.verbType = verbType
+        self.forms = forms
+    }
+
     private enum CodingKeys: String, CodingKey {
         case radicals = "root"
         case verbType = "type"

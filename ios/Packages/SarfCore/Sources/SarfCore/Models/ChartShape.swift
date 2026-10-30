@@ -74,6 +74,12 @@ public struct ChartShape: Hashable, Sendable, Codable {
         ChartShape(.amr,    .malum,  nil),
     ]
 
+    /// The two charts a verb is named by: its past 3ms and present 3ms.
+    ///
+    /// Used by: ConjugationService.citation.
+    public static let madiMalum = ChartShape(.madi, .malum, nil)
+    public static let mudariMalumRaf = ChartShape(.mudari, .malum, .raf)
+
     private enum CodingKeys: String, CodingKey { case tense, voice, mood }
 
     public init(from decoder: Decoder) throws {
