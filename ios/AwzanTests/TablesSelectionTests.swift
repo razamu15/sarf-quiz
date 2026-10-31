@@ -241,6 +241,18 @@ struct TablesSelectionTests {
         #expect(model.majhulGap == .intransitive(pastWord: "خَرَجَ"))
     }
 
+    /// A form with no chart names itself from its citation.
+    @Test func formIXNamesItselfFromItsStems() throws {
+        try rig.show("حمر", form: .ix)
+        #expect(model.majhulGap == .intransitive(pastWord: "اِحْمَرَّ"))
+    }
+
+    /// With no citation there is no word to name.
+    @Test func aVerbWithNoCitationNamesNoWord() throws {
+        try rig.show("ضرب", form: .viii)
+        #expect(model.majhulGap == .intransitive(pastWord: nil))
+    }
+
     /// The sentence names the form on screen, not Form I.
     @Test func formVIISaysItsOwnWord() throws {
         try rig.show("كسر", form: .vii)

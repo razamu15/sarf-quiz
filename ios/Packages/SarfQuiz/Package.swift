@@ -1,7 +1,8 @@
 // swift-tools-version: 6.0
 //
 // SarfQuiz: the quiz logic and the text that goes with it. It builds on
-// SarfCore and has no UI and no app settings. Nothing is built here yet.
+// SarfCore and has no UI and no app settings. So far it holds only the names the
+// screens label things with (Glossary).
 
 import PackageDescription
 
@@ -22,7 +23,7 @@ let package = Package(
         ),
         .testTarget(
             name: "SarfQuizTests",
-            dependencies: ["SarfQuiz"],
+            dependencies: ["SarfQuiz", "SarfCore"],
             swiftSettings: [.swiftLanguageMode(.v6)]
         ),
     ]

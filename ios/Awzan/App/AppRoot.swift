@@ -5,8 +5,9 @@ import SwiftUI
 
 /// Shows the tabs once the verbs have loaded, and the reason if they did not.
 ///
-/// In a debug build, setting `AWZAN_GALLERY` shows the design-system gallery
-/// instead (see DesignSystemGallery).
+/// In a debug build, setting `AWZAN_GALLERY` shows a gallery instead:
+/// `tables` is the Tables sections in every state, anything else is the
+/// design-system gallery (see DesignSystemGallery).
 ///
 /// Used by: AwzanApp.
 struct AppRoot: View {
@@ -14,10 +15,10 @@ struct AppRoot: View {
 
     var body: some View {
         #if DEBUG
-        if ProcessInfo.processInfo.environment["AWZAN_GALLERY"] != nil {
-            DesignSystemGallery()
-        } else {
-            content
+        switch ProcessInfo.processInfo.environment["AWZAN_GALLERY"] {
+        case nil: content
+        case "tables": TablesSectionsGallery()
+        default: DesignSystemGallery()
         }
         #else
         content

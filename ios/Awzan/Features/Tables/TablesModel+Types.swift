@@ -78,7 +78,8 @@ extension TablesModel {
     /// Used by: the voice row, to switch majhūl off and say why.
     enum MajhulGap: Equatable {
         /// The verb takes no object. `pastWord` is the verb the sentence names
-        /// ("خَرَجَ is intransitive"); nil when the engine can't write it.
+        /// ("خَرَجَ is intransitive"), the first word of its citation; nil when the
+        /// engine has no citation.
         case intransitive(pastWord: String?)
     }
 

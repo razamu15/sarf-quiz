@@ -25,9 +25,8 @@ extension TablesModel {
 
     private func matches(_ root: Root, _ wanted: String) -> Bool {
         if wanted.isEmpty { return true }
-        let spaced = root.key.map(String.init).joined(separator: " ")
         return root.key.contains(wanted)
-            || spaced.contains(wanted)
+            || root.spacedLetters.contains(wanted)
             || root.forms.values.contains { $0.gloss.lowercased().contains(wanted) }
     }
 

@@ -254,3 +254,83 @@ cd ios && xcodebuild test -project Awzan.xcodeproj -scheme Awzan -destination 'p
   beside the meaning. It is a fact about the verb, not a guessed word.
 - **The sentences:** "…is intransitive — it has no majhūl." and "The amr has neither voice nor iʿrāb." (both in the
   spec), and "This verb has no chart for that selection." for `.missing`.
+
+---
+
+## 1.4 · The Tables sections
+
+**What it is.** Five views, each drawing one part of the Tables screen from the `TablesModel`, and the first real code
+in `SarfQuiz`: the names the screen labels things with (`māḍī مَاضٍ`, `Hollow`). Nothing is on the Tables tab yet; 1.5
+puts the sections together. Until then they are seen in each file's previews and on a debug page
+(`AWZAN_GALLERY=tables`) that shows ten states one under the other.
+
+```
+ TablesModel ─▶ WordBarSection       the bar: the search field, or the chosen verb           WordBar
+             ─▶ VerbResultsSection   a row per match under the field, or "Nothing matches"
+             ─▶ FormChipsSection     "Form" and a chip per form: numeral + pattern           Chip, FlowLayout
+             ─▶ ChartPickersSection  Tense · Voice · Iʿrāb, and the reason majhūl is off     SegmentedRow, SegmentHint
+             ─▶ ChartLineSection     "Form I · māḍī · maʿrūf    14 ṣiyagh" + View the table  MidadButton
+
+ SarfQuiz/Glossary:   Term(english, arabic)      Tense · Voice · Mood · VerbTypeGroup  →  .term
+ Tables wording:      ChartLine.title / countText · SearchResult.title / subtitle · MajhulGap.sentence
+                      TablesCopy (the fixed sentences) · TablesSegments (the three pickers' options)
+```
+
+| file | owns |
+|---|---|
+| `SarfQuiz/Glossary/Term.swift`, `Terms.swift` | `Term`, and `.term` on `Tense`, `Voice`, `Mood`, `VerbTypeGroup` |
+| `DesignSystem/Components/SectionLabel.swift` | the muted "Form" / "Tense" label above a group |
+| `Features/Tables/TablesWording.swift` | every sentence a section writes, as functions of the model's values |
+| `Features/Tables/TablesSegments.swift` | what the tense, voice and iʿrāb rows offer, and what is switched off |
+| `Features/Tables/*Section.swift` (five) | one section each, a preview at the foot of each |
+| `Features/Tables/TablesPreviewSupport.swift` | debug only: `TablesModel.preview(...)` and the ten-state page |
+
+**What to look for in the diff.**
+
+- **The sections hold no rules.** Each reads the model in its `body` and calls one of its methods. What they say lives in
+  `TablesWording`, and what each picker offers in `TablesSegments`, both pure and tested without drawing anything. The one
+  bit of logic a section does hold, the bar's mapping from the model to `WordBarState` and back, is a static function so
+  it is tested too.
+- **The design's choices are in the data.** The tense row carries the Arabic and the voice and iʿrāb rows do not (the
+  design shows them that way); majhūl is switched off with the sentence as its reason; the command replaces the voice
+  and iʿrāb rows with one line; iʿrāb appears only for the present; Form IX is a chip you can select, not a dashed
+  disabled one, and selecting it gives the "no chart" sentence.
+- **Absence is shown as itself.** The two verbs with no Form VIII citation show their letters in the bar (`ض ر ب`), not a
+  made-up word. A form with no chart still names itself in the passive reason from its stems (`اِحْمَرَّ is intransitive`).
+- **The names are data in `SarfQuiz`**, `Tense.madi.term` and so on, written as exhaustive `switch`es so a new case
+  will not build until it is named. `Term` keeps the Arabic for voice and iʿrāb even though Tables does not show it
+  (voice reads `مَعْرُوف`, as the spec's Q-14 assumption says).
+- **Looked at, not tapped.** Paper and Night, all ten states, on the simulator (screenshots, scrolled by swipes). Taps on
+  the chips, rows and segments were not driven, because nothing mounts the sections on a screen until 1.5; what they call
+  is covered by the model's tests.
+- **Mutation-checked:** 23 deliberate breaks, each failing at least one test. In the wording: the line dropping its
+  voice or mood, a fixed row count, "1 forms", a blank title with no citation, straight quotes, the reason cut short
+  or blank with no verb, the letters not spaced, the command sentence changed. In the options: majhūl never off, maʿrūf
+  off instead, Arabic on the voice row, none on the tense row. In the bar: always searching, always able to go back,
+  no quotes, a blank with no citation. In the model: the passive reason ignoring the citation. In the names: a misspelt
+  past tense, maʿrūf read as maʿlūm, defective called hollow, a mood mis-transliterated. The five section views
+  themselves (chips, rows, pickers, the line) are not covered by tests; they are checked by eye above.
+- **Run them:**
+
+```bash
+cd ios/Packages/SarfQuiz && swift test
+cd ios && xcodebuild test -project Awzan.xcodeproj -scheme Awzan -destination 'platform=iOS Simulator,name=iPhone 17 Pro'
+```
+
+**Decisions to veto** (also in the plan's follow-ups):
+
+- **The names moved forward from 4.1 into here**, because the Tables labels need them and 4.1 sits far later. Only what 1.4
+  uses is in: tense, voice, mood, verb-type group. The 14 pronouns wait for 1.5, which draws the table.
+- **`tense.term` and not `Glossary.term(for: tense)`.** A property reads at the call site as the thing it is; the cost
+  is that a name lives in a different module from its type (the type is in `SarfCore`, the word in `SarfQuiz`).
+- **`Term.english` is the Latin-letter half** (`māḍī`), because that is what the chip and segment components already call
+  it. It is a transliteration, not an English word.
+- **The sentences are in `TablesCopy`**, not the glossary: each is used once and says nothing about grammar.
+- **A form with no chart shows two lines** under the pickers when it is also intransitive (Form IX: the reason majhūl is off,
+  then "This verb has no chart for that selection."). Both are true; the spec asks for both.
+- **The debug page replaces the design-system gallery's switch** (`AWZAN_GALLERY=tables`; any other value is still the
+  design-system gallery). 1.5 makes it unnecessary and it can go then.
+
+**What 1.5 has to do:** the 14 pronouns (`he هُوَ`) as terms, the table itself (`ParadigmList` from the model's rows), the
+tab's layout and scrolling ("View the table" scrolls the table into view), and the tap-driven check this chunk could not
+make.

@@ -42,17 +42,20 @@ extension TablesModel {
     /// Used by: the voice row.
     var majhulGap: MajhulGap? {
         guard let verb = chosen, !conjugation.hasPassive(verb.root, form: verb.form) else { return nil }
-        let past = ConjugationSpec(root: verb.root, form: verb.form, shape: .madiMalum)
-        return .intransitive(pastWord: conjugation.conjugate(past, slot: .p3ms))
+        // The citation's first word, so a form with no chart (IX) still names itself.
+        let firstWord = name(of: verb).citation?.split(separator: " ").first
+        return .intransitive(pastWord: firstWord.map(String.init))
     }
 
-    /// What the word bar shows for the shown verb.
+    /// What the word bar calls a verb.
     ///
     /// Used by: the word bar.
-    var verbName: VerbName? {
-        guard let verb = chosen else { return nil }
-        return VerbName(citation: conjugation.citation(verb.root, form: verb.form), gloss: verb.details.gloss)
+    func name(of verb: ChosenVerb) -> VerbName {
+        VerbName(citation: conjugation.citation(verb.root, form: verb.form), gloss: verb.details.gloss)
     }
+
+    /// The name of the shown verb, or nil while searching.
+    var verbName: VerbName? { chosen.map(name(of:)) }
 
     /// One chip for every form the shown verb has, in order from I to X.
     ///
