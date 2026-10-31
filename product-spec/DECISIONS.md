@@ -25,6 +25,16 @@
 
 ---
 
+## Decided in review — 2026-10-31
+
+Your answer to Q-19, folded in.
+
+| ID | Decision | | Source |
+|---|---|:-:|---|
+| **D-81** | **The tab bar stays docked on iOS 26.** The app keeps the classic bar with the Info.plist key `UIDesignRequiresCompatibility`; it does not take the floating glass pill. This is how D-08 is kept, not a change to it. The key is Apple's temporary opt-out, so when a later SDK stops honouring it the docked bar needs another route, and that is a new question then, not this one. | 🔒 | your answer to Q-19 |
+
+---
+
 ## Decided in review — the parse card, 2026-09-21
 
 **`identify` becomes one question per word.** The five separate question kinds it used to serve are now **axes of a single

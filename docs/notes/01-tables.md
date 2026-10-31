@@ -120,7 +120,7 @@ The tabs are empty: each says its name and "Not built yet".
   mentions now say 136. The test compares with the plain rule (every root not in a held-back group), not a number.
 - **The tab bar is the classic one on purpose.** iOS 26 draws a floating pill; D-08 says never. `Info.plist` sets
   `UIDesignRequiresCompatibility`, and the bar takes the `raised` colour. Before the key, the screenshot showed the
-  pill. Apple calls the key temporary: this is **Q-19**.
+  pill. Apple calls the key temporary. You chose to keep the docked bar (**D-81**).
 - **Checked on the simulator**, Paper and Night: the saved `appearance` is applied at launch (the status bar flips with
   it) and the bar and ground take their Night values. Tapping between tabs and switching appearance while the app is
   open were **not** driven (the simulator panel was not available); the first is plain `TabView` selection and the
@@ -136,7 +136,8 @@ The tabs are empty: each says its name and "Not built yet".
   every screen would handle "no lexicon yet" to save about a tenth of a second at launch (about 0.09 s in release).
   Both services are `Sendable`, so this can change later without touching the screens' types.
 - **`UIDesignRequiresCompatibility`** keeps D-08 and costs the iOS 26 look on everything else (navigation bars, controls)
-  until Apple removes the key, which is the moment Q-19 gets decided anyway. Deleting the key is the other answer.
+  until Apple removes the key. **Decided: keep it (D-81).** When a later SDK stops honouring it, the docked bar needs
+  another route, which is a new question then.
 - **The gallery is a debug-build switch**, not a screen in More: `AWZAN_GALLERY=components` still works from the command
   line. More's debug section (D-03) is the place for it later.
 - **`selectedTab` lives on `AppModel`**, as the platform notes ask ("the selected tab lives for the app session"), so a

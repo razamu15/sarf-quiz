@@ -4,6 +4,12 @@
 > **Nothing blocks the implementation plan.** The four that did were answered or deferred on **2026-09-21** (below); what remains is small, with a default that is probably right.
 > Answer by ID — *"Q-05: yes"*, *"Q-12: B"* — and I will fold it into the spec and move it to [`DECISIONS.md`](DECISIONS.md).
 
+## Resolved — 2026-10-31
+
+| Was | Your answer | Now |
+|---|---|---|
+| **Q-19** · The iOS 26 tab bar floats | keep it docked | **D-81** — `UIDesignRequiresCompatibility` stays; D-08's wording is unchanged |
+
 ## Resolved — 2026-09-21
 
 | Was | Your answer | Now |
@@ -37,7 +43,6 @@
 | Q-16 | Streak day boundary | Home |
 | Q-17 | Carried over — not product | plan |
 | Q-18 | Success metrics vs "no analytics" | privacy label |
-| Q-19 | The iOS 26 tab bar floats | every tab |
 
 ---
 
@@ -136,6 +141,3 @@
 
 **Q-18 · Success metrics vs "no analytics".** *Found:* the old spec measured success by **activation** (% of installs completing a quiz on day 1), **retention** (D7 return; quizzes per user per week) and **quality** (average score trend per cohort); later, free→trial and trial→paid. v1 has **no analytics SDK, no accounts, and an App Privacy label of "Data not collected"** — so none of the in-app ones can be measured.
 **Assumes:** nothing is collected in-app in v1; the only numbers you see are **App Store Connect's own** (installs, retention, sessions). *Alternative:* an opt-in, aggregate, first-party counter — which changes the privacy label, so decide before it is filed.
-
-**Q-19 · The iOS 26 tab bar.** *Found:* an app built with the iOS 26 SDK gets a **floating glass pill** from `TabView`. D-08 says *never a floating pill*, and the design draws a bar docked to the bottom edge (screenshots 01, 11–13, 15, 17).
-**Assumes:** the docked bar, kept with the Info.plist key `UIDesignRequiresCompatibility`, which Apple describes as a temporary opt-out, so it will stop working in a later SDK. *If you would rather take the pill:* delete the key; D-08's wording changes, and Practice's setup bar docks above a floating bar instead of a docked one.
