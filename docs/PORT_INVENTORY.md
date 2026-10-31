@@ -190,8 +190,8 @@ all.** Two sites depend on this today:
 
 | site | what it does | breaks how |
 |---|---|---|
-| `screens/tables.js:77` | `const forms = Object.keys(root.forms); … t.formId = forms[0]` | picks a *random* form instead of Form I |
-| `screens/tables.js:129` | `Object.values(r.forms)[0]?.gloss` | search result shows a random form's gloss |
+| `screens/tables.js:77` | `const forms = Object.keys(root.forms); … t.formId = forms[0]` | picks a *random* form instead of Form I. **Fixed in `TablesModel`:** a row opens in `recordedForms.first` |
+| `screens/tables.js:129` | `Object.values(r.forms)[0]?.gloss` | search result shows a random form's gloss. **Fixed in `TablesModel`:** the gloss of the form the row opens in |
 
 Both are in the view layer, which is being rewritten anyway — but the fix is a
 *model* decision, not a view one: `Root.forms` should expose an ordered

@@ -142,3 +142,115 @@ The tabs are empty: each says its name and "Not built yet".
   line. More's debug section (D-03) is the place for it later.
 - **`selectedTab` lives on `AppModel`**, as the platform notes ask ("the selected tab lives for the app session"), so a
   Home card can send the student to Practice without the two screens knowing each other.
+
+---
+
+## 1.3 · The Tables model
+
+**What it is.** Everything the Tables screen remembers and decides, with no drawing: which verb, which form, the
+three pickers, whether the table is showing, and the list the search shows. `AppModel` holds the one `TablesModel`,
+so the choice lasts while the app is open. 1.4's sections and 1.5's screen only read it and call its methods.
+
+```
+ AppModel.tables ── TablesModel ── playableTypes: () -> [VerbType]      (a function, so a content switch is seen)
+                       │
+   stage ──────────────┤ .searching(query, returningTo: ChosenVerb?) ─▶ results      [SearchResult]
+   (one of two)        │ .reading(ChosenVerb)  root + form + details ─▶ verbName     the word bar
+                       │                                              forms         the chips, with patterns
+                       │                                              majhulGap     why majhūl is off
+   tense · voice · mood│ (remembered, even while hidden)
+        │              ▼
+        └──▶ shape (private) ──▶ ConjugationService.fullTable ──▶ chart   .missing
+   isTableOpen ──────────────────────────────────────────────────▶         .waiting(ChartLine)
+                                                                           .open(ChartLine, rows: [ChartRow])
+```
+
+The queries the screen asks, which is how the model was cut:
+
+| the screen asks | answered by |
+|---|---|
+| what does the bar show? | `stage`, `verbName` (citation, meaning) |
+| which verbs match this text? | `results` (playable only, alphabet order, each row a verb: citation, meaning, form count, type) |
+| which forms does the verb have, and what are their patterns? | `forms` |
+| which pickers show, and is anything switched off? | `showsVoice`, `showsMood`, `majhulGap` |
+| what chart is this, and can it be shown? | `chart`: `.missing` / `.waiting(line)` / `.open(line, rows)` |
+| what does the line under the pickers say? | `ChartLine`: form, tense, voice?, mood?, row count |
+
+| file (`Awzan/Features/Tables/`) | owns |
+|---|---|
+| `TablesModel.swift` | the state and every way to change it; the rule that any change puts the table away |
+| `TablesModel+Types.swift` | the values handed out: `ChosenVerb`, `Stage`, `SearchResult`, `VerbName`, `FormOption`, `MajhulGap`, `ChartLine`, `ChartRow`, `Chart` |
+| `TablesModel+Search.swift` | `results`: what matches, in what order |
+| `TablesModel+Chart.swift` | `chart`, the chart a choice names, `majhulGap`, `verbName`, `forms` |
+
+In `SarfCore`, one method: `ConjugationService.waznName(form:bab:)`, the first word of a pattern's name (`فَعَّلَ`), which
+is what a form chip calls its form. Form IX comes out the same way as the rest, from its stems.
+
+**What to look for in the diff.**
+
+- **The two states of the bar cannot both be true.** `Stage` is `.searching` or `.reading`, and only `.searching`
+  carries the text. `returningTo` is the verb the ✕ goes back to; on the first open it is `nil` and cancelling does
+  nothing, which is what the bar's missing cancel button means.
+- **"The table waits" is one flag and five ways to clear it.** Choosing a verb and changing the form, tense, voice or
+  mood each set `isTableOpen = false`, and a test breaks each one. Picking the value that is already selected is not
+  a change, and changing a choice and changing it back does not reopen the table. A search that is cancelled does
+  not clear it, because cancelling changes nothing.
+- **A hidden picker keeps its choice, and the chart ignores it.** Pick majhūl and nasb, go to the command, come back:
+  both are still there. The chart for the command is built from maʿrūf and no mood, written out in `shape` as three
+  plain conditions, so a remembered voice is never handed to the engine for a tense that has none.
+- **Moving to a verb with no passive leaves maʿrūf selected, and does not give majhūl back.** That is the fallback
+  the spec asks for; `majhulGap` is what the voice row uses to say why majhūl is off.
+- **Reasons are data, not sentences.** `MajhulGap.intransitive(pastWord:)` is the fact; the sentence
+  ("خَرَجَ is intransitive — it has no majhūl.") is 1.4's.
+- **Absence stays absent.** Two verbs have no citation in Form VIII (ضرب, دعو: the engine declines them), so
+  `VerbName.citation` and `SearchResult.citation` are `String?`. A Form I with no bāb would have no pattern, so
+  `FormOption.wazn` is `String?` too. Nothing here puts a plausible word in their place.
+- **The count comes from the words.** `rowCount` is the number of words the engine gave (14, or 6 for the command),
+  not a constant.
+- **Search follows the spec's assumption for Q-12:** playable verbs only, Arabic alphabet order by root, no cap. A
+  verb matches on its letters (with or without spaces) or on the meaning of any of its forms, never on a conjugated
+  word. Each row opens in Form I, or in the verb's first form when it has none (the five: شرك حمر صلو لبي أدي), and
+  says that form's meaning. The prototype took whichever form the object listed first.
+- **Mutation-checked:** 28 deliberate breaks (the table left open after each of the five changes, a same-value pick
+  counted as a change, the majhūl fallback missing in either place or always firing, cancel not going back, the bar
+  forgetting its verb, viewing a missing chart, a picker no longer observed, a fixed row count, the command keeping
+  its voice, a wrong rule for which pickers show, the passive gap inverted, open and waiting swapped, chips ignoring
+  the bāb, held-back verbs listed, spaced letters, case, or other forms' meanings not searched, rows opening in the
+  wrong form, a fixed form count, roots in reverse order, Tables ignoring the content switches) each fail at least one test.
+- **Run them:**
+
+```bash
+cd ios && xcodebuild test -project Awzan.xcodeproj -scheme Awzan -destination 'platform=iOS Simulator,name=iPhone 17 Pro'
+```
+
+**Decisions to veto** (also in the plan's follow-ups):
+
+- **`ChosenVerb` is Tables' own pair** (root, form, that form's details) because `RootInForm` has no public init, so the app
+  cannot make one. If Practice or the quiz want one shared pair, `RootInForm` gets a public init that returns `nil`
+  for a form the root lacks, and `ChosenVerb` goes.
+- **`playableTypes` reaches the model as a function.** The other ways were handing it the whole `AppModel` (it would
+  depend on every tab) or building the gate again inside it (two places that call `ContentGate(from:)`). The cost is
+  `AppModel`'s `init` passing a closure to a `static` function, so the one rule is still written once.
+- **Alphabet order is Unicode order.** Arabic letters sit in the Unicode block in alphabet order, so the sort is
+  `unicodeScalars.lexicographicallyPrecedes`. A test checks the result against the alphabet typed out by hand. One
+  edge, **named for later**: when mahmūz is released its roots begin with ء (U+0621) and sort before أدي (أ, U+0623),
+  where a dictionary would put both under hamza and compare the second letter.
+- **The reason is always "intransitive".** `hasPassive` is false for a verb without an object and for Form VII, but every
+  Form VII and IX in the lexicon is intransitive, and a test says so (`everyFormWithoutAPassiveInTheLexiconIsIntransitive`).
+  `MajhulGap` has one case; a verb that breaks the test is the day it needs a second.
+- **A picker does nothing while searching**, rather than stopping the app. The pickers are hidden then, so it cannot be
+  reached.
+- **`chart` asks the engine for the whole table every time it is read.** With the stand-in that is a lookup; when the
+  real engines land it is 14 conjugations per read, and 1.5 is where to measure.
+- **A shown verb stays shown if a content switch holds its type back** (a `FUTURE FIX` comment in `TablesModel`).
+  The switches are developer levers, so it is only reachable by flipping one with Tables open on a held-back verb.
+
+**What 1.4 has to decide** (this chunk leaves them open on purpose):
+
+- **The labels.** The model hands out `Tense`, `Voice`, `Mood`, `PronounSlot` and `VerbTypeGroup`; the words for them
+  (`māḍī مَاضٍ`, `he هُوَ`, `Hollow`) live in the glossary, which the plan puts in `SarfQuiz` at 4.1. 1.4 needs a few
+  of them first, so **the small part Tables reads moves forward into 1.4** and 4.1 adds the rest.
+- **What the bar shows with no citation.** Form VIII of ضرب and دعو. Proposal: the root letters spaced, `ض ر ب`,
+  beside the meaning. It is a fact about the verb, not a guessed word.
+- **The sentences:** "…is intransitive — it has no majhūl." and "The amr has neither voice nor iʿrāb." (both in the
+  spec), and "This verb has no chart for that selection." for `.missing`.

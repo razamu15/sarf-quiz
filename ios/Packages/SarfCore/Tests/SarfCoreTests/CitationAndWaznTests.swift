@@ -128,3 +128,35 @@ struct WaznTests {
         #expect(rig.service.waznCitation(form: .ix, bab: nil) == "فَعَلَّ يَفْعَلُّ")
     }
 }
+
+@Suite("Pattern names")
+struct WaznNameTests {
+    @Test func isTheFirstWordOfTheCitation() throws {
+        let rig = try Rig(recognition: [.salim: "فَعَلَّ يَفْعَلُّ"])
+        #expect(rig.service.waznName(form: .ii, bab: nil) == "salim:II:madi:malum:3ms")
+        #expect(rig.service.waznName(form: .ix, bab: nil) == "فَعَلَّ")
+    }
+
+    /// Checked against the bundled corpus, which holds the real patterns.
+    @Test func areTheRealPatterns() throws {
+        let service = try ConjugationService.load()
+        #expect(service.waznName(form: .ii, bab: nil) == "فَعَّلَ")
+        #expect(service.waznName(form: .x, bab: nil) == "اِسْتَفْعَلَ")
+        #expect(service.waznName(form: .ix, bab: nil) == "اِفْعَلَّ")
+    }
+
+    /// Form I's name carries the bāb's vowel on the middle letter.
+    @Test func formIFollowsTheBab() throws {
+        let service = try ConjugationService.load()
+        let expected: [Bab: String] = [
+            .au: "فَعَلَ", .ai: "فَعَلَ", .aa: "فَعَلَ", .ia: "فَعِلَ", .ii: "فَعِلَ", .uu: "فَعُلَ",
+        ]
+        for bab in Bab.allCases {
+            #expect(service.waznName(form: .i, bab: bab) == expected[bab], "\(bab)")
+        }
+    }
+
+    @Test func formIWithNoBabHasNoName() throws {
+        #expect(try ConjugationService.load().waznName(form: .i, bab: nil) == nil)
+    }
+}

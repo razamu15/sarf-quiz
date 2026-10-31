@@ -115,4 +115,24 @@ final class AppModelTests {
         model.settings[.mahmuzVerbs] = true
         #expect(changed.withLock { $0 })
     }
+
+    // MARK: Tables
+
+    /// The Tables search lists what the app says is playable, and follows a switch.
+    @Test func theTablesSearchFollowsTheContentSwitches() throws {
+        let model = try loadModel()
+        let held: Set<VerbTypeGroup> = [.mahmuz, .lafif]
+        #expect(model.tables.results.count == model.lexicon.roots.filter { !held.contains($0.verbType.group) }.count)
+        model.settings[.mahmuzVerbs] = true
+        #expect(model.tables.results.count == 151)
+    }
+
+    @Test func theTablesChoiceLastsWhileTheAppIsOpen() throws {
+        let model = try loadModel()
+        let row = try #require(model.tables.results.first { $0.root.key == "نصر" })
+        model.tables.choose(row)
+        model.selectedTab = .home
+        model.selectedTab = .tables
+        #expect(model.tables.chosen?.root.key == "نصر")
+    }
 }

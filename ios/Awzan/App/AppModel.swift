@@ -1,4 +1,5 @@
-// What the whole app shares: the verbs, the settings, and the selected tab.
+// What the whole app shares: the verbs, the settings, the selected tab, and each
+// tab's own state.
 
 import Observation
 import SarfCore
@@ -16,6 +17,9 @@ final class AppModel {
     let lexicon: LexiconService
     let conjugation: ConjugationService
 
+    /// The Tables tab's choices. They last as long as the app is open.
+    let tables: TablesModel
+
     /// The tab on screen. It lasts as long as the app is open.
     var selectedTab: AppTab = .home
 
@@ -23,6 +27,9 @@ final class AppModel {
         self.settings = settings
         self.lexicon = lexicon
         self.conjugation = conjugation
+        tables = TablesModel(lexicon: lexicon, conjugation: conjugation) {
+            Self.playableTypes(settings: settings, lexicon: lexicon, conjugation: conjugation)
+        }
     }
 
     /// Loads the lexicon, then the conjugation service, from what is bundled.
@@ -43,6 +50,15 @@ final class AppModel {
     ///
     /// Used by: Tables' search, Practice's setup, Home's drills.
     var playableTypes: [VerbType] {
+        Self.playableTypes(settings: settings, lexicon: lexicon, conjugation: conjugation)
+    }
+
+    /// The one place the settings, the lexicon and the engines are put together.
+    /// A static function so `init` can hand it to the screens' models before
+    /// `self` exists.
+    private static func playableTypes(
+        settings: Settings, lexicon: LexiconService, conjugation: ConjugationService
+    ) -> [VerbType] {
         lexicon.availableTypes(gate: ContentGate(from: settings), conjugation: conjugation)
     }
 }

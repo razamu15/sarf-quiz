@@ -49,4 +49,16 @@ extension ConjugationService {
     public func waznCitation(form: VerbForm, bab: Bab?) -> String? {
         citation(Self.waznRoot(form: form, bab: bab), form: form)
     }
+
+    /// The first word of a pattern's name, which is how a form chip names it.
+    ///
+    ///     Form II   →   "فَعَّلَ"
+    ///     Form IX   →   "اِفْعَلَّ"
+    ///
+    /// Nil for Form I without a bāb.
+    ///
+    /// Used by: the Tables form chips.
+    public func waznName(form: VerbForm, bab: Bab?) -> String? {
+        waznCitation(form: form, bab: bab)?.split(separator: " ").first.map(String.init)
+    }
 }
